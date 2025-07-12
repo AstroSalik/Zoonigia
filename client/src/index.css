@@ -1,0 +1,206 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --background: hsl(222, 84%, 5%);
+  --foreground: hsl(210, 40%, 98%);
+  --muted: hsl(217, 32%, 17%);
+  --muted-foreground: hsl(215, 20%, 65%);
+  --popover: hsl(222, 84%, 5%);
+  --popover-foreground: hsl(210, 40%, 98%);
+  --card: hsl(222, 84%, 5%);
+  --card-foreground: hsl(210, 40%, 98%);
+  --border: hsl(217, 32%, 17%);
+  --input: hsl(217, 32%, 17%);
+  --primary: hsl(217, 91%, 60%);
+  --primary-foreground: hsl(222, 47%, 11%);
+  --secondary: hsl(217, 32%, 17%);
+  --secondary-foreground: hsl(210, 40%, 98%);
+  --accent: hsl(217, 32%, 17%);
+  --accent-foreground: hsl(210, 40%, 98%);
+  --destructive: hsl(0, 62%, 30%);
+  --destructive-foreground: hsl(210, 40%, 98%);
+  --ring: hsl(217, 91%, 60%);
+  --radius: 0.5rem;
+  
+  /* Space theme colors */
+  --space-50: hsl(210, 40%, 98%);
+  --space-100: hsl(210, 40%, 96%);
+  --space-200: hsl(214, 32%, 91%);
+  --space-300: hsl(213, 27%, 84%);
+  --space-400: hsl(215, 20%, 65%);
+  --space-500: hsl(215, 16%, 47%);
+  --space-600: hsl(215, 19%, 35%);
+  --space-700: hsl(215, 25%, 27%);
+  --space-800: hsl(217, 33%, 17%);
+  --space-900: hsl(222, 84%, 5%);
+  
+  /* Cosmic colors */
+  --cosmic-blue: hsl(217, 91%, 60%);
+  --cosmic-purple: hsl(271, 81%, 56%);
+  --cosmic-green: hsl(158, 64%, 52%);
+  --cosmic-orange: hsl(43, 96%, 56%);
+}
+
+.dark {
+  --background: hsl(222, 84%, 5%);
+  --foreground: hsl(210, 40%, 98%);
+  --muted: hsl(217, 32%, 17%);
+  --muted-foreground: hsl(215, 20%, 65%);
+  --popover: hsl(222, 84%, 5%);
+  --popover-foreground: hsl(210, 40%, 98%);
+  --card: hsl(222, 84%, 5%);
+  --card-foreground: hsl(210, 40%, 98%);
+  --border: hsl(217, 32%, 17%);
+  --input: hsl(217, 32%, 17%);
+  --primary: hsl(217, 91%, 60%);
+  --primary-foreground: hsl(222, 47%, 11%);
+  --secondary: hsl(217, 32%, 17%);
+  --secondary-foreground: hsl(210, 40%, 98%);
+  --accent: hsl(217, 32%, 17%);
+  --accent-foreground: hsl(210, 40%, 98%);
+  --destructive: hsl(0, 62%, 30%);
+  --destructive-foreground: hsl(210, 40%, 98%);
+  --ring: hsl(217, 91%, 60%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply antialiased bg-background text-foreground;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .font-space {
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+@layer utilities {
+  .glass-morphism {
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+  }
+
+  .cosmic-gradient {
+    background: linear-gradient(135deg, var(--cosmic-blue) 0%, var(--cosmic-purple) 100%);
+  }
+
+  .star-field {
+    background-image: 
+      radial-gradient(2px 2px at 20px 30px, #eee, transparent),
+      radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+      radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+      radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.6), transparent);
+    background-repeat: repeat;
+    background-size: 200px 100px;
+  }
+
+  .space-50 { color: var(--space-50); }
+  .space-100 { color: var(--space-100); }
+  .space-200 { color: var(--space-200); }
+  .space-300 { color: var(--space-300); }
+  .space-400 { color: var(--space-400); }
+  .space-500 { color: var(--space-500); }
+  .space-600 { color: var(--space-600); }
+  .space-700 { color: var(--space-700); }
+  .space-800 { color: var(--space-800); }
+  .space-900 { color: var(--space-900); }
+
+  .bg-space-50 { background-color: var(--space-50); }
+  .bg-space-100 { background-color: var(--space-100); }
+  .bg-space-200 { background-color: var(--space-200); }
+  .bg-space-300 { background-color: var(--space-300); }
+  .bg-space-400 { background-color: var(--space-400); }
+  .bg-space-500 { background-color: var(--space-500); }
+  .bg-space-600 { background-color: var(--space-600); }
+  .bg-space-700 { background-color: var(--space-700); }
+  .bg-space-800 { background-color: var(--space-800); }
+  .bg-space-900 { background-color: var(--space-900); }
+
+  .text-cosmic-blue { color: var(--cosmic-blue); }
+  .text-cosmic-purple { color: var(--cosmic-purple); }
+  .text-cosmic-green { color: var(--cosmic-green); }
+  .text-cosmic-orange { color: var(--cosmic-orange); }
+
+  .bg-cosmic-blue { background-color: var(--cosmic-blue); }
+  .bg-cosmic-purple { background-color: var(--cosmic-purple); }
+  .bg-cosmic-green { background-color: var(--cosmic-green); }
+  .bg-cosmic-orange { background-color: var(--cosmic-orange); }
+
+  .border-cosmic-blue { border-color: var(--cosmic-blue); }
+  .border-cosmic-purple { border-color: var(--cosmic-purple); }
+  .border-cosmic-green { border-color: var(--cosmic-green); }
+  .border-cosmic-orange { border-color: var(--cosmic-orange); }
+
+  .hover\:bg-cosmic-blue:hover { background-color: var(--cosmic-blue); }
+  .hover\:bg-cosmic-purple:hover { background-color: var(--cosmic-purple); }
+  .hover\:bg-cosmic-green:hover { background-color: var(--cosmic-green); }
+  .hover\:bg-cosmic-orange:hover { background-color: var(--cosmic-orange); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes glow {
+  from { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
+  to { box-shadow: 0 0 30px rgba(59, 130, 246, 0.8); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(50px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes spinReverse {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.6s ease-out;
+}
+
+.animate-spin-slow {
+  animation: spinSlow 8s linear infinite;
+}
+
+.animate-spin-reverse {
+  animation: spinReverse 12s linear infinite;
+}
