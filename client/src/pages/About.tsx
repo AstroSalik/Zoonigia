@@ -151,19 +151,7 @@ const About = () => {
         </div>
       </section>
 
-      {/* Founder's Quote */}
-      <section className="py-20 bg-space-800/30">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <blockquote className="text-2xl md:text-3xl font-space italic text-cosmic-blue mb-6">
-              "Astronomy is what leads a lost spirit beyond the horizons to the road of being acquainted with thyself."
-            </blockquote>
-            <p className="text-lg text-space-300">
-              — Salik Riyaz, Founder
-            </p>
-          </div>
-        </div>
-      </section>
+
 
       {/* CTA Section */}
       <section className="py-20">

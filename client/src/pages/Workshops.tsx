@@ -213,10 +213,10 @@ const Workshops = () => {
                 Experience hands-on learning through our comprehensive workshops featuring telescope sessions, VR experiences, expert speaker sessions, universe simulation, design thinking, and space mission planning
               </p>
             </div>
-            <div className="flex justify-center items-center gap-4 text-space-300">
+            <div className="flex justify-center items-center gap-4 text-space-300 mb-8">
               <div className="flex items-center gap-2">
                 <Users className="w-5 h-5" />
-                <span>Small Groups</span>
+                <span>Interactive Learning</span>
               </div>
               <div className="w-1 h-1 bg-space-400 rounded-full"></div>
               <div className="flex items-center gap-2">
@@ -229,68 +229,84 @@ const Workshops = () => {
                 <span>Expert Guidance</span>
               </div>
             </div>
+            
+            <div className="bg-space-800/30 p-6 rounded-lg mb-8 max-w-2xl mx-auto">
+              <h3 className="text-lg font-semibold text-cosmic-blue mb-2">Eligibility</h3>
+              <p className="text-space-300">
+                Workshops are typically designed for students from Class 5 onwards. Schools can request workshops for lower classes based on specific requirements and content adaptation.
+              </p>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+              <Button 
+                onClick={() => setIsDialogOpen(true)}
+                className="bg-cosmic-blue hover:bg-cosmic-blue/80 text-space-50 px-8 py-3 text-lg"
+              >
+                Register for Workshop
+              </Button>
+              <Button 
+                variant="outline" 
+                className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900 px-8 py-3 text-lg"
+              >
+                Contact for Details
+              </Button>
+            </div>
           </div>
 
           {/* Workshop Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
             {workshopOfferings.map((workshop) => (
               <Card key={workshop.id} className="bg-space-800/50 border-space-700 hover:scale-105 transition-all duration-300 group">
                 <div className="relative overflow-hidden">
                   <img 
                     src={workshop.image} 
                     alt={workshop.title}
-                    className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-300"
+                    className="w-full h-32 object-cover group-hover:scale-110 transition-transform duration-300"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-space-900/80 via-transparent to-transparent"></div>
-                  <div className="absolute top-4 right-4">
-                    <div className={`bg-${workshop.color} p-2 rounded-full`}>
-                      {workshop.icon}
+                  <div className="absolute top-3 right-3">
+                    <div className={`bg-${workshop.color} p-1.5 rounded-full`}>
+                      <div className="w-5 h-5 text-white flex items-center justify-center">
+                        {workshop.icon}
+                      </div>
                     </div>
                   </div>
-                  <div className="absolute bottom-4 left-4">
-                    <Badge variant="secondary" className="bg-space-700/80">
+                  <div className="absolute bottom-3 left-3">
+                    <Badge variant="secondary" className="bg-space-700/80 text-xs">
                       {workshop.difficulty}
                     </Badge>
                   </div>
                 </div>
                 
-                <CardHeader>
-                  <CardTitle className="text-xl text-space-50">{workshop.title}</CardTitle>
-                  <p className="text-space-300">{workshop.description}</p>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg text-space-50">{workshop.title}</CardTitle>
+                  <p className="text-space-300 text-sm">{workshop.description}</p>
                 </CardHeader>
                 
                 <CardContent>
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-3 text-xs">
                       <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-cosmic-blue" />
+                        <Clock className="w-3 h-3 text-cosmic-blue" />
                         <span>{workshop.duration}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Users className="w-4 h-4 text-cosmic-green" />
+                        <Users className="w-3 h-3 text-cosmic-green" />
                         <span>{workshop.groupSize}</span>
                       </div>
                     </div>
                     
                     <div className="space-y-2">
-                      <h4 className="font-semibold text-space-200">What You'll Learn:</h4>
+                      <h4 className="font-semibold text-space-200 text-sm">Key Features:</h4>
                       <ul className="space-y-1">
                         {workshop.features.slice(0, 3).map((feature, index) => (
-                          <li key={index} className="flex items-center gap-2 text-sm text-space-300">
-                            <Check className="w-3 h-3 text-cosmic-green" />
+                          <li key={index} className="flex items-center gap-2 text-xs text-space-300">
+                            <Check className="w-2.5 h-2.5 text-cosmic-green" />
                             {feature}
                           </li>
                         ))}
                       </ul>
                     </div>
-                    
-                    <Button 
-                      onClick={() => handleRegister(workshop.id)}
-                      className="w-full bg-cosmic-blue hover:bg-cosmic-blue/80 text-space-50"
-                    >
-                      Register for Workshop
-                      <ChevronRight className="w-4 h-4 ml-2" />
-                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -299,21 +315,21 @@ const Workshops = () => {
 
           {/* Call to Action */}
           <GlassMorphism className="p-8 text-center">
-            <h2 className="text-3xl font-space font-bold mb-4">
+            <h2 className="text-2xl font-space font-bold mb-4">
               Ready to Explore the <span className="text-cosmic-blue">Universe</span>?
             </h2>
-            <p className="text-xl text-space-200 mb-6 max-w-2xl mx-auto">
+            <p className="text-lg text-space-200 mb-6 max-w-2xl mx-auto">
               Join our immersive workshops and embark on a journey through space science education
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
                 onClick={() => setIsDialogOpen(true)}
-                className="bg-cosmic-blue hover:bg-cosmic-blue/80 text-space-50"
+                className="bg-cosmic-blue hover:bg-cosmic-blue/80 text-space-50 px-8 py-3"
               >
-                Register Now
+                Register for Workshop
               </Button>
-              <Button variant="outline" className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900">
-                Learn More
+              <Button variant="outline" className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900 px-8 py-3">
+                Contact for Details
               </Button>
             </div>
           </GlassMorphism>
