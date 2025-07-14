@@ -24,6 +24,19 @@ import { Campaign } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useState } from "react";
 
+const getCampaignIcon = (type: string) => {
+  switch (type) {
+    case "asteroid_search":
+      return <Telescope className="w-8 h-8" />;
+    case "poetry":
+      return <PenTool className="w-8 h-8" />;
+    case "research":
+      return <Microscope className="w-8 h-8" />;
+    default:
+      return <Telescope className="w-8 h-8" />;
+  }
+};
+
 const Campaigns = () => {
   const { data: campaigns, isLoading } = useQuery<Campaign[]>({
     queryKey: ["/api/campaigns"],

@@ -2,11 +2,15 @@ import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Rocket, Menu, X } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Rocket, Menu, X, LogOut, User } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 const Navigation = () => {
   const [location] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
+  const { user, isAuthenticated, isLoading } = useAuth();
 
   const navItems = [
     { href: "/", label: "Home" },
@@ -55,14 +59,48 @@ const Navigation = () => {
           
           {/* Desktop Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <Button variant="outline" className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900">
-              Sign In
-            </Button>
-            <Link href="/register">
-              <Button className="cosmic-gradient hover:opacity-90">
-                Register
-              </Button>
-            </Link>
+            {isAuthenticated ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={user?.profileImageUrl} alt={user?.firstName || "User"} />
+                      <AvatarFallback className="bg-cosmic-blue text-space-900">
+                        {user?.firstName?.[0] || user?.email?.[0]?.toUpperCase() || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56 bg-space-800 border-space-700" align="end" forceMount>
+                  <DropdownMenuItem className="text-space-200 hover:text-space-50 hover:bg-space-700">
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Profile</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className="text-space-200 hover:text-space-50 hover:bg-space-700"
+                    onClick={() => window.location.href = '/api/logout'}
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <>
+                <Button 
+                  variant="outline" 
+                  className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900"
+                  onClick={() => window.location.href = '/api/login'}
+                >
+                  Sign In
+                </Button>
+                <Link href="/register">
+                  <Button className="cosmic-gradient hover:opacity-90">
+                    Register
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu */}
@@ -95,14 +133,49 @@ const Navigation = () => {
                 ))}
                 
                 <div className="flex flex-col space-y-4 mt-8">
-                  <Button variant="outline" className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900">
-                    Sign In
-                  </Button>
-                  <Link href="/register" onClick={() => setIsOpen(false)}>
-                    <Button className="cosmic-gradient hover:opacity-90">
-                      Register
-                    </Button>
-                  </Link>
+                  {isAuthenticated ? (
+                    <>
+                      <div className="flex items-center space-x-3 p-3 bg-space-800 rounded-lg">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={user?.profileImageUrl} alt={user?.firstName || "User"} />
+                          <AvatarFallback className="bg-cosmic-blue text-space-900">
+                            {user?.firstName?.[0] || user?.email?.[0]?.toUpperCase() || "U"}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <div className="text-space-50 font-medium">
+                            {user?.firstName && user?.lastName 
+                              ? `${user.firstName} ${user.lastName}` 
+                              : user?.email}
+                          </div>
+                          <div className="text-space-400 text-sm">{user?.email}</div>
+                        </div>
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900"
+                        onClick={() => window.location.href = '/api/logout'}
+                      >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Log out
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button 
+                        variant="outline" 
+                        className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900"
+                        onClick={() => window.location.href = '/api/login'}
+                      >
+                        Sign In
+                      </Button>
+                      <Link href="/register" onClick={() => setIsOpen(false)}>
+                        <Button className="cosmic-gradient hover:opacity-90">
+                          Register
+                        </Button>
+                      </Link>
+                    </>
+                  )}
                 </div>
               </div>
             </SheetContent>
