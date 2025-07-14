@@ -30,6 +30,7 @@ import { useState, useEffect } from "react";
 if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
   throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
 }
+console.log('Stripe public key found:', import.meta.env.VITE_STRIPE_PUBLIC_KEY?.substring(0, 20) + '...');
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
 // Payment Form Component
@@ -185,6 +186,7 @@ const Campaigns = () => {
       return await apiRequest("POST", "/api/campaigns/create-payment-intent", data);
     },
     onSuccess: (data) => {
+      console.log('Payment intent created successfully:', data);
       setClientSecret(data.clientSecret);
       setShowPayment(true);
     },
@@ -250,6 +252,7 @@ const Campaigns = () => {
   const handleSubmitEnrollment = async () => {
     if (!selectedCampaign) return;
     
+    console.log('Creating payment intent for campaign:', selectedCampaign.id, 'Amount:', selectedCampaign.price);
     // Create payment intent first
     createPaymentMutation.mutate({
       campaignId: selectedCampaign.id,
@@ -626,16 +629,23 @@ const Campaigns = () => {
             </div>
           ) : (
             // Payment Form
-            clientSecret && selectedCampaign && (
-              <Elements stripe={stripePromise} options={{ clientSecret }}>
-                <PaymentForm
-                  selectedCampaign={selectedCampaign}
-                  registrationData={registrationData}
-                  onSuccess={handlePaymentSuccess}
-                  onCancel={handlePaymentCancel}
-                />
-              </Elements>
-            )
+            <div className="space-y-4">
+              {!clientSecret ? (
+                <div className="flex items-center justify-center p-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cosmic-blue"></div>
+                  <span className="ml-2 text-space-300">Setting up payment...</span>
+                </div>
+              ) : (
+                <Elements stripe={stripePromise} options={{ clientSecret }}>
+                  <PaymentForm
+                    selectedCampaign={selectedCampaign}
+                    registrationData={registrationData}
+                    onSuccess={handlePaymentSuccess}
+                    onCancel={handlePaymentCancel}
+                  />
+                </Elements>
+              )}
+            </div>
           )}
         </DialogContent>
       </Dialog>
