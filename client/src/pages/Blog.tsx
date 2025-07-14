@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
+import { useLocation } from "wouter";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import GlassMorphism from "@/components/GlassMorphism";
@@ -25,6 +26,7 @@ import { BlogPost, Achievement } from "@shared/schema";
 const Blog = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [, setLocation] = useLocation();
 
   const { data: blogPosts, isLoading: blogLoading } = useQuery<BlogPost[]>({
     queryKey: ["/api/blog-posts"],
@@ -121,11 +123,11 @@ const Blog = () => {
                     <Card key={post.id} className="bg-space-800/50 border-space-700 hover:scale-105 transition-transform">
                       <CardHeader>
                         <div className="flex items-center mb-4">
-                          <img 
-                            src={post.authorImageUrl || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=100&h=100"} 
-                            alt={post.authorName}
-                            className="w-12 h-12 rounded-full object-cover mr-4"
-                          />
+                          <div className="w-12 h-12 rounded-full bg-cosmic-blue/20 flex items-center justify-center mr-4">
+                            <span className="text-cosmic-blue font-bold text-lg">
+                              {post.authorName.split(' ').map(name => name[0]).join('').toUpperCase()}
+                            </span>
+                          </div>
                           <div>
                             <h4 className="font-semibold">{post.authorName}</h4>
                             <p className="text-sm text-space-400">{post.authorTitle || "Contributor"}</p>
@@ -144,7 +146,11 @@ const Blog = () => {
                             <Calendar className="w-4 h-4 mr-2" />
                             {new Date(post.publishedAt!).toLocaleDateString()}
                           </div>
-                          <Button variant="ghost" className="text-cosmic-blue hover:text-blue-400 p-0">
+                          <Button 
+                            variant="ghost" 
+                            className="text-cosmic-blue hover:text-blue-400 p-0"
+                            onClick={() => setLocation(`/blog/${post.id}`)}
+                          >
                             Read More <ArrowRight className="w-4 h-4 ml-1" />
                           </Button>
                         </div>
@@ -157,11 +163,9 @@ const Blog = () => {
                     <Card className="bg-space-800/50 border-space-700">
                       <CardHeader>
                         <div className="flex items-center mb-4">
-                          <img 
-                            src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=100&h=100" 
-                            alt="Dr. Sarah Chen"
-                            className="w-12 h-12 rounded-full object-cover mr-4"
-                          />
+                          <div className="w-12 h-12 rounded-full bg-cosmic-purple/20 flex items-center justify-center mr-4">
+                            <span className="text-cosmic-purple font-bold text-lg">SC</span>
+                          </div>
                           <div>
                             <h4 className="font-semibold">Dr. Sarah Chen</h4>
                             <p className="text-sm text-space-400">Astrophysicist</p>
@@ -190,11 +194,9 @@ const Blog = () => {
                     <Card className="bg-space-800/50 border-space-700">
                       <CardHeader>
                         <div className="flex items-center mb-4">
-                          <img 
-                            src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=100&h=100" 
-                            alt="Rahul Sharma"
-                            className="w-12 h-12 rounded-full object-cover mr-4"
-                          />
+                          <div className="w-12 h-12 rounded-full bg-cosmic-green/20 flex items-center justify-center mr-4">
+                            <span className="text-cosmic-green font-bold text-lg">RS</span>
+                          </div>
                           <div>
                             <h4 className="font-semibold">Rahul Sharma</h4>
                             <p className="text-sm text-space-400">Student, Grade 12</p>
@@ -223,11 +225,9 @@ const Blog = () => {
                     <Card className="bg-space-800/50 border-space-700">
                       <CardHeader>
                         <div className="flex items-center mb-4">
-                          <img 
-                            src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=100&h=100" 
-                            alt="Prof. Maria Rodriguez"
-                            className="w-12 h-12 rounded-full object-cover mr-4"
-                          />
+                          <div className="w-12 h-12 rounded-full bg-cosmic-orange/20 flex items-center justify-center mr-4">
+                            <span className="text-cosmic-orange font-bold text-lg">MR</span>
+                          </div>
                           <div>
                             <h4 className="font-semibold">Prof. Maria Rodriguez</h4>
                             <p className="text-sm text-space-400">NASA Scientist</p>
@@ -266,11 +266,11 @@ const Blog = () => {
                   achievements.map((achievement) => (
                     <GlassMorphism key={achievement.id} className="p-6">
                       <div className="flex items-center mb-4">
-                        <img 
-                          src={achievement.imageUrl || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=100&h=100"} 
-                          alt={achievement.studentName}
-                          className="w-16 h-16 rounded-full object-cover mr-4"
-                        />
+                        <div className="w-16 h-16 rounded-full bg-cosmic-blue/20 flex items-center justify-center mr-4">
+                          <span className="text-cosmic-blue font-bold text-xl">
+                            {achievement.studentName.split(' ').map(name => name[0]).join('').toUpperCase()}
+                          </span>
+                        </div>
                         <div>
                           <h4 className="font-semibold">{achievement.studentName}</h4>
                           <p className="text-sm text-space-400">{achievement.school}</p>
@@ -293,11 +293,9 @@ const Blog = () => {
                   <>
                     <GlassMorphism className="p-6">
                       <div className="flex items-center mb-4">
-                        <img 
-                          src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=100&h=100" 
-                          alt="Priya Patel"
-                          className="w-16 h-16 rounded-full object-cover mr-4"
-                        />
+                        <div className="w-16 h-16 rounded-full bg-cosmic-blue/20 flex items-center justify-center mr-4">
+                          <span className="text-cosmic-blue font-bold text-xl">PP</span>
+                        </div>
                         <div>
                           <h4 className="font-semibold">Priya Patel</h4>
                           <p className="text-sm text-space-400">St. Xavier's School, Mumbai</p>
@@ -319,11 +317,9 @@ const Blog = () => {
 
                     <GlassMorphism className="p-6">
                       <div className="flex items-center mb-4">
-                        <img 
-                          src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=100&h=100" 
-                          alt="Arjun Krishnan"
-                          className="w-16 h-16 rounded-full object-cover mr-4"
-                        />
+                        <div className="w-16 h-16 rounded-full bg-cosmic-green/20 flex items-center justify-center mr-4">
+                          <span className="text-cosmic-green font-bold text-xl">AK</span>
+                        </div>
                         <div>
                           <h4 className="font-semibold">Arjun Krishnan</h4>
                           <p className="text-sm text-space-400">DPS School, Delhi</p>
@@ -345,11 +341,9 @@ const Blog = () => {
 
                     <GlassMorphism className="p-6">
                       <div className="flex items-center mb-4">
-                        <img 
-                          src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=100&h=100" 
-                          alt="Sneha Reddy"
-                          className="w-16 h-16 rounded-full object-cover mr-4"
-                        />
+                        <div className="w-16 h-16 rounded-full bg-cosmic-purple/20 flex items-center justify-center mr-4">
+                          <span className="text-cosmic-purple font-bold text-xl">SR</span>
+                        </div>
                         <div>
                           <h4 className="font-semibold">Sneha Reddy</h4>
                           <p className="text-sm text-space-400">Hyderabad Public School</p>
@@ -371,11 +365,9 @@ const Blog = () => {
 
                     <GlassMorphism className="p-6">
                       <div className="flex items-center mb-4">
-                        <img 
-                          src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=100&h=100" 
-                          alt="Kavi Gupta"
-                          className="w-16 h-16 rounded-full object-cover mr-4"
-                        />
+                        <div className="w-16 h-16 rounded-full bg-cosmic-orange/20 flex items-center justify-center mr-4">
+                          <span className="text-cosmic-orange font-bold text-xl">KG</span>
+                        </div>
                         <div>
                           <h4 className="font-semibold">Kavi Gupta</h4>
                           <p className="text-sm text-space-400">Modern School, Pune</p>

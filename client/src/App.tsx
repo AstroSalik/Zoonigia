@@ -16,6 +16,7 @@ import Schools from "@/pages/Schools";
 import Collaborators from "@/pages/Collaborators";
 import Shop from "@/pages/Shop";
 import Blog from "@/pages/Blog";
+import BlogPost from "@/pages/BlogPost";
 import Contact from "@/pages/Contact";
 import Landing from "@/pages/Landing";
 
@@ -39,6 +40,7 @@ function Router() {
           <Route path="/collaborators" component={Collaborators} />
           <Route path="/shop" component={Shop} />
           <Route path="/blog" component={Blog} />
+          <Route path="/blog/:id" component={BlogPost} />
           <Route path="/contact" component={Contact} />
         </>
       )}

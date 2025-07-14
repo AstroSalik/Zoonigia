@@ -582,6 +582,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/blog-posts/:id", async (req, res) => {
     try {
+      const { id } = req.params;
+      const post = await storage.getBlogPostById(parseInt(id));
+      if (!post) {
+        return res.status(404).json({ message: "Blog post not found" });
+      }
+      res.json(post);
+    } catch (error) {
+      console.error("Error fetching blog post:", error);
+      res.status(500).json({ message: "Failed to fetch blog post" });
+    }
+  });
+
+  app.get("/api/blog-posts/:id", async (req, res) => {
+    try {
       const id = parseInt(req.params.id);
       const post = await storage.getBlogPostById(id);
       if (!post) {
