@@ -53,8 +53,8 @@ const BlogPostView = () => {
         <div className="pt-24 pb-16">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center">
-              <h1 className="text-4xl font-bold mb-4">Blog Post Not Found</h1>
-              <p className="text-space-300 mb-8">The blog post you're looking for doesn't exist.</p>
+              <h1 className="text-4xl font-bold mb-4 text-white">Blog Post Not Found</h1>
+              <p className="text-white mb-8">The blog post you're looking for doesn't exist.</p>
               <Button 
                 onClick={() => window.history.back()}
                 className="cosmic-gradient hover:opacity-90"
@@ -84,20 +84,20 @@ const BlogPostView = () => {
         return <h4 key={index} className="text-xl font-semibold mb-2 text-cosmic-orange mt-4">{line.substring(5)}</h4>;
       } else if (line.startsWith('> ')) {
         return (
-          <blockquote key={index} className="border-l-4 border-cosmic-blue pl-4 my-4 italic text-space-300 bg-space-800/30 p-4 rounded-r-lg">
+          <blockquote key={index} className="border-l-4 border-cosmic-blue pl-4 my-4 italic text-white bg-space-800/30 p-4 rounded-r-lg">
             {line.substring(2)}
           </blockquote>
         );
       } else if (line.trim().startsWith('- ') || line.trim().startsWith('* ')) {
-        return <li key={index} className="ml-6 mb-2 text-space-200">{line.trim().substring(2)}</li>;
+        return <li key={index} className="ml-6 mb-2 text-white">{line.trim().substring(2)}</li>;
       } else if (line.trim().match(/^\d+\. /)) {
-        return <li key={index} className="ml-6 mb-2 text-space-200 list-decimal">{line.trim().replace(/^\d+\. /, '')}</li>;
+        return <li key={index} className="ml-6 mb-2 text-white list-decimal">{line.trim().replace(/^\d+\. /, '')}</li>;
       } else if (line.trim() === '') {
         return <br key={index} />;
       } else {
         // Handle bold text **text**
         const boldText = line.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-cosmic-blue">$1</strong>');
-        return <p key={index} className="mb-4 text-space-200 leading-relaxed" dangerouslySetInnerHTML={{ __html: boldText }} />;
+        return <p key={index} className="mb-4 text-white leading-relaxed" dangerouslySetInnerHTML={{ __html: boldText }} />;
       }
     });
   };
@@ -122,7 +122,7 @@ const BlogPostView = () => {
             {/* Blog Post Header */}
             <GlassMorphism className="p-8 mb-8">
               <div className="mb-6">
-                <h1 className="text-4xl font-space font-bold mb-4 leading-tight">
+                <h1 className="text-4xl font-space font-bold mb-4 leading-tight text-white">
                   {post.title}
                 </h1>
                 
@@ -134,13 +134,13 @@ const BlogPostView = () => {
                     </span>
                   </div>
                   <div>
-                    <h4 className="font-semibold text-lg">{post.authorName}</h4>
-                    <p className="text-space-400">{post.authorTitle || "Contributor"}</p>
+                    <h4 className="font-semibold text-lg text-white">{post.authorName}</h4>
+                    <p className="text-white">{post.authorTitle || "Contributor"}</p>
                   </div>
                 </div>
                 
                 {/* Meta Information */}
-                <div className="flex flex-wrap items-center gap-4 text-sm text-space-400">
+                <div className="flex flex-wrap items-center gap-4 text-sm text-white">
                   <div className="flex items-center">
                     <Calendar className="w-4 h-4 mr-2" />
                     {new Date(post.publishedAt!).toLocaleDateString('en-US', {
@@ -178,8 +178,8 @@ const BlogPostView = () => {
             {/* Call to Action */}
             <div className="mt-12 text-center">
               <GlassMorphism className="p-6">
-                <h3 className="text-2xl font-semibold mb-4">Enjoyed this article?</h3>
-                <p className="text-space-300 mb-6">
+                <h3 className="text-2xl font-semibold mb-4 text-white">Enjoyed this article?</h3>
+                <p className="text-white mb-6">
                   Share your thoughts or explore more amazing content on space science and astronomy.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
