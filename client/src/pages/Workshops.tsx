@@ -24,7 +24,6 @@ const registrationSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Please enter a valid email address"),
   phone: z.string().min(10, "Please enter a valid phone number"),
-  age: z.string().min(1, "Age is required"),
   organization: z.string().optional(),
   experience: z.string().min(1, "Please select your experience level"),
   interests: z.string().min(10, "Please tell us about your interests"),
@@ -46,7 +45,6 @@ const Workshops = () => {
       name: "",
       email: "",
       phone: "",
-      age: "",
       organization: "",
       experience: "",
       interests: "",
@@ -243,6 +241,7 @@ const Workshops = () => {
               <Button 
                 variant="outline" 
                 className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900 px-8 py-3 text-lg"
+                onClick={() => window.location.href = '/contact'}
               >
                 Contact for Details
               </Button>
@@ -313,7 +312,11 @@ const Workshops = () => {
               >
                 Register for Workshop
               </Button>
-              <Button variant="outline" className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900 px-8 py-3">
+              <Button 
+                variant="outline" 
+                className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900 px-8 py-3"
+                onClick={() => window.location.href = '/contact'}
+              >
                 Contact for Details
               </Button>
             </div>
@@ -374,20 +377,6 @@ const Workshops = () => {
               
               <FormField
                 control={form.control}
-                name="age"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Age</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter your age" {...field} className="bg-space-700 border-space-600" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
                 name="organization"
                 render={({ field }) => (
                   <FormItem>
@@ -432,11 +421,11 @@ const Workshops = () => {
                       <Checkbox
                         checked={field.value}
                         onCheckedChange={field.onChange}
-                        className="border-space-400 data-[state=checked]:bg-cosmic-blue data-[state=checked]:border-cosmic-blue"
+                        className="mt-1 border-2 border-space-400 bg-space-800 data-[state=checked]:bg-cosmic-blue data-[state=checked]:border-cosmic-blue data-[state=checked]:text-white"
                       />
                     </FormControl>
                     <div className="space-y-1 leading-none">
-                      <FormLabel className="text-sm font-medium">
+                      <FormLabel className="text-sm font-medium cursor-pointer">
                         Request for Lower Classes
                       </FormLabel>
                       <p className="text-xs text-space-300">
