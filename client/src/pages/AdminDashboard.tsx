@@ -5,11 +5,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Switch } from "@/components/ui/switch";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -25,8 +26,8 @@ import {
   Rocket, Target, Award, Phone, MapPin, Clock, IndianRupee
 } from "lucide-react";
 import { 
-  User, BlogPost, Workshop, Course, Campaign, ContactInquiry,
-  insertBlogPostSchema, insertWorkshopSchema, insertCourseSchema, insertCampaignSchema
+  User, BlogPost, Workshop, Course, Campaign, ContactInquiry, CourseLesson,
+  insertBlogPostSchema, insertWorkshopSchema, insertCourseSchema, insertCampaignSchema, insertCourseLessonSchema
 } from "@shared/schema";
 
 // Form schemas
@@ -77,6 +78,18 @@ const campaignFormSchema = insertCampaignSchema.extend({
   imageUrl: z.string().optional(),
 });
 
+const lessonFormSchema = insertCourseLessonSchema.extend({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().optional(),
+  content: z.string().min(1, "Content is required"),
+  videoUrl: z.string().optional(),
+  duration: z.number().min(1, "Duration must be at least 1 minute"),
+  orderIndex: z.number().min(1, "Order index is required"),
+  type: z.enum(["video", "text", "quiz", "assignment"]),
+  resources: z.string().optional(),
+  isPreview: z.boolean().default(false),
+});
+
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -85,6 +98,8 @@ const AdminDashboard = () => {
   const [showWorkshopDialog, setShowWorkshopDialog] = useState(false);
   const [showCourseDialog, setShowCourseDialog] = useState(false);
   const [showCampaignDialog, setShowCampaignDialog] = useState(false);
+  const [showLessonDialog, setShowLessonDialog] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const { toast } = useToast();
 
   // Data queries
@@ -172,6 +187,21 @@ const AdminDashboard = () => {
     },
   });
 
+  const lessonForm = useForm<z.infer<typeof lessonFormSchema>>({
+    resolver: zodResolver(lessonFormSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      content: "",
+      videoUrl: "",
+      duration: 10,
+      orderIndex: 1,
+      type: "video",
+      resources: "",
+      isPreview: false,
+    },
+  });
+
   // Mutations
   const createBlogPost = useMutation({
     mutationFn: async (data: z.infer<typeof blogPostFormSchema>) => {
@@ -238,6 +268,22 @@ const AdminDashboard = () => {
     },
     onError: (error) => {
       toast({ title: "Error creating campaign", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const createLesson = useMutation({
+    mutationFn: async (data: z.infer<typeof lessonFormSchema>) => {
+      if (!selectedCourse) throw new Error("No course selected");
+      const response = await apiRequest("POST", `/api/admin/courses/${selectedCourse.id}/lessons`, data);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Lesson created successfully!" });
+      lessonForm.reset();
+      setShowLessonDialog(false);
+    },
+    onError: (error) => {
+      toast({ title: "Error creating lesson", description: error.message, variant: "destructive" });
     },
   });
 
@@ -1272,6 +1318,18 @@ const AdminDashboard = () => {
                                   <Button
                                     variant="ghost"
                                     size="sm"
+                                    onClick={() => {
+                                      setSelectedCourse(course);
+                                      setShowLessonDialog(true);
+                                    }}
+                                    className="text-purple-400 hover:bg-purple-400/10"
+                                    title="Manage Lessons"
+                                  >
+                                    <BookOpen className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
                                     className="text-cosmic-blue hover:bg-cosmic-blue/10"
                                   >
                                     <Edit className="w-4 h-4" />
@@ -1291,6 +1349,203 @@ const AdminDashboard = () => {
                       </Table>
                     </div>
                   </GlassMorphism>
+
+                  {/* Lesson Management Dialog */}
+                  <Dialog open={showLessonDialog} onOpenChange={setShowLessonDialog}>
+                    <DialogContent className="bg-space-800 border-space-700 text-white max-w-4xl">
+                      <DialogHeader>
+                        <DialogTitle className="text-white">
+                          Manage Lessons - {selectedCourse?.title}
+                        </DialogTitle>
+                        <DialogDescription className="text-space-300">
+                          Add and manage lessons for this course
+                        </DialogDescription>
+                      </DialogHeader>
+                      
+                      <div className="space-y-6">
+                        {/* Add Lesson Form */}
+                        <div className="border-b border-space-700 pb-4">
+                          <h4 className="text-lg font-semibold text-white mb-4">Add New Lesson</h4>
+                          <Form {...lessonForm}>
+                            <form onSubmit={lessonForm.handleSubmit((data) => createLesson.mutate(data))} className="space-y-4">
+                              <div className="grid grid-cols-2 gap-4">
+                                <FormField
+                                  control={lessonForm.control}
+                                  name="title"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel className="text-space-300">Lesson Title</FormLabel>
+                                      <FormControl>
+                                        <Input {...field} className="bg-space-700 border-space-600 text-white" />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={lessonForm.control}
+                                  name="type"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel className="text-space-300">Type</FormLabel>
+                                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl>
+                                          <SelectTrigger className="bg-space-700 border-space-600 text-white">
+                                            <SelectValue placeholder="Select type" />
+                                          </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent className="bg-space-700 border-space-600">
+                                          <SelectItem value="video">Video</SelectItem>
+                                          <SelectItem value="text">Text</SelectItem>
+                                          <SelectItem value="quiz">Quiz</SelectItem>
+                                          <SelectItem value="assignment">Assignment</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+                              
+                              <FormField
+                                control={lessonForm.control}
+                                name="description"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-space-300">Description</FormLabel>
+                                    <FormControl>
+                                      <Textarea {...field} className="bg-space-700 border-space-600 text-white" />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              
+                              <FormField
+                                control={lessonForm.control}
+                                name="content"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-space-300">Content</FormLabel>
+                                    <FormControl>
+                                      <Textarea {...field} className="bg-space-700 border-space-600 text-white min-h-32" />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              
+                              <div className="grid grid-cols-3 gap-4">
+                                <FormField
+                                  control={lessonForm.control}
+                                  name="videoUrl"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel className="text-space-300">Video URL (Optional)</FormLabel>
+                                      <FormControl>
+                                        <Input {...field} placeholder="https://youtube.com/..." className="bg-space-700 border-space-600 text-white" />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={lessonForm.control}
+                                  name="duration"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel className="text-space-300">Duration (minutes)</FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          {...field}
+                                          type="number"
+                                          onChange={(e) => field.onChange(Number(e.target.value))}
+                                          className="bg-space-700 border-space-600 text-white"
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={lessonForm.control}
+                                  name="orderIndex"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel className="text-space-300">Order</FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          {...field}
+                                          type="number"
+                                          onChange={(e) => field.onChange(Number(e.target.value))}
+                                          className="bg-space-700 border-space-600 text-white"
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+                              
+                              <div className="grid grid-cols-2 gap-4">
+                                <FormField
+                                  control={lessonForm.control}
+                                  name="resources"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel className="text-space-300">Resources (Optional)</FormLabel>
+                                      <FormControl>
+                                        <Input {...field} placeholder="Links to downloadable resources" className="bg-space-700 border-space-600 text-white" />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={lessonForm.control}
+                                  name="isPreview"
+                                  render={({ field }) => (
+                                    <FormItem className="flex flex-row items-center justify-between rounded-lg border border-space-600 p-4">
+                                      <div className="space-y-0.5">
+                                        <FormLabel className="text-space-300">Preview Lesson</FormLabel>
+                                        <FormDescription className="text-space-400">
+                                          Allow free preview of this lesson
+                                        </FormDescription>
+                                      </div>
+                                      <FormControl>
+                                        <Switch
+                                          checked={field.value}
+                                          onCheckedChange={field.onChange}
+                                        />
+                                      </FormControl>
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+                              
+                              <div className="flex justify-end gap-2">
+                                <Button
+                                  type="submit"
+                                  disabled={createLesson.isPending}
+                                  className="bg-cosmic-blue hover:bg-cosmic-blue/90"
+                                >
+                                  {createLesson.isPending ? "Adding..." : "Add Lesson"}
+                                </Button>
+                              </div>
+                            </form>
+                          </Form>
+                        </div>
+                        
+                        {/* Existing Lessons List */}
+                        <div>
+                          <h4 className="text-lg font-semibold text-white mb-4">Course Lessons</h4>
+                          <div className="text-space-300 text-center py-8">
+                            Lesson management will be expanded here to show existing lessons
+                          </div>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 </TabsContent>
 
                 <TabsContent value="campaigns" className="space-y-6">

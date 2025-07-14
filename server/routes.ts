@@ -150,6 +150,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post('/api/admin/courses/:courseId/lessons', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const courseId = parseInt(req.params.courseId);
+      const lessonData = {
+        ...req.body,
+        courseId,
+      };
+      const lesson = await storage.createCourseLesson(lessonData);
+      res.json(lesson);
+    } catch (error) {
+      console.error("Error creating lesson:", error);
+      res.status(500).json({ message: "Failed to create lesson" });
+    }
+  });
+
   // Admin PATCH route for user management
   app.patch('/api/admin/users/:id', isAuthenticated, isAdmin, async (req: any, res) => {
     try {
