@@ -46,12 +46,6 @@ const Home = () => {
           <p className="text-xl md:text-2xl text-space-200 mb-8 animate-slideUp">
             Empowering Future Innovators and Explorers through Immersive Science Education
           </p>
-          <div className="max-w-3xl mx-auto mb-8 animate-slideUp">
-            <blockquote className="text-lg md:text-xl font-space italic text-cosmic-blue text-center">
-              "Astronomy is what leads a lost spirit beyond the horizons to the road of being acquainted with thyself."
-            </blockquote>
-            <p className="text-space-300 text-center mt-2">— Salik Riyaz, Founder</p>
-          </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slideUp">
             <Link href="/workshops">
               <Button className="cosmic-gradient hover:opacity-90 px-8 py-4 text-lg">
@@ -70,6 +64,20 @@ const Home = () => {
         
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
           <ChevronDown className="w-8 h-8 text-cosmic-blue" />
+        </div>
+      </section>
+
+      {/* Inspirational Quote Section */}
+      <section className="py-20 bg-space-800/30">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <blockquote className="text-2xl md:text-3xl font-space italic text-cosmic-blue mb-6">
+              "Astronomy is what leads a lost spirit beyond the horizons to the road of being acquainted with thyself."
+            </blockquote>
+            <p className="text-lg text-space-300">
+              — Salik Riyaz, Founder
+            </p>
+          </div>
         </div>
       </section>
 
