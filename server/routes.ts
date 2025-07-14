@@ -504,9 +504,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/campaigns/enroll", async (req, res) => {
+  app.post("/api/campaigns/enroll", isAuthenticated, async (req: any, res) => {
     try {
-      const { campaignId, userId, paymentAmount } = req.body;
+      const { campaignId, paymentAmount, registrationData } = req.body;
+      const userId = req.user.claims.sub;
       
       // Create campaign enrollment with payment
       const enrollment = await storage.joinCampaign({

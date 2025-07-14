@@ -66,12 +66,34 @@ const Campaigns = () => {
         description: "You have successfully enrolled in the campaign.",
       });
       setIsDialogOpen(false);
+      setRegistrationData({
+        name: "",
+        email: "",
+        phone: "",
+        school: "",
+        grade: ""
+      });
       queryClient.invalidateQueries({ queryKey: ["/api/campaigns"] });
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      console.error("Campaign enrollment error:", error);
+      
+      // Handle authentication errors
+      if (error.message?.includes("401") || error.message?.includes("Unauthorized")) {
+        toast({
+          title: "Authentication Required",
+          description: "Please log in to register for campaigns.",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 1000);
+        return;
+      }
+      
       toast({
         title: "Registration Failed",
-        description: "There was an error processing your registration. Please try again.",
+        description: error.message || "There was an error processing your registration. Please try again.",
         variant: "destructive",
       });
     }
@@ -87,7 +109,6 @@ const Campaigns = () => {
     
     const enrollmentData = {
       campaignId: selectedCampaign.id,
-      userId: `user_${Date.now()}`, // Generate temporary user ID
       paymentAmount: 300,
       registrationData
     };
