@@ -292,13 +292,6 @@ const Workshops = () => {
                         ))}
                       </ul>
                     </div>
-                    
-                    <Button 
-                      onClick={() => handleRegister(workshop.id)}
-                      className={`w-full bg-${workshop.color} hover:bg-${workshop.color}/80 text-white`}
-                    >
-                      Register Now
-                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -330,7 +323,7 @@ const Workshops = () => {
 
       {/* Registration Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="bg-space-800 border-space-700 text-space-50 max-w-md">
+        <DialogContent className="bg-space-800 border-space-700 text-space-50 max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-2xl font-space">Register for Workshop</DialogTitle>
           </DialogHeader>
