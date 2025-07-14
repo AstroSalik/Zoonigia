@@ -7,7 +7,11 @@ import {
   insertCourseEnrollmentSchema,
   insertCampaignParticipantSchema,
   insertContactInquirySchema,
-  insertUserSchema
+  insertUserSchema,
+  insertBlogPostSchema,
+  insertWorkshopSchema,
+  insertCourseSchema,
+  insertCampaignSchema
 } from "@shared/schema";
 import { z } from "zod";
 import Stripe from "stripe";
