@@ -41,6 +41,28 @@ const About = () => {
         </div>
       </section>
 
+      {/* Video Section */}
+      <section className="py-20 bg-space-800/30">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center mb-16">
+            <h2 className="text-4xl font-space font-bold mb-6">Discover Zoonigia</h2>
+            <p className="text-xl text-space-200 mb-8">
+              Watch our introduction video to learn more about our mission and innovative approach to space science education
+            </p>
+            <div className="relative w-full h-0 pb-[56.25%] rounded-lg overflow-hidden bg-space-800">
+              <iframe
+                className="absolute top-0 left-0 w-full h-full"
+                src="https://www.youtube.com/embed/Tgr6BrgIBec"
+                title="What is Zoonigia - Space Science Education Platform"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Mission & Vision */}
       <section className="py-20">
         <div className="container mx-auto px-4">
@@ -72,27 +94,7 @@ const About = () => {
         </div>
       </section>
 
-      {/* Video Section */}
-      <section className="py-20 bg-space-800/30">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center mb-16">
-            <h2 className="text-4xl font-space font-bold mb-6">Discover Zoonigia</h2>
-            <p className="text-xl text-space-200 mb-8">
-              Watch our introduction video to learn more about our mission and innovative approach to space science education
-            </p>
-            <div className="relative w-full h-0 pb-[56.25%] rounded-lg overflow-hidden bg-space-800">
-              <iframe
-                className="absolute top-0 left-0 w-full h-full"
-                src="https://www.youtube.com/embed/Tgr6BrgIBec"
-                title="What is Zoonigia - Space Science Education Platform"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            </div>
-          </div>
-        </div>
-      </section>
+
 
       {/* What We Do */}
       <section className="py-20">
