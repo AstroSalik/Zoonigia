@@ -43,7 +43,6 @@ const schoolInquirySchema = z.object({
   phone: z.string().min(10, "Valid phone number is required"),
   location: z.string().min(2, "Location is required"),
   studentCount: z.string().min(1, "Student count is required"),
-  workshopType: z.enum(["open", "restricted"]),
   preferredPrograms: z.array(z.string()).min(1, "Select at least one program"),
   additionalRequirements: z.string().optional(),
 });
@@ -63,7 +62,6 @@ const Schools = () => {
       phone: "",
       location: "",
       studentCount: "",
-      workshopType: "open",
       preferredPrograms: [],
       additionalRequirements: "",
     },
@@ -74,7 +72,7 @@ const Schools = () => {
       const response = await apiRequest("POST", "/api/contact", {
         ...data,
         subject: "School Partnership Inquiry",
-        message: `School: ${data.schoolName}\nContact: ${data.contactPerson}\nPhone: ${data.phone}\nLocation: ${data.location}\nStudents: ${data.studentCount}\nWorkshop Type: ${data.workshopType}\nPrograms: ${data.preferredPrograms.join(", ")}\nAdditional Requirements: ${data.additionalRequirements}`,
+        message: `School: ${data.schoolName}\nContact: ${data.contactPerson}\nPhone: ${data.phone}\nLocation: ${data.location}\nStudents: ${data.studentCount}\nPrograms: ${data.preferredPrograms.join(", ")}\nAdditional Requirements: ${data.additionalRequirements}`,
         inquiryType: "partnership",
       });
       return response.json();
@@ -101,12 +99,11 @@ const Schools = () => {
   };
 
   const programOptions = [
-    { id: "telescope", label: "Telescope Sessions", icon: "🔭" },
-    { id: "vr", label: "VR Experiences", icon: "🥽" },
-    { id: "expert", label: "Expert Speaker Sessions", icon: "👨‍🔬" },
-    { id: "research", label: "Research Labs", icon: "🔬" },
-    { id: "design", label: "Design Thinking Workshops", icon: "💡" },
-    { id: "universe", label: "Universe Simulation", icon: "🌌" },
+    { id: "workshops", label: "Workshop Registration", icon: "🚀" },
+    { id: "programme", label: "Programme Integration", icon: "📚" },
+    { id: "teacher", label: "Teacher Training", icon: "👨‍🎓" },
+    { id: "courses", label: "Course Integration", icon: "📖" },
+    { id: "research", label: "Student Research Programme", icon: "🔬" },
   ];
 
   const handleProgramChange = (programId: string, checked: boolean) => {
@@ -225,6 +222,69 @@ const Schools = () => {
             </GlassMorphism>
           </div>
 
+          {/* Student Research Programme */}
+          <div className="mb-16">
+            <GlassMorphism className="p-8">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center">
+                  <div className="w-12 h-12 bg-cosmic-green/20 rounded-full flex items-center justify-center mr-4">
+                    <Target className="w-6 h-6 text-cosmic-green" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-space font-bold">Student Research Programme</h2>
+                    <p className="text-space-300">Collaborative research opportunities for advanced students</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                  <h3 className="text-xl font-semibold mb-4">Research Areas</h3>
+                  <ul className="space-y-3 text-space-300">
+                    <li className="flex items-start">
+                      <ArrowRight className="w-4 h-4 text-cosmic-green mr-2 mt-1 flex-shrink-0" />
+                      <span>Asteroid detection and tracking projects</span>
+                    </li>
+                    <li className="flex items-start">
+                      <ArrowRight className="w-4 h-4 text-cosmic-green mr-2 mt-1 flex-shrink-0" />
+                      <span>Exoplanet discovery and analysis</span>
+                    </li>
+                    <li className="flex items-start">
+                      <ArrowRight className="w-4 h-4 text-cosmic-green mr-2 mt-1 flex-shrink-0" />
+                      <span>Space weather monitoring and prediction</span>
+                    </li>
+                    <li className="flex items-start">
+                      <ArrowRight className="w-4 h-4 text-cosmic-green mr-2 mt-1 flex-shrink-0" />
+                      <span>Collaborative projects with NASA and ESA</span>
+                    </li>
+                  </ul>
+                </div>
+                
+                <div>
+                  <h3 className="text-xl font-semibold mb-4">Programme Benefits</h3>
+                  <ul className="space-y-3 text-space-300">
+                    <li className="flex items-start">
+                      <ArrowRight className="w-4 h-4 text-cosmic-green mr-2 mt-1 flex-shrink-0" />
+                      <span>Mentorship from professional researchers</span>
+                    </li>
+                    <li className="flex items-start">
+                      <ArrowRight className="w-4 h-4 text-cosmic-green mr-2 mt-1 flex-shrink-0" />
+                      <span>Access to real astronomical data and tools</span>
+                    </li>
+                    <li className="flex items-start">
+                      <ArrowRight className="w-4 h-4 text-cosmic-green mr-2 mt-1 flex-shrink-0" />
+                      <span>Publication opportunities in student journals</span>
+                    </li>
+                    <li className="flex items-start">
+                      <ArrowRight className="w-4 h-4 text-cosmic-green mr-2 mt-1 flex-shrink-0" />
+                      <span>Certificate of completion for university applications</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </GlassMorphism>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
             {/* Hero Image */}
             <div>
@@ -239,7 +299,7 @@ const Schools = () => {
             <div>
               <h2 className="text-3xl font-semibold mb-6">Why Partner with Us?</h2>
               <p className="text-space-300 mb-6">
-                Join 150+ schools worldwide that have already transformed their science education with Zoonigia's innovative programs.
+                Join schools worldwide that have already transformed their science education with Zoonigia's innovative programs.
               </p>
               
               <div className="space-y-4 mb-8">
@@ -261,7 +321,7 @@ const Schools = () => {
                 </div>
                 <div className="flex items-center">
                   <CheckCircle className="w-5 h-5 text-cosmic-green mr-3" />
-                  <span>15% revenue share for partner schools</span>
+                  <span>Revenue share opportunities for partner schools</span>
                 </div>
               </div>
               
@@ -513,28 +573,6 @@ const Schools = () => {
                         )}
                       />
                     </div>
-
-                    <FormField
-                      control={form.control}
-                      name="workshopType"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Workshop Type Preference</FormLabel>
-                          <FormControl>
-                            <Select onValueChange={field.onChange} value={field.value}>
-                              <SelectTrigger className="bg-space-700 border-space-600">
-                                <SelectValue placeholder="Select workshop type" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="open">Open Workshop (Community can join)</SelectItem>
-                                <SelectItem value="restricted">Campus Restricted (School students only)</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
 
                     <div>
                       <FormLabel className="text-base font-medium mb-4 block">

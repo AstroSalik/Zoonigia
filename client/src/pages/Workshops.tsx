@@ -251,6 +251,16 @@ const Workshops = () => {
             </div>
           </div>
 
+          {/* Workshop Overview Header */}
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-space font-bold mb-4">
+              The <span className="text-cosmic-blue">Ultimate</span> Workshop Experience
+            </h2>
+            <p className="text-xl text-space-200 max-w-4xl mx-auto">
+              All the activities below are delivered in a single comprehensive workshop session, making it the most complete space science education experience available
+            </p>
+          </div>
+
           {/* Workshop Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
             {workshopOfferings.map((workshop) => (
@@ -451,44 +461,6 @@ const Workshops = () => {
                         <SelectItem value="beginner">Beginner</SelectItem>
                         <SelectItem value="intermediate">Intermediate</SelectItem>
                         <SelectItem value="advanced">Advanced</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="workshopType"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Workshop Type</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="bg-space-700 border-space-600">
-                          <SelectValue placeholder="Select workshop type" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="campus">
-                          <div className="flex flex-col items-start">
-                            <div className="flex items-center gap-2">
-                              <div className="w-2 h-2 bg-cosmic-purple rounded-full"></div>
-                              <span>Campus Restricted</span>
-                            </div>
-                            <p className="text-xs text-space-400 mt-1">Exclusive to your institution</p>
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="community">
-                          <div className="flex flex-col items-start">
-                            <div className="flex items-center gap-2">
-                              <div className="w-2 h-2 bg-cosmic-blue rounded-full"></div>
-                              <span>Community Open</span>
-                            </div>
-                            <p className="text-xs text-space-400 mt-1">Open to general public</p>
-                          </div>
-                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

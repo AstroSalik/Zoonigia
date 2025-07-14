@@ -4,6 +4,27 @@
 
 Zoonigia is a comprehensive full-stack web application designed to empower future innovators and explorers through immersive science education. The platform serves as a hub for space science education, connecting students, educators, schools, collaborators, and sponsors through various educational programs including workshops, courses, campaigns, and expert sessions.
 
+## Recent Changes (July 2025)
+
+### Workshop Page Enhancements
+- Added "Ultimate Workshop Experience" header clarifying all activities are delivered in a single comprehensive session
+- Added Campus/Community workshop type selection in registration form
+- Added comprehensive revenue sharing section highlighting 10-20% school partnerships
+- Enhanced workshop registration form with improved user experience
+
+### Schools Page Complete Redesign
+- Transformed from workshop-focused to comprehensive educational partnership platform
+- Added four main service categories:
+  - Workshop Registration (with revenue sharing)
+  - Programme Integration (curriculum support)
+  - Teacher Training (professional development)
+  - Course Integration (structured learning programs)
+- Added Student Research Programme section with detailed research areas and benefits
+- Removed workshop type selection from partnership inquiry form
+- Updated partnership inquiry checklist to reflect comprehensive services
+- Removed numerical statistics/targets to focus on partnership benefits
+- Enhanced visual design with better service categorization and clear value propositions
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
