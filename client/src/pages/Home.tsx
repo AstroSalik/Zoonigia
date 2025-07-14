@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import Hero3D from "@/components/Hero3D";
@@ -145,43 +146,67 @@ const Home = () => {
       <section className="py-20">
         <div className="container mx-auto px-4">
           <h2 className="text-4xl font-space font-bold text-center mb-12">Quick Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <GlassMorphism className="p-6 hover:bg-white/20 transition-colors group">
-              <div className="text-center">
-                <Users className="w-12 h-12 text-cosmic-blue mb-4 mx-auto group-hover:scale-110 transition-transform" />
-                <h3 className="text-xl font-semibold mb-2">Register for Workshop</h3>
-                <p className="text-space-300 mb-4">Join our immersive workshops and experience hands-on learning</p>
-                <Link href="/workshops">
-                  <Button className="bg-cosmic-blue hover:bg-blue-600">
-                    Browse Workshops
-                  </Button>
-                </Link>
-              </div>
-            </GlassMorphism>
-            
-            <GlassMorphism className="p-6 hover:bg-white/20 transition-colors group">
-              <div className="text-center">
-                <School className="w-12 h-12 text-cosmic-purple mb-4 mx-auto group-hover:scale-110 transition-transform" />
-                <h3 className="text-xl font-semibold mb-2">Book School Workshop</h3>
-                <p className="text-space-300 mb-4">Bring Zoonigia's expertise directly to your institution</p>
-                <Link href="/schools">
-                  <Button className="bg-cosmic-purple hover:bg-purple-600">
-                    Book Now
-                  </Button>
-                </Link>
-              </div>
-            </GlassMorphism>
-            
-            <GlassMorphism className="p-6 hover:bg-white/20 transition-colors group">
-              <div className="text-center">
-                <Microscope className="w-12 h-12 text-cosmic-green mb-4 mx-auto group-hover:scale-110 transition-transform" />
-                <h3 className="text-xl font-semibold mb-2">Enroll in Labs</h3>
-                <p className="text-space-300 mb-4">Access real-time research labs and hands-on experiments</p>
-                <Button className="bg-cosmic-green hover:bg-green-600 opacity-60" disabled>
-                  Coming April 2025
-                </Button>
-              </div>
-            </GlassMorphism>
+          <div className="max-w-5xl mx-auto">
+            <Carousel
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+              className="w-full"
+            >
+              <CarouselContent className="-ml-2 md:-ml-4">
+                <CarouselItem className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
+                  <div className="p-1">
+                    <GlassMorphism className="p-6 hover:bg-white/20 transition-all duration-300 group h-full">
+                      <div className="text-center">
+                        <Users className="w-12 h-12 text-cosmic-blue mb-4 mx-auto group-hover:scale-110 transition-transform" />
+                        <h3 className="text-xl font-semibold mb-2">Register for Workshop</h3>
+                        <p className="text-space-300 mb-4">Join our immersive workshops and experience hands-on learning</p>
+                        <Link href="/workshops">
+                          <Button className="bg-cosmic-blue hover:bg-blue-600">
+                            Browse Workshops
+                          </Button>
+                        </Link>
+                      </div>
+                    </GlassMorphism>
+                  </div>
+                </CarouselItem>
+                
+                <CarouselItem className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
+                  <div className="p-1">
+                    <GlassMorphism className="p-6 hover:bg-white/20 transition-all duration-300 group h-full">
+                      <div className="text-center">
+                        <School className="w-12 h-12 text-cosmic-purple mb-4 mx-auto group-hover:scale-110 transition-transform" />
+                        <h3 className="text-xl font-semibold mb-2">Book School Workshop</h3>
+                        <p className="text-space-300 mb-4">Bring Zoonigia's expertise directly to your institution</p>
+                        <Link href="/schools">
+                          <Button className="bg-cosmic-purple hover:bg-purple-600">
+                            Book Now
+                          </Button>
+                        </Link>
+                      </div>
+                    </GlassMorphism>
+                  </div>
+                </CarouselItem>
+                
+                <CarouselItem className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
+                  <div className="p-1">
+                    <GlassMorphism className="p-6 hover:bg-white/20 transition-all duration-300 group h-full">
+                      <div className="text-center">
+                        <Microscope className="w-12 h-12 text-cosmic-green mb-4 mx-auto group-hover:scale-110 transition-transform" />
+                        <h3 className="text-xl font-semibold mb-2">Enroll in Labs</h3>
+                        <p className="text-space-300 mb-4">Access real-time research labs and hands-on experiments</p>
+                        <Button className="bg-cosmic-green hover:bg-green-600 opacity-60" disabled>
+                          Coming April 2025
+                        </Button>
+                      </div>
+                    </GlassMorphism>
+                  </div>
+                </CarouselItem>
+              </CarouselContent>
+              <CarouselPrevious className="hidden md:flex -left-12 border-space-600 bg-space-800/80 text-space-50 hover:bg-space-700" />
+              <CarouselNext className="hidden md:flex -right-12 border-space-600 bg-space-800/80 text-space-50 hover:bg-space-700" />
+            </Carousel>
           </div>
         </div>
       </section>
