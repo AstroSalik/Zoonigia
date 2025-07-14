@@ -10,6 +10,7 @@ const Navigation = () => {
 
   const navItems = [
     { href: "/", label: "Home" },
+    { href: "/about", label: "About" },
     { href: "/workshops", label: "Workshops" },
     { href: "/courses", label: "Courses" },
     { href: "/campaigns", label: "Campaigns" },
@@ -57,9 +58,11 @@ const Navigation = () => {
             <Button variant="outline" className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900">
               Sign In
             </Button>
-            <Button className="cosmic-gradient hover:opacity-90">
-              <Link href="/register">Register</Link>
-            </Button>
+            <Link href="/register">
+              <Button className="cosmic-gradient hover:opacity-90">
+                Register
+              </Button>
+            </Link>
           </div>
 
           {/* Mobile Menu */}
@@ -95,9 +98,11 @@ const Navigation = () => {
                   <Button variant="outline" className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900">
                     Sign In
                   </Button>
-                  <Button className="cosmic-gradient hover:opacity-90">
-                    <Link href="/register" onClick={() => setIsOpen(false)}>Register</Link>
-                  </Button>
+                  <Link href="/register" onClick={() => setIsOpen(false)}>
+                    <Button className="cosmic-gradient hover:opacity-90">
+                      Register
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </SheetContent>

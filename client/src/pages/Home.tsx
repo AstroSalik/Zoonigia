@@ -46,15 +46,25 @@ const Home = () => {
           <p className="text-xl md:text-2xl text-space-200 mb-8 animate-slideUp">
             Empowering Future Innovators and Explorers through Immersive Science Education
           </p>
+          <div className="max-w-3xl mx-auto mb-8 animate-slideUp">
+            <blockquote className="text-lg md:text-xl font-space italic text-cosmic-blue text-center">
+              "Astronomy is what leads a lost spirit beyond the horizons to the road of being acquainted with thyself."
+            </blockquote>
+            <p className="text-space-300 text-center mt-2">— Salik Riyaz, Founder</p>
+          </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slideUp">
-            <Button className="cosmic-gradient hover:opacity-90 px-8 py-4 text-lg">
-              <Rocket className="w-5 h-5 mr-2" />
-              Explore Zoonigia
-            </Button>
-            <Button variant="outline" className="glass-morphism border-space-600 hover:bg-white/20 px-8 py-4 text-lg">
-              <Play className="w-5 h-5 mr-2" />
-              Watch Demo
-            </Button>
+            <Link href="/workshops">
+              <Button className="cosmic-gradient hover:opacity-90 px-8 py-4 text-lg">
+                <Rocket className="w-5 h-5 mr-2" />
+                Explore Zoonigia
+              </Button>
+            </Link>
+            <Link href="/about">
+              <Button variant="outline" className="glass-morphism border-space-600 hover:bg-white/20 px-8 py-4 text-lg">
+                <Play className="w-5 h-5 mr-2" />
+                Learn More
+              </Button>
+            </Link>
           </div>
         </div>
         
@@ -97,9 +107,11 @@ const Home = () => {
                 <Users className="w-12 h-12 text-cosmic-blue mb-4 mx-auto group-hover:scale-110 transition-transform" />
                 <h3 className="text-xl font-semibold mb-2">Register for Workshop</h3>
                 <p className="text-space-300 mb-4">Join our immersive workshops and experience hands-on learning</p>
-                <Button className="bg-cosmic-blue hover:bg-blue-600">
-                  <Link href="/workshops">Browse Workshops</Link>
-                </Button>
+                <Link href="/workshops">
+                  <Button className="bg-cosmic-blue hover:bg-blue-600">
+                    Browse Workshops
+                  </Button>
+                </Link>
               </div>
             </GlassMorphism>
             
@@ -108,9 +120,11 @@ const Home = () => {
                 <School className="w-12 h-12 text-cosmic-purple mb-4 mx-auto group-hover:scale-110 transition-transform" />
                 <h3 className="text-xl font-semibold mb-2">Book School Workshop</h3>
                 <p className="text-space-300 mb-4">Bring Zoonigia's expertise directly to your institution</p>
-                <Button className="bg-cosmic-purple hover:bg-purple-600">
-                  <Link href="/schools">Book Now</Link>
-                </Button>
+                <Link href="/schools">
+                  <Button className="bg-cosmic-purple hover:bg-purple-600">
+                    Book Now
+                  </Button>
+                </Link>
               </div>
             </GlassMorphism>
             
@@ -128,35 +142,37 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Featured Workshops */}
+      {/* Featured Courses */}
       <section className="py-20 bg-space-800/30">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-space font-bold text-center mb-12">Featured Workshops</h2>
+          <h2 className="text-4xl font-space font-bold text-center mb-12">Featured Courses</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <Card className="bg-space-800/50 border-space-700 hover:scale-105 transition-transform">
               <div className="relative">
                 <img 
                   src="https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400" 
-                  alt="Students using telescope for stargazing" 
+                  alt="Basic astronomy course with telescope observations" 
                   className="w-full h-48 object-cover rounded-t-lg"
                 />
                 <div className="absolute top-4 right-4 bg-cosmic-blue px-3 py-1 rounded-full text-sm font-semibold">
-                  New
+                  Popular
                 </div>
               </div>
               <CardContent className="p-6">
                 <div className="flex items-center mb-2">
                   <Telescope className="w-5 h-5 text-cosmic-blue mr-2" />
-                  <h3 className="text-xl font-semibold">Telescope Sessions</h3>
+                  <h3 className="text-xl font-semibold">Basic Astronomy</h3>
                 </div>
-                <p className="text-space-300 mb-4">Witness celestial marvels under expert guidance</p>
+                <p className="text-space-300 mb-4">Comprehensive introduction to astronomy and space science</p>
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm text-cosmic-blue">₹300 per student</span>
-                  <span className="text-sm text-space-400">Dec 15-20, 2024</span>
+                  <span className="text-sm text-cosmic-blue">₹1,200 per student</span>
+                  <span className="text-sm text-space-400">6 weeks program</span>
                 </div>
-                <Button className="w-full bg-cosmic-blue hover:bg-blue-600">
-                  Register Now
-                </Button>
+                <Link href="/courses">
+                  <Button className="w-full bg-cosmic-blue hover:bg-blue-600">
+                    Learn More
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
             
@@ -164,23 +180,25 @@ const Home = () => {
               <div className="relative">
                 <img 
                   src="https://images.unsplash.com/photo-1593508512255-86ab42a8e620?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400" 
-                  alt="Students using VR technology in classroom" 
+                  alt="Robotics and AI course with hands-on projects" 
                   className="w-full h-48 object-cover rounded-t-lg"
                 />
               </div>
               <CardContent className="p-6">
                 <div className="flex items-center mb-2">
                   <Headphones className="w-5 h-5 text-cosmic-purple mr-2" />
-                  <h3 className="text-xl font-semibold">Immersive VR Experience</h3>
+                  <h3 className="text-xl font-semibold">Robotics & AI</h3>
                 </div>
-                <p className="text-space-300 mb-4">Step into space and explore the human body</p>
+                <p className="text-space-300 mb-4">Build intelligent systems and explore artificial intelligence</p>
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm text-cosmic-purple">₹300 per student</span>
-                  <span className="text-sm text-space-400">Jan 10-15, 2025</span>
+                  <span className="text-sm text-cosmic-purple">₹2,500 per student</span>
+                  <span className="text-sm text-space-400">8 weeks program</span>
                 </div>
-                <Button className="w-full bg-cosmic-purple hover:bg-purple-600">
-                  Register Now
-                </Button>
+                <Link href="/courses">
+                  <Button className="w-full bg-cosmic-purple hover:bg-purple-600">
+                    Learn More
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
             
@@ -188,23 +206,25 @@ const Home = () => {
               <div className="relative">
                 <img 
                   src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400" 
-                  alt="Scientists presenting to students in laboratory" 
+                  alt="Quantum mechanics course with advanced physics" 
                   className="w-full h-48 object-cover rounded-t-lg"
                 />
               </div>
               <CardContent className="p-6">
                 <div className="flex items-center mb-2">
                   <Star className="w-5 h-5 text-cosmic-green mr-2" />
-                  <h3 className="text-xl font-semibold">Expert Speaker Sessions</h3>
+                  <h3 className="text-xl font-semibold">Quantum Mechanics</h3>
                 </div>
-                <p className="text-space-300 mb-4">Learn from real scientists and international pioneers</p>
+                <p className="text-space-300 mb-4">Explore the fundamental principles of quantum physics</p>
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm text-cosmic-green">₹300 per student</span>
-                  <span className="text-sm text-space-400">Feb 5-10, 2025</span>
+                  <span className="text-sm text-cosmic-green">₹3,000 per student</span>
+                  <span className="text-sm text-space-400">10 weeks program</span>
                 </div>
-                <Button className="w-full bg-cosmic-green hover:bg-green-600">
-                  Register Now
-                </Button>
+                <Link href="/courses">
+                  <Button className="w-full bg-cosmic-green hover:bg-green-600">
+                    Learn More
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
           </div>
@@ -220,12 +240,16 @@ const Home = () => {
               Join thousands of students and educators who are already discovering the wonders of science with Zoonigia.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button className="cosmic-gradient hover:opacity-90 px-8 py-4 text-lg">
-                <Link href="/register">Get Started Today</Link>
-              </Button>
-              <Button variant="outline" className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900 px-8 py-4 text-lg">
-                <Link href="/workshops">View All Workshops</Link>
-              </Button>
+              <Link href="/register">
+                <Button className="cosmic-gradient hover:opacity-90 px-8 py-4 text-lg">
+                  Get Started Today
+                </Button>
+              </Link>
+              <Link href="/workshops">
+                <Button variant="outline" className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900 px-8 py-4 text-lg">
+                  View All Workshops
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
