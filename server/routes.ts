@@ -59,6 +59,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/workshops/register", async (req, res) => {
+    try {
+      const registrationData = req.body;
+      // For now, we'll just return a success response
+      // In a full implementation, you'd store this in a workshop_registrations table
+      console.log("Workshop registration received:", registrationData);
+      res.json({ 
+        message: "Registration successful", 
+        registrationId: Math.floor(Math.random() * 10000) 
+      });
+    } catch (error) {
+      console.error("Error processing workshop registration:", error);
+      res.status(500).json({ message: "Failed to process registration" });
+    }
+  });
+
   // Course routes
   app.get("/api/courses", async (req, res) => {
     try {

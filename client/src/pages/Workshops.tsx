@@ -1,77 +1,201 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Calendar, MapPin, Users, Clock, Telescope, Headphones, Star, Search } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Calendar, MapPin, Users, Clock, Telescope, Headphones, Star, Mic, Monitor, Lightbulb, Rocket, ChevronRight, Check } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import GlassMorphism from "@/components/GlassMorphism";
-import { Workshop } from "@shared/schema";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+
+// Registration form schema
+const registrationSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Please enter a valid email address"),
+  phone: z.string().min(10, "Please enter a valid phone number"),
+  age: z.string().min(1, "Age is required"),
+  organization: z.string().optional(),
+  experience: z.string().min(1, "Please select your experience level"),
+  interests: z.string().min(10, "Please tell us about your interests"),
+  workshopType: z.string().min(1, "Please select a workshop type"),
+});
+
+type RegistrationFormData = z.infer<typeof registrationSchema>;
 
 const Workshops = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedType, setSelectedType] = useState("all");
-  const [selectedLocation, setSelectedLocation] = useState("all");
+  const [selectedWorkshop, setSelectedWorkshop] = useState<string | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  const { data: workshops, isLoading } = useQuery<Workshop[]>({
-    queryKey: ["/api/workshops"],
+  const form = useForm<RegistrationFormData>({
+    resolver: zodResolver(registrationSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      age: "",
+      organization: "",
+      experience: "",
+      interests: "",
+      workshopType: "",
+    },
   });
 
-  const filteredWorkshops = workshops?.filter((workshop) => {
-    const matchesSearch = workshop.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         workshop.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = selectedType === "all" || workshop.type === selectedType;
-    const matchesLocation = selectedLocation === "all" || 
-                           (selectedLocation === "virtual" && workshop.isVirtual) ||
-                           (selectedLocation === "in-person" && !workshop.isVirtual);
-    
-    return matchesSearch && matchesType && matchesLocation;
+  const registrationMutation = useMutation({
+    mutationFn: async (data: RegistrationFormData) => {
+      const response = await apiRequest("POST", "/api/workshops/register", data);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Registration Successful!",
+        description: "We'll contact you soon with workshop details.",
+      });
+      form.reset();
+      setIsDialogOpen(false);
+      setSelectedWorkshop(null);
+    },
+    onError: (error) => {
+      toast({
+        title: "Registration Failed",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
+    },
   });
 
-  const getWorkshopIcon = (type: string) => {
-    switch (type) {
-      case "telescope":
-        return <Telescope className="w-5 h-5" />;
-      case "vr":
-        return <Headphones className="w-5 h-5" />;
-      case "expert_session":
-        return <Star className="w-5 h-5" />;
-      default:
-        return <Star className="w-5 h-5" />;
-    }
+  const onSubmit = (data: RegistrationFormData) => {
+    registrationMutation.mutate(data);
   };
 
-  const getWorkshopColor = (type: string) => {
-    switch (type) {
-      case "telescope":
-        return "text-cosmic-blue";
-      case "vr":
-        return "text-cosmic-purple";
-      case "expert_session":
-        return "text-cosmic-green";
-      default:
-        return "text-cosmic-blue";
-    }
+  const handleRegister = (workshopId: string) => {
+    setSelectedWorkshop(workshopId);
+    form.setValue("workshopType", workshopId);
+    setIsDialogOpen(true);
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-space-900 text-space-50">
-        <Navigation />
-        <div className="pt-24 pb-16">
-          <div className="container mx-auto px-4">
-            <div className="flex items-center justify-center h-64">
-              <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-cosmic-blue"></div>
-            </div>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
+  // Workshop offerings data
+  const workshopOfferings = [
+    {
+      id: "telescope",
+      title: "Telescope Sessions",
+      description: "Explore the cosmos through professional-grade telescopes with expert guidance",
+      icon: <Telescope className="w-8 h-8" />,
+      color: "cosmic-blue",
+      features: [
+        "Professional telescope operation",
+        "Celestial object identification",
+        "Astrophotography basics",
+        "Star chart navigation",
+        "Real-time sky observations"
+      ],
+      duration: "3-4 hours",
+      groupSize: "8-12 participants",
+      difficulty: "Beginner to Advanced",
+      image: "https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400"
+    },
+    {
+      id: "vr",
+      title: "VR Space Experiences",
+      description: "Immerse yourself in virtual reality journeys through space and time",
+      icon: <Headphones className="w-8 h-8" />,
+      color: "cosmic-purple",
+      features: [
+        "Virtual space station tours",
+        "Planet surface exploration",
+        "Historical space missions",
+        "Interactive solar system",
+        "Asteroid field navigation"
+      ],
+      duration: "2-3 hours",
+      groupSize: "6-10 participants",
+      difficulty: "All levels",
+      image: "https://images.unsplash.com/photo-1622979135225-d2ba269cf1ac?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400"
+    },
+    {
+      id: "expert",
+      title: "Expert Speaker Sessions",
+      description: "Learn from renowned astronomers, physicists, and space industry professionals",
+      icon: <Mic className="w-8 h-8" />,
+      color: "cosmic-green",
+      features: [
+        "Live Q&A with experts",
+        "Career guidance in astronomy",
+        "Latest space discoveries",
+        "Research methodology",
+        "Industry insights"
+      ],
+      duration: "1-2 hours",
+      groupSize: "20-50 participants",
+      difficulty: "All levels",
+      image: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400"
+    },
+    {
+      id: "simulation",
+      title: "Universe Simulation",
+      description: "Experience advanced computer simulations of cosmic phenomena",
+      icon: <Monitor className="w-8 h-8" />,
+      color: "cosmic-orange",
+      features: [
+        "Black hole simulations",
+        "Galaxy formation models",
+        "Planetary system dynamics",
+        "Gravitational wave visualization",
+        "Dark matter interactions"
+      ],
+      duration: "2-3 hours",
+      groupSize: "10-15 participants",
+      difficulty: "Intermediate to Advanced",
+      image: "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400"
+    },
+    {
+      id: "design",
+      title: "Design Thinking",
+      description: "Apply design thinking principles to solve space exploration challenges",
+      icon: <Lightbulb className="w-8 h-8" />,
+      color: "cosmic-pink",
+      features: [
+        "Problem identification",
+        "Creative brainstorming",
+        "Prototype development",
+        "User experience design",
+        "Innovation methodologies"
+      ],
+      duration: "4-5 hours",
+      groupSize: "8-12 participants",
+      difficulty: "All levels",
+      image: "https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400"
+    },
+    {
+      id: "mission",
+      title: "Space Mission Planning",
+      description: "Design and plan your own space missions with professional tools",
+      icon: <Rocket className="w-8 h-8" />,
+      color: "cosmic-red",
+      features: [
+        "Mission objective setting",
+        "Spacecraft design basics",
+        "Trajectory planning",
+        "Budget considerations",
+        "Risk assessment"
+      ],
+      duration: "3-4 hours",
+      groupSize: "6-10 participants",
+      difficulty: "Intermediate",
+      image: "https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400"
+    }
+  ];
 
   return (
     <div className="min-h-screen bg-space-900 text-space-50">
@@ -79,110 +203,93 @@ const Workshops = () => {
       
       <div className="pt-24 pb-16">
         <div className="container mx-auto px-4">
-          {/* Header */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-space font-bold mb-4">
-              Immersive <span className="text-cosmic-blue">Workshops</span>
-            </h1>
-            <p className="text-xl text-space-200 max-w-3xl mx-auto">
-              Experience hands-on learning through our immersive workshops featuring telescope sessions, VR experiences, expert speaker sessions, universe simulation, design thinking, and more
-            </p>
+          {/* Hero Section */}
+          <div className="text-center mb-16">
+            <div className="mb-6">
+              <h1 className="text-4xl md:text-6xl font-space font-bold mb-4">
+                Immersive <span className="text-cosmic-blue">Workshops</span>
+              </h1>
+              <p className="text-xl md:text-2xl text-space-200 max-w-4xl mx-auto">
+                Experience hands-on learning through our comprehensive workshops featuring telescope sessions, VR experiences, expert speaker sessions, universe simulation, design thinking, and space mission planning
+              </p>
+            </div>
+            <div className="flex justify-center items-center gap-4 text-space-300">
+              <div className="flex items-center gap-2">
+                <Users className="w-5 h-5" />
+                <span>Small Groups</span>
+              </div>
+              <div className="w-1 h-1 bg-space-400 rounded-full"></div>
+              <div className="flex items-center gap-2">
+                <Clock className="w-5 h-5" />
+                <span>Flexible Duration</span>
+              </div>
+              <div className="w-1 h-1 bg-space-400 rounded-full"></div>
+              <div className="flex items-center gap-2">
+                <Star className="w-5 h-5" />
+                <span>Expert Guidance</span>
+              </div>
+            </div>
           </div>
 
-          {/* Filters */}
-          <GlassMorphism className="p-6 mb-8">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-space-400" />
-                <Input
-                  placeholder="Search workshops..."
-                  className="pl-10 bg-space-700 border-space-600"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-              
-              <Select value={selectedType} onValueChange={setSelectedType}>
-                <SelectTrigger className="bg-space-700 border-space-600">
-                  <SelectValue placeholder="Workshop Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="telescope">Telescope Sessions</SelectItem>
-                  <SelectItem value="vr">VR Experiences</SelectItem>
-                  <SelectItem value="expert_session">Expert Sessions</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Select value={selectedLocation} onValueChange={setSelectedLocation}>
-                <SelectTrigger className="bg-space-700 border-space-600">
-                  <SelectValue placeholder="Location" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Locations</SelectItem>
-                  <SelectItem value="virtual">Virtual</SelectItem>
-                  <SelectItem value="in-person">In-Person</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Button variant="outline" className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900">
-                Filter
-              </Button>
-            </div>
-          </GlassMorphism>
-
           {/* Workshop Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredWorkshops?.map((workshop) => (
-              <Card key={workshop.id} className="bg-space-800/50 border-space-700 hover:scale-105 transition-transform">
-                <div className="relative">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+            {workshopOfferings.map((workshop) => (
+              <Card key={workshop.id} className="bg-space-800/50 border-space-700 hover:scale-105 transition-all duration-300 group">
+                <div className="relative overflow-hidden">
                   <img 
-                    src={workshop.imageUrl || "https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400"} 
+                    src={workshop.image} 
                     alt={workshop.title}
-                    className="w-full h-48 object-cover rounded-t-lg"
+                    className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-300"
                   />
-                  <div className="absolute top-4 right-4 bg-cosmic-blue px-3 py-1 rounded-full text-sm font-semibold">
-                    {workshop.isVirtual ? "Virtual" : "In-Person"}
+                  <div className="absolute inset-0 bg-gradient-to-t from-space-900/80 via-transparent to-transparent"></div>
+                  <div className="absolute top-4 right-4">
+                    <div className={`bg-${workshop.color} p-2 rounded-full`}>
+                      {workshop.icon}
+                    </div>
+                  </div>
+                  <div className="absolute bottom-4 left-4">
+                    <Badge variant="secondary" className="bg-space-700/80">
+                      {workshop.difficulty}
+                    </Badge>
                   </div>
                 </div>
                 
                 <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div className={`flex items-center ${getWorkshopColor(workshop.type)}`}>
-                      {getWorkshopIcon(workshop.type)}
-                      <CardTitle className="text-xl font-semibold ml-2">{workshop.title}</CardTitle>
-                    </div>
-                  </div>
+                  <CardTitle className="text-xl text-space-50">{workshop.title}</CardTitle>
+                  <p className="text-space-300">{workshop.description}</p>
                 </CardHeader>
                 
                 <CardContent>
-                  <p className="text-space-300 mb-4">{workshop.description}</p>
-                  
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center text-sm text-space-400">
-                      <Calendar className="w-4 h-4 mr-2" />
-                      {workshop.startDate} - {workshop.endDate}
-                    </div>
-                    
-                    {workshop.location && (
-                      <div className="flex items-center text-sm text-space-400">
-                        <MapPin className="w-4 h-4 mr-2" />
-                        {workshop.location}
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-cosmic-blue" />
+                        <span>{workshop.duration}</span>
                       </div>
-                    )}
-                    
-                    <div className="flex items-center text-sm text-space-400">
-                      <Users className="w-4 h-4 mr-2" />
-                      {workshop.currentParticipants || 0} / {workshop.maxParticipants || 'Unlimited'} registered
+                      <div className="flex items-center gap-2">
+                        <Users className="w-4 h-4 text-cosmic-green" />
+                        <span>{workshop.groupSize}</span>
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <span className="text-2xl font-bold text-cosmic-blue">
-                      ₹{workshop.price}
-                    </span>
-                    <Button className="bg-cosmic-blue hover:bg-blue-600">
-                      Register Now
+                    
+                    <div className="space-y-2">
+                      <h4 className="font-semibold text-space-200">What You'll Learn:</h4>
+                      <ul className="space-y-1">
+                        {workshop.features.slice(0, 3).map((feature, index) => (
+                          <li key={index} className="flex items-center gap-2 text-sm text-space-300">
+                            <Check className="w-3 h-3 text-cosmic-green" />
+                            {feature}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    
+                    <Button 
+                      onClick={() => handleRegister(workshop.id)}
+                      className="w-full bg-cosmic-blue hover:bg-cosmic-blue/80 text-space-50"
+                    >
+                      Register for Workshop
+                      <ChevronRight className="w-4 h-4 ml-2" />
                     </Button>
                   </div>
                 </CardContent>
@@ -190,35 +297,186 @@ const Workshops = () => {
             ))}
           </div>
 
-          {/* Empty State */}
-          {filteredWorkshops?.length === 0 && (
-            <div className="text-center py-16">
-              <h3 className="text-2xl font-semibold text-space-300 mb-4">No workshops found</h3>
-              <p className="text-space-400 mb-8">Try adjusting your filters or search terms</p>
-              <Button variant="outline" onClick={() => {
-                setSearchTerm("");
-                setSelectedType("all");
-                setSelectedLocation("all");
-              }}>
-                Clear Filters
+          {/* Call to Action */}
+          <GlassMorphism className="p-8 text-center">
+            <h2 className="text-3xl font-space font-bold mb-4">
+              Ready to Explore the <span className="text-cosmic-blue">Universe</span>?
+            </h2>
+            <p className="text-xl text-space-200 mb-6 max-w-2xl mx-auto">
+              Join our immersive workshops and embark on a journey through space science education
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button 
+                onClick={() => setIsDialogOpen(true)}
+                className="bg-cosmic-blue hover:bg-cosmic-blue/80 text-space-50"
+              >
+                Register Now
+              </Button>
+              <Button variant="outline" className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900">
+                Learn More
               </Button>
             </div>
-          )}
-
-          {/* Call to Action */}
-          <div className="mt-16 text-center">
-            <GlassMorphism className="p-8 max-w-3xl mx-auto">
-              <h3 className="text-2xl font-semibold mb-4">Can't find what you're looking for?</h3>
-              <p className="text-space-300 mb-6">
-                Contact us to discuss custom workshop options for your school or organization
-              </p>
-              <Button className="cosmic-gradient hover:opacity-90">
-                Request Custom Workshop
-              </Button>
-            </GlassMorphism>
-          </div>
+          </GlassMorphism>
         </div>
       </div>
+
+      {/* Registration Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="bg-space-800 border-space-700 text-space-50 max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-space">Register for Workshop</DialogTitle>
+          </DialogHeader>
+          
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Full Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter your full name" {...field} className="bg-space-700 border-space-600" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email Address</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter your email" {...field} className="bg-space-700 border-space-600" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Phone Number</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter your phone number" {...field} className="bg-space-700 border-space-600" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="age"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Age</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter your age" {...field} className="bg-space-700 border-space-600" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="organization"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Organization (Optional)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="School, company, or organization" {...field} className="bg-space-700 border-space-600" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="experience"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Experience Level</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="bg-space-700 border-space-600">
+                          <SelectValue placeholder="Select your experience level" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="beginner">Beginner</SelectItem>
+                        <SelectItem value="intermediate">Intermediate</SelectItem>
+                        <SelectItem value="advanced">Advanced</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="workshopType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Workshop Type</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="bg-space-700 border-space-600">
+                          <SelectValue placeholder="Select workshop type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="telescope">Telescope Sessions</SelectItem>
+                        <SelectItem value="vr">VR Space Experiences</SelectItem>
+                        <SelectItem value="expert">Expert Speaker Sessions</SelectItem>
+                        <SelectItem value="simulation">Universe Simulation</SelectItem>
+                        <SelectItem value="design">Design Thinking</SelectItem>
+                        <SelectItem value="mission">Space Mission Planning</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="interests"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Interests & Goals</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Tell us about your interests in space science and what you hope to learn"
+                        {...field} 
+                        className="bg-space-700 border-space-600"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <Button 
+                type="submit" 
+                className="w-full bg-cosmic-blue hover:bg-cosmic-blue/80 text-space-50"
+                disabled={registrationMutation.isPending}
+              >
+                {registrationMutation.isPending ? "Submitting..." : "Register Now"}
+              </Button>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
 
       <Footer />
     </div>
