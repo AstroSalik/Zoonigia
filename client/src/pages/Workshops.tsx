@@ -421,7 +421,7 @@ const Workshops = () => {
                       <Checkbox
                         checked={field.value}
                         onCheckedChange={field.onChange}
-                        className="mt-1 border-2 border-space-400 bg-space-800 data-[state=checked]:bg-cosmic-blue data-[state=checked]:border-cosmic-blue data-[state=checked]:text-white"
+                        className="mt-1 border-2 border-white bg-space-800 data-[state=checked]:bg-cosmic-blue data-[state=checked]:border-cosmic-blue data-[state=checked]:text-white"
                       />
                     </FormControl>
                     <div className="space-y-1 leading-none">
