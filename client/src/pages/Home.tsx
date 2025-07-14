@@ -128,7 +128,7 @@ const Home = () => {
             <div className="relative w-full h-0 pb-[56.25%] rounded-lg overflow-hidden bg-space-800">
               <iframe
                 className="absolute top-0 left-0 w-full h-full"
-                src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                src="https://www.youtube.com/embed/Tgr6BrgIBec"
                 title="What is Zoonigia - Space Science Education Platform"
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
