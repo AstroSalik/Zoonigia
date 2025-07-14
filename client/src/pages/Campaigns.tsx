@@ -48,6 +48,14 @@ const PaymentForm = ({
   const elements = useElements();
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    console.log("Stripe setup:", { stripe: !!stripe, elements: !!elements });
+    if (stripe && elements) {
+      setIsLoading(false);
+    }
+  }, [stripe, elements]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,7 +108,19 @@ const PaymentForm = ({
       </div>
 
       <div className="bg-space-700 p-4 rounded-lg">
-        <PaymentElement />
+        <div className="text-sm text-space-300 mb-4">Payment Details</div>
+        {isLoading ? (
+          <div className="flex items-center justify-center p-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cosmic-blue"></div>
+            <span className="ml-2 text-space-300">Loading payment form...</span>
+          </div>
+        ) : (
+          <PaymentElement 
+            options={{
+              layout: "tabs"
+            }}
+          />
+        )}
       </div>
 
       <div className="flex justify-between gap-4 pt-4">
@@ -115,10 +135,10 @@ const PaymentForm = ({
         </Button>
         <Button 
           type="submit"
-          disabled={!stripe || isProcessing}
+          disabled={!stripe || isProcessing || isLoading}
           className="bg-cosmic-blue hover:bg-blue-600 text-white"
         >
-          {isProcessing ? "Processing..." : `Pay ₹${selectedCampaign.price}`}
+          {isProcessing ? "Processing..." : isLoading ? "Loading..." : `Pay ₹${selectedCampaign.price}`}
         </Button>
       </div>
     </form>
