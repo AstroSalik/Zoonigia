@@ -194,7 +194,6 @@ const Workshops = () => {
   return (
     <div className="min-h-screen bg-space-900 text-space-50">
       <Navigation />
-      
       <div className="pt-24 pb-16">
         <div className="container mx-auto px-4">
           {/* Hero Section */}
@@ -323,7 +322,6 @@ const Workshops = () => {
           </GlassMorphism>
         </div>
       </div>
-
       {/* Registration Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="bg-space-800 border-space-700 text-space-50 max-w-md max-h-[90vh] overflow-y-auto">
@@ -498,10 +496,7 @@ const Workshops = () => {
                   <Mail className="w-4 h-4 text-cosmic-blue" />
                   Next Steps
                 </h4>
-                <p className="text-xs text-space-300">
-                  After registration, our team will contact you within 24 hours to discuss workshop details, 
-                  scheduling, and any specific requirements you may have.
-                </p>
+                <p className="text-xs text-space-300">After registration, our team will contact you within 48 hours to discuss workshop details, scheduling, and any specific requirements you may have.</p>
               </div>
               
               <Button 
@@ -515,7 +510,6 @@ const Workshops = () => {
           </Form>
         </DialogContent>
       </Dialog>
-
       <Footer />
     </div>
   );
