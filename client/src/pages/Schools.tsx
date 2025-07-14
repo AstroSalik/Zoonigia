@@ -148,7 +148,7 @@ const Schools = () => {
           </div>
 
           {/* Services Overview */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
             <GlassMorphism className="p-6 text-center hover:bg-white/10 transition-colors">
               <div className="w-16 h-16 bg-cosmic-blue/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Rocket className="w-8 h-8 text-cosmic-blue" />
@@ -220,68 +220,23 @@ const Schools = () => {
                 View Courses
               </Button>
             </GlassMorphism>
-          </div>
 
-          {/* Student Research Programme */}
-          <div className="mb-16">
-            <GlassMorphism className="p-8">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center">
-                  <div className="w-12 h-12 bg-cosmic-green/20 rounded-full flex items-center justify-center mr-4">
-                    <Target className="w-6 h-6 text-cosmic-green" />
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-space font-bold">Student Research Programme</h2>
-                    <p className="text-space-300">Collaborative research opportunities for advanced students</p>
-                  </div>
-                </div>
+            <GlassMorphism className="p-6 text-center hover:bg-white/10 transition-colors">
+              <div className="w-16 h-16 bg-cosmic-purple/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Target className="w-8 h-8 text-cosmic-purple" />
               </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                  <h3 className="text-xl font-semibold mb-4">Research Areas</h3>
-                  <ul className="space-y-3 text-space-300">
-                    <li className="flex items-start">
-                      <ArrowRight className="w-4 h-4 text-cosmic-green mr-2 mt-1 flex-shrink-0" />
-                      <span>Asteroid detection and tracking projects</span>
-                    </li>
-                    <li className="flex items-start">
-                      <ArrowRight className="w-4 h-4 text-cosmic-green mr-2 mt-1 flex-shrink-0" />
-                      <span>Exoplanet discovery and analysis</span>
-                    </li>
-                    <li className="flex items-start">
-                      <ArrowRight className="w-4 h-4 text-cosmic-green mr-2 mt-1 flex-shrink-0" />
-                      <span>Space weather monitoring and prediction</span>
-                    </li>
-                    <li className="flex items-start">
-                      <ArrowRight className="w-4 h-4 text-cosmic-green mr-2 mt-1 flex-shrink-0" />
-                      <span>Collaborative projects with NASA and ESA</span>
-                    </li>
-                  </ul>
-                </div>
-                
-                <div>
-                  <h3 className="text-xl font-semibold mb-4">Programme Benefits</h3>
-                  <ul className="space-y-3 text-space-300">
-                    <li className="flex items-start">
-                      <ArrowRight className="w-4 h-4 text-cosmic-green mr-2 mt-1 flex-shrink-0" />
-                      <span>Mentorship from professional researchers</span>
-                    </li>
-                    <li className="flex items-start">
-                      <ArrowRight className="w-4 h-4 text-cosmic-green mr-2 mt-1 flex-shrink-0" />
-                      <span>Access to real astronomical data and tools</span>
-                    </li>
-                    <li className="flex items-start">
-                      <ArrowRight className="w-4 h-4 text-cosmic-green mr-2 mt-1 flex-shrink-0" />
-                      <span>Publication opportunities in student journals</span>
-                    </li>
-                    <li className="flex items-start">
-                      <ArrowRight className="w-4 h-4 text-cosmic-green mr-2 mt-1 flex-shrink-0" />
-                      <span>Certificate of completion for university applications</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
+              <h3 className="text-lg font-semibold mb-2">Student Research Programme</h3>
+              <p className="text-space-300 text-sm mb-4">
+                Collaborative research opportunities with real astronomical data and professional mentorship
+              </p>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => document.getElementById('contact-form')?.scrollIntoView({ behavior: 'smooth' })}
+                className="border-cosmic-purple text-cosmic-purple hover:bg-cosmic-purple hover:text-white"
+              >
+                Join Programme
+              </Button>
             </GlassMorphism>
           </div>
 
