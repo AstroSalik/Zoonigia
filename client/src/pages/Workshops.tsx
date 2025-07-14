@@ -8,7 +8,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, MapPin, Users, Clock, Telescope, Headphones, Star, Mic, Monitor, Lightbulb, Rocket, ChevronRight, Check } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Calendar, MapPin, Users, Clock, Telescope, Headphones, Star, Mic, Monitor, Lightbulb, Rocket, ChevronRight, Check, Mail, Phone } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import GlassMorphism from "@/components/GlassMorphism";
@@ -27,7 +28,8 @@ const registrationSchema = z.object({
   organization: z.string().optional(),
   experience: z.string().min(1, "Please select your experience level"),
   interests: z.string().min(10, "Please tell us about your interests"),
-  workshopType: z.string().min(1, "Please select a workshop type"),
+  requestLowerClass: z.boolean().default(false),
+  contactMethod: z.string().min(1, "Please select preferred contact method"),
 });
 
 type RegistrationFormData = z.infer<typeof registrationSchema>;
@@ -48,7 +50,8 @@ const Workshops = () => {
       organization: "",
       experience: "",
       interests: "",
-      workshopType: "",
+      requestLowerClass: false,
+      contactMethod: "",
     },
   });
 
@@ -81,7 +84,6 @@ const Workshops = () => {
 
   const handleRegister = (workshopId: string) => {
     setSelectedWorkshop(workshopId);
-    form.setValue("workshopType", workshopId);
     setIsDialogOpen(true);
   };
 
@@ -100,10 +102,9 @@ const Workshops = () => {
         "Star chart navigation",
         "Real-time sky observations"
       ],
-      duration: "3-4 hours",
-      groupSize: "8-12 participants",
+
       difficulty: "Beginner to Advanced",
-      image: "https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400"
+      image: "https://images.unsplash.com/photo-1502134249126-9f3755a50d78?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400"
     },
     {
       id: "vr",
@@ -118,8 +119,7 @@ const Workshops = () => {
         "Interactive solar system",
         "Asteroid field navigation"
       ],
-      duration: "2-3 hours",
-      groupSize: "6-10 participants",
+
       difficulty: "All levels",
       image: "https://images.unsplash.com/photo-1622979135225-d2ba269cf1ac?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400"
     },
@@ -136,10 +136,9 @@ const Workshops = () => {
         "Research methodology",
         "Industry insights"
       ],
-      duration: "1-2 hours",
-      groupSize: "20-50 participants",
+
       difficulty: "All levels",
-      image: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400"
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400"
     },
     {
       id: "simulation",
@@ -154,8 +153,7 @@ const Workshops = () => {
         "Gravitational wave visualization",
         "Dark matter interactions"
       ],
-      duration: "2-3 hours",
-      groupSize: "10-15 participants",
+
       difficulty: "Intermediate to Advanced",
       image: "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400"
     },
@@ -172,10 +170,9 @@ const Workshops = () => {
         "User experience design",
         "Innovation methodologies"
       ],
-      duration: "4-5 hours",
-      groupSize: "8-12 participants",
+
       difficulty: "All levels",
-      image: "https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400"
+      image: "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400"
     },
     {
       id: "mission",
@@ -190,8 +187,7 @@ const Workshops = () => {
         "Budget considerations",
         "Risk assessment"
       ],
-      duration: "3-4 hours",
-      groupSize: "6-10 participants",
+
       difficulty: "Intermediate",
       image: "https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400"
     }
@@ -285,17 +281,6 @@ const Workshops = () => {
                 
                 <CardContent>
                   <div className="space-y-3">
-                    <div className="grid grid-cols-2 gap-3 text-xs">
-                      <div className="flex items-center gap-2">
-                        <Clock className="w-3 h-3 text-cosmic-blue" />
-                        <span>{workshop.duration}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Users className="w-3 h-3 text-cosmic-green" />
-                        <span>{workshop.groupSize}</span>
-                      </div>
-                    </div>
-                    
                     <div className="space-y-2">
                       <h4 className="font-semibold text-space-200 text-sm">Key Features:</h4>
                       <ul className="space-y-1">
@@ -307,6 +292,13 @@ const Workshops = () => {
                         ))}
                       </ul>
                     </div>
+                    
+                    <Button 
+                      onClick={() => handleRegister(workshop.id)}
+                      className={`w-full bg-${workshop.color} hover:bg-${workshop.color}/80 text-white`}
+                    >
+                      Register Now
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -440,23 +432,60 @@ const Workshops = () => {
               
               <FormField
                 control={form.control}
-                name="workshopType"
+                name="requestLowerClass"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-space-600 bg-space-700/50 p-4">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                        className="border-space-400 data-[state=checked]:bg-cosmic-blue data-[state=checked]:border-cosmic-blue"
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel className="text-sm font-medium">
+                        Request for Lower Classes
+                      </FormLabel>
+                      <p className="text-xs text-space-300">
+                        Check this if you need workshops adapted for students below Class 5. Content will be modified based on age group.
+                      </p>
+                    </div>
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="contactMethod"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Workshop Type</FormLabel>
+                    <FormLabel>Preferred Contact Method</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger className="bg-space-700 border-space-600">
-                          <SelectValue placeholder="Select workshop type" />
+                          <SelectValue placeholder="How would you like us to contact you?" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="telescope">Telescope Sessions</SelectItem>
-                        <SelectItem value="vr">VR Space Experiences</SelectItem>
-                        <SelectItem value="expert">Expert Speaker Sessions</SelectItem>
-                        <SelectItem value="simulation">Universe Simulation</SelectItem>
-                        <SelectItem value="design">Design Thinking</SelectItem>
-                        <SelectItem value="mission">Space Mission Planning</SelectItem>
+                        <SelectItem value="email">
+                          <div className="flex items-center gap-2">
+                            <Mail className="w-4 h-4" />
+                            Email
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="phone">
+                          <div className="flex items-center gap-2">
+                            <Phone className="w-4 h-4" />
+                            Phone Call
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="both">
+                          <div className="flex items-center gap-2">
+                            <Mail className="w-4 h-4" />
+                            <Phone className="w-4 h-4" />
+                            Either Email or Phone
+                          </div>
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -481,6 +510,17 @@ const Workshops = () => {
                   </FormItem>
                 )}
               />
+              
+              <div className="bg-space-700/50 p-4 rounded-lg border border-space-600">
+                <h4 className="font-semibold text-space-200 mb-2 flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-cosmic-blue" />
+                  Next Steps
+                </h4>
+                <p className="text-xs text-space-300">
+                  After registration, our team will contact you within 24 hours to discuss workshop details, 
+                  scheduling, and any specific requirements you may have.
+                </p>
+              </div>
               
               <Button 
                 type="submit" 
