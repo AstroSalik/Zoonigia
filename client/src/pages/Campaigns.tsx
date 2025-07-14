@@ -7,6 +7,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { useStripe, useElements, Elements, PaymentElement } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
 import { 
   Telescope, 
   PenTool, 
@@ -22,7 +24,106 @@ import Footer from "@/components/Footer";
 import GlassMorphism from "@/components/GlassMorphism";
 import { Campaign } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+// Initialize Stripe
+if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
+  throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
+}
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+
+// Payment Form Component
+const PaymentForm = ({ 
+  selectedCampaign, 
+  registrationData, 
+  onSuccess, 
+  onCancel 
+}: {
+  selectedCampaign: Campaign;
+  registrationData: any;
+  onSuccess: () => void;
+  onCancel: () => void;
+}) => {
+  const stripe = useStripe();
+  const elements = useElements();
+  const { toast } = useToast();
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!stripe || !elements) {
+      return;
+    }
+
+    setIsProcessing(true);
+
+    try {
+      const { error } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/campaigns?success=true`,
+        },
+        redirect: 'if_required'
+      });
+
+      if (error) {
+        toast({
+          title: "Payment Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        onSuccess();
+      }
+    } catch (err) {
+      toast({
+        title: "Payment Error",
+        description: "An unexpected error occurred during payment processing.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="bg-space-700 p-4 rounded-lg">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm text-space-400">Campaign Registration</span>
+          <span className="text-lg font-bold text-cosmic-green">₹{selectedCampaign.price}</span>
+        </div>
+        <div className="text-sm text-space-300">
+          {selectedCampaign.title}
+        </div>
+      </div>
+
+      <div className="bg-space-700 p-4 rounded-lg">
+        <PaymentElement />
+      </div>
+
+      <div className="flex justify-between gap-4 pt-4">
+        <Button 
+          type="button"
+          variant="outline" 
+          onClick={onCancel}
+          disabled={isProcessing}
+          className="border-space-600 text-space-300 hover:bg-space-700"
+        >
+          Cancel
+        </Button>
+        <Button 
+          type="submit"
+          disabled={!stripe || isProcessing}
+          className="bg-cosmic-blue hover:bg-blue-600 text-white"
+        >
+          {isProcessing ? "Processing..." : `Pay ₹${selectedCampaign.price}`}
+        </Button>
+      </div>
+    </form>
+  );
+};
 
 const getCampaignIcon = (type: string) => {
   switch (type) {
@@ -52,33 +153,23 @@ const Campaigns = () => {
   
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
+  const [showPayment, setShowPayment] = useState(false);
+  const [clientSecret, setClientSecret] = useState("");
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
-  const enrollMutation = useMutation({
+  // Create payment intent mutation
+  const createPaymentMutation = useMutation({
     mutationFn: async (data: any) => {
-      return await apiRequest("POST", "/api/campaigns/enroll", data);
+      return await apiRequest("POST", "/api/campaigns/create-payment-intent", data);
     },
-    onSuccess: () => {
-      toast({
-        title: "Registration Successful!",
-        description: "You have successfully enrolled in the campaign.",
-      });
-      setIsDialogOpen(false);
-      setRegistrationData({
-        name: "",
-        email: "",
-        phone: "",
-        school: "",
-        grade: ""
-      });
-      queryClient.invalidateQueries({ queryKey: ["/api/campaigns"] });
+    onSuccess: (data) => {
+      setClientSecret(data.clientSecret);
+      setShowPayment(true);
     },
     onError: (error: any) => {
-      console.error("Campaign enrollment error:", error);
-      
-      // Handle authentication errors
+      console.error("Payment intent creation error:", error);
       if (error.message?.includes("401") || error.message?.includes("Unauthorized")) {
         toast({
           title: "Authentication Required",
@@ -90,7 +181,37 @@ const Campaigns = () => {
         }, 1000);
         return;
       }
-      
+      toast({
+        title: "Payment Setup Failed",
+        description: "Unable to set up payment. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+  
+  const enrollMutation = useMutation({
+    mutationFn: async (data: any) => {
+      return await apiRequest("POST", "/api/campaigns/enroll", data);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Registration Successful!",
+        description: "You have successfully enrolled in the campaign.",
+      });
+      setIsDialogOpen(false);
+      setShowPayment(false);
+      setClientSecret("");
+      setRegistrationData({
+        name: "",
+        email: "",
+        phone: "",
+        school: "",
+        grade: ""
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/campaigns"] });
+    },
+    onError: (error: any) => {
+      console.error("Campaign enrollment error:", error);
       toast({
         title: "Registration Failed",
         description: error.message || "There was an error processing your registration. Please try again.",
@@ -102,18 +223,37 @@ const Campaigns = () => {
   const handleEnrollment = (campaign: Campaign) => {
     setSelectedCampaign(campaign);
     setIsDialogOpen(true);
+    setShowPayment(false);
+    setClientSecret("");
   };
   
   const handleSubmitEnrollment = async () => {
     if (!selectedCampaign) return;
     
-    const enrollmentData = {
+    // Create payment intent first
+    createPaymentMutation.mutate({
       campaignId: selectedCampaign.id,
-      paymentAmount: 300,
-      registrationData
-    };
+      paymentAmount: parseFloat(selectedCampaign.price)
+    });
+  };
+
+  const handlePaymentSuccess = () => {
+    toast({
+      title: "Payment Successful!",
+      description: "Your payment has been processed successfully.",
+    });
     
-    enrollMutation.mutate(enrollmentData);
+    // Complete the enrollment
+    enrollMutation.mutate({
+      campaignId: selectedCampaign?.id,
+      paymentIntentId: clientSecret?.split('_secret_')[0],
+      registrationData
+    });
+  };
+
+  const handlePaymentCancel = () => {
+    setShowPayment(false);
+    setClientSecret("");
   };
 
   const getCampaignIcon = (type: string) => {
@@ -371,97 +511,112 @@ const Campaigns = () => {
         <DialogContent className="sm:max-w-[425px] bg-space-800 border-space-700">
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold text-space-50">
-              Register for {selectedCampaign?.title}
+              {showPayment ? "Complete Payment" : "Register for Campaign"}
             </DialogTitle>
           </DialogHeader>
           
-          <div className="space-y-4">
-            <div className="bg-space-700 p-4 rounded-lg">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-space-400">Registration Fee</span>
-                <span className="text-lg font-bold text-cosmic-green">₹{selectedCampaign?.price}</span>
+          {!showPayment ? (
+            // Registration Form
+            <div className="space-y-4">
+              <div className="bg-space-700 p-4 rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-space-400">Registration Fee</span>
+                  <span className="text-lg font-bold text-cosmic-green">₹{selectedCampaign?.price}</span>
+                </div>
+                <div className="flex items-center">
+                  <CreditCard className="w-4 h-4 mr-2 text-cosmic-blue" />
+                  <span className="text-sm text-space-300">Secure payment processing with Stripe</span>
+                </div>
               </div>
-              <div className="flex items-center">
-                <CreditCard className="w-4 h-4 mr-2 text-cosmic-blue" />
-                <span className="text-sm text-space-300">Secure payment processing</span>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="name" className="text-space-300">Full Name</Label>
+                  <Input
+                    id="name"
+                    value={registrationData.name}
+                    onChange={(e) => setRegistrationData({...registrationData, name: e.target.value})}
+                    className="bg-space-700 border-space-600 text-space-50"
+                    placeholder="Enter your full name"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="email" className="text-space-300">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={registrationData.email}
+                    onChange={(e) => setRegistrationData({...registrationData, email: e.target.value})}
+                    className="bg-space-700 border-space-600 text-space-50"
+                    placeholder="Enter your email"
+                  />
+                </div>
               </div>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="phone" className="text-space-300">Phone</Label>
+                  <Input
+                    id="phone"
+                    value={registrationData.phone}
+                    onChange={(e) => setRegistrationData({...registrationData, phone: e.target.value})}
+                    className="bg-space-700 border-space-600 text-space-50"
+                    placeholder="Enter your phone"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="grade" className="text-space-300">Grade/Class</Label>
+                  <Input
+                    id="grade"
+                    value={registrationData.grade}
+                    onChange={(e) => setRegistrationData({...registrationData, grade: e.target.value})}
+                    className="bg-space-700 border-space-600 text-space-50"
+                    placeholder="Enter your grade"
+                  />
+                </div>
+              </div>
+              
               <div>
-                <Label htmlFor="name" className="text-space-300">Full Name</Label>
+                <Label htmlFor="school" className="text-space-300">School/Institution</Label>
                 <Input
-                  id="name"
-                  value={registrationData.name}
-                  onChange={(e) => setRegistrationData({...registrationData, name: e.target.value})}
+                  id="school"
+                  value={registrationData.school}
+                  onChange={(e) => setRegistrationData({...registrationData, school: e.target.value})}
                   className="bg-space-700 border-space-600 text-space-50"
-                  placeholder="Enter your full name"
+                  placeholder="Enter your school name"
                 />
               </div>
-              <div>
-                <Label htmlFor="email" className="text-space-300">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={registrationData.email}
-                  onChange={(e) => setRegistrationData({...registrationData, email: e.target.value})}
-                  className="bg-space-700 border-space-600 text-space-50"
-                  placeholder="Enter your email"
-                />
+              
+              <div className="flex justify-between gap-4 pt-4">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsDialogOpen(false)}
+                  className="border-space-600 text-space-300 hover:bg-space-700"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={handleSubmitEnrollment}
+                  disabled={createPaymentMutation.isPending || !registrationData.name || !registrationData.email}
+                  className="bg-cosmic-blue hover:bg-blue-600 text-white"
+                >
+                  {createPaymentMutation.isPending ? "Setting up payment..." : "Proceed to Payment"}
+                </Button>
               </div>
             </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="phone" className="text-space-300">Phone</Label>
-                <Input
-                  id="phone"
-                  value={registrationData.phone}
-                  onChange={(e) => setRegistrationData({...registrationData, phone: e.target.value})}
-                  className="bg-space-700 border-space-600 text-space-50"
-                  placeholder="Enter your phone"
+          ) : (
+            // Payment Form
+            clientSecret && selectedCampaign && (
+              <Elements stripe={stripePromise} options={{ clientSecret }}>
+                <PaymentForm
+                  selectedCampaign={selectedCampaign}
+                  registrationData={registrationData}
+                  onSuccess={handlePaymentSuccess}
+                  onCancel={handlePaymentCancel}
                 />
-              </div>
-              <div>
-                <Label htmlFor="grade" className="text-space-300">Grade/Class</Label>
-                <Input
-                  id="grade"
-                  value={registrationData.grade}
-                  onChange={(e) => setRegistrationData({...registrationData, grade: e.target.value})}
-                  className="bg-space-700 border-space-600 text-space-50"
-                  placeholder="Enter your grade"
-                />
-              </div>
-            </div>
-            
-            <div>
-              <Label htmlFor="school" className="text-space-300">School/Institution</Label>
-              <Input
-                id="school"
-                value={registrationData.school}
-                onChange={(e) => setRegistrationData({...registrationData, school: e.target.value})}
-                className="bg-space-700 border-space-600 text-space-50"
-                placeholder="Enter your school name"
-              />
-            </div>
-            
-            <div className="flex justify-between gap-4 pt-4">
-              <Button 
-                variant="outline" 
-                onClick={() => setIsDialogOpen(false)}
-                className="border-space-600 text-space-300 hover:bg-space-700"
-              >
-                Cancel
-              </Button>
-              <Button 
-                onClick={handleSubmitEnrollment}
-                disabled={enrollMutation.isPending || !registrationData.name || !registrationData.email}
-                className="bg-cosmic-blue hover:bg-blue-600 text-white"
-              >
-                {enrollMutation.isPending ? "Processing..." : `Pay ₹${selectedCampaign?.price} & Register`}
-              </Button>
-            </div>
-          </div>
+              </Elements>
+            )
+          )}
         </DialogContent>
       </Dialog>
 

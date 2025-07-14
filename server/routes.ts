@@ -10,6 +10,14 @@ import {
   insertUserSchema
 } from "@shared/schema";
 import { z } from "zod";
+import Stripe from "stripe";
+
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+}
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: "2023-10-16",
+});
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -504,17 +512,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/campaigns/enroll", isAuthenticated, async (req: any, res) => {
+  // Create payment intent for campaign enrollment
+  app.post("/api/campaigns/create-payment-intent", isAuthenticated, async (req: any, res) => {
     try {
-      const { campaignId, paymentAmount, registrationData } = req.body;
+      const { campaignId, paymentAmount } = req.body;
       const userId = req.user.claims.sub;
       
-      // Create campaign enrollment with payment
+      // Create payment intent
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(paymentAmount * 100), // Convert to cents
+        currency: "inr",
+        metadata: {
+          campaignId: campaignId.toString(),
+          userId: userId
+        }
+      });
+      
+      res.json({ 
+        clientSecret: paymentIntent.client_secret,
+        paymentIntentId: paymentIntent.id
+      });
+    } catch (error) {
+      console.error("Error creating payment intent:", error);
+      res.status(500).json({ message: "Failed to create payment intent" });
+    }
+  });
+
+  app.post("/api/campaigns/enroll", isAuthenticated, async (req: any, res) => {
+    try {
+      const { campaignId, paymentIntentId, registrationData } = req.body;
+      const userId = req.user.claims.sub;
+      
+      // Verify payment was successful
+      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+      
+      if (paymentIntent.status !== "succeeded") {
+        return res.status(400).json({ message: "Payment not completed" });
+      }
+      
+      // Create campaign enrollment with confirmed payment
       const enrollment = await storage.joinCampaign({
         campaignId,
         userId,
         paymentStatus: "paid",
-        paymentAmount: paymentAmount.toString()
+        paymentAmount: (paymentIntent.amount / 100).toString()
       });
       
       res.json({ 
