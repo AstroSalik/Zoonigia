@@ -43,6 +43,8 @@
   --cosmic-purple: hsl(271, 81%, 56%);
   --cosmic-green: hsl(158, 64%, 52%);
   --cosmic-orange: hsl(43, 96%, 56%);
+  --cosmic-pink: hsl(327, 73%, 57%);
+  --cosmic-yellow: hsl(54, 96%, 56%);
 }
 
 .dark {
@@ -97,6 +99,14 @@
   .cosmic-gradient {
     background: linear-gradient(135deg, var(--cosmic-blue) 0%, var(--cosmic-purple) 100%);
   }
+  
+  .cosmic-gradient.bg-clip-text {
+    background: linear-gradient(135deg, var(--cosmic-blue) 0%, var(--cosmic-purple) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
 
   .star-field {
     background-image: 
@@ -134,11 +144,15 @@
   .text-cosmic-purple { color: var(--cosmic-purple); }
   .text-cosmic-green { color: var(--cosmic-green); }
   .text-cosmic-orange { color: var(--cosmic-orange); }
+  .text-cosmic-pink { color: var(--cosmic-pink); }
+  .text-cosmic-yellow { color: var(--cosmic-yellow); }
 
   .bg-cosmic-blue { background-color: var(--cosmic-blue); }
   .bg-cosmic-purple { background-color: var(--cosmic-purple); }
   .bg-cosmic-green { background-color: var(--cosmic-green); }
   .bg-cosmic-orange { background-color: var(--cosmic-orange); }
+  .bg-cosmic-pink { background-color: var(--cosmic-pink); }
+  .bg-cosmic-yellow { background-color: var(--cosmic-yellow); }
 
   .border-cosmic-blue { border-color: var(--cosmic-blue); }
   .border-cosmic-purple { border-color: var(--cosmic-purple); }
