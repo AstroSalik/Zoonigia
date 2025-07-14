@@ -82,6 +82,10 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [selectedInquiry, setSelectedInquiry] = useState<ContactInquiry | null>(null);
+  const [showBlogDialog, setShowBlogDialog] = useState(false);
+  const [showWorkshopDialog, setShowWorkshopDialog] = useState(false);
+  const [showCourseDialog, setShowCourseDialog] = useState(false);
+  const [showCampaignDialog, setShowCampaignDialog] = useState(false);
   const { toast } = useToast();
 
   // Data queries
@@ -178,8 +182,10 @@ const AdminDashboard = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/blog-posts"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/blog-posts"] });
       toast({ title: "Blog post created successfully!" });
       blogForm.reset();
+      setShowBlogDialog(false);
     },
     onError: (error) => {
       toast({ title: "Error creating blog post", description: error.message, variant: "destructive" });
@@ -193,8 +199,10 @@ const AdminDashboard = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/workshops"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/workshops"] });
       toast({ title: "Workshop created successfully!" });
       workshopForm.reset();
+      setShowWorkshopDialog(false);
     },
     onError: (error) => {
       toast({ title: "Error creating workshop", description: error.message, variant: "destructive" });
@@ -208,8 +216,10 @@ const AdminDashboard = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/courses"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/courses"] });
       toast({ title: "Course created successfully!" });
       courseForm.reset();
+      setShowCourseDialog(false);
     },
     onError: (error) => {
       toast({ title: "Error creating course", description: error.message, variant: "destructive" });
@@ -223,8 +233,10 @@ const AdminDashboard = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/campaigns"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/campaigns"] });
       toast({ title: "Campaign created successfully!" });
       campaignForm.reset();
+      setShowCampaignDialog(false);
     },
     onError: (error) => {
       toast({ title: "Error creating campaign", description: error.message, variant: "destructive" });
@@ -570,14 +582,18 @@ const AdminDashboard = () => {
                 <TabsContent value="content" className="space-y-6">
                   <div className="flex items-center justify-between">
                     <h3 className="text-xl font-semibold text-white">Content Management</h3>
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button className="bg-cosmic-blue hover:bg-cosmic-blue/90">
-                          <Plus className="w-4 h-4 mr-2" />
-                          Create Blog Post
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="bg-space-800 border-space-700 text-white max-w-2xl">
+                    <Button 
+                      onClick={() => setShowBlogDialog(true)}
+                      className="bg-cosmic-blue hover:bg-cosmic-blue/90"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create Blog Post
+                    </Button>
+                  </div>
+
+                  {/* Blog Post Creation Dialog */}
+                  <Dialog open={showBlogDialog} onOpenChange={setShowBlogDialog}>
+                    <DialogContent className="bg-space-800 border-space-700 text-white max-w-2xl">
                         <DialogHeader>
                           <DialogTitle className="text-white">Create New Blog Post</DialogTitle>
                           <DialogDescription className="text-space-300">
@@ -694,7 +710,12 @@ const AdminDashboard = () => {
                               />
                             </div>
                             <div className="flex justify-end gap-2 pt-4">
-                              <Button type="button" variant="outline" className="border-space-600 text-space-300">
+                              <Button 
+                                type="button" 
+                                variant="outline" 
+                                onClick={() => setShowBlogDialog(false)}
+                                className="border-space-600 text-space-300"
+                              >
                                 Cancel
                               </Button>
                               <Button
@@ -709,7 +730,6 @@ const AdminDashboard = () => {
                         </Form>
                       </DialogContent>
                     </Dialog>
-                  </div>
 
                   <GlassMorphism className="p-6">
                     <div className="overflow-x-auto">
@@ -765,14 +785,18 @@ const AdminDashboard = () => {
                 <TabsContent value="workshops" className="space-y-6">
                   <div className="flex items-center justify-between">
                     <h3 className="text-xl font-semibold text-white">Workshop Management</h3>
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button className="bg-cosmic-blue hover:bg-cosmic-blue/90">
-                          <Plus className="w-4 h-4 mr-2" />
-                          Create Workshop
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="bg-space-800 border-space-700 text-white max-w-2xl">
+                    <Button 
+                      onClick={() => setShowWorkshopDialog(true)}
+                      className="bg-cosmic-blue hover:bg-cosmic-blue/90"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create Workshop
+                    </Button>
+                  </div>
+
+                  {/* Workshop Creation Dialog */}
+                  <Dialog open={showWorkshopDialog} onOpenChange={setShowWorkshopDialog}>
+                    <DialogContent className="bg-space-800 border-space-700 text-white max-w-2xl">
                         <DialogHeader>
                           <DialogTitle className="text-white">Create New Workshop</DialogTitle>
                           <DialogDescription className="text-space-300">
@@ -935,7 +959,12 @@ const AdminDashboard = () => {
                               />
                             </div>
                             <div className="flex justify-end gap-2 pt-4">
-                              <Button type="button" variant="outline" className="border-space-600 text-space-300">
+                              <Button 
+                                type="button" 
+                                variant="outline" 
+                                onClick={() => setShowWorkshopDialog(false)}
+                                className="border-space-600 text-space-300"
+                              >
                                 Cancel
                               </Button>
                               <Button
@@ -950,7 +979,6 @@ const AdminDashboard = () => {
                         </Form>
                       </DialogContent>
                     </Dialog>
-                  </div>
 
                   <GlassMorphism className="p-6">
                     <div className="overflow-x-auto">
@@ -1012,14 +1040,18 @@ const AdminDashboard = () => {
                 <TabsContent value="courses" className="space-y-6">
                   <div className="flex items-center justify-between">
                     <h3 className="text-xl font-semibold text-white">Course Management</h3>
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button className="bg-cosmic-blue hover:bg-cosmic-blue/90">
-                          <Plus className="w-4 h-4 mr-2" />
-                          Create Course
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="bg-space-800 border-space-700 text-white max-w-2xl">
+                    <Button 
+                      onClick={() => setShowCourseDialog(true)}
+                      className="bg-cosmic-blue hover:bg-cosmic-blue/90"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create Course
+                    </Button>
+                  </div>
+
+                  {/* Course Creation Dialog */}
+                  <Dialog open={showCourseDialog} onOpenChange={setShowCourseDialog}>
+                    <DialogContent className="bg-space-800 border-space-700 text-white max-w-2xl">
                         <DialogHeader>
                           <DialogTitle className="text-white">Create New Course</DialogTitle>
                           <DialogDescription className="text-space-300">
@@ -1183,7 +1215,12 @@ const AdminDashboard = () => {
                               />
                             </div>
                             <div className="flex justify-end gap-2 pt-4">
-                              <Button type="button" variant="outline" className="border-space-600 text-space-300">
+                              <Button 
+                                type="button" 
+                                variant="outline" 
+                                onClick={() => setShowCourseDialog(false)}
+                                className="border-space-600 text-space-300"
+                              >
                                 Cancel
                               </Button>
                               <Button
@@ -1198,7 +1235,6 @@ const AdminDashboard = () => {
                         </Form>
                       </DialogContent>
                     </Dialog>
-                  </div>
 
                   <GlassMorphism className="p-6">
                     <div className="overflow-x-auto">
@@ -1260,14 +1296,18 @@ const AdminDashboard = () => {
                 <TabsContent value="campaigns" className="space-y-6">
                   <div className="flex items-center justify-between">
                     <h3 className="text-xl font-semibold text-white">Campaign Management</h3>
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button className="bg-cosmic-blue hover:bg-cosmic-blue/90">
-                          <Plus className="w-4 h-4 mr-2" />
-                          Create Campaign
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="bg-space-800 border-space-700 text-white max-w-2xl">
+                    <Button 
+                      onClick={() => setShowCampaignDialog(true)}
+                      className="bg-cosmic-blue hover:bg-cosmic-blue/90"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create Campaign
+                    </Button>
+                  </div>
+
+                  {/* Campaign Creation Dialog */}
+                  <Dialog open={showCampaignDialog} onOpenChange={setShowCampaignDialog}>
+                    <DialogContent className="bg-space-800 border-space-700 text-white max-w-2xl">
                         <DialogHeader>
                           <DialogTitle className="text-white">Create New Campaign</DialogTitle>
                           <DialogDescription className="text-space-300">
@@ -1459,7 +1499,12 @@ const AdminDashboard = () => {
                               />
                             </div>
                             <div className="flex justify-end gap-2 pt-4">
-                              <Button type="button" variant="outline" className="border-space-600 text-space-300">
+                              <Button 
+                                type="button" 
+                                variant="outline" 
+                                onClick={() => setShowCampaignDialog(false)}
+                                className="border-space-600 text-space-300"
+                              >
                                 Cancel
                               </Button>
                               <Button
@@ -1474,7 +1519,6 @@ const AdminDashboard = () => {
                         </Form>
                       </DialogContent>
                     </Dialog>
-                  </div>
 
                   <GlassMorphism className="p-6">
                     <div className="overflow-x-auto">
