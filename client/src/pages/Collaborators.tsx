@@ -228,8 +228,8 @@ const Collaborators = () => {
                   <div className="text-sm text-space-400">Academic Partner</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-cosmic-blue mb-2">Global Education Fund</div>
-                  <div className="text-sm text-space-400">Sponsor</div>
+                  <div className="text-2xl font-bold text-cosmic-blue mb-2">Think Startup</div>
+                  <div className="text-sm text-space-400">Collaborator</div>
                 </div>
               </div>
             </GlassMorphism>
