@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Rocket, Menu, X, LogOut, User } from "lucide-react";
+import { Rocket, Menu, X, LogOut, User, Shield } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 const Navigation = () => {
@@ -76,6 +76,15 @@ const Navigation = () => {
                     <User className="mr-2 h-4 w-4" />
                     <span>Profile</span>
                   </DropdownMenuItem>
+                  {user?.isAdmin && (
+                    <DropdownMenuItem 
+                      className="text-space-200 hover:text-space-50 hover:bg-space-700"
+                      onClick={() => window.location.href = '/admin'}
+                    >
+                      <Shield className="mr-2 h-4 w-4" />
+                      <span>Admin Dashboard</span>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem 
                     className="text-space-200 hover:text-space-50 hover:bg-space-700"
                     onClick={() => window.location.href = '/api/logout'}

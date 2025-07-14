@@ -18,6 +18,7 @@ import Shop from "@/pages/Shop";
 import Blog from "@/pages/Blog";
 import BlogPost from "@/pages/BlogPost";
 import Contact from "@/pages/Contact";
+import AdminSimple from "@/pages/AdminSimple";
 import Landing from "@/pages/Landing";
 
 function Router() {
@@ -42,6 +43,7 @@ function Router() {
           <Route path="/blog" component={Blog} />
           <Route path="/blog/:id" component={BlogPost} />
           <Route path="/contact" component={Contact} />
+          <Route path="/admin" component={AdminSimple} />
         </>
       )}
       <Route component={NotFound} />

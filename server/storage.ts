@@ -60,6 +60,11 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
   
+  // Admin operations
+  getAllUsers(): Promise<User[]>;
+  updateUserAdminStatus(userId: string, isAdmin: boolean): Promise<User>;
+  deleteUser(userId: string): Promise<void>;
+  
   // Workshop operations
   getWorkshops(): Promise<Workshop[]>;
   getWorkshopById(id: number): Promise<Workshop | undefined>;
@@ -92,6 +97,7 @@ export interface IStorage {
   
   // Contact operations
   createContactInquiry(inquiry: InsertContactInquiry): Promise<ContactInquiry>;
+  getContactInquiries(): Promise<ContactInquiry[]>;
   
   // LMS operations
   // Course modules
@@ -156,6 +162,24 @@ export class DatabaseStorage implements IStorage {
       })
       .returning();
     return user;
+  }
+
+  // Admin operations
+  async getAllUsers(): Promise<User[]> {
+    return await db.select().from(users).orderBy(desc(users.createdAt));
+  }
+
+  async updateUserAdminStatus(userId: string, isAdmin: boolean): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({ isAdmin, updatedAt: new Date() })
+      .where(eq(users.id, userId))
+      .returning();
+    return user;
+  }
+
+  async deleteUser(userId: string): Promise<void> {
+    await db.delete(users).where(eq(users.id, userId));
   }
 
   // Workshop operations
@@ -314,6 +338,10 @@ export class DatabaseStorage implements IStorage {
   async createContactInquiry(inquiry: InsertContactInquiry): Promise<ContactInquiry> {
     const [newInquiry] = await db.insert(contactInquiries).values(inquiry).returning();
     return newInquiry;
+  }
+
+  async getContactInquiries(): Promise<ContactInquiry[]> {
+    return await db.select().from(contactInquiries).orderBy(desc(contactInquiries.createdAt));
   }
 
   // LMS operations
