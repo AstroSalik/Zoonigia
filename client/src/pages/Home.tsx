@@ -155,7 +155,7 @@ const Home = () => {
               className="w-full"
             >
               <CarouselContent className="-ml-2 md:-ml-4">
-                <CarouselItem className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
+                <CarouselItem className="pl-2 md:pl-4 basis-4/5 md:basis-3/5 lg:basis-2/5">
                   <div className="p-1">
                     <GlassMorphism className="p-6 hover:bg-white/20 transition-all duration-300 group h-full">
                       <div className="text-center">
@@ -172,7 +172,7 @@ const Home = () => {
                   </div>
                 </CarouselItem>
                 
-                <CarouselItem className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
+                <CarouselItem className="pl-2 md:pl-4 basis-4/5 md:basis-3/5 lg:basis-2/5">
                   <div className="p-1">
                     <GlassMorphism className="p-6 hover:bg-white/20 transition-all duration-300 group h-full">
                       <div className="text-center">
@@ -189,7 +189,7 @@ const Home = () => {
                   </div>
                 </CarouselItem>
                 
-                <CarouselItem className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
+                <CarouselItem className="pl-2 md:pl-4 basis-4/5 md:basis-3/5 lg:basis-2/5">
                   <div className="p-1">
                     <GlassMorphism className="p-6 hover:bg-white/20 transition-all duration-300 group h-full">
                       <div className="text-center">
