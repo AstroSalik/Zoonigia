@@ -44,7 +44,7 @@ const workshopFormSchema = insertWorkshopSchema.extend({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
   duration: z.string().min(1, "Duration is required"),
-  price: z.number().min(0, "Price must be positive"),
+  price: z.string().optional(),
   capacity: z.number().min(1, "Capacity must be at least 1"),
   level: z.enum(["beginner", "intermediate", "advanced"]),
   category: z.string().min(1, "Category is required"),
@@ -56,7 +56,7 @@ const courseFormSchema = insertCourseSchema.extend({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
   duration: z.string().min(1, "Duration is required"),
-  price: z.number().min(0, "Price must be positive"),
+  price: z.string().optional(),
   capacity: z.number().min(1, "Capacity must be at least 1"),
   level: z.enum(["beginner", "intermediate", "advanced"]),
   field: z.string().min(1, "Field is required"),
@@ -132,7 +132,7 @@ const AdminDashboard = () => {
       title: "",
       description: "",
       duration: "",
-      price: 0,
+      price: "0.00",
       capacity: 1,
       level: "beginner",
       category: "",
@@ -147,7 +147,7 @@ const AdminDashboard = () => {
       title: "",
       description: "",
       duration: "",
-      price: 0,
+      price: "0.00",
       capacity: 1,
       level: "beginner",
       field: "",
@@ -901,7 +901,8 @@ const AdminDashboard = () => {
                                       <Input
                                         {...field}
                                         type="number"
-                                        onChange={(e) => field.onChange(Number(e.target.value))}
+                                        step="0.01"
+                                        onChange={(e) => field.onChange(e.target.value)}
                                         className="bg-space-700 border-space-600 text-white"
                                       />
                                     </FormControl>
@@ -1157,7 +1158,8 @@ const AdminDashboard = () => {
                                       <Input
                                         {...field}
                                         type="number"
-                                        onChange={(e) => field.onChange(Number(e.target.value))}
+                                        step="0.01"
+                                        onChange={(e) => field.onChange(e.target.value)}
                                         className="bg-space-700 border-space-600 text-white"
                                       />
                                     </FormControl>
