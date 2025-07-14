@@ -67,15 +67,14 @@ const courseFormSchema = insertCourseSchema.extend({
 const campaignFormSchema = insertCampaignSchema.extend({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
-  goal: z.string().min(1, "Goal is required"),
+  type: z.string().min(1, "Type is required"),
   startDate: z.string().min(1, "Start date is required"),
   endDate: z.string().min(1, "End date is required"),
-  participantFee: z.number().min(0, "Fee must be positive"),
+  price: z.string().optional(),
   maxParticipants: z.number().min(1, "Max participants must be at least 1"),
-  status: z.enum(["upcoming", "active", "completed"]),
-  category: z.string().min(1, "Category is required"),
-  requirements: z.string().optional(),
-  rewards: z.string().optional(),
+  status: z.enum(["active", "closed", "completed"]),
+  partner: z.string().optional(),
+  imageUrl: z.string().optional(),
 });
 
 const AdminDashboard = () => {
@@ -162,15 +161,14 @@ const AdminDashboard = () => {
     defaultValues: {
       title: "",
       description: "",
-      goal: "",
+      type: "",
       startDate: "",
       endDate: "",
-      participantFee: 0,
+      price: "0.00",
       maxParticipants: 1,
-      status: "upcoming",
-      category: "",
-      requirements: "",
-      rewards: "",
+      status: "active",
+      partner: "",
+      imageUrl: "",
     },
   });
 
@@ -1332,23 +1330,20 @@ const AdminDashboard = () => {
                             <div className="grid grid-cols-2 gap-4">
                               <FormField
                                 control={campaignForm.control}
-                                name="category"
+                                name="type"
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel className="text-space-300">Category</FormLabel>
+                                    <FormLabel className="text-space-300">Type</FormLabel>
                                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                                       <FormControl>
                                         <SelectTrigger className="bg-space-700 border-space-600 text-white">
-                                          <SelectValue placeholder="Select category" />
+                                          <SelectValue placeholder="Select type" />
                                         </SelectTrigger>
                                       </FormControl>
                                       <SelectContent className="bg-space-700 border-space-600">
-                                        <SelectItem value="asteroid-search">Asteroid Search</SelectItem>
-                                        <SelectItem value="exoplanet-discovery">Exoplanet Discovery</SelectItem>
-                                        <SelectItem value="galaxy-classification">Galaxy Classification</SelectItem>
-                                        <SelectItem value="stellar-analysis">Stellar Analysis</SelectItem>
-                                        <SelectItem value="citizen-science">Citizen Science</SelectItem>
-                                        <SelectItem value="data-analysis">Data Analysis</SelectItem>
+                                        <SelectItem value="asteroid_search">Asteroid Search</SelectItem>
+                                        <SelectItem value="poetry">Poetry</SelectItem>
+                                        <SelectItem value="research">Research</SelectItem>
                                       </SelectContent>
                                     </Select>
                                     <FormMessage />
@@ -1368,8 +1363,8 @@ const AdminDashboard = () => {
                                         </SelectTrigger>
                                       </FormControl>
                                       <SelectContent className="bg-space-700 border-space-600">
-                                        <SelectItem value="upcoming">Upcoming</SelectItem>
                                         <SelectItem value="active">Active</SelectItem>
+                                        <SelectItem value="closed">Closed</SelectItem>
                                         <SelectItem value="completed">Completed</SelectItem>
                                       </SelectContent>
                                     </Select>
@@ -1393,12 +1388,12 @@ const AdminDashboard = () => {
                             />
                             <FormField
                               control={campaignForm.control}
-                              name="goal"
+                              name="partner"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel className="text-space-300">Goal</FormLabel>
+                                  <FormLabel className="text-space-300">Partner (Optional)</FormLabel>
                                   <FormControl>
-                                    <Textarea {...field} className="bg-space-700 border-space-600 text-white" />
+                                    <Input {...field} placeholder="NASA, IASC, etc." className="bg-space-700 border-space-600 text-white" />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -1435,15 +1430,16 @@ const AdminDashboard = () => {
                             <div className="grid grid-cols-2 gap-4">
                               <FormField
                                 control={campaignForm.control}
-                                name="participantFee"
+                                name="price"
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel className="text-space-300">Participant Fee (₹)</FormLabel>
+                                    <FormLabel className="text-space-300">Price (₹)</FormLabel>
                                     <FormControl>
                                       <Input
                                         {...field}
                                         type="number"
-                                        onChange={(e) => field.onChange(Number(e.target.value))}
+                                        step="0.01"
+                                        onChange={(e) => field.onChange(e.target.value)}
                                         className="bg-space-700 border-space-600 text-white"
                                       />
                                     </FormControl>
@@ -1470,34 +1466,19 @@ const AdminDashboard = () => {
                                 )}
                               />
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
-                              <FormField
-                                control={campaignForm.control}
-                                name="requirements"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel className="text-space-300">Requirements (Optional)</FormLabel>
-                                    <FormControl>
-                                      <Textarea {...field} className="bg-space-700 border-space-600 text-white" />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={campaignForm.control}
-                                name="rewards"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel className="text-space-300">Rewards (Optional)</FormLabel>
-                                    <FormControl>
-                                      <Textarea {...field} className="bg-space-700 border-space-600 text-white" />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
+                            <FormField
+                              control={campaignForm.control}
+                              name="imageUrl"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-space-300">Image URL (Optional)</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} placeholder="https://example.com/image.jpg" className="bg-space-700 border-space-600 text-white" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
                             <div className="flex justify-end gap-2 pt-4">
                               <Button 
                                 type="button" 
@@ -1526,10 +1507,10 @@ const AdminDashboard = () => {
                         <TableHeader>
                           <TableRow className="border-space-700">
                             <TableHead className="text-space-300">Title</TableHead>
-                            <TableHead className="text-space-300">Category</TableHead>
+                            <TableHead className="text-space-300">Type</TableHead>
                             <TableHead className="text-space-300">Status</TableHead>
                             <TableHead className="text-space-300">Duration</TableHead>
-                            <TableHead className="text-space-300">Fee</TableHead>
+                            <TableHead className="text-space-300">Price</TableHead>
                             <TableHead className="text-space-300">Max Participants</TableHead>
                             <TableHead className="text-space-300">Actions</TableHead>
                           </TableRow>
@@ -1540,7 +1521,7 @@ const AdminDashboard = () => {
                               <TableCell className="text-white font-medium">{campaign.title}</TableCell>
                               <TableCell>
                                 <Badge variant="outline" className="text-orange-400 border-orange-400">
-                                  {campaign.category}
+                                  {campaign.type}
                                 </Badge>
                               </TableCell>
                               <TableCell>
@@ -1548,7 +1529,7 @@ const AdminDashboard = () => {
                                   variant="outline" 
                                   className={
                                     campaign.status === 'active' ? 'text-green-400 border-green-400' :
-                                    campaign.status === 'upcoming' ? 'text-blue-400 border-blue-400' :
+                                    campaign.status === 'closed' ? 'text-blue-400 border-blue-400' :
                                     'text-gray-400 border-gray-400'
                                   }
                                 >
@@ -1561,7 +1542,7 @@ const AdminDashboard = () => {
                                   : 'N/A'
                                 }
                               </TableCell>
-                              <TableCell className="text-space-300">₹{campaign.participantFee}</TableCell>
+                              <TableCell className="text-space-300">₹{campaign.price}</TableCell>
                               <TableCell className="text-space-300">{campaign.maxParticipants}</TableCell>
                               <TableCell>
                                 <div className="flex items-center gap-2">
