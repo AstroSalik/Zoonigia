@@ -183,7 +183,8 @@ const Campaigns = () => {
   // Create payment intent mutation
   const createPaymentMutation = useMutation({
     mutationFn: async (data: any) => {
-      return await apiRequest("POST", "/api/campaigns/create-payment-intent", data);
+      const response = await apiRequest("POST", "/api/campaigns/create-payment-intent", data);
+      return await response.json();
     },
     onSuccess: (data) => {
       console.log('Payment intent created successfully:', data);
@@ -213,7 +214,8 @@ const Campaigns = () => {
   
   const enrollMutation = useMutation({
     mutationFn: async (data: any) => {
-      return await apiRequest("POST", "/api/campaigns/enroll", data);
+      const response = await apiRequest("POST", "/api/campaigns/enroll", data);
+      return await response.json();
     },
     onSuccess: () => {
       toast({
