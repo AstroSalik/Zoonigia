@@ -103,6 +103,7 @@ export const campaigns = pgTable("campaigns", {
   progress: integer("progress").default(0), // percentage
   maxParticipants: integer("max_participants"),
   currentParticipants: integer("current_participants").default(0),
+  price: decimal("price", { precision: 10, scale: 2 }).default("0.00"),
   imageUrl: varchar("image_url"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -115,6 +116,8 @@ export const campaignParticipants = pgTable("campaign_participants", {
   userId: varchar("user_id").references(() => users.id),
   joinDate: timestamp("join_date").defaultNow(),
   status: varchar("status").default("active"), // active, completed, withdrawn
+  paymentStatus: varchar("payment_status").default("pending"), // pending, paid, failed
+  paymentAmount: decimal("payment_amount", { precision: 10, scale: 2 }),
 });
 
 // Blog posts table

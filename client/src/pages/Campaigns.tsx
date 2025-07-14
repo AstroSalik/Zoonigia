@@ -1,8 +1,12 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Telescope, 
   PenTool, 
@@ -10,17 +14,73 @@ import {
   Calendar,
   Users,
   Award,
-  ExternalLink
+  ExternalLink,
+  CreditCard
 } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import GlassMorphism from "@/components/GlassMorphism";
 import { Campaign } from "@shared/schema";
+import { apiRequest } from "@/lib/queryClient";
+import { useState } from "react";
 
 const Campaigns = () => {
   const { data: campaigns, isLoading } = useQuery<Campaign[]>({
     queryKey: ["/api/campaigns"],
   });
+  
+  const [registrationData, setRegistrationData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    school: "",
+    grade: ""
+  });
+  
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
+  
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  
+  const enrollMutation = useMutation({
+    mutationFn: async (data: any) => {
+      return await apiRequest("POST", "/api/campaigns/enroll", data);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Registration Successful!",
+        description: "You have successfully enrolled in the campaign.",
+      });
+      setIsDialogOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["/api/campaigns"] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Registration Failed",
+        description: "There was an error processing your registration. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+  
+  const handleEnrollment = (campaign: Campaign) => {
+    setSelectedCampaign(campaign);
+    setIsDialogOpen(true);
+  };
+  
+  const handleSubmitEnrollment = async () => {
+    if (!selectedCampaign) return;
+    
+    const enrollmentData = {
+      campaignId: selectedCampaign.id,
+      userId: `user_${Date.now()}`, // Generate temporary user ID
+      paymentAmount: 300,
+      registrationData
+    };
+    
+    enrollMutation.mutate(enrollmentData);
+  };
 
   const getCampaignIcon = (type: string) => {
     switch (type) {
@@ -95,151 +155,65 @@ const Campaigns = () => {
 
           {/* Featured Campaigns */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
-            {/* Asteroid Search Campaign */}
-            <Card className="bg-space-800/50 border-space-700">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center text-cosmic-blue">
-                    <Telescope className="w-8 h-8 mr-3" />
-                    <CardTitle className="text-2xl">Zoonigia Asteroid Search Campaign</CardTitle>
+            {campaigns?.map((campaign) => (
+              <Card key={campaign.id} className="bg-space-800/50 border-space-700">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center text-cosmic-blue">
+                      {getCampaignIcon(campaign.type)}
+                      <CardTitle className="text-2xl ml-3">{campaign.title}</CardTitle>
+                    </div>
+                    <Badge className={campaign.status === "active" ? "bg-cosmic-green text-space-900" : "bg-cosmic-orange text-space-900"}>
+                      {campaign.status === "active" ? "Registration Open" : "Registration Closed"}
+                    </Badge>
                   </div>
-                  <Badge className="bg-cosmic-orange text-space-900">Registration Closed</Badge>
-                </div>
-              </CardHeader>
-              
-              <CardContent>
-                <p className="text-space-300 mb-6">
-                  Collaborate with NASA Citizen Science and IASC to discover real asteroids and name them officially
-                </p>
+                </CardHeader>
                 
-                <div className="bg-space-800 p-4 rounded-lg mb-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-space-400">Campaign Progress</span>
-                    <span className="text-sm text-cosmic-blue">75% Complete</span>
+                <CardContent>
+                  <p className="text-space-300 mb-6">
+                    {campaign.description}
+                  </p>
+                  
+                  <div className="bg-space-800 p-4 rounded-lg mb-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm text-space-400">Campaign Progress</span>
+                      <span className="text-sm text-cosmic-green">Ongoing Registrations</span>
+                    </div>
+                    <Progress value={campaign.progress || 20} className="h-2" />
                   </div>
-                  <Progress value={75} className="h-2" />
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-cosmic-blue mb-1">25</div>
-                    <div className="text-sm text-space-400">Asteroids Found</div>
+                  
+                  <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-cosmic-blue mb-1">₹{campaign.price}</div>
+                      <div className="text-sm text-space-400">Registration Fee</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-cosmic-blue mb-1">Individual</div>
+                      <div className="text-sm text-space-400">Enrollment Type</div>
+                    </div>
                   </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-cosmic-blue mb-1">150</div>
-                    <div className="text-sm text-space-400">Active Participants</div>
+                  
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center text-sm text-space-400">
+                      <Calendar className="w-4 h-4 mr-2" />
+                      {new Date(campaign.startDate).toLocaleDateString()} - {new Date(campaign.endDate).toLocaleDateString()}
+                    </div>
+                    <div className="text-sm text-cosmic-blue font-semibold">
+                      {campaign.partner}
+                    </div>
                   </div>
-                </div>
-                
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center text-sm text-space-400">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    Nov 2024 - March 2025
-                  </div>
-                  <div className="text-sm text-cosmic-blue font-semibold">
-                    NASA • IASC • University of Hawaii
-                  </div>
-                </div>
-                
-                <Button className="w-full bg-cosmic-blue hover:bg-blue-600 opacity-60" disabled>
-                  Registration Closed
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Poetry Campaign */}
-            <Card className="bg-space-800/50 border-space-700">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center text-cosmic-purple">
-                    <PenTool className="w-8 h-8 mr-3" />
-                    <CardTitle className="text-2xl">Zoonigia Star Session</CardTitle>
-                  </div>
-                  <Badge className="bg-cosmic-green text-space-900">Active</Badge>
-                </div>
-              </CardHeader>
-              
-              <CardContent>
-                <p className="text-space-300 mb-6">
-                  Publish your anthology with Zoonigia! Express your creativity through poetry and literature
-                </p>
-                
-                <div className="bg-space-800 p-4 rounded-lg mb-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-space-400">Campaign Progress</span>
-                    <span className="text-sm text-cosmic-purple">45% Complete</span>
-                  </div>
-                  <Progress value={45} className="h-2" />
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-cosmic-purple mb-1">12</div>
-                    <div className="text-sm text-space-400">Selected Poets</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-cosmic-purple mb-1">85</div>
-                    <div className="text-sm text-space-400">Submissions</div>
-                  </div>
-                </div>
-                
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center text-sm text-space-400">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    Started Nov 2024
-                  </div>
-                  <div className="text-sm text-cosmic-purple font-semibold">
-                    The Cosmic Voyage
-                  </div>
-                </div>
-                
-                <Button className="w-full bg-cosmic-purple hover:bg-purple-600">
-                  View Selected Poets
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Research Campaign */}
-          <div className="mb-16">
-            <Card className="bg-space-800/50 border-space-700">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center text-cosmic-green">
-                    <Microscope className="w-8 h-8 mr-3" />
-                    <CardTitle className="text-2xl">Research Publication Campaign</CardTitle>
-                  </div>
-                  <Badge className="bg-cosmic-green text-space-900">Active</Badge>
-                </div>
-              </CardHeader>
-              
-              <CardContent>
-                <p className="text-space-300 mb-6">
-                  Publish a research paper in your favorite field with Zoonigia's mentorship and support
-                </p>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-cosmic-green mb-2">25</div>
-                    <div className="text-space-400">Papers Published</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-cosmic-green mb-2">150</div>
-                    <div className="text-space-400">Students Mentored</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-cosmic-green mb-2">12</div>
-                    <div className="text-space-400">Fields Covered</div>
-                  </div>
-                </div>
-                
-                <div className="flex justify-center">
-                  <Button className="cosmic-gradient hover:opacity-90 px-8">
-                    Apply for Research Mentorship
+                  
+                  <Button 
+                    className="w-full bg-cosmic-blue hover:bg-blue-600"
+                    onClick={() => handleEnrollment(campaign)}
+                    disabled={campaign.status !== "active"}
+                  >
+                    {campaign.status === "active" ? `Register Now - ₹${campaign.price}` : "Registration Closed"}
                   </Button>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            ))}
+
           </div>
 
           {/* How It Works */}
@@ -357,6 +331,105 @@ const Campaigns = () => {
           </div>
         </div>
       </div>
+
+      {/* Registration Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-[425px] bg-space-800 border-space-700">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-semibold text-space-50">
+              Register for {selectedCampaign?.title}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div className="bg-space-700 p-4 rounded-lg">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-space-400">Registration Fee</span>
+                <span className="text-lg font-bold text-cosmic-green">₹{selectedCampaign?.price}</span>
+              </div>
+              <div className="flex items-center">
+                <CreditCard className="w-4 h-4 mr-2 text-cosmic-blue" />
+                <span className="text-sm text-space-300">Secure payment processing</span>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="name" className="text-space-300">Full Name</Label>
+                <Input
+                  id="name"
+                  value={registrationData.name}
+                  onChange={(e) => setRegistrationData({...registrationData, name: e.target.value})}
+                  className="bg-space-700 border-space-600 text-space-50"
+                  placeholder="Enter your full name"
+                />
+              </div>
+              <div>
+                <Label htmlFor="email" className="text-space-300">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={registrationData.email}
+                  onChange={(e) => setRegistrationData({...registrationData, email: e.target.value})}
+                  className="bg-space-700 border-space-600 text-space-50"
+                  placeholder="Enter your email"
+                />
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="phone" className="text-space-300">Phone</Label>
+                <Input
+                  id="phone"
+                  value={registrationData.phone}
+                  onChange={(e) => setRegistrationData({...registrationData, phone: e.target.value})}
+                  className="bg-space-700 border-space-600 text-space-50"
+                  placeholder="Enter your phone"
+                />
+              </div>
+              <div>
+                <Label htmlFor="grade" className="text-space-300">Grade/Class</Label>
+                <Input
+                  id="grade"
+                  value={registrationData.grade}
+                  onChange={(e) => setRegistrationData({...registrationData, grade: e.target.value})}
+                  className="bg-space-700 border-space-600 text-space-50"
+                  placeholder="Enter your grade"
+                />
+              </div>
+            </div>
+            
+            <div>
+              <Label htmlFor="school" className="text-space-300">School/Institution</Label>
+              <Input
+                id="school"
+                value={registrationData.school}
+                onChange={(e) => setRegistrationData({...registrationData, school: e.target.value})}
+                className="bg-space-700 border-space-600 text-space-50"
+                placeholder="Enter your school name"
+              />
+            </div>
+            
+            <div className="flex justify-between gap-4 pt-4">
+              <Button 
+                variant="outline" 
+                onClick={() => setIsDialogOpen(false)}
+                className="border-space-600 text-space-300 hover:bg-space-700"
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleSubmitEnrollment}
+                disabled={enrollMutation.isPending || !registrationData.name || !registrationData.email}
+                className="bg-cosmic-blue hover:bg-blue-600 text-white"
+              >
+                {enrollMutation.isPending ? "Processing..." : `Pay ₹${selectedCampaign?.price} & Register`}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Footer />
     </div>

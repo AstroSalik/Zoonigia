@@ -114,7 +114,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Campaign routes
   app.get("/api/campaigns", async (req, res) => {
     try {
-      const campaigns = await storage.getCampaigns();
+      let campaigns = await storage.getCampaigns();
+      
+      // Add sample campaigns if none exist
+      if (campaigns.length === 0) {
+        await storage.createCampaign({
+          title: "Zoonigia Asteroid Search Campaign",
+          description: "Collaborate with NASA Citizen Science and IASC to discover real asteroids and name them officially",
+          type: "asteroid_search",
+          startDate: "2025-08-17",
+          endDate: "2025-11-23",
+          partner: "NASA • IASC • University of Hawaii",
+          status: "active",
+          progress: 20,
+          price: "300.00"
+        });
+        
+        campaigns = await storage.getCampaigns();
+      }
+      
       res.json(campaigns);
     } catch (error) {
       console.error("Error fetching campaigns:", error);
@@ -144,6 +162,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error joining campaign:", error);
       res.status(500).json({ message: "Failed to join campaign" });
+    }
+  });
+
+  app.post("/api/campaigns/enroll", async (req, res) => {
+    try {
+      const { campaignId, userId, paymentAmount } = req.body;
+      
+      // Create campaign enrollment with payment
+      const enrollment = await storage.joinCampaign({
+        campaignId,
+        userId,
+        paymentStatus: "paid",
+        paymentAmount: paymentAmount.toString()
+      });
+      
+      res.json({ 
+        success: true, 
+        enrollment,
+        message: "Successfully enrolled in campaign" 
+      });
+    } catch (error) {
+      console.error("Error enrolling in campaign:", error);
+      res.status(500).json({ message: "Failed to enroll in campaign" });
     }
   });
 
