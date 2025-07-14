@@ -1,28 +1,90 @@
-import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import GlassMorphism from "@/components/GlassMorphism";
 import AdminRoute from "@/components/AdminRoute";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { 
-  Users, 
-  BookOpen, 
-  Calendar, 
-  Mail, 
-  Trophy, 
-  Settings, 
-  BarChart3,
-  Shield,
-  Plus,
-  Edit,
-  Trash2
+  Shield, Users, BookOpen, Calendar, Mail, Plus, Edit, Trash2, 
+  Eye, MessageSquare, CheckCircle, XCircle, Star, GraduationCap,
+  Rocket, Target, Award, Phone, MapPin, Clock, IndianRupee
 } from "lucide-react";
-import { User, BlogPost, Workshop, Course, Campaign, ContactInquiry } from "@shared/schema";
+import { 
+  User, BlogPost, Workshop, Course, Campaign, ContactInquiry,
+  insertBlogPostSchema, insertWorkshopSchema, insertCourseSchema, insertCampaignSchema
+} from "@shared/schema";
+
+// Form schemas
+const blogPostFormSchema = insertBlogPostSchema.extend({
+  title: z.string().min(1, "Title is required"),
+  content: z.string().min(1, "Content is required"),
+  excerpt: z.string().min(1, "Excerpt is required"),
+  author: z.string().min(1, "Author is required"),
+  category: z.string().min(1, "Category is required"),
+  imageUrl: z.string().optional(),
+  tags: z.string().optional(),
+});
+
+const workshopFormSchema = insertWorkshopSchema.extend({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().min(1, "Description is required"),
+  duration: z.string().min(1, "Duration is required"),
+  price: z.number().min(0, "Price must be positive"),
+  capacity: z.number().min(1, "Capacity must be at least 1"),
+  level: z.enum(["beginner", "intermediate", "advanced"]),
+  category: z.string().min(1, "Category is required"),
+  requirements: z.string().optional(),
+  outcomes: z.string().optional(),
+});
+
+const courseFormSchema = insertCourseSchema.extend({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().min(1, "Description is required"),
+  duration: z.string().min(1, "Duration is required"),
+  price: z.number().min(0, "Price must be positive"),
+  capacity: z.number().min(1, "Capacity must be at least 1"),
+  level: z.enum(["beginner", "intermediate", "advanced"]),
+  field: z.string().min(1, "Field is required"),
+  requirements: z.string().optional(),
+  outcomes: z.string().optional(),
+});
+
+const campaignFormSchema = insertCampaignSchema.extend({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().min(1, "Description is required"),
+  goal: z.string().min(1, "Goal is required"),
+  startDate: z.string().min(1, "Start date is required"),
+  endDate: z.string().min(1, "End date is required"),
+  participantFee: z.number().min(0, "Fee must be positive"),
+  maxParticipants: z.number().min(1, "Max participants must be at least 1"),
+  status: z.enum(["upcoming", "active", "completed"]),
+  category: z.string().min(1, "Category is required"),
+  requirements: z.string().optional(),
+  rewards: z.string().optional(),
+});
 
 const AdminDashboard = () => {
+  const [activeTab, setActiveTab] = useState("overview");
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedInquiry, setSelectedInquiry] = useState<ContactInquiry | null>(null);
+  const { toast } = useToast();
+
+  // Data queries
   const { data: users = [] } = useQuery<User[]>({
     queryKey: ["/api/admin/users"],
   });
@@ -47,36 +109,167 @@ const AdminDashboard = () => {
     queryKey: ["/api/admin/inquiries"],
   });
 
-  const stats = [
-    {
-      title: "Total Users",
-      value: users.length,
-      icon: Users,
-      color: "text-blue-400",
-      bgColor: "bg-blue-500/10"
+  // Forms
+  const blogForm = useForm<z.infer<typeof blogPostFormSchema>>({
+    resolver: zodResolver(blogPostFormSchema),
+    defaultValues: {
+      title: "",
+      content: "",
+      excerpt: "",
+      author: "",
+      category: "",
+      imageUrl: "",
+      tags: "",
     },
-    {
-      title: "Blog Posts",
-      value: blogPosts.length,
-      icon: BookOpen,
-      color: "text-green-400",
-      bgColor: "bg-green-500/10"
+  });
+
+  const workshopForm = useForm<z.infer<typeof workshopFormSchema>>({
+    resolver: zodResolver(workshopFormSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      duration: "",
+      price: 0,
+      capacity: 1,
+      level: "beginner",
+      category: "",
+      requirements: "",
+      outcomes: "",
     },
-    {
-      title: "Workshops",
-      value: workshops.length,
-      icon: Calendar,
-      color: "text-purple-400",
-      bgColor: "bg-purple-500/10"
+  });
+
+  const courseForm = useForm<z.infer<typeof courseFormSchema>>({
+    resolver: zodResolver(courseFormSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      duration: "",
+      price: 0,
+      capacity: 1,
+      level: "beginner",
+      field: "",
+      requirements: "",
+      outcomes: "",
     },
-    {
-      title: "Inquiries",
-      value: inquiries.length,
-      icon: Mail,
-      color: "text-orange-400",
-      bgColor: "bg-orange-500/10"
+  });
+
+  const campaignForm = useForm<z.infer<typeof campaignFormSchema>>({
+    resolver: zodResolver(campaignFormSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      goal: "",
+      startDate: "",
+      endDate: "",
+      participantFee: 0,
+      maxParticipants: 1,
+      status: "upcoming",
+      category: "",
+      requirements: "",
+      rewards: "",
+    },
+  });
+
+  // Mutations
+  const createBlogPost = useMutation({
+    mutationFn: async (data: z.infer<typeof blogPostFormSchema>) => {
+      const response = await apiRequest("POST", "/api/admin/blog-posts", data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/blog-posts"] });
+      toast({ title: "Blog post created successfully!" });
+      blogForm.reset();
+    },
+    onError: (error) => {
+      toast({ title: "Error creating blog post", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const createWorkshop = useMutation({
+    mutationFn: async (data: z.infer<typeof workshopFormSchema>) => {
+      const response = await apiRequest("POST", "/api/admin/workshops", data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/workshops"] });
+      toast({ title: "Workshop created successfully!" });
+      workshopForm.reset();
+    },
+    onError: (error) => {
+      toast({ title: "Error creating workshop", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const createCourse = useMutation({
+    mutationFn: async (data: z.infer<typeof courseFormSchema>) => {
+      const response = await apiRequest("POST", "/api/admin/courses", data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/courses"] });
+      toast({ title: "Course created successfully!" });
+      courseForm.reset();
+    },
+    onError: (error) => {
+      toast({ title: "Error creating course", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const createCampaign = useMutation({
+    mutationFn: async (data: z.infer<typeof campaignFormSchema>) => {
+      const response = await apiRequest("POST", "/api/admin/campaigns", data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/campaigns"] });
+      toast({ title: "Campaign created successfully!" });
+      campaignForm.reset();
+    },
+    onError: (error) => {
+      toast({ title: "Error creating campaign", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const updateUserAdmin = useMutation({
+    mutationFn: async ({ userId, isAdmin }: { userId: string; isAdmin: boolean }) => {
+      const response = await apiRequest("PATCH", `/api/admin/users/${userId}`, { isAdmin });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      toast({ title: "User updated successfully!" });
+    },
+    onError: (error) => {
+      toast({ title: "Error updating user", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const deleteUser = useMutation({
+    mutationFn: async (userId: string) => {
+      const response = await apiRequest("DELETE", `/api/admin/users/${userId}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      toast({ title: "User deleted successfully!" });
+    },
+    onError: (error) => {
+      toast({ title: "Error deleting user", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const handleUserAction = (user: User, action: string) => {
+    if (action === "makeAdmin") {
+      updateUserAdmin.mutate({ userId: user.id, isAdmin: true });
+    } else if (action === "removeAdmin") {
+      updateUserAdmin.mutate({ userId: user.id, isAdmin: false });
+    } else if (action === "delete") {
+      if (confirm(`Are you sure you want to delete user ${user.email}?`)) {
+        deleteUser.mutate(user.id);
+      }
     }
-  ];
+  };
 
   return (
     <AdminRoute>
@@ -86,324 +279,1420 @@ const AdminDashboard = () => {
         <div className="pt-24 pb-16">
           <div className="container mx-auto px-4">
             <div className="max-w-7xl mx-auto">
-              {/* Header */}
               <div className="mb-8">
                 <div className="flex items-center gap-3 mb-4">
                   <Shield className="w-8 h-8 text-cosmic-blue" />
                   <h1 className="text-4xl font-bold text-white">Admin Dashboard</h1>
                 </div>
                 <p className="text-space-300">
-                  Manage and monitor all aspects of the Zoonigia platform
+                  Comprehensive platform management and content creation system
                 </p>
               </div>
 
-              {/* Stats Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                {stats.map((stat, index) => (
-                  <GlassMorphism key={index} className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-space-400 text-sm font-medium">{stat.title}</p>
-                        <p className="text-2xl font-bold text-white">{stat.value}</p>
-                      </div>
-                      <div className={`p-3 rounded-lg ${stat.bgColor}`}>
-                        <stat.icon className={`w-6 h-6 ${stat.color}`} />
-                      </div>
-                    </div>
-                  </GlassMorphism>
-                ))}
-              </div>
-
-              {/* Main Content */}
-              <GlassMorphism className="p-6">
-                <Tabs defaultValue="users" className="w-full">
-                <TabsList className="grid w-full grid-cols-6 mb-6">
-                  <TabsTrigger value="users">Users</TabsTrigger>
-                  <TabsTrigger value="content">Content</TabsTrigger>
-                  <TabsTrigger value="workshops">Workshops</TabsTrigger>
-                  <TabsTrigger value="courses">Courses</TabsTrigger>
-                  <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
-                  <TabsTrigger value="inquiries">Inquiries</TabsTrigger>
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="grid w-full grid-cols-7 mb-8 bg-space-800 border-space-700">
+                  <TabsTrigger value="overview" className="data-[state=active]:bg-cosmic-blue">
+                    <Target className="w-4 h-4 mr-2" />
+                    Overview
+                  </TabsTrigger>
+                  <TabsTrigger value="users" className="data-[state=active]:bg-cosmic-blue">
+                    <Users className="w-4 h-4 mr-2" />
+                    Users
+                  </TabsTrigger>
+                  <TabsTrigger value="content" className="data-[state=active]:bg-cosmic-blue">
+                    <BookOpen className="w-4 h-4 mr-2" />
+                    Content
+                  </TabsTrigger>
+                  <TabsTrigger value="workshops" className="data-[state=active]:bg-cosmic-blue">
+                    <Calendar className="w-4 h-4 mr-2" />
+                    Workshops
+                  </TabsTrigger>
+                  <TabsTrigger value="courses" className="data-[state=active]:bg-cosmic-blue">
+                    <GraduationCap className="w-4 h-4 mr-2" />
+                    Courses
+                  </TabsTrigger>
+                  <TabsTrigger value="campaigns" className="data-[state=active]:bg-cosmic-blue">
+                    <Rocket className="w-4 h-4 mr-2" />
+                    Campaigns
+                  </TabsTrigger>
+                  <TabsTrigger value="inquiries" className="data-[state=active]:bg-cosmic-blue">
+                    <Mail className="w-4 h-4 mr-2" />
+                    Inquiries
+                  </TabsTrigger>
                 </TabsList>
 
-                {/* Users Tab */}
-                <TabsContent value="users" className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <h2 className="text-2xl font-semibold text-white">User Management</h2>
-                    <Button className="cosmic-gradient">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add User
-                    </Button>
+                <TabsContent value="overview" className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <GlassMorphism className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-space-400 text-sm font-medium">Total Users</p>
+                          <p className="text-2xl font-bold text-white">{users.length}</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-blue-500/10">
+                          <Users className="w-6 h-6 text-blue-400" />
+                        </div>
+                      </div>
+                    </GlassMorphism>
+
+                    <GlassMorphism className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-space-400 text-sm font-medium">Blog Posts</p>
+                          <p className="text-2xl font-bold text-white">{blogPosts.length}</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-green-500/10">
+                          <BookOpen className="w-6 h-6 text-green-400" />
+                        </div>
+                      </div>
+                    </GlassMorphism>
+
+                    <GlassMorphism className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-space-400 text-sm font-medium">Workshops</p>
+                          <p className="text-2xl font-bold text-white">{workshops.length}</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-purple-500/10">
+                          <Calendar className="w-6 h-6 text-purple-400" />
+                        </div>
+                      </div>
+                    </GlassMorphism>
+
+                    <GlassMorphism className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-space-400 text-sm font-medium">Inquiries</p>
+                          <p className="text-2xl font-bold text-white">{inquiries.length}</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-orange-500/10">
+                          <Mail className="w-6 h-6 text-orange-400" />
+                        </div>
+                      </div>
+                    </GlassMorphism>
                   </div>
-                  
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b border-space-700">
-                          <th className="text-left p-3 text-space-300">Name</th>
-                          <th className="text-left p-3 text-space-300">Email</th>
-                          <th className="text-left p-3 text-space-300">Type</th>
-                          <th className="text-left p-3 text-space-300">Admin</th>
-                          <th className="text-left p-3 text-space-300">Joined</th>
-                          <th className="text-left p-3 text-space-300">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {users.map((user) => (
-                          <tr key={user.id} className="border-b border-space-800">
-                            <td className="p-3 text-white">
-                              {user.firstName} {user.lastName}
-                            </td>
-                            <td className="p-3 text-white">{user.email}</td>
-                            <td className="p-3">
-                              <Badge variant="secondary">{user.userType}</Badge>
-                            </td>
-                            <td className="p-3">
-                              {user.isAdmin ? (
-                                <Badge className="bg-green-500">Admin</Badge>
-                              ) : (
-                                <Badge variant="outline">User</Badge>
-                              )}
-                            </td>
-                            <td className="p-3 text-white">
-                              {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
-                            </td>
-                            <td className="p-3 space-x-2">
-                              <Button size="sm" variant="outline">
-                                <Edit className="w-4 h-4" />
-                              </Button>
-                              <Button size="sm" variant="outline">
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </td>
-                          </tr>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <GlassMorphism className="p-6">
+                      <h3 className="text-xl font-semibold text-white mb-4">Recent Users</h3>
+                      <div className="space-y-3">
+                        {users.slice(0, 5).map((user) => (
+                          <div key={user.id} className="flex items-center justify-between p-3 rounded-lg bg-space-800/50">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full bg-cosmic-blue/20 flex items-center justify-center">
+                                <span className="text-cosmic-blue font-semibold text-sm">
+                                  {user.firstName?.[0] || user.email[0].toUpperCase()}
+                                </span>
+                              </div>
+                              <div>
+                                <p className="text-white font-medium">{user.firstName || user.email}</p>
+                                <p className="text-space-400 text-sm">{user.email}</p>
+                              </div>
+                            </div>
+                            {user.isAdmin && (
+                              <Badge variant="secondary" className="bg-cosmic-blue/20 text-cosmic-blue">
+                                Admin
+                              </Badge>
+                            )}
+                          </div>
                         ))}
-                      </tbody>
-                    </table>
+                      </div>
+                    </GlassMorphism>
+
+                    <GlassMorphism className="p-6">
+                      <h3 className="text-xl font-semibold text-white mb-4">Recent Inquiries</h3>
+                      <div className="space-y-3">
+                        {inquiries.slice(0, 5).map((inquiry) => (
+                          <div key={inquiry.id} className="flex items-center justify-between p-3 rounded-lg bg-space-800/50">
+                            <div>
+                              <p className="text-white font-medium">{inquiry.name}</p>
+                              <p className="text-space-400 text-sm">{inquiry.email}</p>
+                              <p className="text-space-300 text-sm mt-1">{inquiry.message.substring(0, 50)}...</p>
+                            </div>
+                            <Badge variant="outline" className="text-yellow-400 border-yellow-400">
+                              {inquiry.type}
+                            </Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </GlassMorphism>
                   </div>
                 </TabsContent>
 
-                {/* Content Tab */}
-                <TabsContent value="content" className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <h2 className="text-2xl font-semibold text-white">Content Management</h2>
-                    <Button className="cosmic-gradient">
-                      <Plus className="w-4 h-4 mr-2" />
-                      New Blog Post
-                    </Button>
-                  </div>
-                  
-                  <div className="grid gap-4">
-                    {blogPosts.map((post) => (
-                      <Card key={post.id} className="bg-space-800 border-space-700">
-                        <CardHeader className="pb-3">
-                          <div className="flex justify-between items-start">
+                <TabsContent value="users" className="space-y-6">
+                  <GlassMorphism className="p-6">
+                    <div className="flex items-center justify-between mb-6">
+                      <h3 className="text-xl font-semibold text-white">User Management</h3>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary" className="bg-cosmic-blue/20 text-cosmic-blue">
+                          Total: {users.length}
+                        </Badge>
+                        <Badge variant="secondary" className="bg-green-500/20 text-green-400">
+                          Admins: {users.filter(u => u.isAdmin).length}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="border-space-700">
+                            <TableHead className="text-space-300">User</TableHead>
+                            <TableHead className="text-space-300">Email</TableHead>
+                            <TableHead className="text-space-300">Role</TableHead>
+                            <TableHead className="text-space-300">Joined</TableHead>
+                            <TableHead className="text-space-300">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {users.map((user) => (
+                            <TableRow key={user.id} className="border-space-700">
+                              <TableCell>
+                                <div className="flex items-center gap-3">
+                                  <div className="w-8 h-8 rounded-full bg-cosmic-blue/20 flex items-center justify-center">
+                                    <span className="text-cosmic-blue font-semibold text-sm">
+                                      {user.firstName?.[0] || user.email[0].toUpperCase()}
+                                    </span>
+                                  </div>
+                                  <div>
+                                    <p className="text-white font-medium">
+                                      {user.firstName ? `${user.firstName} ${user.lastName || ''}` : user.email}
+                                    </p>
+                                  </div>
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-space-300">{user.email}</TableCell>
+                              <TableCell>
+                                {user.isAdmin ? (
+                                  <Badge variant="secondary" className="bg-cosmic-blue/20 text-cosmic-blue">
+                                    Admin
+                                  </Badge>
+                                ) : (
+                                  <Badge variant="outline" className="text-space-400 border-space-600">
+                                    User
+                                  </Badge>
+                                )}
+                              </TableCell>
+                              <TableCell className="text-space-300">
+                                {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-2">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setSelectedUser(user)}
+                                    className="text-cosmic-blue hover:bg-cosmic-blue/10"
+                                  >
+                                    <Eye className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleUserAction(user, user.isAdmin ? 'removeAdmin' : 'makeAdmin')}
+                                    className="text-yellow-400 hover:bg-yellow-400/10"
+                                  >
+                                    {user.isAdmin ? <XCircle className="w-4 h-4" /> : <Star className="w-4 h-4" />}
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleUserAction(user, 'delete')}
+                                    className="text-red-400 hover:bg-red-400/10"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </GlassMorphism>
+
+                  {/* User Detail Dialog */}
+                  {selectedUser && (
+                    <Dialog open={!!selectedUser} onOpenChange={() => setSelectedUser(null)}>
+                      <DialogContent className="bg-space-800 border-space-700 text-white max-w-2xl">
+                        <DialogHeader>
+                          <DialogTitle className="text-white">User Details</DialogTitle>
+                          <DialogDescription className="text-space-300">
+                            Complete user information and management options
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-2 gap-4">
                             <div>
-                              <CardTitle className="text-white">{post.title}</CardTitle>
-                              <CardDescription className="text-space-400">
-                                By {post.authorName} • {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : 'Draft'}
-                              </CardDescription>
+                              <p className="text-space-400 text-sm">Name</p>
+                              <p className="text-white font-medium">
+                                {selectedUser.firstName ? `${selectedUser.firstName} ${selectedUser.lastName || ''}` : 'Not provided'}
+                              </p>
                             </div>
-                            <div className="flex space-x-2">
-                              <Button size="sm" variant="outline">
-                                <Edit className="w-4 h-4" />
-                              </Button>
-                              <Button size="sm" variant="outline">
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
+                            <div>
+                              <p className="text-space-400 text-sm">Email</p>
+                              <p className="text-white font-medium">{selectedUser.email}</p>
+                            </div>
+                            <div>
+                              <p className="text-space-400 text-sm">Role</p>
+                              <p className="text-white font-medium">
+                                {selectedUser.isAdmin ? 'Administrator' : 'User'}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-space-400 text-sm">Joined</p>
+                              <p className="text-white font-medium">
+                                {selectedUser.createdAt ? new Date(selectedUser.createdAt).toLocaleDateString() : 'N/A'}
+                              </p>
                             </div>
                           </div>
-                        </CardHeader>
-                        <CardContent>
-                          <p className="text-space-300 text-sm line-clamp-2">
-                            {post.content.substring(0, 150)}...
-                          </p>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
+                          <div className="flex justify-end gap-2 pt-4">
+                            <Button
+                              variant="outline"
+                              onClick={() => setSelectedUser(null)}
+                              className="border-space-600 text-space-300"
+                            >
+                              Close
+                            </Button>
+                            <Button
+                              onClick={() => handleUserAction(selectedUser, selectedUser.isAdmin ? 'removeAdmin' : 'makeAdmin')}
+                              className="bg-cosmic-blue hover:bg-cosmic-blue/90"
+                            >
+                              {selectedUser.isAdmin ? 'Remove Admin' : 'Make Admin'}
+                            </Button>
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  )}
                 </TabsContent>
 
-                {/* Workshops Tab */}
-                <TabsContent value="workshops" className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <h2 className="text-2xl font-semibold text-white">Workshop Management</h2>
-                    <Button className="cosmic-gradient">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Create Workshop
-                    </Button>
-                  </div>
-                  
-                  <div className="grid gap-4">
-                    {workshops.map((workshop) => (
-                      <Card key={workshop.id} className="bg-space-800 border-space-700">
-                        <CardHeader className="pb-3">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <CardTitle className="text-white">{workshop.title}</CardTitle>
-                              <CardDescription className="text-space-400">
-                                {workshop.type} • {workshop.startDate} - {workshop.endDate}
-                              </CardDescription>
+                <TabsContent value="content" className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xl font-semibold text-white">Content Management</h3>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button className="bg-cosmic-blue hover:bg-cosmic-blue/90">
+                          <Plus className="w-4 h-4 mr-2" />
+                          Create Blog Post
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="bg-space-800 border-space-700 text-white max-w-2xl">
+                        <DialogHeader>
+                          <DialogTitle className="text-white">Create New Blog Post</DialogTitle>
+                          <DialogDescription className="text-space-300">
+                            Add a new educational blog post to the platform
+                          </DialogDescription>
+                        </DialogHeader>
+                        <Form {...blogForm}>
+                          <form onSubmit={blogForm.handleSubmit((data) => createBlogPost.mutate(data))} className="space-y-4">
+                            <FormField
+                              control={blogForm.control}
+                              name="title"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-space-300">Title</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} className="bg-space-700 border-space-600 text-white" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <div className="grid grid-cols-2 gap-4">
+                              <FormField
+                                control={blogForm.control}
+                                name="author"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-space-300">Author</FormLabel>
+                                    <FormControl>
+                                      <Input {...field} className="bg-space-700 border-space-600 text-white" />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={blogForm.control}
+                                name="category"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-space-300">Category</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                      <FormControl>
+                                        <SelectTrigger className="bg-space-700 border-space-600 text-white">
+                                          <SelectValue placeholder="Select category" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent className="bg-space-700 border-space-600">
+                                        <SelectItem value="space-science">Space Science</SelectItem>
+                                        <SelectItem value="astronomy">Astronomy</SelectItem>
+                                        <SelectItem value="physics">Physics</SelectItem>
+                                        <SelectItem value="technology">Technology</SelectItem>
+                                        <SelectItem value="education">Education</SelectItem>
+                                        <SelectItem value="research">Research</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
                             </div>
-                            <div className="flex space-x-2">
-                              <Badge variant={workshop.isActive ? "default" : "secondary"}>
-                                {workshop.isActive ? "Active" : "Inactive"}
+                            <FormField
+                              control={blogForm.control}
+                              name="excerpt"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-space-300">Excerpt</FormLabel>
+                                  <FormControl>
+                                    <Textarea {...field} className="bg-space-700 border-space-600 text-white" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={blogForm.control}
+                              name="content"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-space-300">Content</FormLabel>
+                                  <FormControl>
+                                    <Textarea {...field} className="bg-space-700 border-space-600 text-white min-h-32" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <div className="grid grid-cols-2 gap-4">
+                              <FormField
+                                control={blogForm.control}
+                                name="imageUrl"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-space-300">Image URL (Optional)</FormLabel>
+                                    <FormControl>
+                                      <Input {...field} className="bg-space-700 border-space-600 text-white" />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={blogForm.control}
+                                name="tags"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-space-300">Tags (Optional)</FormLabel>
+                                    <FormControl>
+                                      <Input {...field} placeholder="Comma-separated tags" className="bg-space-700 border-space-600 text-white" />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                            <div className="flex justify-end gap-2 pt-4">
+                              <Button type="button" variant="outline" className="border-space-600 text-space-300">
+                                Cancel
+                              </Button>
+                              <Button
+                                type="submit"
+                                disabled={createBlogPost.isPending}
+                                className="bg-cosmic-blue hover:bg-cosmic-blue/90"
+                              >
+                                {createBlogPost.isPending ? "Creating..." : "Create Post"}
+                              </Button>
+                            </div>
+                          </form>
+                        </Form>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+
+                  <GlassMorphism className="p-6">
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="border-space-700">
+                            <TableHead className="text-space-300">Title</TableHead>
+                            <TableHead className="text-space-300">Author</TableHead>
+                            <TableHead className="text-space-300">Category</TableHead>
+                            <TableHead className="text-space-300">Created</TableHead>
+                            <TableHead className="text-space-300">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {blogPosts.map((post) => (
+                            <TableRow key={post.id} className="border-space-700">
+                              <TableCell className="text-white font-medium">{post.title}</TableCell>
+                              <TableCell className="text-space-300">{post.author}</TableCell>
+                              <TableCell>
+                                <Badge variant="outline" className="text-cosmic-blue border-cosmic-blue">
+                                  {post.category}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-space-300">
+                                {post.createdAt ? new Date(post.createdAt).toLocaleDateString() : 'N/A'}
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-2">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-cosmic-blue hover:bg-cosmic-blue/10"
+                                  >
+                                    <Edit className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-red-400 hover:bg-red-400/10"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </GlassMorphism>
+                </TabsContent>
+
+                <TabsContent value="workshops" className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xl font-semibold text-white">Workshop Management</h3>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button className="bg-cosmic-blue hover:bg-cosmic-blue/90">
+                          <Plus className="w-4 h-4 mr-2" />
+                          Create Workshop
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="bg-space-800 border-space-700 text-white max-w-2xl">
+                        <DialogHeader>
+                          <DialogTitle className="text-white">Create New Workshop</DialogTitle>
+                          <DialogDescription className="text-space-300">
+                            Add a new educational workshop to the platform
+                          </DialogDescription>
+                        </DialogHeader>
+                        <Form {...workshopForm}>
+                          <form onSubmit={workshopForm.handleSubmit((data) => createWorkshop.mutate(data))} className="space-y-4">
+                            <FormField
+                              control={workshopForm.control}
+                              name="title"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-space-300">Title</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} className="bg-space-700 border-space-600 text-white" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <div className="grid grid-cols-2 gap-4">
+                              <FormField
+                                control={workshopForm.control}
+                                name="category"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-space-300">Category</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                      <FormControl>
+                                        <SelectTrigger className="bg-space-700 border-space-600 text-white">
+                                          <SelectValue placeholder="Select category" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent className="bg-space-700 border-space-600">
+                                        <SelectItem value="telescope">Telescope Sessions</SelectItem>
+                                        <SelectItem value="vr">VR Experiences</SelectItem>
+                                        <SelectItem value="expert">Expert Sessions</SelectItem>
+                                        <SelectItem value="hands-on">Hands-on Activities</SelectItem>
+                                        <SelectItem value="research">Research Methods</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={workshopForm.control}
+                                name="level"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-space-300">Level</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                      <FormControl>
+                                        <SelectTrigger className="bg-space-700 border-space-600 text-white">
+                                          <SelectValue placeholder="Select level" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent className="bg-space-700 border-space-600">
+                                        <SelectItem value="beginner">Beginner</SelectItem>
+                                        <SelectItem value="intermediate">Intermediate</SelectItem>
+                                        <SelectItem value="advanced">Advanced</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                            <FormField
+                              control={workshopForm.control}
+                              name="description"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-space-300">Description</FormLabel>
+                                  <FormControl>
+                                    <Textarea {...field} className="bg-space-700 border-space-600 text-white" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <div className="grid grid-cols-3 gap-4">
+                              <FormField
+                                control={workshopForm.control}
+                                name="duration"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-space-300">Duration</FormLabel>
+                                    <FormControl>
+                                      <Input {...field} placeholder="e.g., 2 hours" className="bg-space-700 border-space-600 text-white" />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={workshopForm.control}
+                                name="price"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-space-300">Price (₹)</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        {...field}
+                                        type="number"
+                                        onChange={(e) => field.onChange(Number(e.target.value))}
+                                        className="bg-space-700 border-space-600 text-white"
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={workshopForm.control}
+                                name="capacity"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-space-300">Capacity</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        {...field}
+                                        type="number"
+                                        onChange={(e) => field.onChange(Number(e.target.value))}
+                                        className="bg-space-700 border-space-600 text-white"
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                              <FormField
+                                control={workshopForm.control}
+                                name="requirements"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-space-300">Requirements (Optional)</FormLabel>
+                                    <FormControl>
+                                      <Textarea {...field} className="bg-space-700 border-space-600 text-white" />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={workshopForm.control}
+                                name="outcomes"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-space-300">Learning Outcomes (Optional)</FormLabel>
+                                    <FormControl>
+                                      <Textarea {...field} className="bg-space-700 border-space-600 text-white" />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                            <div className="flex justify-end gap-2 pt-4">
+                              <Button type="button" variant="outline" className="border-space-600 text-space-300">
+                                Cancel
+                              </Button>
+                              <Button
+                                type="submit"
+                                disabled={createWorkshop.isPending}
+                                className="bg-cosmic-blue hover:bg-cosmic-blue/90"
+                              >
+                                {createWorkshop.isPending ? "Creating..." : "Create Workshop"}
+                              </Button>
+                            </div>
+                          </form>
+                        </Form>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+
+                  <GlassMorphism className="p-6">
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="border-space-700">
+                            <TableHead className="text-space-300">Title</TableHead>
+                            <TableHead className="text-space-300">Category</TableHead>
+                            <TableHead className="text-space-300">Level</TableHead>
+                            <TableHead className="text-space-300">Duration</TableHead>
+                            <TableHead className="text-space-300">Price</TableHead>
+                            <TableHead className="text-space-300">Capacity</TableHead>
+                            <TableHead className="text-space-300">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {workshops.map((workshop) => (
+                            <TableRow key={workshop.id} className="border-space-700">
+                              <TableCell className="text-white font-medium">{workshop.title}</TableCell>
+                              <TableCell>
+                                <Badge variant="outline" className="text-purple-400 border-purple-400">
+                                  {workshop.category}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant="outline" className="text-yellow-400 border-yellow-400">
+                                  {workshop.level}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-space-300">{workshop.duration}</TableCell>
+                              <TableCell className="text-space-300">₹{workshop.price}</TableCell>
+                              <TableCell className="text-space-300">{workshop.capacity}</TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-2">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-cosmic-blue hover:bg-cosmic-blue/10"
+                                  >
+                                    <Edit className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-red-400 hover:bg-red-400/10"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </GlassMorphism>
+                </TabsContent>
+
+                <TabsContent value="courses" className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xl font-semibold text-white">Course Management</h3>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button className="bg-cosmic-blue hover:bg-cosmic-blue/90">
+                          <Plus className="w-4 h-4 mr-2" />
+                          Create Course
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="bg-space-800 border-space-700 text-white max-w-2xl">
+                        <DialogHeader>
+                          <DialogTitle className="text-white">Create New Course</DialogTitle>
+                          <DialogDescription className="text-space-300">
+                            Add a new educational course to the platform
+                          </DialogDescription>
+                        </DialogHeader>
+                        <Form {...courseForm}>
+                          <form onSubmit={courseForm.handleSubmit((data) => createCourse.mutate(data))} className="space-y-4">
+                            <FormField
+                              control={courseForm.control}
+                              name="title"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-space-300">Title</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} className="bg-space-700 border-space-600 text-white" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <div className="grid grid-cols-2 gap-4">
+                              <FormField
+                                control={courseForm.control}
+                                name="field"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-space-300">Field</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                      <FormControl>
+                                        <SelectTrigger className="bg-space-700 border-space-600 text-white">
+                                          <SelectValue placeholder="Select field" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent className="bg-space-700 border-space-600">
+                                        <SelectItem value="astronomy">Astronomy</SelectItem>
+                                        <SelectItem value="astrophysics">Astrophysics</SelectItem>
+                                        <SelectItem value="space-technology">Space Technology</SelectItem>
+                                        <SelectItem value="planetary-science">Planetary Science</SelectItem>
+                                        <SelectItem value="astrobiology">Astrobiology</SelectItem>
+                                        <SelectItem value="cosmology">Cosmology</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={courseForm.control}
+                                name="level"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-space-300">Level</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                      <FormControl>
+                                        <SelectTrigger className="bg-space-700 border-space-600 text-white">
+                                          <SelectValue placeholder="Select level" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent className="bg-space-700 border-space-600">
+                                        <SelectItem value="beginner">Beginner</SelectItem>
+                                        <SelectItem value="intermediate">Intermediate</SelectItem>
+                                        <SelectItem value="advanced">Advanced</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                            <FormField
+                              control={courseForm.control}
+                              name="description"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-space-300">Description</FormLabel>
+                                  <FormControl>
+                                    <Textarea {...field} className="bg-space-700 border-space-600 text-white" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <div className="grid grid-cols-3 gap-4">
+                              <FormField
+                                control={courseForm.control}
+                                name="duration"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-space-300">Duration</FormLabel>
+                                    <FormControl>
+                                      <Input {...field} placeholder="e.g., 8 weeks" className="bg-space-700 border-space-600 text-white" />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={courseForm.control}
+                                name="price"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-space-300">Price (₹)</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        {...field}
+                                        type="number"
+                                        onChange={(e) => field.onChange(Number(e.target.value))}
+                                        className="bg-space-700 border-space-600 text-white"
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={courseForm.control}
+                                name="capacity"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-space-300">Capacity</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        {...field}
+                                        type="number"
+                                        onChange={(e) => field.onChange(Number(e.target.value))}
+                                        className="bg-space-700 border-space-600 text-white"
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                              <FormField
+                                control={courseForm.control}
+                                name="requirements"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-space-300">Requirements (Optional)</FormLabel>
+                                    <FormControl>
+                                      <Textarea {...field} className="bg-space-700 border-space-600 text-white" />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={courseForm.control}
+                                name="outcomes"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-space-300">Learning Outcomes (Optional)</FormLabel>
+                                    <FormControl>
+                                      <Textarea {...field} className="bg-space-700 border-space-600 text-white" />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                            <div className="flex justify-end gap-2 pt-4">
+                              <Button type="button" variant="outline" className="border-space-600 text-space-300">
+                                Cancel
+                              </Button>
+                              <Button
+                                type="submit"
+                                disabled={createCourse.isPending}
+                                className="bg-cosmic-blue hover:bg-cosmic-blue/90"
+                              >
+                                {createCourse.isPending ? "Creating..." : "Create Course"}
+                              </Button>
+                            </div>
+                          </form>
+                        </Form>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+
+                  <GlassMorphism className="p-6">
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="border-space-700">
+                            <TableHead className="text-space-300">Title</TableHead>
+                            <TableHead className="text-space-300">Field</TableHead>
+                            <TableHead className="text-space-300">Level</TableHead>
+                            <TableHead className="text-space-300">Duration</TableHead>
+                            <TableHead className="text-space-300">Price</TableHead>
+                            <TableHead className="text-space-300">Capacity</TableHead>
+                            <TableHead className="text-space-300">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {courses.map((course) => (
+                            <TableRow key={course.id} className="border-space-700">
+                              <TableCell className="text-white font-medium">{course.title}</TableCell>
+                              <TableCell>
+                                <Badge variant="outline" className="text-green-400 border-green-400">
+                                  {course.field}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant="outline" className="text-yellow-400 border-yellow-400">
+                                  {course.level}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-space-300">{course.duration}</TableCell>
+                              <TableCell className="text-space-300">₹{course.price}</TableCell>
+                              <TableCell className="text-space-300">{course.capacity}</TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-2">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-cosmic-blue hover:bg-cosmic-blue/10"
+                                  >
+                                    <Edit className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-red-400 hover:bg-red-400/10"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </GlassMorphism>
+                </TabsContent>
+
+                <TabsContent value="campaigns" className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xl font-semibold text-white">Campaign Management</h3>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button className="bg-cosmic-blue hover:bg-cosmic-blue/90">
+                          <Plus className="w-4 h-4 mr-2" />
+                          Create Campaign
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="bg-space-800 border-space-700 text-white max-w-2xl">
+                        <DialogHeader>
+                          <DialogTitle className="text-white">Create New Campaign</DialogTitle>
+                          <DialogDescription className="text-space-300">
+                            Add a new research campaign to the platform
+                          </DialogDescription>
+                        </DialogHeader>
+                        <Form {...campaignForm}>
+                          <form onSubmit={campaignForm.handleSubmit((data) => createCampaign.mutate(data))} className="space-y-4">
+                            <FormField
+                              control={campaignForm.control}
+                              name="title"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-space-300">Title</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} className="bg-space-700 border-space-600 text-white" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <div className="grid grid-cols-2 gap-4">
+                              <FormField
+                                control={campaignForm.control}
+                                name="category"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-space-300">Category</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                      <FormControl>
+                                        <SelectTrigger className="bg-space-700 border-space-600 text-white">
+                                          <SelectValue placeholder="Select category" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent className="bg-space-700 border-space-600">
+                                        <SelectItem value="asteroid-search">Asteroid Search</SelectItem>
+                                        <SelectItem value="exoplanet-discovery">Exoplanet Discovery</SelectItem>
+                                        <SelectItem value="galaxy-classification">Galaxy Classification</SelectItem>
+                                        <SelectItem value="stellar-analysis">Stellar Analysis</SelectItem>
+                                        <SelectItem value="citizen-science">Citizen Science</SelectItem>
+                                        <SelectItem value="data-analysis">Data Analysis</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={campaignForm.control}
+                                name="status"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-space-300">Status</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                      <FormControl>
+                                        <SelectTrigger className="bg-space-700 border-space-600 text-white">
+                                          <SelectValue placeholder="Select status" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent className="bg-space-700 border-space-600">
+                                        <SelectItem value="upcoming">Upcoming</SelectItem>
+                                        <SelectItem value="active">Active</SelectItem>
+                                        <SelectItem value="completed">Completed</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                            <FormField
+                              control={campaignForm.control}
+                              name="description"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-space-300">Description</FormLabel>
+                                  <FormControl>
+                                    <Textarea {...field} className="bg-space-700 border-space-600 text-white" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={campaignForm.control}
+                              name="goal"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-space-300">Goal</FormLabel>
+                                  <FormControl>
+                                    <Textarea {...field} className="bg-space-700 border-space-600 text-white" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <div className="grid grid-cols-2 gap-4">
+                              <FormField
+                                control={campaignForm.control}
+                                name="startDate"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-space-300">Start Date</FormLabel>
+                                    <FormControl>
+                                      <Input {...field} type="date" className="bg-space-700 border-space-600 text-white" />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={campaignForm.control}
+                                name="endDate"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-space-300">End Date</FormLabel>
+                                    <FormControl>
+                                      <Input {...field} type="date" className="bg-space-700 border-space-600 text-white" />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                              <FormField
+                                control={campaignForm.control}
+                                name="participantFee"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-space-300">Participant Fee (₹)</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        {...field}
+                                        type="number"
+                                        onChange={(e) => field.onChange(Number(e.target.value))}
+                                        className="bg-space-700 border-space-600 text-white"
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={campaignForm.control}
+                                name="maxParticipants"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-space-300">Max Participants</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        {...field}
+                                        type="number"
+                                        onChange={(e) => field.onChange(Number(e.target.value))}
+                                        className="bg-space-700 border-space-600 text-white"
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                              <FormField
+                                control={campaignForm.control}
+                                name="requirements"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-space-300">Requirements (Optional)</FormLabel>
+                                    <FormControl>
+                                      <Textarea {...field} className="bg-space-700 border-space-600 text-white" />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={campaignForm.control}
+                                name="rewards"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-space-300">Rewards (Optional)</FormLabel>
+                                    <FormControl>
+                                      <Textarea {...field} className="bg-space-700 border-space-600 text-white" />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                            <div className="flex justify-end gap-2 pt-4">
+                              <Button type="button" variant="outline" className="border-space-600 text-space-300">
+                                Cancel
+                              </Button>
+                              <Button
+                                type="submit"
+                                disabled={createCampaign.isPending}
+                                className="bg-cosmic-blue hover:bg-cosmic-blue/90"
+                              >
+                                {createCampaign.isPending ? "Creating..." : "Create Campaign"}
+                              </Button>
+                            </div>
+                          </form>
+                        </Form>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+
+                  <GlassMorphism className="p-6">
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="border-space-700">
+                            <TableHead className="text-space-300">Title</TableHead>
+                            <TableHead className="text-space-300">Category</TableHead>
+                            <TableHead className="text-space-300">Status</TableHead>
+                            <TableHead className="text-space-300">Duration</TableHead>
+                            <TableHead className="text-space-300">Fee</TableHead>
+                            <TableHead className="text-space-300">Max Participants</TableHead>
+                            <TableHead className="text-space-300">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {campaigns.map((campaign) => (
+                            <TableRow key={campaign.id} className="border-space-700">
+                              <TableCell className="text-white font-medium">{campaign.title}</TableCell>
+                              <TableCell>
+                                <Badge variant="outline" className="text-orange-400 border-orange-400">
+                                  {campaign.category}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                <Badge 
+                                  variant="outline" 
+                                  className={
+                                    campaign.status === 'active' ? 'text-green-400 border-green-400' :
+                                    campaign.status === 'upcoming' ? 'text-blue-400 border-blue-400' :
+                                    'text-gray-400 border-gray-400'
+                                  }
+                                >
+                                  {campaign.status}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-space-300">
+                                {campaign.startDate && campaign.endDate 
+                                  ? `${new Date(campaign.startDate).toLocaleDateString()} - ${new Date(campaign.endDate).toLocaleDateString()}`
+                                  : 'N/A'
+                                }
+                              </TableCell>
+                              <TableCell className="text-space-300">₹{campaign.participantFee}</TableCell>
+                              <TableCell className="text-space-300">{campaign.maxParticipants}</TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-2">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-cosmic-blue hover:bg-cosmic-blue/10"
+                                  >
+                                    <Edit className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-red-400 hover:bg-red-400/10"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </GlassMorphism>
+                </TabsContent>
+
+                <TabsContent value="inquiries" className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xl font-semibold text-white">Inquiry Management</h3>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary" className="bg-cosmic-blue/20 text-cosmic-blue">
+                        Total: {inquiries.length}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  <GlassMorphism className="p-6">
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="border-space-700">
+                            <TableHead className="text-space-300">Contact</TableHead>
+                            <TableHead className="text-space-300">Type</TableHead>
+                            <TableHead className="text-space-300">Subject</TableHead>
+                            <TableHead className="text-space-300">Message</TableHead>
+                            <TableHead className="text-space-300">Date</TableHead>
+                            <TableHead className="text-space-300">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {inquiries.map((inquiry) => (
+                            <TableRow key={inquiry.id} className="border-space-700">
+                              <TableCell>
+                                <div>
+                                  <p className="text-white font-medium">{inquiry.name}</p>
+                                  <p className="text-space-400 text-sm">{inquiry.email}</p>
+                                  {inquiry.phone && (
+                                    <p className="text-space-400 text-sm">{inquiry.phone}</p>
+                                  )}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant="outline" className="text-yellow-400 border-yellow-400">
+                                  {inquiry.type}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-space-300">{inquiry.subject}</TableCell>
+                              <TableCell className="text-space-300 max-w-xs truncate">
+                                {inquiry.message}
+                              </TableCell>
+                              <TableCell className="text-space-300">
+                                {inquiry.createdAt ? new Date(inquiry.createdAt).toLocaleDateString() : 'N/A'}
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-2">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setSelectedInquiry(inquiry)}
+                                    className="text-cosmic-blue hover:bg-cosmic-blue/10"
+                                  >
+                                    <Eye className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => window.open(`mailto:${inquiry.email}?subject=Re: ${inquiry.subject}`, '_blank')}
+                                    className="text-green-400 hover:bg-green-400/10"
+                                  >
+                                    <MessageSquare className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </GlassMorphism>
+
+                  {/* Inquiry Detail Dialog */}
+                  {selectedInquiry && (
+                    <Dialog open={!!selectedInquiry} onOpenChange={() => setSelectedInquiry(null)}>
+                      <DialogContent className="bg-space-800 border-space-700 text-white max-w-2xl">
+                        <DialogHeader>
+                          <DialogTitle className="text-white">Inquiry Details</DialogTitle>
+                          <DialogDescription className="text-space-300">
+                            Complete inquiry information and response options
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <p className="text-space-400 text-sm">Name</p>
+                              <p className="text-white font-medium">{selectedInquiry.name}</p>
+                            </div>
+                            <div>
+                              <p className="text-space-400 text-sm">Email</p>
+                              <p className="text-white font-medium">{selectedInquiry.email}</p>
+                            </div>
+                            <div>
+                              <p className="text-space-400 text-sm">Phone</p>
+                              <p className="text-white font-medium">{selectedInquiry.phone || 'Not provided'}</p>
+                            </div>
+                            <div>
+                              <p className="text-space-400 text-sm">Organization</p>
+                              <p className="text-white font-medium">{selectedInquiry.organization || 'Not provided'}</p>
+                            </div>
+                            <div>
+                              <p className="text-space-400 text-sm">Type</p>
+                              <Badge variant="outline" className="text-yellow-400 border-yellow-400">
+                                {selectedInquiry.type}
                               </Badge>
-                              <Button size="sm" variant="outline">
-                                <Edit className="w-4 h-4" />
-                              </Button>
                             </div>
-                          </div>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="flex justify-between items-center">
-                            <span className="text-space-300">
-                              {workshop.currentParticipants}/{workshop.maxParticipants} participants
-                            </span>
-                            <span className="text-cosmic-blue font-semibold">
-                              ₹{workshop.price}
-                            </span>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </TabsContent>
-
-                {/* Courses Tab */}
-                <TabsContent value="courses" className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <h2 className="text-2xl font-semibold text-white">Course Management</h2>
-                    <Button className="cosmic-gradient">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Create Course
-                    </Button>
-                  </div>
-                  
-                  <div className="grid gap-4">
-                    {courses.map((course) => (
-                      <Card key={course.id} className="bg-space-800 border-space-700">
-                        <CardHeader className="pb-3">
-                          <div className="flex justify-between items-start">
                             <div>
-                              <CardTitle className="text-white">{course.title}</CardTitle>
-                              <CardDescription className="text-space-400">
-                                {course.level} • {course.duration} weeks
-                              </CardDescription>
-                            </div>
-                            <div className="flex space-x-2">
-                              <Badge variant={course.isActive ? "default" : "secondary"}>
-                                {course.isActive ? "Active" : "Inactive"}
-                              </Badge>
-                              <Button size="sm" variant="outline">
-                                <Edit className="w-4 h-4" />
-                              </Button>
+                              <p className="text-space-400 text-sm">Date</p>
+                              <p className="text-white font-medium">
+                                {selectedInquiry.createdAt ? new Date(selectedInquiry.createdAt).toLocaleDateString() : 'N/A'}
+                              </p>
                             </div>
                           </div>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="flex justify-between items-center">
-                            <span className="text-space-300">
-                              {course.currentEnrollments}/{course.maxEnrollments} enrolled
-                            </span>
-                            <span className="text-cosmic-blue font-semibold">
-                              ₹{course.price}
-                            </span>
+                          <div>
+                            <p className="text-space-400 text-sm mb-2">Subject</p>
+                            <p className="text-white font-medium">{selectedInquiry.subject}</p>
                           </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </TabsContent>
-
-                {/* Campaigns Tab */}
-                <TabsContent value="campaigns" className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <h2 className="text-2xl font-semibold text-white">Campaign Management</h2>
-                    <Button className="cosmic-gradient">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Create Campaign
-                    </Button>
-                  </div>
-                  
-                  <div className="grid gap-4">
-                    {campaigns.map((campaign) => (
-                      <Card key={campaign.id} className="bg-space-800 border-space-700">
-                        <CardHeader className="pb-3">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <CardTitle className="text-white">{campaign.title}</CardTitle>
-                              <CardDescription className="text-space-400">
-                                {campaign.startDate} - {campaign.endDate}
-                              </CardDescription>
-                            </div>
-                            <div className="flex space-x-2">
-                              <Badge variant={campaign.isActive ? "default" : "secondary"}>
-                                {campaign.status}
-                              </Badge>
-                              <Button size="sm" variant="outline">
-                                <Edit className="w-4 h-4" />
-                              </Button>
+                          <div>
+                            <p className="text-space-400 text-sm mb-2">Message</p>
+                            <div className="bg-space-700 p-3 rounded-lg">
+                              <p className="text-white">{selectedInquiry.message}</p>
                             </div>
                           </div>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="flex justify-between items-center">
-                            <span className="text-space-300">
-                              {campaign.currentParticipants}/{campaign.maxParticipants} participants
-                            </span>
-                            <span className="text-cosmic-blue font-semibold">
-                              ₹{campaign.price}
-                            </span>
+                          <div className="flex justify-end gap-2 pt-4">
+                            <Button
+                              variant="outline"
+                              onClick={() => setSelectedInquiry(null)}
+                              className="border-space-600 text-space-300"
+                            >
+                              Close
+                            </Button>
+                            <Button
+                              onClick={() => window.open(`mailto:${selectedInquiry.email}?subject=Re: ${selectedInquiry.subject}`, '_blank')}
+                              className="bg-cosmic-blue hover:bg-cosmic-blue/90"
+                            >
+                              <MessageSquare className="w-4 h-4 mr-2" />
+                              Reply via Email
+                            </Button>
                           </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </TabsContent>
-
-                {/* Inquiries Tab */}
-                <TabsContent value="inquiries" className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <h2 className="text-2xl font-semibold text-white">Inquiry Management</h2>
-                    <Button className="cosmic-gradient">
-                      <BarChart3 className="w-4 h-4 mr-2" />
-                      Export Data
-                    </Button>
-                  </div>
-                  
-                  <div className="grid gap-4">
-                    {inquiries.map((inquiry) => (
-                      <Card key={inquiry.id} className="bg-space-800 border-space-700">
-                        <CardHeader className="pb-3">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <CardTitle className="text-white">{inquiry.name}</CardTitle>
-                              <CardDescription className="text-space-400">
-                                {inquiry.email} • {inquiry.subject}
-                              </CardDescription>
-                            </div>
-                            <div className="flex space-x-2">
-                              <Badge variant="outline">
-                                {inquiry.createdAt ? new Date(inquiry.createdAt).toLocaleDateString() : 'Recent'}
-                              </Badge>
-                              <Button size="sm" variant="outline">
-                                Reply
-                              </Button>
-                            </div>
-                          </div>
-                        </CardHeader>
-                        <CardContent>
-                          <p className="text-space-300 text-sm line-clamp-2">
-                            {inquiry.message}
-                          </p>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  )}
                 </TabsContent>
               </Tabs>
-            </GlassMorphism>
+            </div>
           </div>
         </div>
         

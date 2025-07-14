@@ -101,6 +101,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin POST routes for content creation
+  app.post('/api/admin/blog-posts', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const postData = insertBlogPostSchema.parse(req.body);
+      const post = await storage.createBlogPost(postData);
+      res.json(post);
+    } catch (error) {
+      console.error("Error creating blog post:", error);
+      res.status(500).json({ message: "Failed to create blog post" });
+    }
+  });
+
+  app.post('/api/admin/workshops', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const workshopData = insertWorkshopSchema.parse(req.body);
+      const workshop = await storage.createWorkshop(workshopData);
+      res.json(workshop);
+    } catch (error) {
+      console.error("Error creating workshop:", error);
+      res.status(500).json({ message: "Failed to create workshop" });
+    }
+  });
+
+  app.post('/api/admin/courses', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const courseData = insertCourseSchema.parse(req.body);
+      const course = await storage.createCourse(courseData);
+      res.json(course);
+    } catch (error) {
+      console.error("Error creating course:", error);
+      res.status(500).json({ message: "Failed to create course" });
+    }
+  });
+
+  app.post('/api/admin/campaigns', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const campaignData = insertCampaignSchema.parse(req.body);
+      const campaign = await storage.createCampaign(campaignData);
+      res.json(campaign);
+    } catch (error) {
+      console.error("Error creating campaign:", error);
+      res.status(500).json({ message: "Failed to create campaign" });
+    }
+  });
+
+  // Admin PATCH route for user management
+  app.patch('/api/admin/users/:id', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const { isAdmin } = req.body;
+      const user = await storage.updateUserAdminStatus(id, isAdmin);
+      res.json(user);
+    } catch (error) {
+      console.error("Error updating user:", error);
+      res.status(500).json({ message: "Failed to update user" });
+    }
+  });
+
   app.get('/api/admin/inquiries', isAuthenticated, isAdmin, async (req: any, res) => {
     try {
       const inquiries = await storage.getContactInquiries();
