@@ -115,6 +115,30 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Video Section */}
+      <section className="py-20 bg-space-800/30">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center mb-16">
+            <h2 className="text-4xl font-space font-bold mb-6">
+              Discover <span className="text-cosmic-blue">Zoonigia</span>
+            </h2>
+            <p className="text-xl text-space-200 mb-8">
+              Watch our introduction video to see how we're revolutionizing space science education
+            </p>
+            <div className="relative w-full h-0 pb-[56.25%] rounded-lg overflow-hidden bg-space-800">
+              <iframe
+                className="absolute top-0 left-0 w-full h-full"
+                src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                title="What is Zoonigia - Space Science Education Platform"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Quick Actions */}
       <section className="py-20">
         <div className="container mx-auto px-4">
