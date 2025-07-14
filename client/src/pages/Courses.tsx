@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +15,8 @@ import {
   BookOpen, 
   TrendingUp,
   Search,
-  Filter
+  Filter,
+  ArrowRight
 } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
@@ -199,9 +201,17 @@ const Courses = () => {
                     <span className="text-3xl font-bold text-cosmic-blue">
                       ₹{course.price}
                     </span>
-                    <Button className="cosmic-gradient hover:opacity-90 px-6">
-                      Pre-register Now
-                    </Button>
+                    <div className="flex gap-2">
+                      <Link href={`/courses/${course.id}`}>
+                        <Button variant="outline" className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900">
+                          View Details
+                          <ArrowRight className="w-4 h-4 ml-2" />
+                        </Button>
+                      </Link>
+                      <Button className="cosmic-gradient hover:opacity-90 px-6">
+                        Enroll Now
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

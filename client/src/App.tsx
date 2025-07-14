@@ -10,6 +10,7 @@ import About from "@/pages/About";
 import Register from "@/pages/Register";
 import Workshops from "@/pages/Workshops";
 import Courses from "@/pages/Courses";
+import CourseDetail from "@/pages/CourseDetail";
 import Campaigns from "@/pages/Campaigns";
 import Schools from "@/pages/Schools";
 import Collaborators from "@/pages/Collaborators";
@@ -32,6 +33,7 @@ function Router() {
           <Route path="/register" component={Register} />
           <Route path="/workshops" component={Workshops} />
           <Route path="/courses" component={Courses} />
+          <Route path="/courses/:id" component={CourseDetail} />
           <Route path="/campaigns" component={Campaigns} />
           <Route path="/schools" component={Schools} />
           <Route path="/collaborators" component={Collaborators} />

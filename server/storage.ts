@@ -9,6 +9,13 @@ import {
   workshopEnrollments,
   courseEnrollments,
   campaignParticipants,
+  courseModules,
+  courseLessons,
+  courseQuizzes,
+  studentProgress,
+  quizAttempts,
+  courseReviews,
+  courseCertificates,
   type User,
   type UpsertUser,
   type Workshop,
@@ -29,6 +36,20 @@ import {
   type InsertCourseEnrollment,
   type CampaignParticipant,
   type InsertCampaignParticipant,
+  type CourseModule,
+  type InsertCourseModule,
+  type CourseLesson,
+  type InsertCourseLesson,
+  type CourseQuiz,
+  type InsertCourseQuiz,
+  type StudentProgress,
+  type InsertStudentProgress,
+  type QuizAttempt,
+  type InsertQuizAttempt,
+  type CourseReview,
+  type InsertCourseReview,
+  type CourseCertificate,
+  type InsertCourseCertificate,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and } from "drizzle-orm";
@@ -71,6 +92,48 @@ export interface IStorage {
   
   // Contact operations
   createContactInquiry(inquiry: InsertContactInquiry): Promise<ContactInquiry>;
+  
+  // LMS operations
+  // Course modules
+  getCourseModules(courseId: number): Promise<CourseModule[]>;
+  createCourseModule(module: InsertCourseModule): Promise<CourseModule>;
+  updateCourseModule(id: number, module: Partial<CourseModule>): Promise<CourseModule>;
+  deleteCourseModule(id: number): Promise<void>;
+  
+  // Course lessons
+  getCourseLessons(courseId: number): Promise<CourseLesson[]>;
+  getCourseLessonsByModule(moduleId: number): Promise<CourseLesson[]>;
+  getLessonById(id: number): Promise<CourseLesson | undefined>;
+  createCourseLesson(lesson: InsertCourseLesson): Promise<CourseLesson>;
+  updateCourseLesson(id: number, lesson: Partial<CourseLesson>): Promise<CourseLesson>;
+  deleteCourseLesson(id: number): Promise<void>;
+  
+  // Course quizzes
+  getCourseQuizzes(courseId: number): Promise<CourseQuiz[]>;
+  getQuizById(id: number): Promise<CourseQuiz | undefined>;
+  createCourseQuiz(quiz: InsertCourseQuiz): Promise<CourseQuiz>;
+  updateCourseQuiz(id: number, quiz: Partial<CourseQuiz>): Promise<CourseQuiz>;
+  deleteQuiz(id: number): Promise<void>;
+  
+  // Student progress
+  getStudentProgress(userId: string, courseId: number): Promise<StudentProgress[]>;
+  getStudentProgressByLesson(userId: string, lessonId: number): Promise<StudentProgress | undefined>;
+  createStudentProgress(progress: InsertStudentProgress): Promise<StudentProgress>;
+  updateStudentProgress(id: number, progress: Partial<StudentProgress>): Promise<StudentProgress>;
+  
+  // Quiz attempts
+  getQuizAttempts(userId: string, quizId: number): Promise<QuizAttempt[]>;
+  createQuizAttempt(attempt: InsertQuizAttempt): Promise<QuizAttempt>;
+  
+  // Course reviews
+  getCourseReviews(courseId: number): Promise<CourseReview[]>;
+  createCourseReview(review: InsertCourseReview): Promise<CourseReview>;
+  updateCourseReview(id: number, review: Partial<CourseReview>): Promise<CourseReview>;
+  deleteCourseReview(id: number): Promise<void>;
+  
+  // Course certificates
+  getUserCertificates(userId: string): Promise<CourseCertificate[]>;
+  createCourseCertificate(certificate: InsertCourseCertificate): Promise<CourseCertificate>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -251,6 +314,176 @@ export class DatabaseStorage implements IStorage {
   async createContactInquiry(inquiry: InsertContactInquiry): Promise<ContactInquiry> {
     const [newInquiry] = await db.insert(contactInquiries).values(inquiry).returning();
     return newInquiry;
+  }
+
+  // LMS operations
+  // Course modules
+  async getCourseModules(courseId: number): Promise<CourseModule[]> {
+    return await db.select().from(courseModules)
+      .where(eq(courseModules.courseId, courseId))
+      .orderBy(courseModules.orderIndex);
+  }
+
+  async createCourseModule(module: InsertCourseModule): Promise<CourseModule> {
+    const [newModule] = await db.insert(courseModules).values(module).returning();
+    return newModule;
+  }
+
+  async updateCourseModule(id: number, module: Partial<CourseModule>): Promise<CourseModule> {
+    const [updatedModule] = await db.update(courseModules)
+      .set(module)
+      .where(eq(courseModules.id, id))
+      .returning();
+    return updatedModule;
+  }
+
+  async deleteCourseModule(id: number): Promise<void> {
+    await db.delete(courseModules).where(eq(courseModules.id, id));
+  }
+
+  // Course lessons
+  async getCourseLessons(courseId: number): Promise<CourseLesson[]> {
+    return await db.select().from(courseLessons)
+      .where(eq(courseLessons.courseId, courseId))
+      .orderBy(courseLessons.orderIndex);
+  }
+
+  async getCourseLessonsByModule(moduleId: number): Promise<CourseLesson[]> {
+    return await db.select().from(courseLessons)
+      .where(eq(courseLessons.moduleId, moduleId))
+      .orderBy(courseLessons.orderIndex);
+  }
+
+  async getLessonById(id: number): Promise<CourseLesson | undefined> {
+    const [lesson] = await db.select().from(courseLessons).where(eq(courseLessons.id, id));
+    return lesson;
+  }
+
+  async createCourseLesson(lesson: InsertCourseLesson): Promise<CourseLesson> {
+    const [newLesson] = await db.insert(courseLessons).values(lesson).returning();
+    return newLesson;
+  }
+
+  async updateCourseLesson(id: number, lesson: Partial<CourseLesson>): Promise<CourseLesson> {
+    const [updatedLesson] = await db.update(courseLessons)
+      .set(lesson)
+      .where(eq(courseLessons.id, id))
+      .returning();
+    return updatedLesson;
+  }
+
+  async deleteCourseLesson(id: number): Promise<void> {
+    await db.delete(courseLessons).where(eq(courseLessons.id, id));
+  }
+
+  // Course quizzes
+  async getCourseQuizzes(courseId: number): Promise<CourseQuiz[]> {
+    return await db.select().from(courseQuizzes)
+      .where(eq(courseQuizzes.courseId, courseId));
+  }
+
+  async getQuizById(id: number): Promise<CourseQuiz | undefined> {
+    const [quiz] = await db.select().from(courseQuizzes).where(eq(courseQuizzes.id, id));
+    return quiz;
+  }
+
+  async createCourseQuiz(quiz: InsertCourseQuiz): Promise<CourseQuiz> {
+    const [newQuiz] = await db.insert(courseQuizzes).values(quiz).returning();
+    return newQuiz;
+  }
+
+  async updateCourseQuiz(id: number, quiz: Partial<CourseQuiz>): Promise<CourseQuiz> {
+    const [updatedQuiz] = await db.update(courseQuizzes)
+      .set(quiz)
+      .where(eq(courseQuizzes.id, id))
+      .returning();
+    return updatedQuiz;
+  }
+
+  async deleteQuiz(id: number): Promise<void> {
+    await db.delete(courseQuizzes).where(eq(courseQuizzes.id, id));
+  }
+
+  // Student progress
+  async getStudentProgress(userId: string, courseId: number): Promise<StudentProgress[]> {
+    return await db.select().from(studentProgress)
+      .where(and(
+        eq(studentProgress.userId, userId),
+        eq(studentProgress.courseId, courseId)
+      ));
+  }
+
+  async getStudentProgressByLesson(userId: string, lessonId: number): Promise<StudentProgress | undefined> {
+    const [progress] = await db.select().from(studentProgress)
+      .where(and(
+        eq(studentProgress.userId, userId),
+        eq(studentProgress.lessonId, lessonId)
+      ));
+    return progress;
+  }
+
+  async createStudentProgress(progress: InsertStudentProgress): Promise<StudentProgress> {
+    const [newProgress] = await db.insert(studentProgress).values(progress).returning();
+    return newProgress;
+  }
+
+  async updateStudentProgress(id: number, progress: Partial<StudentProgress>): Promise<StudentProgress> {
+    const [updatedProgress] = await db.update(studentProgress)
+      .set(progress)
+      .where(eq(studentProgress.id, id))
+      .returning();
+    return updatedProgress;
+  }
+
+  // Quiz attempts
+  async getQuizAttempts(userId: string, quizId: number): Promise<QuizAttempt[]> {
+    return await db.select().from(quizAttempts)
+      .where(and(
+        eq(quizAttempts.userId, userId),
+        eq(quizAttempts.quizId, quizId)
+      ))
+      .orderBy(desc(quizAttempts.completedAt));
+  }
+
+  async createQuizAttempt(attempt: InsertQuizAttempt): Promise<QuizAttempt> {
+    const [newAttempt] = await db.insert(quizAttempts).values(attempt).returning();
+    return newAttempt;
+  }
+
+  // Course reviews
+  async getCourseReviews(courseId: number): Promise<CourseReview[]> {
+    return await db.select().from(courseReviews)
+      .where(eq(courseReviews.courseId, courseId))
+      .orderBy(desc(courseReviews.createdAt));
+  }
+
+  async createCourseReview(review: InsertCourseReview): Promise<CourseReview> {
+    const [newReview] = await db.insert(courseReviews).values(review).returning();
+    return newReview;
+  }
+
+  async updateCourseReview(id: number, review: Partial<CourseReview>): Promise<CourseReview> {
+    const [updatedReview] = await db.update(courseReviews)
+      .set(review)
+      .where(eq(courseReviews.id, id))
+      .returning();
+    return updatedReview;
+  }
+
+  async deleteCourseReview(id: number): Promise<void> {
+    await db.delete(courseReviews).where(eq(courseReviews.id, id));
+  }
+
+  // Course certificates
+  async getUserCertificates(userId: string): Promise<CourseCertificate[]> {
+    return await db.select().from(courseCertificates)
+      .where(eq(courseCertificates.userId, userId))
+      .orderBy(desc(courseCertificates.issuedAt));
+  }
+
+  async createCourseCertificate(certificate: InsertCourseCertificate): Promise<CourseCertificate> {
+    const [newCertificate] = await db.insert(courseCertificates).values(certificate).returning();
+    return newCertificate;
   }
 }
 
