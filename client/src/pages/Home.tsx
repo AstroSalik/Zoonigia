@@ -67,20 +67,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Inspirational Quote Section */}
-      <section className="py-20 bg-space-800/30">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <blockquote className="text-2xl md:text-3xl font-space italic text-cosmic-blue mb-6">
-              "Astronomy is what leads a lost spirit beyond the horizons to the road of being acquainted with thyself."
-            </blockquote>
-            <p className="text-lg text-space-300">
-              — Salik Riyaz, Founder
-            </p>
-          </div>
-        </div>
-      </section>
-
       {/* Stats Section */}
       <section className="py-20 bg-space-800/50">
         <div className="container mx-auto px-4">
@@ -100,6 +86,30 @@ const Home = () => {
             <div className="text-center">
               <div className="text-4xl font-bold text-cosmic-orange mb-2">12</div>
               <div className="text-space-300">Global Collaborations</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Inspirational Quote Section */}
+      <section className="py-20 bg-gradient-to-br from-space-900 via-space-800 to-space-900 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-10 left-10 w-32 h-32 bg-cosmic-blue rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-10 right-10 w-40 h-40 bg-cosmic-purple rounded-full blur-3xl animate-pulse delay-1000"></div>
+        </div>
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="mb-8">
+              <div className="w-16 h-16 bg-gradient-to-br from-cosmic-blue to-cosmic-purple rounded-full flex items-center justify-center mx-auto mb-6">
+                <Star className="w-8 h-8 text-white" />
+              </div>
+              <blockquote className="text-2xl md:text-4xl font-space italic text-cosmic-blue mb-6 leading-relaxed">
+                "Astronomy is what leads a lost spirit beyond the horizons to the road of being acquainted with thyself."
+              </blockquote>
+              <div className="w-24 h-1 bg-gradient-to-r from-cosmic-blue to-cosmic-purple mx-auto mb-4"></div>
+              <p className="text-xl text-space-300 font-medium">
+                Salik Riyaz, Founder
+              </p>
             </div>
           </div>
         </div>
