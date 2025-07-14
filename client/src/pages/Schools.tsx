@@ -658,6 +658,33 @@ const Schools = () => {
             </GlassMorphism>
           </div>
 
+          {/* Partnership Contact Section */}
+          <div className="mb-16">
+            <GlassMorphism className="p-8 max-w-3xl mx-auto text-center">
+              <h3 className="text-2xl font-semibold mb-4">Ready to Partner with Us?</h3>
+              <p className="text-space-300 mb-6">
+                Our outreach team is ready to discuss partnership opportunities and help you transform your science education program.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button 
+                  className="bg-cosmic-blue hover:bg-blue-600 px-8"
+                  onClick={() => window.location.href = 'mailto:outreach@zoonigia.com'}
+                >
+                  <Handshake className="w-4 h-4 mr-2" />
+                  outreach@zoonigia.com
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900 px-8"
+                  onClick={() => window.location.href = 'tel:+919596241169'}
+                >
+                  <Building className="w-4 h-4 mr-2" />
+                  +91 9596241169
+                </Button>
+              </div>
+            </GlassMorphism>
+          </div>
+
           {/* Call to Action */}
           <div className="text-center">
             <GlassMorphism className="p-8 max-w-3xl mx-auto">

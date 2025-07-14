@@ -51,12 +51,14 @@ const Footer = () => {
           </div>
           
           <div>
-            <h4 className="text-lg font-semibold mb-4 text-space-50">Support</h4>
+            <h4 className="text-lg font-semibold mb-4 text-space-50">Contact</h4>
             <ul className="space-y-2 text-space-300">
-              <li><Link href="/contact" className="hover:text-cosmic-blue transition-colors">Contact Us</Link></li>
-              <li><a href="#" className="hover:text-cosmic-blue transition-colors">FAQ</a></li>
-              <li><a href="#" className="hover:text-cosmic-blue transition-colors">Privacy Policy</a></li>
-              <li><a href="#" className="hover:text-cosmic-blue transition-colors">Terms of Service</a></li>
+              <li><a href="mailto:info@zoonigia.com" className="hover:text-cosmic-blue transition-colors">General Info</a></li>
+              <li><a href="mailto:workshops@zoonigia.com" className="hover:text-cosmic-blue transition-colors">Workshops</a></li>
+              <li><a href="mailto:campaigns@zoonigia.com" className="hover:text-cosmic-blue transition-colors">Campaigns</a></li>
+              <li><a href="mailto:outreach@zoonigia.com" className="hover:text-cosmic-blue transition-colors">Partnerships</a></li>
+              <li><a href="tel:+919596241169" className="hover:text-cosmic-blue transition-colors">+91 9596241169</a></li>
+              <li><Link href="/contact" className="hover:text-cosmic-blue transition-colors">All Contacts</Link></li>
             </ul>
           </div>
         </div>

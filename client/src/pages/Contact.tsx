@@ -82,20 +82,20 @@ const Contact = () => {
   const contactInfo = [
     {
       icon: <Mail className="w-6 h-6" />,
-      title: "Email",
-      content: "contact@zoonigia.com",
-      description: "Send us an email anytime"
+      title: "General Inquiries",
+      content: "info@zoonigia.com",
+      description: "For general questions and information"
     },
     {
       icon: <Phone className="w-6 h-6" />,
       title: "Phone",
-      content: "+91 98765 43210",
+      content: "+91 9596241169",
       description: "Call us during business hours"
     },
     {
       icon: <MapPin className="w-6 h-6" />,
       title: "Address",
-      content: "Bangalore, Karnataka, India",
+      content: "Industrial Area – Janwari Industries Building, Sopore, Sopore Baramulla, Jammu and Kashmir 193201, India",
       description: "Visit our headquarters"
     },
     {
@@ -174,6 +174,32 @@ const Contact = () => {
                     >
                       {social.icon}
                     </a>
+                  ))}
+                </div>
+              </div>
+
+              {/* Department Contact Directory */}
+              <div className="mt-8">
+                <h3 className="text-lg font-semibold mb-4">Department Directory</h3>
+                <div className="space-y-3">
+                  {[
+                    { department: "General queries | information", email: "info@zoonigia.com" },
+                    { department: "Support", email: "help@zoonigia.com" },
+                    { department: "Public Relations Officer", email: "outreach@zoonigia.com" },
+                    { department: "Workshop-related queries", email: "workshops@zoonigia.com" },
+                    { department: "Campaign-related queries", email: "campaigns@zoonigia.com" },
+                    { department: "Office", email: "office@zoonigia.com" },
+                    { department: "Mail our Founder", email: "founder@zoonigia.com" }
+                  ].map((contact, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 bg-space-800/30 rounded-lg">
+                      <span className="text-sm text-space-300">{contact.department}</span>
+                      <a 
+                        href={`mailto:${contact.email}`}
+                        className="text-cosmic-blue hover:text-blue-400 transition-colors text-sm font-medium"
+                      >
+                        {contact.email}
+                      </a>
+                    </div>
                   ))}
                 </div>
               </div>

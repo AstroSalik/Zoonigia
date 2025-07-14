@@ -17,7 +17,9 @@ import {
   Users,
   Award,
   ExternalLink,
-  CreditCard
+  CreditCard,
+  Mail,
+  Phone
 } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
@@ -509,6 +511,33 @@ const Campaigns = () => {
                 </p>
               </GlassMorphism>
             </div>
+          </div>
+
+          {/* Campaign Contact Section */}
+          <div className="mb-16">
+            <GlassMorphism className="p-8 max-w-3xl mx-auto text-center">
+              <h3 className="text-2xl font-semibold mb-4">Need Help with Campaigns?</h3>
+              <p className="text-space-300 mb-6">
+                Have questions about our campaigns or need assistance with registration? Contact our campaign team directly.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button 
+                  className="bg-cosmic-blue hover:bg-blue-600 px-8"
+                  onClick={() => window.location.href = 'mailto:campaigns@zoonigia.com'}
+                >
+                  <Mail className="w-4 h-4 mr-2" />
+                  campaigns@zoonigia.com
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900 px-8"
+                  onClick={() => window.location.href = 'tel:+919596241169'}
+                >
+                  <Phone className="w-4 h-4 mr-2" />
+                  +91 9596241169
+                </Button>
+              </div>
+            </GlassMorphism>
           </div>
 
           {/* Call to Action */}

@@ -244,8 +244,9 @@ const Workshops = () => {
               <Button 
                 variant="outline" 
                 className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900 px-8 py-3 text-lg"
-                onClick={() => window.location.href = '/contact'}
+                onClick={() => window.location.href = 'mailto:workshops@zoonigia.com'}
               >
+                <Mail className="w-4 h-4 mr-2" />
                 Contact for Details
               </Button>
             </div>
@@ -372,8 +373,9 @@ const Workshops = () => {
               <Button 
                 variant="outline" 
                 className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900 px-8 py-3"
-                onClick={() => window.location.href = '/contact'}
+                onClick={() => window.location.href = 'mailto:workshops@zoonigia.com'}
               >
+                <Mail className="w-4 h-4 mr-2" />
                 Contact for Details
               </Button>
             </div>
