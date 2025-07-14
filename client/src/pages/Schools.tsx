@@ -25,7 +25,15 @@ import {
   Award,
   Target,
   BookOpen,
-  Calendar
+  Calendar,
+  Rocket,
+  GraduationCap,
+  Settings,
+  TrendingUp,
+  Star,
+  ArrowRight,
+  DollarSign,
+  ChevronRight
 } from "lucide-react";
 
 const schoolInquirySchema = z.object({
@@ -116,13 +124,105 @@ const Schools = () => {
       <div className="pt-24 pb-16">
         <div className="container mx-auto px-4">
           {/* Header */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-space font-bold mb-4">
-              Partner with <span className="text-cosmic-blue">Zoonigia</span>
+          <div className="text-center mb-16">
+            <h1 className="text-4xl md:text-6xl font-space font-bold mb-6">
+              <span className="text-cosmic-blue">Educational</span> Partnerships
             </h1>
-            <p className="text-xl text-space-200 max-w-3xl mx-auto">
-              Transform your science education with our comprehensive programs designed specifically for educational institutions
+            <p className="text-xl md:text-2xl text-space-200 max-w-4xl mx-auto mb-8">
+              Transform your institution with comprehensive space science programs, professional development, and innovative educational solutions
             </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button 
+                onClick={() => window.location.href = '/workshops'}
+                className="bg-cosmic-blue hover:bg-cosmic-blue/80 text-space-50 px-8 py-3"
+              >
+                <Rocket className="w-5 h-5 mr-2" />
+                Explore Workshops
+              </Button>
+              <Button 
+                variant="outline" 
+                className="border-cosmic-purple text-cosmic-purple hover:bg-cosmic-purple hover:text-space-900 px-8 py-3"
+                onClick={() => document.getElementById('contact-form')?.scrollIntoView({ behavior: 'smooth' })}
+              >
+                <Calendar className="w-5 h-5 mr-2" />
+                Schedule Partnership Meeting
+              </Button>
+            </div>
+          </div>
+
+          {/* Services Overview */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+            <GlassMorphism className="p-6 text-center hover:bg-white/10 transition-colors">
+              <div className="w-16 h-16 bg-cosmic-blue/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Rocket className="w-8 h-8 text-cosmic-blue" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Workshop Registration</h3>
+              <p className="text-space-300 text-sm mb-4">
+                Access our comprehensive workshops with campus and community options
+              </p>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => window.location.href = '/workshops'}
+                className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-white"
+              >
+                Browse Workshops
+              </Button>
+            </GlassMorphism>
+
+            <GlassMorphism className="p-6 text-center hover:bg-white/10 transition-colors">
+              <div className="w-16 h-16 bg-cosmic-purple/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Building className="w-8 h-8 text-cosmic-purple" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Programme Integration</h3>
+              <p className="text-space-300 text-sm mb-4">
+                Seamlessly integrate space science into your existing curriculum
+              </p>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => document.getElementById('contact-form')?.scrollIntoView({ behavior: 'smooth' })}
+                className="border-cosmic-purple text-cosmic-purple hover:bg-cosmic-purple hover:text-white"
+              >
+                Learn More
+              </Button>
+            </GlassMorphism>
+
+            <GlassMorphism className="p-6 text-center hover:bg-white/10 transition-colors">
+              <div className="w-16 h-16 bg-cosmic-green/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <GraduationCap className="w-8 h-8 text-cosmic-green" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Teacher Training</h3>
+              <p className="text-space-300 text-sm mb-4">
+                Professional development programs for educators in space science
+              </p>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => document.getElementById('contact-form')?.scrollIntoView({ behavior: 'smooth' })}
+                className="border-cosmic-green text-cosmic-green hover:bg-cosmic-green hover:text-white"
+              >
+                Get Training
+              </Button>
+            </GlassMorphism>
+
+            <GlassMorphism className="p-6 text-center hover:bg-white/10 transition-colors">
+              <div className="w-16 h-16 bg-cosmic-orange/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <BookOpen className="w-8 h-8 text-cosmic-orange" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Course Integration</h3>
+              <p className="text-space-300 text-sm mb-4">
+                Structured courses that complement your academic programs
+              </p>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => window.location.href = '/courses'}
+                className="border-cosmic-orange text-cosmic-orange hover:bg-cosmic-orange hover:text-white"
+              >
+                View Courses
+              </Button>
+            </GlassMorphism>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
@@ -181,8 +281,117 @@ const Schools = () => {
             </div>
           </div>
 
-          {/* Partnership Inquiry Form */}
+          {/* Detailed Program Information */}
           <div className="mb-16">
+            <h2 className="text-3xl font-space font-bold text-center mb-12">Comprehensive Partnership Programs</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Programme Integration */}
+              <GlassMorphism className="p-8">
+                <div className="flex items-center mb-6">
+                  <div className="w-12 h-12 bg-cosmic-purple/20 rounded-full flex items-center justify-center mr-4">
+                    <Building className="w-6 h-6 text-cosmic-purple" />
+                  </div>
+                  <h3 className="text-2xl font-semibold">Programme Integration</h3>
+                </div>
+                <ul className="space-y-3 text-space-300">
+                  <li className="flex items-start">
+                    <ArrowRight className="w-4 h-4 text-cosmic-purple mr-2 mt-1 flex-shrink-0" />
+                    <span>Seamless curriculum integration with existing science programs</span>
+                  </li>
+                  <li className="flex items-start">
+                    <ArrowRight className="w-4 h-4 text-cosmic-purple mr-2 mt-1 flex-shrink-0" />
+                    <span>Customized lesson plans aligned with educational standards</span>
+                  </li>
+                  <li className="flex items-start">
+                    <ArrowRight className="w-4 h-4 text-cosmic-purple mr-2 mt-1 flex-shrink-0" />
+                    <span>Assessment tools and progress tracking systems</span>
+                  </li>
+                  <li className="flex items-start">
+                    <ArrowRight className="w-4 h-4 text-cosmic-purple mr-2 mt-1 flex-shrink-0" />
+                    <span>Digital resources and interactive learning materials</span>
+                  </li>
+                </ul>
+              </GlassMorphism>
+
+              {/* Teacher Training */}
+              <GlassMorphism className="p-8">
+                <div className="flex items-center mb-6">
+                  <div className="w-12 h-12 bg-cosmic-green/20 rounded-full flex items-center justify-center mr-4">
+                    <GraduationCap className="w-6 h-6 text-cosmic-green" />
+                  </div>
+                  <h3 className="text-2xl font-semibold">Teacher Training</h3>
+                </div>
+                <ul className="space-y-3 text-space-300">
+                  <li className="flex items-start">
+                    <ArrowRight className="w-4 h-4 text-cosmic-green mr-2 mt-1 flex-shrink-0" />
+                    <span>Professional development workshops for educators</span>
+                  </li>
+                  <li className="flex items-start">
+                    <ArrowRight className="w-4 h-4 text-cosmic-green mr-2 mt-1 flex-shrink-0" />
+                    <span>Certification programs in space science education</span>
+                  </li>
+                  <li className="flex items-start">
+                    <ArrowRight className="w-4 h-4 text-cosmic-green mr-2 mt-1 flex-shrink-0" />
+                    <span>Ongoing mentorship and support from experts</span>
+                  </li>
+                  <li className="flex items-start">
+                    <ArrowRight className="w-4 h-4 text-cosmic-green mr-2 mt-1 flex-shrink-0" />
+                    <span>Access to latest pedagogical methods and technologies</span>
+                  </li>
+                </ul>
+              </GlassMorphism>
+            </div>
+          </div>
+
+          {/* Revenue Sharing Benefits */}
+          <div className="mb-16">
+            <GlassMorphism className="p-8">
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-space font-bold mb-4">
+                  <span className="text-cosmic-green">Revenue Sharing</span> Benefits
+                </h2>
+                <p className="text-xl text-space-200 max-w-3xl mx-auto">
+                  Partner schools earn 10-20% revenue share from workshops and programs hosted at their campus
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="text-center">
+                  <div className="w-20 h-20 bg-cosmic-green/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <DollarSign className="w-10 h-10 text-cosmic-green" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-3">10-20% Revenue Share</h3>
+                  <p className="text-space-300 text-sm">
+                    Earn revenue from workshops hosted at your campus based on enrollment and participation levels
+                  </p>
+                </div>
+                
+                <div className="text-center">
+                  <div className="w-20 h-20 bg-cosmic-blue/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <TrendingUp className="w-10 h-10 text-cosmic-blue" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-3">Performance Bonuses</h3>
+                  <p className="text-space-300 text-sm">
+                    Additional incentives for schools that achieve high student engagement and satisfaction scores
+                  </p>
+                </div>
+                
+                <div className="text-center">
+                  <div className="w-20 h-20 bg-cosmic-purple/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Handshake className="w-10 h-10 text-cosmic-purple" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-3">Long-term Partnership</h3>
+                  <p className="text-space-300 text-sm">
+                    Sustainable financial benefits through ongoing collaboration and program expansion
+                  </p>
+                </div>
+              </div>
+            </GlassMorphism>
+          </div>
+
+          {/* Partnership Inquiry Form */}
+          <div className="mb-16" id="contact-form">
             <h2 className="text-3xl font-space font-bold text-center mb-8">Request Partnership</h2>
             <div className="max-w-4xl mx-auto">
               <GlassMorphism className="p-8">

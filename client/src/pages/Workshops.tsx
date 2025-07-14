@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Calendar, MapPin, Users, Clock, Telescope, Headphones, Star, Mic, Monitor, Lightbulb, Rocket, ChevronRight, Check, Mail, Phone } from "lucide-react";
+import { Calendar, MapPin, Users, Clock, Telescope, Headphones, Star, Mic, Monitor, Lightbulb, Rocket, ChevronRight, Check, Mail, Phone, Building, Globe } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import GlassMorphism from "@/components/GlassMorphism";
@@ -29,6 +29,9 @@ const registrationSchema = z.object({
   interests: z.string().min(10, "Please tell us about your interests"),
   requestLowerClass: z.boolean().default(false),
   contactMethod: z.string().min(1, "Please select preferred contact method"),
+  workshopType: z.enum(["campus", "community"], {
+    required_error: "Please select workshop type",
+  }),
 });
 
 type RegistrationFormData = z.infer<typeof registrationSchema>;
@@ -50,6 +53,7 @@ const Workshops = () => {
       interests: "",
       requestLowerClass: false,
       contactMethod: "",
+      workshopType: "community",
     },
   });
 
@@ -296,6 +300,50 @@ const Workshops = () => {
             ))}
           </div>
 
+          {/* School Partnership Information */}
+          <GlassMorphism className="p-8 mb-8">
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-space font-bold mb-4">
+                <span className="text-cosmic-green">School Partnership</span> Benefits
+              </h2>
+              <p className="text-lg text-space-200 max-w-3xl mx-auto">
+                Educational institutions earn 10-20% revenue share from workshops hosted at their campus
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-cosmic-green/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div className="text-2xl font-bold text-cosmic-green">10-20%</div>
+                </div>
+                <h3 className="text-lg font-semibold mb-2">Revenue Share</h3>
+                <p className="text-space-300 text-sm">
+                  Schools receive a percentage of workshop revenue based on participation and hosting
+                </p>
+              </div>
+              
+              <div className="text-center">
+                <div className="w-16 h-16 bg-cosmic-blue/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Building className="w-8 h-8 text-cosmic-blue" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">Campus Workshops</h3>
+                <p className="text-space-300 text-sm">
+                  Host exclusive workshops on your campus with customized content for your students
+                </p>
+              </div>
+              
+              <div className="text-center">
+                <div className="w-16 h-16 bg-cosmic-purple/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Globe className="w-8 h-8 text-cosmic-purple" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">Community Access</h3>
+                <p className="text-space-300 text-sm">
+                  Open workshops to your local community and increase engagement opportunities
+                </p>
+              </div>
+            </div>
+          </GlassMorphism>
+
           {/* Call to Action */}
           <GlassMorphism className="p-8 text-center">
             <h2 className="text-2xl font-space font-bold mb-4">
@@ -403,6 +451,44 @@ const Workshops = () => {
                         <SelectItem value="beginner">Beginner</SelectItem>
                         <SelectItem value="intermediate">Intermediate</SelectItem>
                         <SelectItem value="advanced">Advanced</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="workshopType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Workshop Type</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="bg-space-700 border-space-600">
+                          <SelectValue placeholder="Select workshop type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="campus">
+                          <div className="flex flex-col items-start">
+                            <div className="flex items-center gap-2">
+                              <div className="w-2 h-2 bg-cosmic-purple rounded-full"></div>
+                              <span>Campus Restricted</span>
+                            </div>
+                            <p className="text-xs text-space-400 mt-1">Exclusive to your institution</p>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="community">
+                          <div className="flex flex-col items-start">
+                            <div className="flex items-center gap-2">
+                              <div className="w-2 h-2 bg-cosmic-blue rounded-full"></div>
+                              <span>Community Open</span>
+                            </div>
+                            <p className="text-xs text-space-400 mt-1">Open to general public</p>
+                          </div>
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
