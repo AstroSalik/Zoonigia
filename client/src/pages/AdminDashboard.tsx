@@ -26,7 +26,7 @@ import {
   Rocket, Target, Award, Phone, MapPin, Clock, IndianRupee
 } from "lucide-react";
 import { 
-  User, BlogPost, Workshop, Course, Campaign, ContactInquiry, CourseLesson,
+  User, BlogPost, Workshop, Course, Campaign, ContactInquiry, CourseLesson, WorkshopRegistration,
   insertBlogPostSchema, insertWorkshopSchema, insertCourseSchema, insertCampaignSchema, insertCourseLessonSchema
 } from "@shared/schema";
 
@@ -130,6 +130,10 @@ const AdminDashboard = () => {
 
   const { data: inquiries = [] } = useQuery<ContactInquiry[]>({
     queryKey: ["/api/admin/inquiries"],
+  });
+
+  const { data: workshopRegistrations = [] } = useQuery<WorkshopRegistration[]>({
+    queryKey: ["/api/admin/workshop-registrations"],
   });
 
   // Forms
@@ -924,63 +928,143 @@ const AdminDashboard = () => {
 
 
 
-                  <GlassMorphism className="p-6">
-                    <div className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-4">
-                          <h4 className="text-lg font-semibold text-white">Comprehensive Workshop Experience</h4>
-                          <div className="space-y-3">
-                            <div className="flex items-center gap-3">
-                              <div className="w-2 h-2 bg-cosmic-blue rounded-full"></div>
-                              <span className="text-space-300">Telescope Sessions</span>
-                            </div>
-                            <div className="flex items-center gap-3">
-                              <div className="w-2 h-2 bg-cosmic-purple rounded-full"></div>
-                              <span className="text-space-300">VR Space Experiences</span>
-                            </div>
-                            <div className="flex items-center gap-3">
-                              <div className="w-2 h-2 bg-cosmic-green rounded-full"></div>
-                              <span className="text-space-300">Space Simulation Games</span>
-                            </div>
-                            <div className="flex items-center gap-3">
-                              <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
-                              <span className="text-space-300">Expert Sessions</span>
-                            </div>
-                            <div className="flex items-center gap-3">
-                              <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
-                              <span className="text-space-300">Design Thinking</span>
-                            </div>
-                            <div className="flex items-center gap-3">
-                              <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-                              <span className="text-space-300">Hands-on Experiments</span>
-                            </div>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <GlassMorphism className="p-6">
+                      <div className="space-y-4">
+                        <h4 className="text-lg font-semibold text-white">Comprehensive Workshop Experience</h4>
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-3">
+                            <div className="w-2 h-2 bg-cosmic-blue rounded-full"></div>
+                            <span className="text-space-300">Telescope Sessions</span>
                           </div>
-                        </div>
-                        <div className="space-y-4">
-                          <h4 className="text-lg font-semibold text-white">Pricing Structure</h4>
-                          <div className="p-4 bg-space-700/50 rounded-lg">
-                            <p className="text-space-300 text-sm mb-3">
-                              Workshop pricing varies based on:
-                            </p>
-                            <ul className="space-y-2 text-space-300 text-sm">
-                              <li>• School location and accessibility</li>
-                              <li>• Number of participating students</li>
-                              <li>• Duration and customization needs</li>
-                              <li>• Equipment and technology requirements</li>
-                              <li>• Revenue sharing agreements (10-20%)</li>
-                            </ul>
+                          <div className="flex items-center gap-3">
+                            <div className="w-2 h-2 bg-cosmic-purple rounded-full"></div>
+                            <span className="text-space-300">VR Space Experiences</span>
                           </div>
-                          <div className="text-center">
-                            <Button 
-                              onClick={() => window.open('mailto:workshops@zoonigia.com?subject=Workshop Pricing Inquiry', '_blank')}
-                              className="bg-cosmic-blue hover:bg-cosmic-blue/90"
-                            >
-                              <Mail className="w-4 h-4 mr-2" />
-                              Contact for Pricing
-                            </Button>
+                          <div className="flex items-center gap-3">
+                            <div className="w-2 h-2 bg-cosmic-green rounded-full"></div>
+                            <span className="text-space-300">Space Simulation Games</span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
+                            <span className="text-space-300">Expert Sessions</span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
+                            <span className="text-space-300">Design Thinking</span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <div className="w-2 h-2 bg-red-400 rounded-full"></div>
+                            <span className="text-space-300">Hands-on Experiments</span>
                           </div>
                         </div>
                       </div>
+                    </GlassMorphism>
+
+                    <GlassMorphism className="p-6">
+                      <div className="space-y-4">
+                        <h4 className="text-lg font-semibold text-white">Pricing Structure</h4>
+                        <div className="p-4 bg-space-700/50 rounded-lg">
+                          <p className="text-space-300 text-sm mb-3">
+                            Workshop pricing varies based on:
+                          </p>
+                          <ul className="space-y-2 text-space-300 text-sm">
+                            <li>• School location and accessibility</li>
+                            <li>• Number of participating students</li>
+                            <li>• Duration and customization needs</li>
+                            <li>• Equipment and technology requirements</li>
+                            <li>• Revenue sharing agreements (10-20%)</li>
+                          </ul>
+                        </div>
+                        <div className="text-center">
+                          <Button 
+                            onClick={() => window.open('mailto:workshops@zoonigia.com?subject=Workshop Pricing Inquiry', '_blank')}
+                            className="bg-cosmic-blue hover:bg-cosmic-blue/90"
+                          >
+                            <Mail className="w-4 h-4 mr-2" />
+                            Contact for Pricing
+                          </Button>
+                        </div>
+                      </div>
+                    </GlassMorphism>
+                  </div>
+
+                  <GlassMorphism className="p-6">
+                    <div className="flex items-center justify-between mb-6">
+                      <h4 className="text-lg font-semibold text-white">Workshop Registrations</h4>
+                      <Badge variant="secondary" className="bg-cosmic-blue/20 text-cosmic-blue">
+                        Total: {workshopRegistrations.length}
+                      </Badge>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="border-space-700">
+                            <TableHead className="text-space-300">Name</TableHead>
+                            <TableHead className="text-space-300">Contact</TableHead>
+                            <TableHead className="text-space-300">Organization</TableHead>
+                            <TableHead className="text-space-300">Type</TableHead>
+                            <TableHead className="text-space-300">Status</TableHead>
+                            <TableHead className="text-space-300">Date</TableHead>
+                            <TableHead className="text-space-300">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {workshopRegistrations.map((registration) => (
+                            <TableRow key={registration.id} className="border-space-700">
+                              <TableCell className="text-white font-medium">{registration.name}</TableCell>
+                              <TableCell>
+                                <div className="text-space-300 text-sm">
+                                  <div>{registration.email}</div>
+                                  {registration.phone && <div>{registration.phone}</div>}
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-space-300">{registration.organization || 'Individual'}</TableCell>
+                              <TableCell>
+                                <Badge variant="outline" className="text-purple-400 border-purple-400">
+                                  {registration.workshopType || 'community'}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant="outline" className={
+                                  registration.status === 'confirmed' 
+                                    ? "text-green-400 border-green-400" 
+                                    : registration.status === 'contacted'
+                                    ? "text-yellow-400 border-yellow-400"
+                                    : "text-gray-400 border-gray-400"
+                                }>
+                                  {registration.status}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-space-300">
+                                {registration.createdAt ? new Date(registration.createdAt).toLocaleDateString() : 'N/A'}
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-2">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => window.open(`mailto:${registration.email}?subject=Workshop Registration Follow-up`, '_blank')}
+                                    className="text-cosmic-blue hover:bg-cosmic-blue/10"
+                                  >
+                                    <Mail className="w-4 h-4" />
+                                  </Button>
+                                  {registration.phone && (
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => window.open(`tel:${registration.phone}`, '_blank')}
+                                      className="text-green-400 hover:bg-green-400/10"
+                                    >
+                                      <Phone className="w-4 h-4" />
+                                    </Button>
+                                  )}
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
                     </div>
                   </GlassMorphism>
                 </TabsContent>

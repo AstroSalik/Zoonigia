@@ -50,6 +50,9 @@ import {
   type InsertCourseReview,
   type CourseCertificate,
   type InsertCourseCertificate,
+  workshopRegistrations,
+  type WorkshopRegistration,
+  type InsertWorkshopRegistration,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and } from "drizzle-orm";
@@ -72,6 +75,11 @@ export interface IStorage {
   updateWorkshop(id: number, workshop: Partial<Workshop>): Promise<Workshop>;
   enrollInWorkshop(enrollment: InsertWorkshopEnrollment): Promise<WorkshopEnrollment>;
   getUserWorkshops(userId: string): Promise<Workshop[]>;
+  
+  // Workshop registration operations
+  createWorkshopRegistration(registration: InsertWorkshopRegistration): Promise<WorkshopRegistration>;
+  getWorkshopRegistrations(): Promise<WorkshopRegistration[]>;
+  updateWorkshopRegistrationStatus(id: number, status: string): Promise<WorkshopRegistration>;
   
   // Course operations
   getCourses(): Promise<Course[]>;
@@ -237,6 +245,31 @@ export class DatabaseStorage implements IStorage {
       .from(workshops)
       .innerJoin(workshopEnrollments, eq(workshops.id, workshopEnrollments.workshopId))
       .where(eq(workshopEnrollments.userId, userId));
+  }
+
+  // Workshop registration operations
+  async createWorkshopRegistration(registration: InsertWorkshopRegistration): Promise<WorkshopRegistration> {
+    const [newRegistration] = await db
+      .insert(workshopRegistrations)
+      .values(registration)
+      .returning();
+    return newRegistration;
+  }
+
+  async getWorkshopRegistrations(): Promise<WorkshopRegistration[]> {
+    return await db
+      .select()
+      .from(workshopRegistrations)
+      .orderBy(desc(workshopRegistrations.createdAt));
+  }
+
+  async updateWorkshopRegistrationStatus(id: number, status: string): Promise<WorkshopRegistration> {
+    const [updated] = await db
+      .update(workshopRegistrations)
+      .set({ status, updatedAt: new Date() })
+      .where(eq(workshopRegistrations.id, id))
+      .returning();
+    return updated;
   }
 
   // Course operations

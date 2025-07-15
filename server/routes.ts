@@ -237,6 +237,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/admin/workshop-registrations', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const registrations = await storage.getWorkshopRegistrations();
+      res.json(registrations);
+    } catch (error) {
+      console.error("Error fetching workshop registrations:", error);
+      res.status(500).json({ message: "Failed to fetch workshop registrations" });
+    }
+  });
+
+  app.patch('/api/admin/workshop-registrations/:id/status', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+      const registration = await storage.updateWorkshopRegistrationStatus(parseInt(id), status);
+      res.json(registration);
+    } catch (error) {
+      console.error("Error updating workshop registration status:", error);
+      res.status(500).json({ message: "Failed to update registration status" });
+    }
+  });
+
   app.patch('/api/admin/users/:id/admin-status', isAuthenticated, isAdmin, async (req: any, res) => {
     try {
       const { id } = req.params;
@@ -311,12 +333,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/workshops/register", async (req, res) => {
     try {
       const registrationData = req.body;
-      // For now, we'll just return a success response
-      // In a full implementation, you'd store this in a workshop_registrations table
       console.log("Workshop registration received:", registrationData);
+      
+      // Store registration in database
+      const registration = await storage.createWorkshopRegistration(registrationData);
+      
       res.json({ 
         message: "Registration successful", 
-        registrationId: Math.floor(Math.random() * 10000) 
+        registrationId: registration.id 
       });
     } catch (error) {
       console.error("Error processing workshop registration:", error);

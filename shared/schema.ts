@@ -67,6 +67,23 @@ export const workshopEnrollments = pgTable("workshop_enrollments", {
   status: varchar("status").default("registered"), // registered, completed, cancelled
 });
 
+// Workshop registrations (from workshop page form)
+export const workshopRegistrations = pgTable("workshop_registrations", {
+  id: serial("id").primaryKey(),
+  name: varchar("name").notNull(),
+  email: varchar("email").notNull(),
+  phone: varchar("phone"),
+  organization: varchar("organization"),
+  experience: varchar("experience"), // beginner, intermediate, advanced
+  interests: text("interests"),
+  requestLowerClass: boolean("request_lower_class").default(false),
+  contactMethod: varchar("contact_method"), // email, phone, whatsapp
+  workshopType: varchar("workshop_type"), // community, campus
+  status: varchar("status").default("pending"), // pending, contacted, confirmed, cancelled
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Courses table - Enhanced for LMS
 export const courses = pgTable("courses", {
   id: serial("id").primaryKey(),
@@ -293,6 +310,9 @@ export type ContactInquiry = typeof contactInquiries.$inferSelect;
 export type InsertWorkshopEnrollment = typeof workshopEnrollments.$inferInsert;
 export type WorkshopEnrollment = typeof workshopEnrollments.$inferSelect;
 
+export type InsertWorkshopRegistration = typeof workshopRegistrations.$inferInsert;
+export type WorkshopRegistration = typeof workshopRegistrations.$inferSelect;
+
 export type InsertCourseEnrollment = typeof courseEnrollments.$inferInsert;
 export type CourseEnrollment = typeof courseEnrollments.$inferSelect;
 
@@ -330,6 +350,7 @@ export const insertBlogPostSchema = createInsertSchema(blogPosts);
 export const insertAchievementSchema = createInsertSchema(achievements);
 export const insertContactInquirySchema = createInsertSchema(contactInquiries);
 export const insertWorkshopEnrollmentSchema = createInsertSchema(workshopEnrollments);
+export const insertWorkshopRegistrationSchema = createInsertSchema(workshopRegistrations);
 export const insertCourseEnrollmentSchema = createInsertSchema(courseEnrollments);
 export const insertCampaignParticipantSchema = createInsertSchema(campaignParticipants);
 
