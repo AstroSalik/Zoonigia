@@ -165,6 +165,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update endpoints
+  app.put('/api/admin/blog-posts/:id', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const blogData = insertBlogPostSchema.parse(req.body);
+      const blog = await storage.updateBlogPost(id, blogData);
+      res.json(blog);
+    } catch (error) {
+      console.error("Error updating blog post:", error);
+      res.status(500).json({ message: "Failed to update blog post" });
+    }
+  });
+
+  app.put('/api/admin/workshops/:id', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const workshopData = insertWorkshopSchema.parse(req.body);
+      const workshop = await storage.updateWorkshop(id, workshopData);
+      res.json(workshop);
+    } catch (error) {
+      console.error("Error updating workshop:", error);
+      res.status(500).json({ message: "Failed to update workshop" });
+    }
+  });
+
+  app.put('/api/admin/courses/:id', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const courseData = insertCourseSchema.parse(req.body);
+      const course = await storage.updateCourse(id, courseData);
+      res.json(course);
+    } catch (error) {
+      console.error("Error updating course:", error);
+      res.status(500).json({ message: "Failed to update course" });
+    }
+  });
+
+  app.put('/api/admin/campaigns/:id', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const campaignData = insertCampaignSchema.parse(req.body);
+      const campaign = await storage.updateCampaign(id, campaignData);
+      res.json(campaign);
+    } catch (error) {
+      console.error("Error updating campaign:", error);
+      res.status(500).json({ message: "Failed to update campaign" });
+    }
+  });
+
   // Admin PATCH route for user management
   app.patch('/api/admin/users/:id', isAuthenticated, isAdmin, async (req: any, res) => {
     try {

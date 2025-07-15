@@ -69,6 +69,7 @@ export interface IStorage {
   getWorkshops(): Promise<Workshop[]>;
   getWorkshopById(id: number): Promise<Workshop | undefined>;
   createWorkshop(workshop: InsertWorkshop): Promise<Workshop>;
+  updateWorkshop(id: number, workshop: Partial<Workshop>): Promise<Workshop>;
   enrollInWorkshop(enrollment: InsertWorkshopEnrollment): Promise<WorkshopEnrollment>;
   getUserWorkshops(userId: string): Promise<Workshop[]>;
   
@@ -76,6 +77,7 @@ export interface IStorage {
   getCourses(): Promise<Course[]>;
   getCourseById(id: number): Promise<Course | undefined>;
   createCourse(course: InsertCourse): Promise<Course>;
+  updateCourse(id: number, course: Partial<Course>): Promise<Course>;
   enrollInCourse(enrollment: InsertCourseEnrollment): Promise<CourseEnrollment>;
   getUserCourses(userId: string): Promise<Course[]>;
   
@@ -83,6 +85,7 @@ export interface IStorage {
   getCampaigns(): Promise<Campaign[]>;
   getCampaignById(id: number): Promise<Campaign | undefined>;
   createCampaign(campaign: InsertCampaign): Promise<Campaign>;
+  updateCampaign(id: number, campaign: Partial<Campaign>): Promise<Campaign>;
   joinCampaign(participant: InsertCampaignParticipant): Promise<CampaignParticipant>;
   getUserCampaigns(userId: string): Promise<Campaign[]>;
   
@@ -90,6 +93,7 @@ export interface IStorage {
   getBlogPosts(): Promise<BlogPost[]>;
   getBlogPostById(id: number): Promise<BlogPost | undefined>;
   createBlogPost(post: InsertBlogPost): Promise<BlogPost>;
+  updateBlogPost(id: number, post: Partial<BlogPost>): Promise<BlogPost>;
   
   // Achievement operations
   getAchievements(): Promise<Achievement[]>;
@@ -197,6 +201,15 @@ export class DatabaseStorage implements IStorage {
     return newWorkshop;
   }
 
+  async updateWorkshop(id: number, workshop: Partial<Workshop>): Promise<Workshop> {
+    const [updatedWorkshop] = await db
+      .update(workshops)
+      .set({ ...workshop, updatedAt: new Date() })
+      .where(eq(workshops.id, id))
+      .returning();
+    return updatedWorkshop;
+  }
+
   async enrollInWorkshop(enrollment: InsertWorkshopEnrollment): Promise<WorkshopEnrollment> {
     const [newEnrollment] = await db.insert(workshopEnrollments).values(enrollment).returning();
     return newEnrollment;
@@ -241,6 +254,15 @@ export class DatabaseStorage implements IStorage {
     return newCourse;
   }
 
+  async updateCourse(id: number, course: Partial<Course>): Promise<Course> {
+    const [updatedCourse] = await db
+      .update(courses)
+      .set({ ...course, updatedAt: new Date() })
+      .where(eq(courses.id, id))
+      .returning();
+    return updatedCourse;
+  }
+
   async enrollInCourse(enrollment: InsertCourseEnrollment): Promise<CourseEnrollment> {
     const [newEnrollment] = await db.insert(courseEnrollments).values(enrollment).returning();
     return newEnrollment;
@@ -279,6 +301,15 @@ export class DatabaseStorage implements IStorage {
   async createCampaign(campaign: InsertCampaign): Promise<Campaign> {
     const [newCampaign] = await db.insert(campaigns).values(campaign).returning();
     return newCampaign;
+  }
+
+  async updateCampaign(id: number, campaign: Partial<Campaign>): Promise<Campaign> {
+    const [updatedCampaign] = await db
+      .update(campaigns)
+      .set({ ...campaign, updatedAt: new Date() })
+      .where(eq(campaigns.id, id))
+      .returning();
+    return updatedCampaign;
   }
 
   async joinCampaign(participant: InsertCampaignParticipant): Promise<CampaignParticipant> {
@@ -322,6 +353,15 @@ export class DatabaseStorage implements IStorage {
   async createBlogPost(post: InsertBlogPost): Promise<BlogPost> {
     const [newPost] = await db.insert(blogPosts).values(post).returning();
     return newPost;
+  }
+
+  async updateBlogPost(id: number, post: Partial<BlogPost>): Promise<BlogPost> {
+    const [updatedPost] = await db
+      .update(blogPosts)
+      .set({ ...post, updatedAt: new Date() })
+      .where(eq(blogPosts.id, id))
+      .returning();
+    return updatedPost;
   }
 
   // Achievement operations

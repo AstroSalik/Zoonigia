@@ -100,6 +100,10 @@ const AdminDashboard = () => {
   const [showCampaignDialog, setShowCampaignDialog] = useState(false);
   const [showLessonDialog, setShowLessonDialog] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const [editMode, setEditMode] = useState<{
+    type: 'blog' | 'workshop' | 'course' | 'campaign' | null;
+    item: any;
+  }>({ type: null, item: null });
   const { toast } = useToast();
 
   // Data queries
@@ -202,72 +206,152 @@ const AdminDashboard = () => {
     },
   });
 
+  // Edit handlers
+  const handleEditBlog = (blog: BlogPost) => {
+    setEditMode({ type: 'blog', item: blog });
+    blogForm.reset({
+      title: blog.title,
+      content: blog.content,
+      excerpt: blog.excerpt,
+      author: blog.author,
+      category: blog.category,
+      imageUrl: blog.imageUrl || "",
+      tags: blog.tags || "",
+    });
+    setShowBlogDialog(true);
+  };
+
+  const handleEditWorkshop = (workshop: Workshop) => {
+    setEditMode({ type: 'workshop', item: workshop });
+    workshopForm.reset({
+      title: workshop.title,
+      description: workshop.description,
+      duration: workshop.duration,
+      price: workshop.price || "0.00",
+      capacity: workshop.capacity,
+      level: workshop.level,
+      category: workshop.category,
+      requirements: workshop.requirements || "",
+      outcomes: workshop.outcomes || "",
+    });
+    setShowWorkshopDialog(true);
+  };
+
+  const handleEditCourse = (course: Course) => {
+    setEditMode({ type: 'course', item: course });
+    courseForm.reset({
+      title: course.title,
+      description: course.description,
+      duration: course.duration,
+      price: course.price || "0.00",
+      capacity: course.capacity,
+      level: course.level,
+      field: course.field,
+      requirements: course.requirements || "",
+      outcomes: course.outcomes || "",
+    });
+    setShowCourseDialog(true);
+  };
+
+  const handleEditCampaign = (campaign: Campaign) => {
+    setEditMode({ type: 'campaign', item: campaign });
+    campaignForm.reset({
+      title: campaign.title,
+      description: campaign.description,
+      type: campaign.type,
+      startDate: campaign.startDate,
+      endDate: campaign.endDate,
+      price: campaign.price || "0.00",
+      maxParticipants: campaign.maxParticipants,
+      status: campaign.status,
+      partner: campaign.partner || "",
+      imageUrl: campaign.imageUrl || "",
+    });
+    setShowCampaignDialog(true);
+  };
+
+  const closeDialogs = () => {
+    setShowBlogDialog(false);
+    setShowWorkshopDialog(false);
+    setShowCourseDialog(false);
+    setShowCampaignDialog(false);
+    setEditMode({ type: null, item: null });
+  };
+
   // Mutations
   const createBlogPost = useMutation({
     mutationFn: async (data: z.infer<typeof blogPostFormSchema>) => {
-      const response = await apiRequest("POST", "/api/admin/blog-posts", data);
+      const method = editMode.type === 'blog' ? 'PUT' : 'POST';
+      const url = editMode.type === 'blog' ? `/api/admin/blog-posts/${editMode.item.id}` : '/api/admin/blog-posts';
+      const response = await apiRequest(method, url, data);
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/blog-posts"] });
       queryClient.invalidateQueries({ queryKey: ["/api/blog-posts"] });
-      toast({ title: "Blog post created successfully!" });
+      toast({ title: editMode.type === 'blog' ? "Blog post updated successfully!" : "Blog post created successfully!" });
       blogForm.reset();
-      setShowBlogDialog(false);
+      closeDialogs();
     },
     onError: (error) => {
-      toast({ title: "Error creating blog post", description: error.message, variant: "destructive" });
+      toast({ title: editMode.type === 'blog' ? "Error updating blog post" : "Error creating blog post", description: error.message, variant: "destructive" });
     },
   });
 
   const createWorkshop = useMutation({
     mutationFn: async (data: z.infer<typeof workshopFormSchema>) => {
-      const response = await apiRequest("POST", "/api/admin/workshops", data);
+      const method = editMode.type === 'workshop' ? 'PUT' : 'POST';
+      const url = editMode.type === 'workshop' ? `/api/admin/workshops/${editMode.item.id}` : '/api/admin/workshops';
+      const response = await apiRequest(method, url, data);
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/workshops"] });
       queryClient.invalidateQueries({ queryKey: ["/api/workshops"] });
-      toast({ title: "Workshop created successfully!" });
+      toast({ title: editMode.type === 'workshop' ? "Workshop updated successfully!" : "Workshop created successfully!" });
       workshopForm.reset();
-      setShowWorkshopDialog(false);
+      closeDialogs();
     },
     onError: (error) => {
-      toast({ title: "Error creating workshop", description: error.message, variant: "destructive" });
+      toast({ title: editMode.type === 'workshop' ? "Error updating workshop" : "Error creating workshop", description: error.message, variant: "destructive" });
     },
   });
 
   const createCourse = useMutation({
     mutationFn: async (data: z.infer<typeof courseFormSchema>) => {
-      const response = await apiRequest("POST", "/api/admin/courses", data);
+      const method = editMode.type === 'course' ? 'PUT' : 'POST';
+      const url = editMode.type === 'course' ? `/api/admin/courses/${editMode.item.id}` : '/api/admin/courses';
+      const response = await apiRequest(method, url, data);
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/courses"] });
       queryClient.invalidateQueries({ queryKey: ["/api/courses"] });
-      toast({ title: "Course created successfully!" });
+      toast({ title: editMode.type === 'course' ? "Course updated successfully!" : "Course created successfully!" });
       courseForm.reset();
-      setShowCourseDialog(false);
+      closeDialogs();
     },
     onError: (error) => {
-      toast({ title: "Error creating course", description: error.message, variant: "destructive" });
+      toast({ title: editMode.type === 'course' ? "Error updating course" : "Error creating course", description: error.message, variant: "destructive" });
     },
   });
 
   const createCampaign = useMutation({
     mutationFn: async (data: z.infer<typeof campaignFormSchema>) => {
-      const response = await apiRequest("POST", "/api/admin/campaigns", data);
+      const method = editMode.type === 'campaign' ? 'PUT' : 'POST';
+      const url = editMode.type === 'campaign' ? `/api/admin/campaigns/${editMode.item.id}` : '/api/admin/campaigns';
+      const response = await apiRequest(method, url, data);
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/campaigns"] });
       queryClient.invalidateQueries({ queryKey: ["/api/campaigns"] });
-      toast({ title: "Campaign created successfully!" });
+      toast({ title: editMode.type === 'campaign' ? "Campaign updated successfully!" : "Campaign created successfully!" });
       campaignForm.reset();
-      setShowCampaignDialog(false);
+      closeDialogs();
     },
     onError: (error) => {
-      toast({ title: "Error creating campaign", description: error.message, variant: "destructive" });
+      toast({ title: editMode.type === 'campaign' ? "Error updating campaign" : "Error creating campaign", description: error.message, variant: "destructive" });
     },
   });
 
@@ -806,6 +890,7 @@ const AdminDashboard = () => {
                                     variant="ghost"
                                     size="sm"
                                     className="text-cosmic-blue hover:bg-cosmic-blue/10"
+                                    onClick={() => handleEditBlog(post)}
                                   >
                                     <Edit className="w-4 h-4" />
                                   </Button>
@@ -1062,6 +1147,7 @@ const AdminDashboard = () => {
                                     variant="ghost"
                                     size="sm"
                                     className="text-cosmic-blue hover:bg-cosmic-blue/10"
+                                    onClick={() => handleEditWorkshop(workshop)}
                                   >
                                     <Edit className="w-4 h-4" />
                                   </Button>
@@ -1331,6 +1417,7 @@ const AdminDashboard = () => {
                                     variant="ghost"
                                     size="sm"
                                     className="text-cosmic-blue hover:bg-cosmic-blue/10"
+                                    onClick={() => handleEditCourse(course)}
                                   >
                                     <Edit className="w-4 h-4" />
                                   </Button>
@@ -1352,7 +1439,7 @@ const AdminDashboard = () => {
 
                   {/* Lesson Management Dialog */}
                   <Dialog open={showLessonDialog} onOpenChange={setShowLessonDialog}>
-                    <DialogContent className="bg-space-800 border-space-700 text-white max-w-4xl">
+                    <DialogContent className="bg-space-800 border-space-700 text-white max-w-4xl max-h-[90vh] overflow-y-auto">
                       <DialogHeader>
                         <DialogTitle className="text-white">
                           Manage Lessons - {selectedCourse?.title}
@@ -1362,7 +1449,7 @@ const AdminDashboard = () => {
                         </DialogDescription>
                       </DialogHeader>
                       
-                      <div className="space-y-6">
+                      <div className="space-y-6 max-h-[70vh] overflow-y-auto pr-2">
                         {/* Add Lesson Form */}
                         <div className="border-b border-space-700 pb-4">
                           <h4 className="text-lg font-semibold text-white mb-4">Add New Lesson</h4>
@@ -1807,6 +1894,7 @@ const AdminDashboard = () => {
                                     variant="ghost"
                                     size="sm"
                                     className="text-cosmic-blue hover:bg-cosmic-blue/10"
+                                    onClick={() => handleEditCampaign(campaign)}
                                   >
                                     <Edit className="w-4 h-4" />
                                   </Button>
