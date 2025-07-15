@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -404,13 +405,14 @@ const Campaigns = () => {
                     </div>
                   </div>
                   
-                  <Button 
-                    className="w-full bg-cosmic-blue hover:bg-blue-600"
-                    onClick={() => handleEnrollment(campaign)}
-                    disabled={campaign.status !== "active"}
-                  >
-                    {campaign.status === "active" ? `Register Now - ₹${campaign.price}` : "Registration Closed"}
-                  </Button>
+                  <Link href={`/campaigns/${campaign.id}`}>
+                    <Button 
+                      className="w-full bg-cosmic-blue hover:bg-blue-600"
+                      disabled={campaign.status !== "active"}
+                    >
+                      {campaign.status === "active" ? `Register Now - ₹${campaign.price}` : "Registration Closed"}
+                    </Button>
+                  </Link>
                 </CardContent>
               </Card>
             ))}

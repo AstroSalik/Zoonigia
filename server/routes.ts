@@ -718,6 +718,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           title: "Zoonigia Asteroid Search Campaign",
           description: "Collaborate with NASA Citizen Science and IASC to discover real asteroids and name them officially",
           type: "asteroid_search",
+          field: "Astronomy",
+          duration: "16 weeks",
           startDate: "2025-08-17",
           endDate: "2025-11-23",
           partner: "NASA • IASC • University of Hawaii",
