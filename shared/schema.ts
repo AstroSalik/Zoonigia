@@ -91,8 +91,8 @@ export const courses = pgTable("courses", {
   description: text("description").notNull(),
   field: varchar("field").notNull(), // astronomy, robotics, quantum, etc.
   level: varchar("level").notNull(), // beginner, intermediate, advanced
-  duration: varchar("duration").notNull(),
-  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  duration: varchar("duration"),
+  price: decimal("price", { precision: 10, scale: 2 }),
   imageUrl: varchar("image_url"),
   instructorId: varchar("instructor_id").references(() => users.id),
   instructorName: varchar("instructor_name"),
