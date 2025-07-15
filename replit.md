@@ -6,6 +6,14 @@ Zoonigia is a comprehensive full-stack web application designed to empower futur
 
 ## Recent Changes (July 2025)
 
+### Cosmic Background Animation & Quick Actions Reorganization (July 15, 2025)
+- Created professional cosmic background animation with single orbiting planet that responds to scroll
+- Replaced complex orbital system with elegant single planet animation for better performance
+- Added floating particles, shooting stars, and subtle background effects
+- Moved Quick Actions section above Featured Courses for better user flow
+- Enhanced scroll-based animations with planet rotation and scaling effects
+- Optimized background animation to work as backdrop without interfering with content readability
+
 ### Workshop Form Enhancement & Admin Panel Completion (July 15, 2025)
 - Added workshop type dropdown with explanatory text clarifying both Campus and Community workshops are hosted at schools
 - Enhanced admin dashboard with missing fields: Experience Level, Contact Method, and Lower Classes Request

@@ -14,70 +14,48 @@ const CosmicBackground: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll();
 
-  // Create floating particles
-  const particles: FloatingParticle[] = Array.from({ length: 50 }, (_, i) => ({
+  // Create floating particles (reduced)
+  const particles: FloatingParticle[] = Array.from({ length: 30 }, (_, i) => ({
     x: Math.random() * 100,
     y: Math.random() * 100,
-    size: Math.random() * 3 + 1,
-    opacity: Math.random() * 0.6 + 0.2,
+    size: Math.random() * 2 + 1,
+    opacity: Math.random() * 0.4 + 0.2,
     delay: Math.random() * 10,
     duration: Math.random() * 20 + 10,
   }));
 
-  // Create nebula clouds
-  const nebulaClouds = Array.from({ length: 8 }, (_, i) => ({
-    x: Math.random() * 120 - 10,
-    y: Math.random() * 120 - 10,
-    size: Math.random() * 400 + 200,
-    opacity: Math.random() * 0.3 + 0.1,
-    delay: Math.random() * 5,
-    duration: Math.random() * 30 + 20,
-  }));
-
   // Scroll-based transformations
-  const rotateBackground = useTransform(scrollYProgress, [0, 1], [0, 360]);
-  const scaleNebula = useTransform(scrollYProgress, [0, 0.5, 1], [1, 1.2, 1]);
+  const planetRotation = useTransform(scrollYProgress, [0, 1], [0, 720]);
+  const planetScale = useTransform(scrollYProgress, [0, 0.5, 1], [0.8, 1.2, 0.8]);
 
   return (
     <div ref={containerRef} className="fixed inset-0 pointer-events-none overflow-hidden">
       {/* Animated gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-space-900 via-space-800 to-space-900 opacity-80" />
+      <div className="absolute inset-0 bg-gradient-to-br from-space-900 via-space-800 to-space-900 opacity-90" />
       
-      {/* Nebula clouds */}
+      {/* Single orbiting planet */}
       <motion.div
-        style={{ rotate: rotateBackground, scale: scaleNebula }}
-        className="absolute inset-0"
+        className="absolute inset-0 flex items-center justify-center"
+        style={{ rotate: planetRotation }}
       >
-        {nebulaClouds.map((cloud, i) => (
+        <div className="relative">
+          {/* Orbit ring */}
+          <div className="absolute w-96 h-96 border border-cosmic-blue opacity-20 rounded-full" 
+               style={{ top: '-192px', left: '-192px' }} />
+          
+          {/* Planet */}
           <motion.div
-            key={`nebula-${i}`}
-            className="absolute rounded-full"
-            style={{
-              left: `${cloud.x}%`,
-              top: `${cloud.y}%`,
-              width: `${cloud.size}px`,
-              height: `${cloud.size}px`,
-              background: i % 3 === 0 
-                ? 'radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, rgba(59, 130, 246, 0.1) 40%, transparent 70%)'
-                : i % 3 === 1
-                ? 'radial-gradient(circle, rgba(147, 51, 234, 0.3) 0%, rgba(147, 51, 234, 0.1) 40%, transparent 70%)'
-                : 'radial-gradient(circle, rgba(236, 72, 153, 0.3) 0%, rgba(236, 72, 153, 0.1) 40%, transparent 70%)',
-              opacity: cloud.opacity,
-              filter: 'blur(2px)',
+            className="absolute w-6 h-6 bg-gradient-to-br from-cosmic-blue to-cosmic-purple rounded-full shadow-lg"
+            style={{ 
+              top: '-3px', 
+              left: '192px',
+              boxShadow: '0 0 20px rgba(59, 130, 246, 0.6)',
+              scale: planetScale
             }}
-            animate={{
-              scale: [1, 1.1, 1],
-              rotate: [0, 360],
-              opacity: [cloud.opacity, cloud.opacity * 0.5, cloud.opacity],
-            }}
-            transition={{
-              duration: cloud.duration,
-              repeat: Infinity,
-              delay: cloud.delay,
-              ease: "linear",
-            }}
-          />
-        ))}
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-cosmic-blue to-cosmic-purple rounded-full animate-pulse opacity-75" />
+          </motion.div>
+        </div>
       </motion.div>
 
       {/* Floating particles/stars */}
@@ -109,61 +87,8 @@ const CosmicBackground: React.FC = () => {
         ))}
       </div>
 
-      {/* Cosmic energy waves */}
-      <div className="absolute inset-0">
-        {[...Array(3)].map((_, i) => (
-          <motion.div
-            key={`wave-${i}`}
-            className="absolute inset-0 rounded-full border border-cosmic-blue opacity-20"
-            style={{
-              borderWidth: '1px',
-              left: '50%',
-              top: '50%',
-              transform: 'translate(-50%, -50%)',
-            }}
-            animate={{
-              scale: [0.5, 2, 0.5],
-              opacity: [0.3, 0.1, 0.3],
-            }}
-            transition={{
-              duration: 8 + i * 2,
-              repeat: Infinity,
-              delay: i * 2,
-              ease: "easeInOut",
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Subtle orbital rings */}
-      <motion.div
-        style={{ rotate: rotateBackground }}
-        className="absolute inset-0 flex items-center justify-center"
-      >
-        {[300, 500, 700].map((size, i) => (
-          <motion.div
-            key={`orbit-${i}`}
-            className="absolute rounded-full border border-white opacity-10"
-            style={{
-              width: `${size}px`,
-              height: `${size}px`,
-              borderWidth: '1px',
-              borderStyle: 'dashed',
-            }}
-            animate={{
-              rotate: [0, 360],
-            }}
-            transition={{
-              duration: 60 + i * 20,
-              repeat: Infinity,
-              ease: "linear",
-            }}
-          />
-        ))}
-      </motion.div>
-
       {/* Shooting stars */}
-      {[...Array(3)].map((_, i) => (
+      {[...Array(2)].map((_, i) => (
         <motion.div
           key={`shooting-star-${i}`}
           className="absolute w-1 h-1 bg-white rounded-full"
@@ -181,7 +106,7 @@ const CosmicBackground: React.FC = () => {
           transition={{
             duration: 2,
             repeat: Infinity,
-            delay: i * 8 + Math.random() * 5,
+            delay: i * 12 + Math.random() * 5,
             ease: "easeOut",
           }}
         />

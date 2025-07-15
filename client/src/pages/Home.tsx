@@ -257,6 +257,7 @@ const Home = () => {
           </div>
         </div>
       </section>
+      
       {/* Featured Courses */}
       <section className="py-20 bg-space-800/30">
         <div className="container mx-auto px-4">
