@@ -70,13 +70,19 @@ const campaignFormSchema = insertCampaignSchema.extend({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
   type: z.string().min(1, "Type is required"),
+  field: z.string().optional(),
+  duration: z.string().optional(),
   startDate: z.string().min(1, "Start date is required"),
   endDate: z.string().min(1, "End date is required"),
-  price: z.string().optional(),
-  maxParticipants: z.number().min(1, "Max participants must be at least 1"),
-  status: z.enum(["active", "closed", "completed"]),
   partner: z.string().optional(),
+  status: z.enum(["active", "closed", "completed"]).default("active"),
+  maxParticipants: z.number().optional(),
+  targetParticipants: z.number().optional(),
+  price: z.string().optional(),
   imageUrl: z.string().optional(),
+  requirements: z.string().optional(),
+  timeline: z.string().optional(),
+  outcomes: z.string().optional(),
 });
 
 const lessonFormSchema = insertCourseLessonSchema.extend({
@@ -337,15 +343,26 @@ const AdminDashboard = () => {
       title: campaign.title,
       description: campaign.description,
       type: campaign.type,
+      field: campaign.field || "",
+      duration: campaign.duration || "",
       startDate: campaign.startDate,
       endDate: campaign.endDate,
       price: campaign.price || "0.00",
       maxParticipants: campaign.maxParticipants,
+      targetParticipants: campaign.targetParticipants,
       status: campaign.status,
       partner: campaign.partner || "",
       imageUrl: campaign.imageUrl || "",
+      requirements: campaign.requirements || "",
+      timeline: campaign.timeline || "",
+      outcomes: campaign.outcomes || "",
     });
     setShowCampaignDialog(true);
+  };
+
+  const handleUpdateCampaignStats = (campaign: Campaign) => {
+    // This function would open a dialog to update campaign statistics
+    toast({ title: "Campaign statistics management", description: "Statistics update functionality coming soon!" });
   };
 
   const closeDialogs = () => {
@@ -1858,7 +1875,33 @@ const AdminDashboard = () => {
                                 )}
                               />
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-3 gap-4">
+                              <FormField
+                                control={campaignForm.control}
+                                name="field"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-space-300">Field</FormLabel>
+                                    <FormControl>
+                                      <Input {...field} placeholder="Astronomy, Physics, etc." className="bg-space-700 border-space-600 text-white" />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={campaignForm.control}
+                                name="duration"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-space-300">Duration</FormLabel>
+                                    <FormControl>
+                                      <Input {...field} placeholder="16 weeks" className="bg-space-700 border-space-600 text-white" />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
                               <FormField
                                 control={campaignForm.control}
                                 name="price"
@@ -1897,14 +1940,73 @@ const AdminDashboard = () => {
                                 )}
                               />
                             </div>
+                            <div className="grid grid-cols-2 gap-4">
+                              <FormField
+                                control={campaignForm.control}
+                                name="targetParticipants"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-space-300">Target Participants</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        {...field}
+                                        type="number"
+                                        onChange={(e) => field.onChange(Number(e.target.value))}
+                                        className="bg-space-700 border-space-600 text-white"
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={campaignForm.control}
+                                name="imageUrl"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-space-300">Image URL (Optional)</FormLabel>
+                                    <FormControl>
+                                      <Input {...field} placeholder="https://example.com/image.jpg" className="bg-space-700 border-space-600 text-white" />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
                             <FormField
                               control={campaignForm.control}
-                              name="imageUrl"
+                              name="requirements"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel className="text-space-300">Image URL (Optional)</FormLabel>
+                                  <FormLabel className="text-space-300">Requirements</FormLabel>
                                   <FormControl>
-                                    <Input {...field} placeholder="https://example.com/image.jpg" className="bg-space-700 border-space-600 text-white" />
+                                    <Textarea {...field} placeholder="Basic astronomy knowledge, computer access..." className="bg-space-700 border-space-600 text-white" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={campaignForm.control}
+                              name="timeline"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-space-300">Timeline</FormLabel>
+                                  <FormControl>
+                                    <Textarea {...field} placeholder="Week 1: Introduction, Week 2: Data collection..." className="bg-space-700 border-space-600 text-white" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={campaignForm.control}
+                              name="outcomes"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-space-300">Expected Outcomes</FormLabel>
+                                  <FormControl>
+                                    <Textarea {...field} placeholder="Asteroid discovery, research publication..." className="bg-space-700 border-space-600 text-white" />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -1932,24 +2034,95 @@ const AdminDashboard = () => {
                       </DialogContent>
                     </Dialog>
 
+                  {/* Campaign Statistics */}
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <GlassMorphism className="p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-cosmic-blue/20 rounded-lg">
+                          <Rocket className="w-5 h-5 text-cosmic-blue" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-400">Total Campaigns</p>
+                          <p className="text-2xl font-bold text-white">{campaigns.length}</p>
+                        </div>
+                      </div>
+                    </GlassMorphism>
+                    
+                    <GlassMorphism className="p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-green-500/20 rounded-lg">
+                          <CheckCircle className="w-5 h-5 text-green-400" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-400">Active Campaigns</p>
+                          <p className="text-2xl font-bold text-white">
+                            {campaigns.filter(c => c.status === 'active').length}
+                          </p>
+                        </div>
+                      </div>
+                    </GlassMorphism>
+                    
+                    <GlassMorphism className="p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-cosmic-purple/20 rounded-lg">
+                          <Users className="w-5 h-5 text-cosmic-purple" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-400">Total Participants</p>
+                          <p className="text-2xl font-bold text-white">
+                            {campaigns.reduce((sum, c) => sum + (c.currentParticipants || 0), 0)}
+                          </p>
+                        </div>
+                      </div>
+                    </GlassMorphism>
+                    
+                    <GlassMorphism className="p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-cosmic-orange/20 rounded-lg">
+                          <IndianRupee className="w-5 h-5 text-cosmic-orange" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-400">Total Revenue</p>
+                          <p className="text-2xl font-bold text-white">
+                            ₹{campaigns.reduce((sum, c) => sum + ((c.currentParticipants || 0) * parseFloat(c.price || '0')), 0).toFixed(0)}
+                          </p>
+                        </div>
+                      </div>
+                    </GlassMorphism>
+                  </div>
+
                   <GlassMorphism className="p-6">
                     <div className="overflow-x-auto">
                       <Table>
                         <TableHeader>
                           <TableRow className="border-space-700">
-                            <TableHead className="text-space-300">Title</TableHead>
+                            <TableHead className="text-space-300">Campaign</TableHead>
                             <TableHead className="text-space-300">Type</TableHead>
                             <TableHead className="text-space-300">Status</TableHead>
+                            <TableHead className="text-space-300">Participants</TableHead>
+                            <TableHead className="text-space-300">Revenue</TableHead>
                             <TableHead className="text-space-300">Duration</TableHead>
-                            <TableHead className="text-space-300">Price</TableHead>
-                            <TableHead className="text-space-300">Max Participants</TableHead>
                             <TableHead className="text-space-300">Actions</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
                           {campaigns.map((campaign) => (
                             <TableRow key={campaign.id} className="border-space-700">
-                              <TableCell className="text-white font-medium">{campaign.title}</TableCell>
+                              <TableCell className="text-white">
+                                <div className="flex items-center gap-3">
+                                  {campaign.imageUrl && (
+                                    <img 
+                                      src={campaign.imageUrl} 
+                                      alt={campaign.title}
+                                      className="w-10 h-10 object-cover rounded"
+                                    />
+                                  )}
+                                  <div>
+                                    <p className="font-medium">{campaign.title}</p>
+                                    <p className="text-sm text-gray-400">{campaign.field}</p>
+                                  </div>
+                                </div>
+                              </TableCell>
                               <TableCell>
                                 <Badge variant="outline" className="text-orange-400 border-orange-400">
                                   {campaign.type}
@@ -1968,15 +2141,22 @@ const AdminDashboard = () => {
                                 </Badge>
                               </TableCell>
                               <TableCell className="text-space-300">
-                                {campaign.startDate && campaign.endDate 
-                                  ? `${new Date(campaign.startDate).toLocaleDateString()} - ${new Date(campaign.endDate).toLocaleDateString()}`
-                                  : 'N/A'
-                                }
+                                <div className="flex flex-col">
+                                  <span className="font-medium">{campaign.currentParticipants || 0}</span>
+                                  <span className="text-xs text-gray-500">
+                                    / {campaign.maxParticipants || campaign.targetParticipants || 'Unlimited'}
+                                  </span>
+                                </div>
                               </TableCell>
-                              <TableCell className="text-space-300">₹{campaign.price}</TableCell>
-                              <TableCell className="text-space-300">{campaign.maxParticipants}</TableCell>
+                              <TableCell className="text-space-300">
+                                <div className="flex flex-col">
+                                  <span className="font-medium">₹{((campaign.currentParticipants || 0) * parseFloat(campaign.price || '0')).toFixed(0)}</span>
+                                  <span className="text-xs text-gray-500">@₹{campaign.price || '0'}</span>
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-space-300">{campaign.duration || 'N/A'}</TableCell>
                               <TableCell>
-                                <div className="flex items-center gap-2">
+                                <div className="flex gap-2">
                                   <Button
                                     variant="ghost"
                                     size="sm"
@@ -1984,6 +2164,14 @@ const AdminDashboard = () => {
                                     onClick={() => handleEditCampaign(campaign)}
                                   >
                                     <Edit className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-green-400 hover:bg-green-400/10"
+                                    onClick={() => handleUpdateCampaignStats(campaign)}
+                                  >
+                                    <Target className="w-4 h-4" />
                                   </Button>
                                   <Button
                                     variant="ghost"

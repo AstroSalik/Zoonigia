@@ -219,6 +219,8 @@ export const campaigns = pgTable("campaigns", {
   title: varchar("title").notNull(),
   description: text("description").notNull(),
   type: varchar("type").notNull(), // asteroid_search, poetry, research
+  field: varchar("field"),
+  duration: varchar("duration"),
   startDate: date("start_date").notNull(),
   endDate: date("end_date").notNull(),
   partner: varchar("partner"), // NASA, IASC, etc.
@@ -226,8 +228,12 @@ export const campaigns = pgTable("campaigns", {
   progress: integer("progress").default(0), // percentage
   maxParticipants: integer("max_participants"),
   currentParticipants: integer("current_participants").default(0),
+  targetParticipants: integer("target_participants").default(100),
   price: decimal("price", { precision: 10, scale: 2 }).default("0.00"),
   imageUrl: varchar("image_url"),
+  requirements: text("requirements"),
+  timeline: text("timeline"),
+  outcomes: text("outcomes"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

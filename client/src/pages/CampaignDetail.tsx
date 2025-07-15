@@ -16,6 +16,7 @@ import { useEffect, useState } from "react";
 import { useStripe, useElements, Elements, PaymentElement } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import type { Campaign } from "@shared/schema";
+import Navigation from "@/components/Navigation";
 
 // Initialize Stripe
 if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
@@ -271,7 +272,8 @@ export default function CampaignDetail() {
 
   return (
     <div className="min-h-screen bg-space-900 text-white">
-      <div className="container mx-auto px-4 py-8">
+      <Navigation />
+      <div className="container mx-auto px-4 py-8 pt-24">
         {/* Campaign Header */}
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-4">

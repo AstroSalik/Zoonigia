@@ -150,6 +150,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put('/api/admin/campaigns/:id', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const campaignData = insertCampaignSchema.parse(req.body);
+      const campaign = await storage.updateCampaign(id, campaignData);
+      res.json(campaign);
+    } catch (error) {
+      console.error("Error updating campaign:", error);
+      res.status(500).json({ message: "Failed to update campaign" });
+    }
+  });
+
   app.post('/api/admin/courses/:courseId/lessons', isAuthenticated, isAdmin, async (req: any, res) => {
     try {
       const courseId = parseInt(req.params.courseId);
