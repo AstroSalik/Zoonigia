@@ -7,11 +7,11 @@ Zoonigia is a comprehensive full-stack web application designed to empower futur
 ## Recent Changes (July 2025)
 
 ### Landing Page Video Integration (July 15, 2025)
-- Added Zoonigia introduction video placeholder to landing page hero section
+- Added Zoonigia introduction video to landing page hero section (Video ID: Tgr6BrgIBec)
 - Positioned video on right side opposite to "Explore the Universe" content block
 - Replaced Hero3D component with embedded YouTube video iframe
 - Created responsive video container with glass morphism styling
-- Added placeholder with instructions for replacing with actual video URL
+- Integrated actual YouTube video: https://youtu.be/Tgr6BrgIBec
 - Enhanced landing page user experience with visual introduction to platform
 
 ### Admin Dashboard Course Form Enhancement (July 15, 2025)
