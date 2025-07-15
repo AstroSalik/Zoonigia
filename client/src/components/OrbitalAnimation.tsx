@@ -24,8 +24,8 @@ const CosmicBackground: React.FC = () => {
     duration: Math.random() * 20 + 10,
   }));
 
-  // Scroll-based transformations
-  const planetRotation = useTransform(scrollYProgress, [0, 1], [0, 180]);
+  // Scroll-based transformations - reversed direction
+  const planetRotation = useTransform(scrollYProgress, [0, 1], [180, 0]);
   const planetScale = useTransform(scrollYProgress, [0, 0.5, 1], [1, 1.2, 1]);
 
   return (
@@ -47,7 +47,7 @@ const CosmicBackground: React.FC = () => {
           
           {/* TRAPPIST-1 Planet orbiting the half-orbit */}
           <motion.div
-            className="absolute w-36 h-36 rounded-full shadow-2xl z-10"
+            className="absolute w-44 h-44 rounded-full shadow-2xl z-10"
             style={{ 
               top: '50%',
               right: '30vw',
@@ -64,11 +64,11 @@ const CosmicBackground: React.FC = () => {
                  style={{ 
                    background: 'radial-gradient(circle at 25% 25%, rgba(255, 140, 100, 0.5), transparent 60%)',
                  }} />
-            {/* Continents and surface features */}
-            <div className="absolute top-6 left-8 w-6 h-8 bg-orange-700 rounded-full blur-sm opacity-80" />
-            <div className="absolute bottom-8 right-10 w-8 h-6 bg-red-800 rounded-full blur-sm opacity-70" />
-            <div className="absolute top-10 right-6 w-4 h-4 bg-yellow-600 rounded-full blur-sm opacity-60" />
-            <div className="absolute bottom-6 left-10 w-5 h-5 bg-orange-900 rounded-full blur-sm opacity-50" />
+            {/* Continents and surface features - scaled for bigger planet */}
+            <div className="absolute top-8 left-10 w-8 h-10 bg-orange-700 rounded-full blur-sm opacity-80" />
+            <div className="absolute bottom-10 right-12 w-10 h-8 bg-red-800 rounded-full blur-sm opacity-70" />
+            <div className="absolute top-12 right-8 w-6 h-6 bg-yellow-600 rounded-full blur-sm opacity-60" />
+            <div className="absolute bottom-8 left-12 w-7 h-7 bg-orange-900 rounded-full blur-sm opacity-50" />
           </motion.div>
         </div>
       </div>
@@ -106,7 +106,7 @@ const CosmicBackground: React.FC = () => {
       <div className="absolute inset-0 pointer-events-none">
         <div className="relative w-full h-full">
           <motion.div
-            className="absolute w-48 h-48 rounded-full blur-3xl"
+            className="absolute w-56 h-56 rounded-full blur-3xl"
             style={{ 
               top: '50%',
               right: '30vw',
