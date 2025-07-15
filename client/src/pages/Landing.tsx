@@ -7,7 +7,8 @@ import {
   Users, 
   Award,
   Rocket,
-  Star
+  Star,
+  Target
 } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
@@ -84,7 +85,7 @@ const Landing = () => {
           </h2>
           <p className="text-xl text-space-300 max-w-3xl mx-auto">
             Experience cutting-edge frontier sciences learning through hands-on workshops, 
-            real research opportunities, and expert guidance
+            collaborative research campaigns, and expert guidance
           </p>
         </div>
 
@@ -102,6 +103,14 @@ const Landing = () => {
             <h3 className="text-xl font-semibold mb-3">NASA Collaborations</h3>
             <p className="text-space-300">
               Participate in real asteroid discoveries and contribute to space research
+            </p>
+          </GlassMorphism>
+
+          <GlassMorphism className="p-6 text-center">
+            <Target className="w-12 h-12 text-cosmic-red mx-auto mb-4" />
+            <h3 className="text-xl font-semibold mb-3">Research Campaigns</h3>
+            <p className="text-space-300">
+              Join collaborative research projects and contribute to breakthrough discoveries
             </p>
           </GlassMorphism>
 
