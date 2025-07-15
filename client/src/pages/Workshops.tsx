@@ -207,7 +207,7 @@ const Workshops = () => {
                 Immersive <span className="text-cosmic-blue">Workshops</span>
               </h1>
               <p className="text-xl md:text-2xl text-space-200 max-w-4xl mx-auto">
-                Experience hands-on learning through our comprehensive workshops featuring telescope sessions, VR experiences, expert speaker sessions, universe simulation, design thinking, and space mission planning
+                Experience hands-on learning through our comprehensive workshops blending frontier sciences with literary wonder and philosophical depth - featuring telescope sessions, VR experiences, expert speaker sessions, universe simulation, design thinking, and space mission planning
               </p>
             </div>
             <div className="flex justify-center items-center gap-4 text-space-300 mb-8">
@@ -258,7 +258,7 @@ const Workshops = () => {
               The <span className="text-cosmic-blue">Ultimate</span> Workshop Experience
             </h2>
             <p className="text-xl text-space-200 max-w-4xl mx-auto">
-              All the activities below are delivered in a single comprehensive workshop session, making it the most complete space science education experience available
+              All the activities below are delivered in a single comprehensive workshop session, making it the most complete frontier sciences education experience available - where scientific discovery meets literary inspiration and philosophical inquiry
             </p>
           </div>
 
@@ -361,7 +361,7 @@ const Workshops = () => {
               Ready to Explore the <span className="text-cosmic-blue">Universe</span>?
             </h2>
             <p className="text-lg text-space-200 mb-6 max-w-2xl mx-auto">
-              Join our immersive workshops and embark on a journey through space science education
+              Join our immersive workshops and embark on a journey through frontier sciences education where science meets literature and philosophy
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 

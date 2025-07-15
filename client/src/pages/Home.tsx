@@ -15,7 +15,11 @@ import {
   ChevronDown,
   Star,
   Telescope,
-  Headphones
+  Headphones,
+  Lightbulb,
+  BookOpen,
+  Atom,
+  Feather
 } from "lucide-react";
 
 const Home = () => {
@@ -44,7 +48,7 @@ const Home = () => {
             <span className="text-space-50">And Beyond</span>
           </h1>
           <p className="text-xl md:text-2xl text-space-200 mb-8 animate-slideUp">
-            Empowering Future Innovators and Explorers through Immersive Science Education
+            Empowering Future Innovators and Explorers through Immersive Frontier Sciences where Science meets Literature and Philosophy
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slideUp">
             <Link href="/workshops">
@@ -133,6 +137,54 @@ const Home = () => {
           </div>
         </div>
       </section>
+      {/* Interdisciplinary Learning Section */}
+      <section className="py-20 bg-space-800/20">
+        <div className="container mx-auto px-4">
+          <div className="max-w-6xl mx-auto text-center mb-16">
+            <div className="mb-8">
+              <div className="w-16 h-16 bg-gradient-to-br from-cosmic-yellow to-cosmic-orange rounded-full flex items-center justify-center mx-auto mb-6">
+                <Lightbulb className="w-8 h-8 text-white" />
+              </div>
+              <h2 className="text-4xl md:text-5xl font-space font-bold mb-6">
+                <span className="bg-gradient-to-r from-cosmic-yellow to-cosmic-orange bg-clip-text text-transparent">
+                  Interdisciplinary Learning
+                </span>
+              </h2>
+              <p className="text-xl text-space-300 max-w-4xl mx-auto leading-relaxed">
+                Explore the intersection of frontier sciences, literature, and philosophy for deeper understanding. 
+                Where cosmic questions meet poetic wonder and philosophical inquiry.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+              <GlassMorphism className="p-6 text-center hover:bg-white/10 transition-all duration-300">
+                <Atom className="w-12 h-12 text-cosmic-blue mx-auto mb-4" />
+                <h3 className="text-xl font-semibold mb-3">Scientific Rigor</h3>
+                <p className="text-space-300">
+                  Quantum mechanics, astrophysics, and cutting-edge research grounded in empirical evidence
+                </p>
+              </GlassMorphism>
+              
+              <GlassMorphism className="p-6 text-center hover:bg-white/10 transition-all duration-300">
+                <Feather className="w-12 h-12 text-cosmic-purple mx-auto mb-4" />
+                <h3 className="text-xl font-semibold mb-3">Literary Wonder</h3>
+                <p className="text-space-300">
+                  Poetic narratives and storytelling that illuminate the beauty of cosmic phenomena
+                </p>
+              </GlassMorphism>
+              
+              <GlassMorphism className="p-6 text-center hover:bg-white/10 transition-all duration-300">
+                <Star className="w-12 h-12 text-cosmic-orange mx-auto mb-4" />
+                <h3 className="text-xl font-semibold mb-3">Philosophical Depth</h3>
+                <p className="text-space-300">
+                  Existential questions about our place in the universe and the nature of reality
+                </p>
+              </GlassMorphism>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Quick Actions */}
       <section className="py-20">
         <div className="container mx-auto px-4">
@@ -152,7 +204,7 @@ const Home = () => {
                       <div className="text-center">
                         <Users className="w-12 h-12 text-cosmic-blue mb-4 mx-auto group-hover:scale-110 transition-transform" />
                         <h3 className="text-xl font-semibold mb-2">Register for Workshop</h3>
-                        <p className="text-space-300 mb-4">Join our immersive workshops and experience hands-on learning</p>
+                        <p className="text-space-300 mb-4">Join our immersive workshops blending science with literature and philosophy</p>
                         <Link href="/workshops">
                           <Button className="bg-cosmic-blue hover:bg-blue-600">
                             Browse Workshops

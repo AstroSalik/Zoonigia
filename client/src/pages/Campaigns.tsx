@@ -350,7 +350,7 @@ const Campaigns = () => {
               Active <span className="text-cosmic-blue">Campaigns</span>
             </h1>
             <p className="text-xl text-space-200 max-w-3xl mx-auto">
-              Join groundbreaking research campaigns and contribute to real scientific discoveries
+              Join groundbreaking research campaigns where frontier sciences meet literary expression and philosophical inquiry to contribute to real scientific discoveries
             </p>
           </div>
 

@@ -112,7 +112,7 @@ const Courses = () => {
               Our <span className="text-cosmic-blue">Courses</span>
             </h1>
             <p className="text-xl text-space-200 max-w-3xl mx-auto">
-              Comprehensive learning paths in cutting-edge fields of science and technology
+              Comprehensive learning paths in frontier sciences blending scientific rigor with literary wonder and philosophical depth
             </p>
           </div>
 

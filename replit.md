@@ -19,6 +19,9 @@ Zoonigia is a comprehensive full-stack web application designed to empower futur
 - Integrated interdisciplinary approach highlighting the blend of frontier sciences with literature and philosophy
 - Added dedicated "Interdisciplinary Learning" feature block on landing page with Lightbulb icon
 - Updated hero section, About page, and course descriptions to emphasize scientific rigor with literary and philosophical insights
+- Enhanced Home page with comprehensive interdisciplinary learning section featuring Scientific Rigor, Literary Wonder, and Philosophical Depth
+- Updated Courses, Workshops, and Campaigns pages to include interdisciplinary messaging throughout descriptions
+- Added awe-inspiring content that showcases the unique intersection of science, literature, and philosophy across platform
 
 ### Landing Page Video Integration (July 15, 2025)
 - Added Zoonigia introduction video to landing page hero section (Video ID: Tgr6BrgIBec)
