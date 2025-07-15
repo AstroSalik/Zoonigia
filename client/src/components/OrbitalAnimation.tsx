@@ -25,35 +25,39 @@ const CosmicBackground: React.FC = () => {
   }));
 
   // Scroll-based transformations
-  const planetRotation = useTransform(scrollYProgress, [0, 1], [0, 720]);
-  const planetScale = useTransform(scrollYProgress, [0, 0.5, 1], [0.8, 1.2, 0.8]);
+  const planetRotation = useTransform(scrollYProgress, [0, 1], [0, 360]);
+  const planetScale = useTransform(scrollYProgress, [0, 0.5, 1], [0.9, 1.1, 0.9]);
 
   return (
     <div ref={containerRef} className="fixed inset-0 pointer-events-none overflow-hidden">
       {/* Animated gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-space-900 via-space-800 to-space-900 opacity-90" />
       
-      {/* Single orbiting planet */}
+      {/* Large orbiting planet */}
       <motion.div
         className="absolute inset-0 flex items-center justify-center"
         style={{ rotate: planetRotation }}
       >
         <div className="relative">
-          {/* Orbit ring */}
-          <div className="absolute w-96 h-96 border border-cosmic-blue opacity-20 rounded-full" 
-               style={{ top: '-192px', left: '-192px' }} />
+          {/* Orbit ring - much larger */}
+          <div className="absolute w-[150vw] h-[150vw] border border-cosmic-blue opacity-10 rounded-full" 
+               style={{ top: '-75vw', left: '-75vw' }} />
           
-          {/* Planet */}
+          {/* Large Planet */}
           <motion.div
-            className="absolute w-6 h-6 bg-gradient-to-br from-cosmic-blue to-cosmic-purple rounded-full shadow-lg"
+            className="absolute w-32 h-32 bg-gradient-to-br from-cosmic-blue via-cosmic-purple to-cosmic-orange rounded-full shadow-2xl"
             style={{ 
-              top: '-3px', 
-              left: '192px',
-              boxShadow: '0 0 20px rgba(59, 130, 246, 0.6)',
+              top: '-64px', 
+              left: '75vw',
+              boxShadow: '0 0 80px rgba(59, 130, 246, 0.8), 0 0 120px rgba(147, 51, 234, 0.4)',
               scale: planetScale
             }}
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-cosmic-blue to-cosmic-purple rounded-full animate-pulse opacity-75" />
+            {/* Planet surface details */}
+            <div className="absolute inset-0 bg-gradient-to-br from-cosmic-blue to-cosmic-purple rounded-full animate-pulse opacity-60" />
+            <div className="absolute inset-2 bg-gradient-to-tr from-transparent via-white/20 to-transparent rounded-full" />
+            <div className="absolute top-4 left-4 w-4 h-4 bg-white/30 rounded-full blur-sm" />
+            <div className="absolute bottom-6 right-6 w-6 h-6 bg-cosmic-orange/40 rounded-full blur-sm" />
           </motion.div>
         </div>
       </motion.div>
@@ -86,6 +90,23 @@ const CosmicBackground: React.FC = () => {
           />
         ))}
       </div>
+      
+      {/* Planet glow effect */}
+      <motion.div
+        className="absolute inset-0 flex items-center justify-center pointer-events-none"
+        style={{ rotate: planetRotation }}
+      >
+        <div className="relative">
+          <motion.div
+            className="absolute w-48 h-48 bg-gradient-radial from-cosmic-blue/20 via-cosmic-purple/10 to-transparent rounded-full blur-3xl"
+            style={{ 
+              top: '-96px', 
+              left: 'calc(75vw - 96px)',
+              scale: planetScale
+            }}
+          />
+        </div>
+      </motion.div>
 
       {/* Shooting stars */}
       {[...Array(2)].map((_, i) => (

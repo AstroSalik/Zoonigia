@@ -163,6 +163,10 @@
   .hover\:bg-cosmic-purple:hover { background-color: var(--cosmic-purple); }
   .hover\:bg-cosmic-green:hover { background-color: var(--cosmic-green); }
   .hover\:bg-cosmic-orange:hover { background-color: var(--cosmic-orange); }
+  
+  .bg-gradient-radial {
+    background: radial-gradient(circle, var(--tw-gradient-stops));
+  }
 }
 
 @keyframes float {
