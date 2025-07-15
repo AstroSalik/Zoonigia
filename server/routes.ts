@@ -333,7 +333,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (courses.length === 0) {
         await storage.createCourse({
           title: "Introduction to Space Science",
-          description: "Explore the fundamentals of space science including planetary motion, stellar evolution, and cosmic phenomena. Perfect for beginners looking to understand the universe.",
+          description: "Explore the fundamentals of frontier sciences including planetary motion, stellar evolution, and cosmic phenomena. Perfect for beginners looking to understand the universe.",
           field: "astronomy",
           level: "beginner",
           duration: "8 weeks",
@@ -418,7 +418,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           await storage.createCourseModule({
             courseId: firstCourse.id,
             title: "Introduction to the Universe",
-            description: "Basic concepts and overview of space science",
+            description: "Basic concepts and overview of frontier sciences",
             orderIndex: 1
           });
           
@@ -439,9 +439,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Create sample lessons for the first course
           await storage.createCourseLesson({
             courseId: firstCourse.id,
-            title: "Welcome to Space Science",
-            description: "Introduction to the course and space science fundamentals",
-            content: "<p>Welcome to our comprehensive space science course! In this lesson, we'll explore the basic principles of astronomy and space exploration.</p><p>You'll learn about the scale of the universe, from planets to galaxies, and discover how scientists study celestial objects.</p>",
+            title: "Welcome to Frontier Sciences",
+            description: "Introduction to the course and frontier sciences fundamentals",
+            content: "<p>Welcome to our comprehensive frontier sciences course! In this lesson, we'll explore the basic principles of astronomy and space exploration.</p><p>You'll learn about the scale of the universe, from planets to galaxies, and discover how scientists study celestial objects.</p>",
             videoUrl: "https://example.com/intro-video",
             duration: 30,
             orderIndex: 1,

@@ -47,13 +47,13 @@ const About = () => {
           <div className="max-w-4xl mx-auto text-center mb-16">
             <h2 className="text-4xl font-space font-bold mb-6">Discover Zoonigia</h2>
             <p className="text-xl text-space-200 mb-8">
-              Watch our introduction video to learn more about our mission and innovative approach to space science education
+              Watch our introduction video to learn more about our mission and innovative approach to frontier sciences education
             </p>
             <div className="relative w-full h-0 pb-[56.25%] rounded-lg overflow-hidden bg-space-800">
               <iframe
                 className="absolute top-0 left-0 w-full h-full"
                 src="https://www.youtube.com/embed/Tgr6BrgIBec"
-                title="What is Zoonigia - Space Science Education Platform"
+                title="What is Zoonigia - Frontier Sciences Education Platform"
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen

@@ -31,7 +31,7 @@ const Landing = () => {
                 <span className="cosmic-gradient bg-clip-text text-transparent"> Universe</span>
               </h1>
               <p className="text-xl text-space-300 leading-relaxed">
-                Join Zoonigia's immersive space science education platform. Discover workshops, 
+                Join Zoonigia's immersive frontier sciences education platform. Discover workshops, 
                 collaborate with NASA on real research, and unlock your potential as a future space explorer.
               </p>
             </div>
@@ -68,7 +68,7 @@ const Landing = () => {
                   Welcome to Zoonigia
                 </h3>
                 <p className="text-space-300">
-                  Discover how we're revolutionizing space science education
+                  Discover how we're revolutionizing frontier sciences education
                 </p>
               </div>
             </GlassMorphism>
@@ -83,7 +83,7 @@ const Landing = () => {
             What Makes Zoonigia Special
           </h2>
           <p className="text-xl text-space-300 max-w-3xl mx-auto">
-            Experience cutting-edge space science education through hands-on workshops, 
+            Experience cutting-edge frontier sciences education through hands-on workshops, 
             real research opportunities, and expert guidance
           </p>
         </div>
@@ -109,7 +109,7 @@ const Landing = () => {
             <BookOpen className="w-12 h-12 text-cosmic-green mx-auto mb-4" />
             <h3 className="text-xl font-semibold mb-3">Structured Courses</h3>
             <p className="text-space-300">
-              Master space science through comprehensive courses and certifications
+              Master frontier sciences through comprehensive courses and certifications
             </p>
           </GlassMorphism>
 
@@ -133,7 +133,7 @@ const Landing = () => {
             <Rocket className="w-12 h-12 text-cosmic-pink mx-auto mb-4" />
             <h3 className="text-xl font-semibold mb-3">Career Preparation</h3>
             <p className="text-space-300">
-              Develop skills for careers in space science and technology
+              Develop skills for careers in frontier sciences and technology
             </p>
           </GlassMorphism>
         </div>

@@ -773,7 +773,7 @@ const AdminDashboard = () => {
                                         </SelectTrigger>
                                       </FormControl>
                                       <SelectContent className="bg-space-700 border-space-600">
-                                        <SelectItem value="space-science">Space Science</SelectItem>
+                                        <SelectItem value="frontier-sciences">Frontier Sciences</SelectItem>
                                         <SelectItem value="astronomy">Astronomy</SelectItem>
                                         <SelectItem value="physics">Physics</SelectItem>
                                         <SelectItem value="technology">Technology</SelectItem>
