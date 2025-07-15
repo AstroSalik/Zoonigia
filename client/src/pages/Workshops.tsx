@@ -535,6 +535,38 @@ const Workshops = () => {
               
               <FormField
                 control={form.control}
+                name="workshopType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Workshop Type</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="bg-space-700 border-space-600">
+                          <SelectValue placeholder="Select workshop type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="campus">
+                          <div className="flex items-center gap-2">
+                            <Building className="w-4 h-4" />
+                            Campus Workshop
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="community">
+                          <div className="flex items-center gap-2">
+                            <Users className="w-4 h-4" />
+                            Community Workshop
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
                 name="interests"
                 render={({ field }) => (
                   <FormItem>

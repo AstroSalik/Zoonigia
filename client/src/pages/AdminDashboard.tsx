@@ -132,22 +132,25 @@ const AdminDashboard = () => {
     queryKey: ["/api/admin/campaigns"],
   });
 
+  const { data: workshopRegistrations = [] } = useQuery<WorkshopRegistration[]>({
+    queryKey: ["/api/admin/workshop-registrations"],
+    refetchInterval: 30000, // Refetch every 30 seconds
+  });
+
   const { data: inquiries = [] } = useQuery<ContactInquiry[]>({
     queryKey: ["/api/admin/inquiries"],
+    refetchInterval: 30000, // Refetch every 30 seconds
   });
 
   const { data: campaignParticipants = [] } = useQuery({
     queryKey: ["/api/admin/campaign-participants"],
-  });
-
-  const { data: workshopRegistrations = [] } = useQuery<WorkshopRegistration[]>({
-    queryKey: ["/api/admin/workshop-registrations"],
+    refetchInterval: 30000, // Refetch every 30 seconds
   });
 
   // Notification system - check for new registrations
-  const prevRegistrationsCount = React.useRef(workshopRegistrations.length);
+  const prevRegistrationsCount = React.useRef<number | null>(null);
   React.useEffect(() => {
-    if (workshopRegistrations.length > prevRegistrationsCount.current && prevRegistrationsCount.current > 0) {
+    if (prevRegistrationsCount.current !== null && workshopRegistrations.length > prevRegistrationsCount.current) {
       toast({
         title: "New Workshop Registration",
         description: "A new workshop registration has been received!",
@@ -157,9 +160,9 @@ const AdminDashboard = () => {
     prevRegistrationsCount.current = workshopRegistrations.length;
   }, [workshopRegistrations.length, toast]);
 
-  const prevInquiriesCount = React.useRef(inquiries.length);
+  const prevInquiriesCount = React.useRef<number | null>(null);
   React.useEffect(() => {
-    if (inquiries.length > prevInquiriesCount.current && prevInquiriesCount.current > 0) {
+    if (prevInquiriesCount.current !== null && inquiries.length > prevInquiriesCount.current) {
       toast({
         title: "New Contact Inquiry",
         description: "A new contact inquiry has been received!",
@@ -169,9 +172,9 @@ const AdminDashboard = () => {
     prevInquiriesCount.current = inquiries.length;
   }, [inquiries.length, toast]);
 
-  const prevCampaignParticipantsCount = React.useRef(campaignParticipants.length);
+  const prevCampaignParticipantsCount = React.useRef<number | null>(null);
   React.useEffect(() => {
-    if (campaignParticipants.length > prevCampaignParticipantsCount.current && prevCampaignParticipantsCount.current > 0) {
+    if (prevCampaignParticipantsCount.current !== null && campaignParticipants.length > prevCampaignParticipantsCount.current) {
       toast({
         title: "New Campaign Enrollment",
         description: "Someone has enrolled in a campaign!",
