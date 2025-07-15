@@ -29,6 +29,9 @@ Zoonigia is a comprehensive full-stack web application designed to empower futur
 - Created comprehensive course content management with preview lesson support
 - Updated course review system to only allow reviews for live courses
 - Added informative messages for empty content states based on course status
+- Extended campaign status system to include "upcoming" status alongside active, closed, and completed
+- Added upcoming campaigns statistics display in admin dashboard with yellow-colored badges
+- Enhanced campaign detail and campaigns pages to handle upcoming status with proper messaging
 
 ### Comprehensive Admin Campaign Management System (July 15, 2025)
 - Enhanced database schema with additional campaign fields: field, duration, targetParticipants, requirements, timeline, outcomes

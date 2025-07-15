@@ -365,8 +365,14 @@ const Campaigns = () => {
                       {getCampaignIcon(campaign.type)}
                       <CardTitle className="text-2xl ml-3">{campaign.title}</CardTitle>
                     </div>
-                    <Badge className={campaign.status === "active" ? "bg-cosmic-green text-space-900" : "bg-cosmic-orange text-space-900"}>
-                      {campaign.status === "active" ? "Registration Open" : "Registration Closed"}
+                    <Badge className={
+                      campaign.status === "upcoming" ? "bg-cosmic-yellow text-space-900" :
+                      campaign.status === "active" ? "bg-cosmic-green text-space-900" : 
+                      "bg-cosmic-orange text-space-900"
+                    }>
+                      {campaign.status === "upcoming" ? "Coming Soon" :
+                       campaign.status === "active" ? "Registration Open" : 
+                       "Registration Closed"}
                     </Badge>
                   </div>
                 </CardHeader>

@@ -225,7 +225,7 @@ export const campaigns = pgTable("campaigns", {
   startDate: date("start_date").notNull(),
   endDate: date("end_date").notNull(),
   partner: varchar("partner"), // NASA, IASC, etc.
-  status: varchar("status").default("active"), // active, closed, completed
+  status: varchar("status").default("upcoming"), // upcoming, active, closed, completed
   progress: integer("progress").default(0), // percentage
   maxParticipants: integer("max_participants"),
   currentParticipants: integer("current_participants").default(0),

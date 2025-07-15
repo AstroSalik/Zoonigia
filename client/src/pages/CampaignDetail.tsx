@@ -460,7 +460,12 @@ export default function CampaignDetail() {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-400">Status:</span>
-                    <Badge variant="outline" className="bg-green-500/20 text-green-400 border-green-500">
+                    <Badge variant="outline" className={
+                      campaign.status === 'upcoming' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500' :
+                      campaign.status === 'active' ? 'bg-green-500/20 text-green-400 border-green-500' :
+                      campaign.status === 'closed' ? 'bg-blue-500/20 text-blue-400 border-blue-500' :
+                      'bg-gray-500/20 text-gray-400 border-gray-500'
+                    }>
                       {campaign.status}
                     </Badge>
                   </div>
@@ -476,7 +481,9 @@ export default function CampaignDetail() {
                       className="w-full bg-gradient-to-r from-cosmic-blue to-cosmic-purple hover:from-cosmic-purple hover:to-cosmic-blue transition-all duration-300"
                     >
                       <CreditCard className="w-4 h-4 mr-2" />
-                      {campaign.status === "active" ? "Register & Pay Now" : "Registration Closed"}
+                      {campaign.status === "upcoming" ? "Coming Soon" : 
+                       campaign.status === "active" ? "Register & Pay Now" : 
+                       "Registration Closed"}
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="bg-space-800 border-space-700 text-white max-w-md">
