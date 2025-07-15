@@ -12,7 +12,6 @@ import {
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import GlassMorphism from "@/components/GlassMorphism";
-import Hero3D from "@/components/Hero3D";
 
 const Landing = () => {
   return (
@@ -54,7 +53,39 @@ const Landing = () => {
           </div>
           
           <div className="relative">
-            <Hero3D />
+            <GlassMorphism className="p-6">
+              <div className="aspect-video rounded-lg overflow-hidden bg-space-800 border border-space-700">
+                {/* Replace YOUR_VIDEO_ID_HERE with your actual Zoonigia introduction video ID */}
+                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-space-800 to-space-900">
+                  <div className="text-center">
+                    <Rocket className="w-16 h-16 text-cosmic-blue mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-white mb-2">
+                      Zoonigia Introduction Video
+                    </h3>
+                    <p className="text-space-400 text-sm">
+                      Replace with your video URL
+                    </p>
+                  </div>
+                </div>
+                {/* Uncomment and update this when you have the video URL:
+                <iframe
+                  src="https://www.youtube.com/embed/YOUR_VIDEO_ID_HERE"
+                  title="Zoonigia Introduction Video"
+                  className="w-full h-full border-0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+                */}
+              </div>
+              <div className="mt-4 text-center">
+                <h3 className="text-xl font-semibold text-white mb-2">
+                  Welcome to Zoonigia
+                </h3>
+                <p className="text-space-300">
+                  Discover how we're revolutionizing space science education
+                </p>
+              </div>
+            </GlassMorphism>
           </div>
         </div>
       </div>

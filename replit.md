@@ -6,6 +6,21 @@ Zoonigia is a comprehensive full-stack web application designed to empower futur
 
 ## Recent Changes (July 2025)
 
+### Landing Page Video Integration (July 15, 2025)
+- Added Zoonigia introduction video placeholder to landing page hero section
+- Positioned video on right side opposite to "Explore the Universe" content block
+- Replaced Hero3D component with embedded YouTube video iframe
+- Created responsive video container with glass morphism styling
+- Added placeholder with instructions for replacing with actual video URL
+- Enhanced landing page user experience with visual introduction to platform
+
+### Admin Dashboard Course Form Enhancement (July 15, 2025)
+- Fixed course form schema to include instructorName field from database
+- Updated course creation and editing forms with instructor field
+- Removed non-existent "about" field from course form
+- Enhanced course form validation and default values
+- Fixed course edit functionality to properly populate instructor field
+
 ### Comprehensive Admin Portal System (July 14, 2025)
 - Built complete admin dashboard with full platform management capabilities
 - Added admin user authentication system with role-based access control
