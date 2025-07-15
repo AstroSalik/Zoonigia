@@ -39,25 +39,26 @@ const CosmicBackground: React.FC = () => {
         style={{ rotate: planetRotation }}
       >
         <div className="relative">
-          {/* Orbit ring - much larger */}
-          <div className="absolute w-[150vw] h-[150vw] border border-cosmic-blue opacity-10 rounded-full" 
-               style={{ top: '-75vw', left: '-75vw' }} />
+          {/* Orbit ring - positioned to show left half */}
+          <div className="absolute w-[120vw] h-[120vw] border border-cosmic-blue opacity-15 rounded-full" 
+               style={{ top: '-60vw', left: '-30vw' }} />
           
           {/* Large Planet */}
           <motion.div
-            className="absolute w-32 h-32 bg-gradient-to-br from-cosmic-blue via-cosmic-purple to-cosmic-orange rounded-full shadow-2xl"
+            className="absolute w-40 h-40 bg-gradient-to-br from-cosmic-blue via-cosmic-purple to-cosmic-orange rounded-full shadow-2xl"
             style={{ 
-              top: '-64px', 
-              left: '75vw',
-              boxShadow: '0 0 80px rgba(59, 130, 246, 0.8), 0 0 120px rgba(147, 51, 234, 0.4)',
+              top: '-80px', 
+              left: '60vw',
+              boxShadow: '0 0 100px rgba(59, 130, 246, 0.8), 0 0 150px rgba(147, 51, 234, 0.4)',
               scale: planetScale
             }}
           >
             {/* Planet surface details */}
             <div className="absolute inset-0 bg-gradient-to-br from-cosmic-blue to-cosmic-purple rounded-full animate-pulse opacity-60" />
-            <div className="absolute inset-2 bg-gradient-to-tr from-transparent via-white/20 to-transparent rounded-full" />
-            <div className="absolute top-4 left-4 w-4 h-4 bg-white/30 rounded-full blur-sm" />
-            <div className="absolute bottom-6 right-6 w-6 h-6 bg-cosmic-orange/40 rounded-full blur-sm" />
+            <div className="absolute inset-3 bg-gradient-to-tr from-transparent via-white/20 to-transparent rounded-full" />
+            <div className="absolute top-6 left-6 w-6 h-6 bg-white/30 rounded-full blur-sm" />
+            <div className="absolute bottom-8 right-8 w-8 h-8 bg-cosmic-orange/40 rounded-full blur-sm" />
+            <div className="absolute top-12 right-12 w-4 h-4 bg-cosmic-purple/50 rounded-full blur-sm" />
           </motion.div>
         </div>
       </motion.div>
@@ -98,10 +99,10 @@ const CosmicBackground: React.FC = () => {
       >
         <div className="relative">
           <motion.div
-            className="absolute w-48 h-48 bg-gradient-radial from-cosmic-blue/20 via-cosmic-purple/10 to-transparent rounded-full blur-3xl"
+            className="absolute w-60 h-60 bg-gradient-radial from-cosmic-blue/20 via-cosmic-purple/10 to-transparent rounded-full blur-3xl"
             style={{ 
-              top: '-96px', 
-              left: 'calc(75vw - 96px)',
+              top: '-120px', 
+              left: 'calc(60vw - 120px)',
               scale: planetScale
             }}
           />
