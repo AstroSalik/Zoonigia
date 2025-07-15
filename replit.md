@@ -6,6 +6,15 @@ Zoonigia is a comprehensive full-stack web application designed to empower futur
 
 ## Recent Changes (July 2025)
 
+### Workshop Form Enhancement & Admin Panel Completion (July 15, 2025)
+- Added workshop type dropdown with explanatory text clarifying both Campus and Community workshops are hosted at schools
+- Enhanced admin dashboard with missing fields: Experience Level, Contact Method, and Lower Classes Request
+- Improved workshop registration table with color-coded badges for better data visualization
+- Fixed notification system with proper 30-second refetch intervals and null-checking to prevent false positives
+- Added comprehensive workshop type descriptions (Campus for students/staff, Community for extended school community)
+- Resolved dialog accessibility warnings by adding proper DialogDescription components
+- Created robust admin workflow for complete workshop registration management with real-time updates
+
 ### Admin Notification System & Workshop Status Management (July 15, 2025)
 - Added real-time notification system for admin dashboard that alerts when new workshop registrations, contact inquiries, or campaign enrollments are received
 - Implemented workshop registration status management with ability to update status (pending, contacted, confirmed, cancelled)

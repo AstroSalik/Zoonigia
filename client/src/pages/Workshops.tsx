@@ -553,7 +553,7 @@ const Workshops = () => {
                               <span className="font-medium">Campus Workshop</span>
                             </div>
                             <p className="text-xs text-space-400">
-                              On-site workshop conducted at your school/college campus for students and staff
+                              Workshop for enrolled students and staff at your school/college campus
                             </p>
                           </div>
                         </SelectItem>
@@ -564,7 +564,7 @@ const Workshops = () => {
                               <span className="font-medium">Community Workshop</span>
                             </div>
                             <p className="text-xs text-space-400">
-                              Open community session for individuals and families at a public venue
+                              Open workshop at your school for students, families, and local community members
                             </p>
                           </div>
                         </SelectItem>
