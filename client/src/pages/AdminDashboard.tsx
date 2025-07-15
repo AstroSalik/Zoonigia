@@ -264,13 +264,19 @@ const AdminDashboard = () => {
       title: "",
       description: "",
       type: "",
+      field: "",
+      duration: "",
       startDate: "",
       endDate: "",
       price: "0.00",
       maxParticipants: 1,
+      targetParticipants: 1,
       status: "active",
       partner: "",
       imageUrl: "",
+      requirements: "",
+      timeline: "",
+      outcomes: "",
     },
   });
 
@@ -1753,15 +1759,18 @@ const AdminDashboard = () => {
 
                   {/* Campaign Creation Dialog */}
                   <Dialog open={showCampaignDialog} onOpenChange={setShowCampaignDialog}>
-                    <DialogContent className="bg-space-800 border-space-700 text-white max-w-2xl">
-                        <DialogHeader>
-                          <DialogTitle className="text-white">Create New Campaign</DialogTitle>
+                    <DialogContent className="bg-space-800 border-space-700 text-white max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+                        <DialogHeader className="flex-shrink-0">
+                          <DialogTitle className="text-white">
+                            {editMode.type === 'campaign' ? 'Edit Campaign' : 'Create New Campaign'}
+                          </DialogTitle>
                           <DialogDescription className="text-space-300">
-                            Add a new research campaign to the platform
+                            {editMode.type === 'campaign' ? 'Update campaign information' : 'Add a new research campaign to the platform'}
                           </DialogDescription>
                         </DialogHeader>
-                        <Form {...campaignForm}>
-                          <form onSubmit={campaignForm.handleSubmit((data) => createCampaign.mutate(data))} className="space-y-4">
+                        <div className="flex-1 overflow-y-auto pr-2">
+                          <Form {...campaignForm}>
+                            <form onSubmit={campaignForm.handleSubmit((data) => createCampaign.mutate(data))} className="space-y-4">
                             <FormField
                               control={campaignForm.control}
                               name="title"
@@ -2012,7 +2021,7 @@ const AdminDashboard = () => {
                                 </FormItem>
                               )}
                             />
-                            <div className="flex justify-end gap-2 pt-4">
+                            <div className="flex justify-end gap-2 pt-4 sticky bottom-0 bg-space-800 border-t border-space-700 mt-6 -mx-2 px-2 py-4">
                               <Button 
                                 type="button" 
                                 variant="outline" 
@@ -2026,11 +2035,12 @@ const AdminDashboard = () => {
                                 disabled={createCampaign.isPending}
                                 className="bg-cosmic-blue hover:bg-cosmic-blue/90"
                               >
-                                {createCampaign.isPending ? "Creating..." : "Create Campaign"}
+                                {createCampaign.isPending ? (editMode.type === 'campaign' ? "Updating..." : "Creating...") : (editMode.type === 'campaign' ? "Update Campaign" : "Create Campaign")}
                               </Button>
                             </div>
                           </form>
                         </Form>
+                        </div>
                       </DialogContent>
                     </Dialog>
 
