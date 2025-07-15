@@ -1072,9 +1072,12 @@ const AdminDashboard = () => {
                         <TableHeader>
                           <TableRow className="border-space-700">
                             <TableHead className="text-space-300">Name</TableHead>
-                            <TableHead className="text-space-300">Contact</TableHead>
+                            <TableHead className="text-space-300">Contact Info</TableHead>
                             <TableHead className="text-space-300">Organization</TableHead>
+                            <TableHead className="text-space-300">Experience</TableHead>
+                            <TableHead className="text-space-300">Contact Method</TableHead>
                             <TableHead className="text-space-300">Type</TableHead>
+                            <TableHead className="text-space-300">Lower Classes</TableHead>
                             <TableHead className="text-space-300">Status</TableHead>
                             <TableHead className="text-space-300">Date</TableHead>
                             <TableHead className="text-space-300">Actions</TableHead>
@@ -1092,8 +1095,27 @@ const AdminDashboard = () => {
                               </TableCell>
                               <TableCell className="text-space-300">{registration.organization || 'Individual'}</TableCell>
                               <TableCell>
+                                <Badge variant="outline" className="text-blue-400 border-blue-400">
+                                  {registration.experience || 'Not specified'}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant="outline" className="text-green-400 border-green-400">
+                                  {registration.contactMethod || 'email'}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
                                 <Badge variant="outline" className="text-purple-400 border-purple-400">
                                   {registration.workshopType || 'community'}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant="outline" className={
+                                  registration.requestLowerClass 
+                                    ? "text-yellow-400 border-yellow-400" 
+                                    : "text-gray-400 border-gray-400"
+                                }>
+                                  {registration.requestLowerClass ? 'Yes' : 'No'}
                                 </Badge>
                               </TableCell>
                               <TableCell>

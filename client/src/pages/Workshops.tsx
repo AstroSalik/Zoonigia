@@ -547,15 +547,25 @@ const Workshops = () => {
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="campus">
-                          <div className="flex items-center gap-2">
-                            <Building className="w-4 h-4" />
-                            Campus Workshop
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <Building className="w-4 h-4" />
+                              <span className="font-medium">Campus Workshop</span>
+                            </div>
+                            <p className="text-xs text-space-400">
+                              On-site workshop conducted at your school/college campus for students and staff
+                            </p>
                           </div>
                         </SelectItem>
                         <SelectItem value="community">
-                          <div className="flex items-center gap-2">
-                            <Users className="w-4 h-4" />
-                            Community Workshop
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <Users className="w-4 h-4" />
+                              <span className="font-medium">Community Workshop</span>
+                            </div>
+                            <p className="text-xs text-space-400">
+                              Open community session for individuals and families at a public venue
+                            </p>
                           </div>
                         </SelectItem>
                       </SelectContent>
