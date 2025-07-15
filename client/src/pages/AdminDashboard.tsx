@@ -2801,7 +2801,37 @@ const AdminDashboard = () => {
                 
                 {/* Detailed Information */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-white">Detailed Information</h3>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-white">Detailed Information</h3>
+                    <Button
+                      onClick={() => {
+                        // Close statistics dialog and open edit dialog
+                        setStatisticsDialog({ open: false, type: '', item: null });
+                        
+                        // Open appropriate edit dialog based on type
+                        if (statisticsDialog.type === 'Blog Post') {
+                          setEditMode({ type: 'blog', item: statisticsDialog.item });
+                          setShowBlogDialog(true);
+                        } else if (statisticsDialog.type === 'Workshop') {
+                          setEditMode({ type: 'workshop', item: statisticsDialog.item });
+                          setShowWorkshopDialog(true);
+                        } else if (statisticsDialog.type === 'Course') {
+                          setEditMode({ type: 'course', item: statisticsDialog.item });
+                          setShowCourseDialog(true);
+                        } else if (statisticsDialog.type === 'Campaign') {
+                          setEditMode({ type: 'campaign', item: statisticsDialog.item });
+                          setShowCampaignDialog(true);
+                        } else if (statisticsDialog.type === 'Workshop Registration') {
+                          setStatusUpdateDialog({ open: true, registration: statisticsDialog.item });
+                        }
+                      }}
+                      size="sm"
+                      className="bg-cosmic-blue/20 text-cosmic-blue border-cosmic-blue/50 hover:bg-cosmic-blue/30"
+                    >
+                      <Edit className="w-4 h-4 mr-2" />
+                      Quick Edit
+                    </Button>
+                  </div>
                   <GlassMorphism className="p-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
@@ -2839,6 +2869,33 @@ const AdminDashboard = () => {
                 {/* Actions */}
                 <div className="flex justify-between items-center pt-4">
                   <div className="flex gap-2">
+                    <Button
+                      onClick={() => {
+                        // Close statistics dialog and open edit dialog
+                        setStatisticsDialog({ open: false, type: '', item: null });
+                        
+                        // Open appropriate edit dialog based on type
+                        if (statisticsDialog.type === 'Blog Post') {
+                          setEditMode({ type: 'blog', item: statisticsDialog.item });
+                          setShowBlogDialog(true);
+                        } else if (statisticsDialog.type === 'Workshop') {
+                          setEditMode({ type: 'workshop', item: statisticsDialog.item });
+                          setShowWorkshopDialog(true);
+                        } else if (statisticsDialog.type === 'Course') {
+                          setEditMode({ type: 'course', item: statisticsDialog.item });
+                          setShowCourseDialog(true);
+                        } else if (statisticsDialog.type === 'Campaign') {
+                          setEditMode({ type: 'campaign', item: statisticsDialog.item });
+                          setShowCampaignDialog(true);
+                        } else if (statisticsDialog.type === 'Workshop Registration') {
+                          setStatusUpdateDialog({ open: true, registration: statisticsDialog.item });
+                        }
+                      }}
+                      className="bg-blue-500/20 text-blue-400 border-blue-500/50 hover:bg-blue-500/30"
+                    >
+                      <Edit className="w-4 h-4 mr-2" />
+                      Edit {statisticsDialog.type}
+                    </Button>
                     <Button
                       onClick={() => {
                         toast({
