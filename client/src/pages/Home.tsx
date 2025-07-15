@@ -22,7 +22,6 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-space-900 text-space-50">
       <Navigation />
-      
       {/* Hero Section */}
       <section className="min-h-screen flex items-center justify-center relative overflow-hidden star-field">
         <div className="absolute inset-0 bg-gradient-to-br from-space-900 via-space-800 to-space-900"></div>
@@ -67,7 +66,6 @@ const Home = () => {
           <ChevronDown className="w-8 h-8 text-cosmic-blue" />
         </div>
       </section>
-
       {/* Video Section */}
       <section className="py-20 bg-space-800/30">
         <div className="container mx-auto px-4">
@@ -75,9 +73,7 @@ const Home = () => {
             <h2 className="text-4xl font-space font-bold mb-6">
               Discover <span className="text-cosmic-blue">Zoonigia</span>
             </h2>
-            <p className="text-xl text-space-200 mb-8">
-              Watch our introduction video to see how we're revolutionizing space science education
-            </p>
+            <p className="text-xl text-space-200 mb-8">Watch our introduction video to see how we're revolutionizing frontier sciences</p>
             <div className="relative w-full h-0 pb-[56.25%] rounded-lg overflow-hidden bg-space-800">
               <iframe
                 className="absolute top-0 left-0 w-full h-full"
@@ -91,7 +87,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-
       {/* Stats Section */}
       <section className="py-20 bg-space-800/50">
         <div className="container mx-auto px-4">
@@ -115,7 +110,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-
       {/* Inspirational Quote Section */}
       <section className="py-20 bg-gradient-to-br from-space-900 via-space-800 to-space-900 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
@@ -139,9 +133,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-
-
-
       {/* Quick Actions */}
       <section className="py-20">
         <div className="container mx-auto px-4">
@@ -210,7 +201,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-
       {/* Featured Courses */}
       <section className="py-20 bg-space-800/30">
         <div className="container mx-auto px-4">
@@ -299,7 +289,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-
       {/* CTA Section */}
       <section className="py-20">
         <div className="container mx-auto px-4">
@@ -323,7 +312,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-
       <Footer />
     </div>
   );
