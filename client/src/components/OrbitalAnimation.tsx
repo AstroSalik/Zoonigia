@@ -33,36 +33,41 @@ const CosmicBackground: React.FC = () => {
       {/* Animated gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-space-900 via-space-800 to-space-900 opacity-90" />
       
-      {/* Large orbiting planet */}
+      {/* TRAPPIST-1 style planet orbiting from left */}
       <motion.div
-        className="absolute inset-0 flex items-center justify-center"
+        className="absolute inset-0"
         style={{ rotate: planetRotation }}
       >
-        {/* Test static planet to ensure visibility */}
-        <div className="absolute w-32 h-32 bg-red-500 rounded-full top-10 left-10 z-50" />
-        
-        <div className="relative">
-          {/* Orbit ring - visible arc from left to right */}
-          <div className="absolute w-[100vw] h-[100vw] border border-cosmic-blue opacity-20 rounded-full" 
-               style={{ top: '-50vw', left: '-20vw' }} />
+        <div className="relative w-full h-full">
+          {/* Partial orbit ring - only showing left arc */}
+          <div className="absolute w-[80vw] h-[80vw] border border-orange-400 opacity-30 rounded-full" 
+               style={{ 
+                 top: '50%', 
+                 left: '0%',
+                 transform: 'translate(-40%, -50%)'
+               }} />
           
-          {/* Large Planet - positioned to be visible */}
+          {/* TRAPPIST-1 Planet */}
           <motion.div
-            className="absolute w-48 h-48 bg-gradient-to-br from-cosmic-blue via-cosmic-purple to-cosmic-orange rounded-full shadow-2xl z-10"
+            className="absolute w-28 h-28 rounded-full shadow-2xl z-10"
             style={{ 
-              top: '-96px', 
-              left: '50vw',
-              boxShadow: '0 0 120px rgba(59, 130, 246, 0.9), 0 0 180px rgba(147, 51, 234, 0.5)',
+              top: '50%',
+              left: '40vw',
+              transform: 'translate(-50%, -50%)',
+              background: 'radial-gradient(circle at 30% 30%, #ff6b35, #d84315, #8b2500)',
+              boxShadow: '0 0 60px rgba(255, 107, 53, 0.8), inset -8px -8px 20px rgba(0, 0, 0, 0.3)',
               scale: planetScale
             }}
           >
-            {/* Planet surface details */}
-            <div className="absolute inset-0 bg-gradient-to-br from-cosmic-blue to-cosmic-purple rounded-full animate-pulse opacity-50" />
-            <div className="absolute inset-4 bg-gradient-to-tr from-transparent via-white/30 to-transparent rounded-full" />
-            <div className="absolute top-8 left-8 w-8 h-8 bg-white/40 rounded-full blur-sm" />
-            <div className="absolute bottom-12 right-12 w-12 h-12 bg-cosmic-orange/50 rounded-full blur-sm" />
-            <div className="absolute top-16 right-16 w-6 h-6 bg-cosmic-purple/60 rounded-full blur-sm" />
-            <div className="absolute bottom-8 left-16 w-4 h-4 bg-cosmic-yellow/50 rounded-full blur-sm" />
+            {/* Planet surface - rocky with atmosphere */}
+            <div className="absolute inset-0 rounded-full" 
+                 style={{ 
+                   background: 'radial-gradient(circle at 25% 25%, rgba(255, 140, 100, 0.4), transparent 50%)',
+                 }} />
+            {/* Continents/land masses */}
+            <div className="absolute top-4 left-6 w-4 h-6 bg-orange-700 rounded-full blur-sm opacity-70" />
+            <div className="absolute bottom-6 right-8 w-6 h-4 bg-red-800 rounded-full blur-sm opacity-60" />
+            <div className="absolute top-8 right-4 w-3 h-3 bg-yellow-600 rounded-full blur-sm opacity-50" />
           </motion.div>
         </div>
       </motion.div>
@@ -96,17 +101,19 @@ const CosmicBackground: React.FC = () => {
         ))}
       </div>
       
-      {/* Planet glow effect */}
+      {/* Planet atmospheric glow */}
       <motion.div
-        className="absolute inset-0 flex items-center justify-center pointer-events-none"
+        className="absolute inset-0 pointer-events-none"
         style={{ rotate: planetRotation }}
       >
-        <div className="relative">
+        <div className="relative w-full h-full">
           <motion.div
-            className="absolute w-80 h-80 bg-gradient-radial from-cosmic-blue/30 via-cosmic-purple/15 to-transparent rounded-full blur-3xl"
+            className="absolute w-40 h-40 rounded-full blur-2xl"
             style={{ 
-              top: '-160px', 
-              left: 'calc(50vw - 160px)',
+              top: '50%',
+              left: '40vw',
+              transform: 'translate(-50%, -50%)',
+              background: 'radial-gradient(circle, rgba(255, 107, 53, 0.3), rgba(255, 107, 53, 0.1), transparent)',
               scale: planetScale
             }}
           />
