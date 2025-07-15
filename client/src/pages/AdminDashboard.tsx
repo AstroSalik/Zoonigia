@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -105,6 +105,10 @@ const AdminDashboard = () => {
     type: 'blog' | 'workshop' | 'course' | 'campaign' | null;
     item: any;
   }>({ type: null, item: null });
+  const [statusUpdateDialog, setStatusUpdateDialog] = useState<{
+    open: boolean;
+    registration: WorkshopRegistration | null;
+  }>({ open: false, registration: null });
   const { toast } = useToast();
 
   // Data queries
@@ -132,8 +136,72 @@ const AdminDashboard = () => {
     queryKey: ["/api/admin/inquiries"],
   });
 
+  const { data: campaignParticipants = [] } = useQuery({
+    queryKey: ["/api/admin/campaign-participants"],
+  });
+
   const { data: workshopRegistrations = [] } = useQuery<WorkshopRegistration[]>({
     queryKey: ["/api/admin/workshop-registrations"],
+  });
+
+  // Notification system - check for new registrations
+  const prevRegistrationsCount = React.useRef(workshopRegistrations.length);
+  React.useEffect(() => {
+    if (workshopRegistrations.length > prevRegistrationsCount.current && prevRegistrationsCount.current > 0) {
+      toast({
+        title: "New Workshop Registration",
+        description: "A new workshop registration has been received!",
+        className: "bg-cosmic-blue/10 border-cosmic-blue text-white",
+      });
+    }
+    prevRegistrationsCount.current = workshopRegistrations.length;
+  }, [workshopRegistrations.length, toast]);
+
+  const prevInquiriesCount = React.useRef(inquiries.length);
+  React.useEffect(() => {
+    if (inquiries.length > prevInquiriesCount.current && prevInquiriesCount.current > 0) {
+      toast({
+        title: "New Contact Inquiry",
+        description: "A new contact inquiry has been received!",
+        className: "bg-green-500/10 border-green-500 text-white",
+      });
+    }
+    prevInquiriesCount.current = inquiries.length;
+  }, [inquiries.length, toast]);
+
+  const prevCampaignParticipantsCount = React.useRef(campaignParticipants.length);
+  React.useEffect(() => {
+    if (campaignParticipants.length > prevCampaignParticipantsCount.current && prevCampaignParticipantsCount.current > 0) {
+      toast({
+        title: "New Campaign Enrollment",
+        description: "Someone has enrolled in a campaign!",
+        className: "bg-purple-500/10 border-purple-500 text-white",
+      });
+    }
+    prevCampaignParticipantsCount.current = campaignParticipants.length;
+  }, [campaignParticipants.length, toast]);
+
+  // Status update mutation
+  const updateRegistrationStatus = useMutation({
+    mutationFn: async ({ id, status }: { id: number; status: string }) => {
+      return await apiRequest("PATCH", `/api/admin/workshop-registrations/${id}/status`, { status });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/workshop-registrations"] });
+      toast({
+        title: "Status Updated",
+        description: "Registration status has been updated successfully.",
+        className: "bg-green-500/10 border-green-500 text-white",
+      });
+      setStatusUpdateDialog({ open: false, registration: null });
+    },
+    onError: (error) => {
+      toast({
+        title: "Update Failed",
+        description: "Failed to update registration status. Please try again.",
+        variant: "destructive",
+      });
+    },
   });
 
   // Forms
@@ -1059,6 +1127,14 @@ const AdminDashboard = () => {
                                       <Phone className="w-4 h-4" />
                                     </Button>
                                   )}
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setStatusUpdateDialog({ open: true, registration })}
+                                    className="text-yellow-400 hover:bg-yellow-400/10"
+                                  >
+                                    <Edit className="w-4 h-4" />
+                                  </Button>
                                 </div>
                               </TableCell>
                             </TableRow>
@@ -1067,6 +1143,75 @@ const AdminDashboard = () => {
                       </Table>
                     </div>
                   </GlassMorphism>
+
+                  {/* Status Update Dialog */}
+                  <Dialog open={statusUpdateDialog.open} onOpenChange={(open) => setStatusUpdateDialog({ open, registration: statusUpdateDialog.registration })}>
+                    <DialogContent className="bg-space-800 border-space-700 text-white">
+                      <DialogHeader>
+                        <DialogTitle className="text-white">Update Registration Status</DialogTitle>
+                        <DialogDescription className="text-space-300">
+                          Update the status of {statusUpdateDialog.registration?.name}'s workshop registration
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <label className="text-space-300 text-sm">Current Status</label>
+                          <Badge variant="outline" className="text-gray-400 border-gray-400">
+                            {statusUpdateDialog.registration?.status}
+                          </Badge>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-space-300 text-sm">New Status</label>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => statusUpdateDialog.registration && updateRegistrationStatus.mutate({ 
+                                id: statusUpdateDialog.registration.id, 
+                                status: 'pending' 
+                              })}
+                              className="border-gray-400 text-gray-400 hover:bg-gray-400/10"
+                            >
+                              Pending
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => statusUpdateDialog.registration && updateRegistrationStatus.mutate({ 
+                                id: statusUpdateDialog.registration.id, 
+                                status: 'contacted' 
+                              })}
+                              className="border-yellow-400 text-yellow-400 hover:bg-yellow-400/10"
+                            >
+                              Contacted
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => statusUpdateDialog.registration && updateRegistrationStatus.mutate({ 
+                                id: statusUpdateDialog.registration.id, 
+                                status: 'confirmed' 
+                              })}
+                              className="border-green-400 text-green-400 hover:bg-green-400/10"
+                            >
+                              Confirmed
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => statusUpdateDialog.registration && updateRegistrationStatus.mutate({ 
+                                id: statusUpdateDialog.registration.id, 
+                                status: 'cancelled' 
+                              })}
+                              className="border-red-400 text-red-400 hover:bg-red-400/10"
+                            >
+                              Cancelled
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 </TabsContent>
 
                 <TabsContent value="courses" className="space-y-6">

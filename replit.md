@@ -6,6 +6,22 @@ Zoonigia is a comprehensive full-stack web application designed to empower futur
 
 ## Recent Changes (July 2025)
 
+### Admin Notification System & Workshop Status Management (July 15, 2025)
+- Added real-time notification system for admin dashboard that alerts when new workshop registrations, contact inquiries, or campaign enrollments are received
+- Implemented workshop registration status management with ability to update status (pending, contacted, confirmed, cancelled)
+- Added status update dialog with color-coded status buttons for easy workflow management
+- Enhanced workshop registrations table with edit action buttons and proper status tracking
+- Integrated toast notifications for status updates and new registrations
+- Created comprehensive admin workflow for managing workshop registration pipeline
+
+### Workshop Registration Database System (July 15, 2025)
+- Fixed workshop registration storage issue - registrations now properly saved to database instead of console logging
+- Created workshopRegistrations table with comprehensive schema including contact details, organization, experience level, interests, and status tracking
+- Added admin endpoints for viewing and managing workshop registrations
+- Updated admin dashboard to display all workshop registrations with contact information and management actions
+- Connected workshop form submissions to database storage with proper validation and error handling
+- Workshop registrations now appear in admin portal immediately after submission
+
 ### Workshop Structure Correction (July 15, 2025)
 - Fixed conceptual misunderstanding in admin dashboard: workshop display now correctly shows one comprehensive workshop
 - All 6 activities (telescope sessions, VR experiences, space simulation games, expert sessions, design thinking, hands-on experiments) are components of a single workshop experience
