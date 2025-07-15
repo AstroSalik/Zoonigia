@@ -1,0 +1,48 @@
+~/workspace$ git push --set-upstream origin main
+To https://github.com/AstroSalik/Zoonigia-web.git
+ ! [rejected]        main -> main (non-fast-forward)
+error: failed to push some refs to 'https://github.com/AstroSalik/Zoonigia-web.git'
+hint: Updates were rejected because the tip of your current branch is behind
+hint: its remote counterpart. If you want to integrate the remote changes,
+hint: use 'git pull' before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+~/workspace$ git push -u origin main --force
+Enumerating objects: 791, done.
+Counting objects: 100% (791/791), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (780/780), done.
+Writing objects: 100% (791/791), 1.12 MiB | 3.03 MiB/s, done.
+Total 791 (delta 535), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (535/535), done.
+To https://github.com/AstroSalik/Zoonigia-web.git
+ + c814d3f...72db81c main -> main (forced update)
+error: could not lock config file .git/config: File exists
+error: unable to write upstream branch configuration
+hint:
+hint: After fixing the error cause you may try to fix up
+hint: the remote tracking information by invoking:
+hint:   git branch --set-upstream-to=origin/refs/heads/main
+error: update_ref failed for ref 'refs/remotes/origin/main': cannot lock ref 'refs/remotes/origin/main': Unable to create '/home/runner/workspace/.git/refs/remotes/origin/main.lock': File exists.
+
+Another git process seems to be running in this repository, e.g.
+an editor opened by 'git commit'. Please make sure all processes
+are terminated then try again. If it still fails, a git process
+may have crashed in this repository earlier:
+remove the file manually to continue.
+~/workspace$ git push -u origin main --force
+error: could not lock config file .git/config: File exists
+error: unable to write upstream branch configuration
+hint:
+hint: After fixing the error cause you may try to fix up
+hint: the remote tracking information by invoking:
+hint:   git branch --set-upstream-to=origin/refs/heads/main
+error: update_ref failed for ref 'refs/remotes/origin/main': cannot lock ref 'refs/remotes/origin/main': Unable to create '/home/runner/workspace/.git/refs/remotes/origin/main.lock': File exists.
+
+Another git process seems to be running in this repository, e.g.
+an editor opened by 'git commit'. Please make sure all processes
+are terminated then try again. If it still fails, a git process
+may have crashed in this repository earlier:
+remove the file manually to continue.
+Everything up-to-date
+~/workspace$ ^C
+~/workspace$ 
