@@ -95,7 +95,8 @@ const Schools = () => {
   });
 
   const onSubmit = (data: SchoolInquiryData) => {
-    inquiryMutation.mutate({ ...data, preferredPrograms: selectedPrograms });
+    console.log("Form submitted with data:", data);
+    inquiryMutation.mutate(data);
   };
 
   const programOptions = [
@@ -106,13 +107,7 @@ const Schools = () => {
     { id: "research", label: "Student Research Programme", icon: "🔬" },
   ];
 
-  const handleProgramChange = (programId: string, checked: boolean) => {
-    if (checked) {
-      setSelectedPrograms([...selectedPrograms, programId]);
-    } else {
-      setSelectedPrograms(selectedPrograms.filter(p => p !== programId));
-    }
-  };
+
 
   return (
     <div className="min-h-screen bg-space-900 text-space-50">
@@ -529,28 +524,41 @@ const Schools = () => {
                       />
                     </div>
 
-                    <div>
-                      <FormLabel className="text-base font-medium mb-4 block">
-                        Preferred Programs (Select all that apply)
-                      </FormLabel>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        {programOptions.map((program) => (
-                          <div key={program.id} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={program.id}
-                              checked={selectedPrograms.includes(program.id)}
-                              onCheckedChange={(checked) => handleProgramChange(program.id, checked as boolean)}
-                            />
-                            <label
-                              htmlFor={program.id}
-                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                            >
-                              {program.icon} {program.label}
-                            </label>
+                    <FormField
+                      control={form.control}
+                      name="preferredPrograms"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-base font-medium mb-4 block">
+                            Preferred Programs (Select all that apply)
+                          </FormLabel>
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            {programOptions.map((program) => (
+                              <div key={program.id} className="flex items-center space-x-2">
+                                <Checkbox
+                                  id={program.id}
+                                  checked={selectedPrograms.includes(program.id)}
+                                  onCheckedChange={(checked) => {
+                                    const newSelected = checked 
+                                      ? [...selectedPrograms, program.id]
+                                      : selectedPrograms.filter(p => p !== program.id);
+                                    setSelectedPrograms(newSelected);
+                                    field.onChange(newSelected);
+                                  }}
+                                />
+                                <label
+                                  htmlFor={program.id}
+                                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                                >
+                                  {program.icon} {program.label}
+                                </label>
+                              </div>
+                            ))}
                           </div>
-                        ))}
-                      </div>
-                    </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
                     <FormField
                       control={form.control}
