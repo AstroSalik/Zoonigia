@@ -8,7 +8,8 @@ import {
   Award,
   Rocket,
   Star,
-  Target
+  Target,
+  Lightbulb
 } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
@@ -32,7 +33,7 @@ const Landing = () => {
                 <span className="cosmic-gradient bg-clip-text text-transparent"> Universe</span>
               </h1>
               <p className="text-xl text-space-300 leading-relaxed">
-                Join Zoonigia's immersive frontier sciences experience. Discover workshops, 
+                Join Zoonigia's immersive frontier sciences experience where science meets literature and philosophy. Discover workshops, 
                 collaborate with NASA on real research, and unlock your potential as a future space explorer.
               </p>
             </div>
@@ -69,7 +70,7 @@ const Landing = () => {
                   Welcome to Zoonigia
                 </h3>
                 <p className="text-space-300">
-                  Discover how we're revolutionizing frontier sciences learning
+                  Discover how we're revolutionizing frontier sciences learning through interdisciplinary exploration
                 </p>
               </div>
             </GlassMorphism>
@@ -84,7 +85,7 @@ const Landing = () => {
             What Makes Zoonigia Special
           </h2>
           <p className="text-xl text-space-300 max-w-3xl mx-auto">
-            Experience cutting-edge frontier sciences learning through hands-on workshops, 
+            Experience cutting-edge frontier sciences learning blended with literature and philosophy through hands-on workshops, 
             collaborative research campaigns, and expert guidance
           </p>
         </div>
@@ -118,7 +119,15 @@ const Landing = () => {
             <BookOpen className="w-12 h-12 text-cosmic-green mx-auto mb-4" />
             <h3 className="text-xl font-semibold mb-3">Structured Courses</h3>
             <p className="text-space-300">
-              Master frontier sciences through comprehensive courses and certifications
+              Master frontier sciences through comprehensive courses blending scientific rigor with literary and philosophical insights
+            </p>
+          </GlassMorphism>
+
+          <GlassMorphism className="p-6 text-center">
+            <Lightbulb className="w-12 h-12 text-cosmic-yellow mx-auto mb-4" />
+            <h3 className="text-xl font-semibold mb-3">Interdisciplinary Learning</h3>
+            <p className="text-space-300">
+              Explore the intersection of science, literature, and philosophy for deeper understanding
             </p>
           </GlassMorphism>
 

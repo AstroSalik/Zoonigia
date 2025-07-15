@@ -30,7 +30,7 @@ const About = () => {
               </span>
             </h1>
             <p className="text-xl text-space-200 mb-8">
-              Empowering future innovators and explorers through immersive science discovery
+              Empowering future innovators and explorers through immersive frontier sciences discovery where science meets literature and philosophy
             </p>
             <div className="flex justify-center">
               <Button className="cosmic-gradient hover:opacity-90 px-8 py-4 text-lg">
@@ -47,7 +47,7 @@ const About = () => {
           <div className="max-w-4xl mx-auto text-center mb-16">
             <h2 className="text-4xl font-space font-bold mb-6">Discover Zoonigia</h2>
             <p className="text-xl text-space-200 mb-8">
-              Watch our introduction video to learn more about our mission and innovative approach to frontier sciences exploration
+              Watch our introduction video to learn more about our mission and innovative approach to frontier sciences exploration through interdisciplinary learning
             </p>
             <div className="relative w-full h-0 pb-[56.25%] rounded-lg overflow-hidden bg-space-800">
               <iframe

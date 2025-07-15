@@ -16,6 +16,9 @@ Zoonigia is a comprehensive full-stack web application designed to empower futur
 - Enhanced platform branding to better represent quantum physics and other frontier sciences with dynamic language
 - Added "Research Campaigns" feature block to landing page "What Makes Zoonigia Special" section
 - Updated feature descriptions to include collaborative research campaigns alongside workshops
+- Integrated interdisciplinary approach highlighting the blend of frontier sciences with literature and philosophy
+- Added dedicated "Interdisciplinary Learning" feature block on landing page with Lightbulb icon
+- Updated hero section, About page, and course descriptions to emphasize scientific rigor with literary and philosophical insights
 
 ### Landing Page Video Integration (July 15, 2025)
 - Added Zoonigia introduction video to landing page hero section (Video ID: Tgr6BrgIBec)
