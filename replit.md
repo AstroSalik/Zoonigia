@@ -6,6 +6,14 @@ Zoonigia is a comprehensive full-stack web application designed to empower futur
 
 ## Recent Changes (July 2025)
 
+### Workshop Structure Correction (July 15, 2025)
+- Fixed conceptual misunderstanding in admin dashboard: workshop display now correctly shows one comprehensive workshop
+- All 6 activities (telescope sessions, VR experiences, space simulation games, expert sessions, design thinking, hands-on experiments) are components of a single workshop experience
+- Updated admin dashboard to show comprehensive workshop structure with variable pricing based on school needs
+- Removed separate workshop creation forms as all activities are delivered in one comprehensive session
+- Added proper pricing structure explanation showing factors: location, student count, duration, equipment needs, revenue sharing (10-20%)
+- Enhanced admin workshop view to reflect unified workshop concept with color-coded activity indicators
+
 ### Platform Terminology Update (July 15, 2025)
 - Updated all platform references from "space science" to "frontier sciences"
 - Replaced "education" with more engaging terms like "experience", "discovery", "exploration", and "learning"

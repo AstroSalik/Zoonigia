@@ -917,256 +917,70 @@ const AdminDashboard = () => {
                 <TabsContent value="workshops" className="space-y-6">
                   <div className="flex items-center justify-between">
                     <h3 className="text-xl font-semibold text-white">Workshop Management</h3>
-                    <Button 
-                      onClick={() => setShowWorkshopDialog(true)}
-                      className="bg-cosmic-blue hover:bg-cosmic-blue/90"
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Create Workshop
-                    </Button>
+                    <div className="text-space-300 text-sm">
+                      <p>Note: All activities are part of one comprehensive workshop with variable pricing</p>
+                    </div>
                   </div>
 
-                  {/* Workshop Creation Dialog */}
-                  <Dialog open={showWorkshopDialog} onOpenChange={setShowWorkshopDialog}>
-                    <DialogContent className="bg-space-800 border-space-700 text-white max-w-2xl">
-                        <DialogHeader>
-                          <DialogTitle className="text-white">Create New Workshop</DialogTitle>
-                          <DialogDescription className="text-space-300">
-                            Add a new educational workshop to the platform
-                          </DialogDescription>
-                        </DialogHeader>
-                        <Form {...workshopForm}>
-                          <form onSubmit={workshopForm.handleSubmit((data) => createWorkshop.mutate(data))} className="space-y-4">
-                            <FormField
-                              control={workshopForm.control}
-                              name="title"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel className="text-space-300">Title</FormLabel>
-                                  <FormControl>
-                                    <Input {...field} className="bg-space-700 border-space-600 text-white" />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <div className="grid grid-cols-2 gap-4">
-                              <FormField
-                                control={workshopForm.control}
-                                name="category"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel className="text-space-300">Category</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                      <FormControl>
-                                        <SelectTrigger className="bg-space-700 border-space-600 text-white">
-                                          <SelectValue placeholder="Select category" />
-                                        </SelectTrigger>
-                                      </FormControl>
-                                      <SelectContent className="bg-space-700 border-space-600">
-                                        <SelectItem value="telescope">Telescope Sessions</SelectItem>
-                                        <SelectItem value="vr">VR Experiences</SelectItem>
-                                        <SelectItem value="expert">Expert Sessions</SelectItem>
-                                        <SelectItem value="hands-on">Hands-on Activities</SelectItem>
-                                        <SelectItem value="research">Research Methods</SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={workshopForm.control}
-                                name="level"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel className="text-space-300">Level</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                      <FormControl>
-                                        <SelectTrigger className="bg-space-700 border-space-600 text-white">
-                                          <SelectValue placeholder="Select level" />
-                                        </SelectTrigger>
-                                      </FormControl>
-                                      <SelectContent className="bg-space-700 border-space-600">
-                                        <SelectItem value="beginner">Beginner</SelectItem>
-                                        <SelectItem value="intermediate">Intermediate</SelectItem>
-                                        <SelectItem value="advanced">Advanced</SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-                            <FormField
-                              control={workshopForm.control}
-                              name="description"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel className="text-space-300">Description</FormLabel>
-                                  <FormControl>
-                                    <Textarea {...field} className="bg-space-700 border-space-600 text-white" />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <div className="grid grid-cols-3 gap-4">
-                              <FormField
-                                control={workshopForm.control}
-                                name="duration"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel className="text-space-300">Duration</FormLabel>
-                                    <FormControl>
-                                      <Input {...field} placeholder="e.g., 2 hours" className="bg-space-700 border-space-600 text-white" />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={workshopForm.control}
-                                name="price"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel className="text-space-300">Price (₹)</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        {...field}
-                                        type="number"
-                                        step="0.01"
-                                        onChange={(e) => field.onChange(e.target.value)}
-                                        className="bg-space-700 border-space-600 text-white"
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={workshopForm.control}
-                                name="capacity"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel className="text-space-300">Capacity</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        {...field}
-                                        type="number"
-                                        onChange={(e) => field.onChange(Number(e.target.value))}
-                                        className="bg-space-700 border-space-600 text-white"
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                              <FormField
-                                control={workshopForm.control}
-                                name="requirements"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel className="text-space-300">Requirements (Optional)</FormLabel>
-                                    <FormControl>
-                                      <Textarea {...field} className="bg-space-700 border-space-600 text-white" />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={workshopForm.control}
-                                name="outcomes"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel className="text-space-300">Learning Outcomes (Optional)</FormLabel>
-                                    <FormControl>
-                                      <Textarea {...field} className="bg-space-700 border-space-600 text-white" />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-                            <div className="flex justify-end gap-2 pt-4">
-                              <Button 
-                                type="button" 
-                                variant="outline" 
-                                onClick={() => setShowWorkshopDialog(false)}
-                                className="border-space-600 text-space-300"
-                              >
-                                Cancel
-                              </Button>
-                              <Button
-                                type="submit"
-                                disabled={createWorkshop.isPending}
-                                className="bg-cosmic-blue hover:bg-cosmic-blue/90"
-                              >
-                                {createWorkshop.isPending ? "Creating..." : "Create Workshop"}
-                              </Button>
-                            </div>
-                          </form>
-                        </Form>
-                      </DialogContent>
-                    </Dialog>
+
 
                   <GlassMorphism className="p-6">
-                    <div className="overflow-x-auto">
-                      <Table>
-                        <TableHeader>
-                          <TableRow className="border-space-700">
-                            <TableHead className="text-space-300">Title</TableHead>
-                            <TableHead className="text-space-300">Category</TableHead>
-                            <TableHead className="text-space-300">Level</TableHead>
-                            <TableHead className="text-space-300">Duration</TableHead>
-                            <TableHead className="text-space-300">Price</TableHead>
-                            <TableHead className="text-space-300">Capacity</TableHead>
-                            <TableHead className="text-space-300">Actions</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {workshops.map((workshop) => (
-                            <TableRow key={workshop.id} className="border-space-700">
-                              <TableCell className="text-white font-medium">{workshop.title}</TableCell>
-                              <TableCell>
-                                <Badge variant="outline" className="text-purple-400 border-purple-400">
-                                  {workshop.category}
-                                </Badge>
-                              </TableCell>
-                              <TableCell>
-                                <Badge variant="outline" className="text-yellow-400 border-yellow-400">
-                                  {workshop.level}
-                                </Badge>
-                              </TableCell>
-                              <TableCell className="text-space-300">{workshop.duration}</TableCell>
-                              <TableCell className="text-space-300">₹{workshop.price}</TableCell>
-                              <TableCell className="text-space-300">{workshop.capacity}</TableCell>
-                              <TableCell>
-                                <div className="flex items-center gap-2">
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="text-cosmic-blue hover:bg-cosmic-blue/10"
-                                    onClick={() => handleEditWorkshop(workshop)}
-                                  >
-                                    <Edit className="w-4 h-4" />
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="text-red-400 hover:bg-red-400/10"
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </Button>
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-4">
+                          <h4 className="text-lg font-semibold text-white">Comprehensive Workshop Experience</h4>
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-3">
+                              <div className="w-2 h-2 bg-cosmic-blue rounded-full"></div>
+                              <span className="text-space-300">Telescope Sessions</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <div className="w-2 h-2 bg-cosmic-purple rounded-full"></div>
+                              <span className="text-space-300">VR Space Experiences</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <div className="w-2 h-2 bg-cosmic-green rounded-full"></div>
+                              <span className="text-space-300">Space Simulation Games</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
+                              <span className="text-space-300">Expert Sessions</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
+                              <span className="text-space-300">Design Thinking</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <div className="w-2 h-2 bg-red-400 rounded-full"></div>
+                              <span className="text-space-300">Hands-on Experiments</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="space-y-4">
+                          <h4 className="text-lg font-semibold text-white">Pricing Structure</h4>
+                          <div className="p-4 bg-space-700/50 rounded-lg">
+                            <p className="text-space-300 text-sm mb-3">
+                              Workshop pricing varies based on:
+                            </p>
+                            <ul className="space-y-2 text-space-300 text-sm">
+                              <li>• School location and accessibility</li>
+                              <li>• Number of participating students</li>
+                              <li>• Duration and customization needs</li>
+                              <li>• Equipment and technology requirements</li>
+                              <li>• Revenue sharing agreements (10-20%)</li>
+                            </ul>
+                          </div>
+                          <div className="text-center">
+                            <Button 
+                              onClick={() => window.open('mailto:workshops@zoonigia.com?subject=Workshop Pricing Inquiry', '_blank')}
+                              className="bg-cosmic-blue hover:bg-cosmic-blue/90"
+                            >
+                              <Mail className="w-4 h-4 mr-2" />
+                              Contact for Pricing
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </GlassMorphism>
                 </TabsContent>
