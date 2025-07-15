@@ -130,7 +130,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/admin/courses', isAuthenticated, isAdmin, async (req: any, res) => {
     try {
-      const courseData = insertCourseSchema.parse(req.body);
+      // Clean the request body to handle empty strings for numeric fields
+      const cleanedBody = { ...req.body };
+      if (cleanedBody.price === '' || cleanedBody.price === null || cleanedBody.price === undefined) {
+        delete cleanedBody.price;
+      }
+      if (cleanedBody.capacity === '' || cleanedBody.capacity === null || cleanedBody.capacity === undefined) {
+        delete cleanedBody.capacity;
+      }
+      if (cleanedBody.duration === '' || cleanedBody.duration === null || cleanedBody.duration === undefined) {
+        delete cleanedBody.duration;
+      }
+      if (cleanedBody.instructorName === '' || cleanedBody.instructorName === null || cleanedBody.instructorName === undefined) {
+        delete cleanedBody.instructorName;
+      }
+      
+      const courseData = insertCourseSchema.parse(cleanedBody);
       const course = await storage.createCourse(courseData);
       res.json(course);
     } catch (error) {
@@ -205,7 +220,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put('/api/admin/courses/:id', isAuthenticated, isAdmin, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
-      const courseData = insertCourseSchema.parse(req.body);
+      
+      // Clean the request body to handle empty strings for numeric fields
+      const cleanedBody = { ...req.body };
+      if (cleanedBody.price === '' || cleanedBody.price === null || cleanedBody.price === undefined) {
+        delete cleanedBody.price;
+      }
+      if (cleanedBody.capacity === '' || cleanedBody.capacity === null || cleanedBody.capacity === undefined) {
+        delete cleanedBody.capacity;
+      }
+      if (cleanedBody.duration === '' || cleanedBody.duration === null || cleanedBody.duration === undefined) {
+        delete cleanedBody.duration;
+      }
+      if (cleanedBody.instructorName === '' || cleanedBody.instructorName === null || cleanedBody.instructorName === undefined) {
+        delete cleanedBody.instructorName;
+      }
+      
+      const courseData = insertCourseSchema.parse(cleanedBody);
       const course = await storage.updateCourse(id, courseData);
       res.json(course);
     } catch (error) {

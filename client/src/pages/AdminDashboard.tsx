@@ -57,7 +57,7 @@ const workshopFormSchema = insertWorkshopSchema.extend({
 const courseFormSchema = insertCourseSchema.extend({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
-  duration: z.string().min(1, "Duration is required"),
+  duration: z.string().optional(),
   price: z.string().optional(),
   capacity: z.number().optional(),
   level: z.enum(["beginner", "intermediate", "advanced"]),
@@ -88,6 +88,13 @@ const courseFormSchema = insertCourseSchema.extend({
         code: z.ZodIssueCode.custom,
         message: "Instructor name is required for accepting registrations and live courses",
         path: ["instructorName"],
+      });
+    }
+    if (!data.duration || data.duration.trim() === "") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Duration is required for accepting registrations and live courses",
+        path: ["duration"],
       });
     }
   }
@@ -1548,7 +1555,7 @@ const AdminDashboard = () => {
                             {watchedCourseStatus === "upcoming" && (
                               <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 mb-4">
                                 <p className="text-sm text-blue-400">
-                                  <strong>Note:</strong> For upcoming courses, price, capacity, and instructor details are optional. 
+                                  <strong>Note:</strong> For upcoming courses, price, capacity, duration, and instructor details are optional. 
                                   These fields will be required when you change the status to "Accepting Registrations" or "Live".
                                 </p>
                               </div>
@@ -1583,7 +1590,15 @@ const AdminDashboard = () => {
                                 name="duration"
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel className="text-space-300">Duration</FormLabel>
+                                    <FormLabel className="text-space-300">
+                                      Duration
+                                      {watchedCourseStatus === "upcoming" && (
+                                        <span className="text-xs text-gray-400 ml-1">(Optional)</span>
+                                      )}
+                                      {(watchedCourseStatus === "accepting_registrations" || watchedCourseStatus === "live") && (
+                                        <span className="text-xs text-red-400 ml-1">*Required</span>
+                                      )}
+                                    </FormLabel>
                                     <FormControl>
                                       <Input {...field} placeholder="e.g., 8 weeks" className="bg-space-700 border-space-600 text-white" />
                                     </FormControl>
