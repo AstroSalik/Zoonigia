@@ -207,7 +207,7 @@ const Workshops = () => {
                 Immersive <span className="text-cosmic-blue">Workshops</span>
               </h1>
               <p className="text-xl md:text-2xl text-space-200 max-w-4xl mx-auto">
-                Experience hands-on learning through our comprehensive workshops blending frontier sciences with literary wonder and philosophical depth - featuring telescope sessions, VR experiences, expert speaker sessions, universe simulation, design thinking, and space mission planning
+                Experience hands-on learning through our comprehensive workshops featuring telescope sessions, VR experiences, expert speaker sessions, universe simulation, design thinking, and space mission planning
               </p>
             </div>
             <div className="flex justify-center items-center gap-4 text-space-300 mb-8">

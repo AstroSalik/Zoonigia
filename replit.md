@@ -123,6 +123,7 @@ Zoonigia is a comprehensive full-stack web application designed to empower futur
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Preferred content approach: Avoid repetitive phrasing across pages; use varied, elegant language instead of overloading the website with the same interdisciplinary messaging everywhere.
 
 ## System Architecture
 

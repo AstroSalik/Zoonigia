@@ -151,8 +151,7 @@ const Home = () => {
                 </span>
               </h2>
               <p className="text-xl text-space-300 max-w-4xl mx-auto leading-relaxed">
-                Explore the intersection of frontier sciences, literature, and philosophy for deeper understanding. 
-                Where cosmic questions meet poetic wonder and philosophical inquiry.
+                Discover how scientific discovery becomes more meaningful when enriched by storytelling and deep thinking about existence.
               </p>
             </div>
             
@@ -204,7 +203,7 @@ const Home = () => {
                       <div className="text-center">
                         <Users className="w-12 h-12 text-cosmic-blue mb-4 mx-auto group-hover:scale-110 transition-transform" />
                         <h3 className="text-xl font-semibold mb-2">Register for Workshop</h3>
-                        <p className="text-space-300 mb-4">Join our immersive workshops blending science with literature and philosophy</p>
+                        <p className="text-space-300 mb-4">Join our immersive workshops exploring frontier sciences through hands-on discovery</p>
                         <Link href="/workshops">
                           <Button className="bg-cosmic-blue hover:bg-blue-600">
                             Browse Workshops
