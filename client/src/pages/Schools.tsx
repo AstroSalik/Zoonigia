@@ -693,11 +693,18 @@ const Schools = () => {
                 Join the revolution in science education and give your students access to real-world research opportunities.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button className="cosmic-gradient hover:opacity-90 px-8">
+                <Button 
+                  className="cosmic-gradient hover:opacity-90 px-8"
+                  onClick={() => window.location.href = 'mailto:outreach@zoonigia.com?subject=Schedule Demo Request'}
+                >
                   <Calendar className="w-5 h-5 mr-2" />
                   Schedule a Demo
                 </Button>
-                <Button variant="outline" className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900 px-8">
+                <Button 
+                  variant="outline" 
+                  className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900 px-8"
+                  onClick={() => window.location.href = 'mailto:outreach@zoonigia.com?subject=Brochure Request'}
+                >
                   Download Brochure
                 </Button>
               </div>

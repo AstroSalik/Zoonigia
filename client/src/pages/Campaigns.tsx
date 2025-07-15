@@ -548,10 +548,17 @@ const Campaigns = () => {
                 Join our next campaign and contribute to groundbreaking research while building your academic portfolio
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button className="cosmic-gradient hover:opacity-90 px-8">
+                <Button 
+                  className="cosmic-gradient hover:opacity-90 px-8"
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                >
                   View All Campaigns
                 </Button>
-                <Button variant="outline" className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900 px-8">
+                <Button 
+                  variant="outline" 
+                  className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900 px-8"
+                  onClick={() => window.location.href = 'mailto:campaigns@zoonigia.com?subject=Campaign Information Request'}
+                >
                   Learn More
                 </Button>
               </div>
