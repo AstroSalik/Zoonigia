@@ -64,7 +64,7 @@ const Footer = () => {
         </div>
         
         <div className="border-t border-space-600 mt-8 pt-8 text-center text-space-400">
-          <p>&copy; 2024 Zoonigia. All rights reserved. To the stars and beyond!</p>
+          <p>&copy; 2025 Zoonigia. All rights reserved. To the stars and beyond!</p>
         </div>
       </div>
     </footer>
