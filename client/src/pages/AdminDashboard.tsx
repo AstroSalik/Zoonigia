@@ -118,6 +118,38 @@ const campaignFormSchema = insertCampaignSchema.extend({
   requirements: z.string().optional(),
   timeline: z.string().optional(),
   outcomes: z.string().optional(),
+}).superRefine((data, ctx) => {
+  // For active and closed status, make certain fields required
+  if (data.status === "active" || data.status === "closed") {
+    if (!data.price || data.price.trim() === "") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Price is required for active and closed campaigns",
+        path: ["price"],
+      });
+    }
+    if (!data.maxParticipants || data.maxParticipants < 1) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Max participants must be at least 1 for active and closed campaigns",
+        path: ["maxParticipants"],
+      });
+    }
+    if (!data.duration || data.duration.trim() === "") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Duration is required for active and closed campaigns",
+        path: ["duration"],
+      });
+    }
+    if (!data.field || data.field.trim() === "") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Field is required for active and closed campaigns",
+        path: ["field"],
+      });
+    }
+  }
 });
 
 const lessonFormSchema = insertCourseLessonSchema.extend({

@@ -293,28 +293,36 @@ export default function CampaignDetail() {
               <CardContent className="p-4 text-center">
                 <Calendar className="w-6 h-6 text-cosmic-blue mx-auto mb-2" />
                 <p className="text-sm text-gray-400">Duration</p>
-                <p className="font-semibold">{campaign.duration}</p>
+                <p className="font-semibold">
+                  {campaign.status === "upcoming" ? "TBD" : campaign.duration || "TBD"}
+                </p>
               </CardContent>
             </Card>
             <Card className="bg-space-800/50 border-space-700">
               <CardContent className="p-4 text-center">
                 <Users className="w-6 h-6 text-cosmic-purple mx-auto mb-2" />
                 <p className="text-sm text-gray-400">Participants</p>
-                <p className="font-semibold">{campaign.participantCount || 0}</p>
+                <p className="font-semibold">
+                  {campaign.status === "upcoming" ? "TBD" : campaign.participantCount || 0}
+                </p>
               </CardContent>
             </Card>
             <Card className="bg-space-800/50 border-space-700">
               <CardContent className="p-4 text-center">
                 <Target className="w-6 h-6 text-cosmic-orange mx-auto mb-2" />
                 <p className="text-sm text-gray-400">Field</p>
-                <p className="font-semibold">{campaign.field}</p>
+                <p className="font-semibold">
+                  {campaign.status === "upcoming" ? "TBD" : campaign.field || "TBD"}
+                </p>
               </CardContent>
             </Card>
             <Card className="bg-space-800/50 border-space-700">
               <CardContent className="p-4 text-center">
                 <Award className="w-6 h-6 text-cosmic-yellow mx-auto mb-2" />
                 <p className="text-sm text-gray-400">Price</p>
-                <p className="font-semibold">₹{campaign.price}</p>
+                <p className="font-semibold">
+                  {campaign.status === "upcoming" ? "TBD" : `₹${campaign.price || 0}`}
+                </p>
               </CardContent>
             </Card>
           </div>
@@ -323,7 +331,28 @@ export default function CampaignDetail() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2">
-            {/* Campaign Image */}
+            {campaign.status === "upcoming" && (
+              <Card className="bg-space-800/50 border-space-700 mb-8">
+                <CardContent className="p-8 text-center">
+                  <div className="text-cosmic-yellow mb-4">
+                    <Clock className="w-16 h-16 mx-auto mb-4" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-4">Campaign Coming Soon</h3>
+                  <p className="text-gray-300 mb-6">
+                    This campaign is currently in preparation. Detailed information, requirements, and registration will be available soon.
+                  </p>
+                  <div className="text-sm text-gray-400">
+                    <p>• Campaign timeline and milestones will be announced</p>
+                    <p>• Registration requirements and pricing will be confirmed</p>
+                    <p>• Full campaign details and resources will be provided</p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+            
+            {campaign.status !== "upcoming" && (
+              <>
+                {/* Campaign Image */}
             <div className="mb-8">
               <img 
                 src="https://zoonigia.wordpress.com/wp-content/uploads/2025/03/5astr-1.jpg" 
@@ -429,6 +458,8 @@ export default function CampaignDetail() {
                 </div>
               </CardContent>
             </Card>
+              </>
+            )}
           </div>
 
           {/* Sidebar */}
@@ -441,23 +472,34 @@ export default function CampaignDetail() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-cosmic-blue mb-2">₹{campaign.price}</div>
-                  <p className="text-sm text-gray-400">Full campaign access</p>
-                  <p className="text-xs text-gray-500 mt-1">Only $3 USD • Scholarships available</p>
-                </div>
+                {campaign.status === "upcoming" ? (
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-cosmic-yellow mb-2">Coming Soon</div>
+                    <p className="text-sm text-gray-400">Registration opens soon</p>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-cosmic-blue mb-2">₹{campaign.price}</div>
+                    <p className="text-sm text-gray-400">Full campaign access</p>
+                    <p className="text-xs text-gray-500 mt-1">Only $3 USD • Scholarships available</p>
+                  </div>
+                )}
 
                 <Separator className="bg-space-700" />
 
                 <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-400">Duration:</span>
-                    <span>{campaign.duration}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-400">Field:</span>
-                    <span>{campaign.field}</span>
-                  </div>
+                  {campaign.status !== "upcoming" && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-400">Duration:</span>
+                      <span>{campaign.duration || "TBD"}</span>
+                    </div>
+                  )}
+                  {campaign.status !== "upcoming" && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-400">Field:</span>
+                      <span>{campaign.field || "TBD"}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-400">Status:</span>
                     <Badge variant="outline" className={
@@ -469,6 +511,11 @@ export default function CampaignDetail() {
                       {campaign.status}
                     </Badge>
                   </div>
+                  {campaign.status === "upcoming" && (
+                    <div className="text-center mt-4">
+                      <p className="text-sm text-cosmic-yellow">More details will be available soon</p>
+                    </div>
+                  )}
                 </div>
 
                 <Separator className="bg-space-700" />
