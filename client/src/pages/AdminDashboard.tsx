@@ -59,13 +59,38 @@ const courseFormSchema = insertCourseSchema.extend({
   description: z.string().min(1, "Description is required"),
   duration: z.string().min(1, "Duration is required"),
   price: z.string().optional(),
-  capacity: z.number().min(1, "Capacity must be at least 1"),
+  capacity: z.number().optional(),
   level: z.enum(["beginner", "intermediate", "advanced"]),
   field: z.string().min(1, "Field is required"),
   instructorName: z.string().optional(),
   status: z.enum(["upcoming", "accepting_registrations", "live"]).default("upcoming"),
   requirements: z.string().optional(),
   outcomes: z.string().optional(),
+}).superRefine((data, ctx) => {
+  // For accepting_registrations and live status, make certain fields required
+  if (data.status === "accepting_registrations" || data.status === "live") {
+    if (!data.price || data.price.trim() === "") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Price is required for accepting registrations and live courses",
+        path: ["price"],
+      });
+    }
+    if (!data.capacity || data.capacity < 1) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Capacity must be at least 1 for accepting registrations and live courses",
+        path: ["capacity"],
+      });
+    }
+    if (!data.instructorName || data.instructorName.trim() === "") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Instructor name is required for accepting registrations and live courses",
+        path: ["instructorName"],
+      });
+    }
+  }
 });
 
 const campaignFormSchema = insertCampaignSchema.extend({
@@ -255,8 +280,8 @@ const AdminDashboard = () => {
       title: "",
       description: "",
       duration: "",
-      price: "0.00",
-      capacity: 1,
+      price: "",
+      capacity: undefined,
       level: "beginner",
       field: "",
       instructorName: "",
@@ -265,6 +290,9 @@ const AdminDashboard = () => {
       outcomes: "",
     },
   });
+
+  // Watch course status to dynamically update form requirements
+  const watchedCourseStatus = courseForm.watch("status");
 
   const campaignForm = useForm<z.infer<typeof campaignFormSchema>>({
     resolver: zodResolver(campaignFormSchema),
@@ -340,8 +368,8 @@ const AdminDashboard = () => {
       title: course.title,
       description: course.description,
       duration: course.duration,
-      price: course.price || "0.00",
-      capacity: course.capacity,
+      price: course.price || "",
+      capacity: course.capacity || undefined,
       level: course.level,
       field: course.field,
       instructorName: course.instructorName || "",
@@ -1517,13 +1545,29 @@ const AdminDashboard = () => {
                                 </FormItem>
                               )}
                             />
+                            {watchedCourseStatus === "upcoming" && (
+                              <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 mb-4">
+                                <p className="text-sm text-blue-400">
+                                  <strong>Note:</strong> For upcoming courses, price, capacity, and instructor details are optional. 
+                                  These fields will be required when you change the status to "Accepting Registrations" or "Live".
+                                </p>
+                              </div>
+                            )}
                             <div className="grid grid-cols-2 gap-4">
                               <FormField
                                 control={courseForm.control}
                                 name="instructorName"
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel className="text-space-300">Instructor</FormLabel>
+                                    <FormLabel className="text-space-300">
+                                      Instructor
+                                      {watchedCourseStatus === "upcoming" && (
+                                        <span className="text-xs text-gray-400 ml-1">(Optional)</span>
+                                      )}
+                                      {(watchedCourseStatus === "accepting_registrations" || watchedCourseStatus === "live") && (
+                                        <span className="text-xs text-red-400 ml-1">*Required</span>
+                                      )}
+                                    </FormLabel>
                                     <FormControl>
                                       <Input {...field} placeholder="e.g., Dr. Jane Smith" className="bg-space-700 border-space-600 text-white" />
                                     </FormControl>
@@ -1552,7 +1596,15 @@ const AdminDashboard = () => {
                                 name="price"
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel className="text-space-300">Price (₹)</FormLabel>
+                                    <FormLabel className="text-space-300">
+                                      Price (₹)
+                                      {watchedCourseStatus === "upcoming" && (
+                                        <span className="text-xs text-gray-400 ml-1">(Optional)</span>
+                                      )}
+                                      {(watchedCourseStatus === "accepting_registrations" || watchedCourseStatus === "live") && (
+                                        <span className="text-xs text-red-400 ml-1">*Required</span>
+                                      )}
+                                    </FormLabel>
                                     <FormControl>
                                       <Input
                                         {...field}
@@ -1571,12 +1623,20 @@ const AdminDashboard = () => {
                                 name="capacity"
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel className="text-space-300">Capacity</FormLabel>
+                                    <FormLabel className="text-space-300">
+                                      Capacity
+                                      {watchedCourseStatus === "upcoming" && (
+                                        <span className="text-xs text-gray-400 ml-1">(Optional)</span>
+                                      )}
+                                      {(watchedCourseStatus === "accepting_registrations" || watchedCourseStatus === "live") && (
+                                        <span className="text-xs text-red-400 ml-1">*Required</span>
+                                      )}
+                                    </FormLabel>
                                     <FormControl>
                                       <Input
                                         {...field}
                                         type="number"
-                                        onChange={(e) => field.onChange(Number(e.target.value))}
+                                        onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
                                         className="bg-space-700 border-space-600 text-white"
                                       />
                                     </FormControl>
