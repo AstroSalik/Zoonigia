@@ -19,7 +19,6 @@ const About = () => {
   return (
     <div className="min-h-screen bg-space-900 text-space-50">
       <Navigation />
-      
       {/* Hero Section */}
       <section className="py-20 bg-gradient-to-br from-space-900 via-space-800 to-space-900">
         <div className="container mx-auto px-4">
@@ -29,9 +28,7 @@ const About = () => {
                 About Zoonigia
               </span>
             </h1>
-            <p className="text-xl text-space-200 mb-8">
-              Empowering future innovators and explorers through immersive frontier sciences discovery where science meets literature and philosophy
-            </p>
+            <p className="text-xl text-space-200 mb-8">Empowering future innovators and explorers through immersive frontier sciences exploration where science blends literature and philosophy</p>
             <div className="flex justify-center">
               <Button className="cosmic-gradient hover:opacity-90 px-8 py-4 text-lg">
                 <Link href="/register">Join Our Mission</Link>
@@ -40,7 +37,6 @@ const About = () => {
           </div>
         </div>
       </section>
-
       {/* Video Section */}
       <section className="py-20 bg-space-800/30">
         <div className="container mx-auto px-4">
@@ -62,7 +58,6 @@ const About = () => {
           </div>
         </div>
       </section>
-
       {/* Mission & Vision */}
       <section className="py-20">
         <div className="container mx-auto px-4">
@@ -93,9 +88,6 @@ const About = () => {
           </div>
         </div>
       </section>
-
-
-
       {/* What We Do */}
       <section className="py-20">
         <div className="container mx-auto px-4">
@@ -136,7 +128,6 @@ const About = () => {
           </div>
         </div>
       </section>
-
       {/* Our Values */}
       <section className="py-20">
         <div className="container mx-auto px-4">
@@ -174,9 +165,6 @@ const About = () => {
           </div>
         </div>
       </section>
-
-
-
       {/* CTA Section */}
       <section className="py-20">
         <div className="container mx-auto px-4">
@@ -196,7 +184,6 @@ const About = () => {
           </div>
         </div>
       </section>
-
       <Footer />
     </div>
   );
