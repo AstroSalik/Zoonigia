@@ -6,6 +6,15 @@ Zoonigia is a comprehensive full-stack web application designed to empower futur
 
 ## Recent Changes (July 2025)
 
+### Course Field Options and About Section Enhancement (July 15, 2025)
+- Updated course field options to include frontier sciences: Quantum Mechanics, Technology & AI, Astrophysics, Space Technology, Robotics, Biotechnology, Nanotechnology, and Renewable Energy
+- Added "about" field to course database schema for detailed course information display
+- Enhanced admin dashboard course form with about field for comprehensive course description management
+- Updated CourseDetail page to display about section with detailed course information in dedicated card
+- Applied database schema changes to support new about field as optional text field
+- Enhanced course editing functionality to include about field in form reset and validation
+- Created responsive about section display with proper styling and whitespace handling
+
 ### Course Status Lifecycle Management System (July 15, 2025)
 - Implemented comprehensive course status management with three states: "Upcoming", "Accepting Registrations", and "Live"
 - Enhanced database schema with course status field and proper lifecycle management

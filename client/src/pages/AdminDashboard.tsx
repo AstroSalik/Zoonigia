@@ -57,11 +57,12 @@ const workshopFormSchema = insertWorkshopSchema.extend({
 const courseFormSchema = insertCourseSchema.extend({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
+  about: z.string().optional(),
   duration: z.string().optional(),
   price: z.string().optional(),
   capacity: z.number().optional(),
   level: z.enum(["beginner", "intermediate", "advanced"]),
-  field: z.string().min(1, "Field is required"),
+  field: z.enum(["quantum_mechanics", "tech_ai", "astrophysics", "space_technology", "robotics", "biotechnology", "nanotechnology", "renewable_energy"]),
   instructorName: z.string().optional(),
   status: z.enum(["upcoming", "accepting_registrations", "live"]).default("upcoming"),
   requirements: z.string().optional(),
@@ -286,6 +287,7 @@ const AdminDashboard = () => {
     defaultValues: {
       title: "",
       description: "",
+      about: "",
       duration: "",
       price: "",
       capacity: undefined,
@@ -374,6 +376,7 @@ const AdminDashboard = () => {
     courseForm.reset({
       title: course.title,
       description: course.description,
+      about: course.about || "",
       duration: course.duration,
       price: course.price || "",
       capacity: course.capacity || undefined,
@@ -1482,12 +1485,14 @@ const AdminDashboard = () => {
                                         </SelectTrigger>
                                       </FormControl>
                                       <SelectContent className="bg-space-700 border-space-600">
-                                        <SelectItem value="astronomy">Astronomy</SelectItem>
+                                        <SelectItem value="quantum_mechanics">Quantum Mechanics</SelectItem>
+                                        <SelectItem value="tech_ai">Technology & AI</SelectItem>
                                         <SelectItem value="astrophysics">Astrophysics</SelectItem>
-                                        <SelectItem value="space-technology">Space Technology</SelectItem>
-                                        <SelectItem value="planetary-science">Planetary Science</SelectItem>
-                                        <SelectItem value="astrobiology">Astrobiology</SelectItem>
-                                        <SelectItem value="cosmology">Cosmology</SelectItem>
+                                        <SelectItem value="space_technology">Space Technology</SelectItem>
+                                        <SelectItem value="robotics">Robotics</SelectItem>
+                                        <SelectItem value="biotechnology">Biotechnology</SelectItem>
+                                        <SelectItem value="nanotechnology">Nanotechnology</SelectItem>
+                                        <SelectItem value="renewable_energy">Renewable Energy</SelectItem>
                                       </SelectContent>
                                     </Select>
                                     <FormMessage />
@@ -1547,6 +1552,19 @@ const AdminDashboard = () => {
                                   <FormLabel className="text-space-300">Description</FormLabel>
                                   <FormControl>
                                     <Textarea {...field} className="bg-space-700 border-space-600 text-white" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={courseForm.control}
+                              name="about"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-space-300">About (Detailed Information)</FormLabel>
+                                  <FormControl>
+                                    <Textarea {...field} className="bg-space-700 border-space-600 text-white min-h-[100px]" placeholder="Detailed information about the course for the course detail page..." />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>

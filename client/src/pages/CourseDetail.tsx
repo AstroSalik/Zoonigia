@@ -579,6 +579,15 @@ export default function CourseDetail() {
                 <CardTitle className="text-white">About This Course</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
+                {course.about && (
+                  <div>
+                    <h4 className="text-white font-medium mb-2">Course Description</h4>
+                    <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                      <p className="text-white/80 leading-relaxed whitespace-pre-wrap">{course.about}</p>
+                    </div>
+                  </div>
+                )}
+                
                 <div>
                   <h4 className="text-white font-medium mb-2">Learning Objectives</h4>
                   <div className="space-y-2">
