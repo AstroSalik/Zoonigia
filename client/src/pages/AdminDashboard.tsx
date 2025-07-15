@@ -61,6 +61,7 @@ const courseFormSchema = insertCourseSchema.extend({
   capacity: z.number().min(1, "Capacity must be at least 1"),
   level: z.enum(["beginner", "intermediate", "advanced"]),
   field: z.string().min(1, "Field is required"),
+  instructorName: z.string().optional(),
   requirements: z.string().optional(),
   outcomes: z.string().optional(),
 });
@@ -170,6 +171,7 @@ const AdminDashboard = () => {
       capacity: 1,
       level: "beginner",
       field: "",
+      instructorName: "",
       requirements: "",
       outcomes: "",
     },
@@ -247,6 +249,7 @@ const AdminDashboard = () => {
       capacity: course.capacity,
       level: course.level,
       field: course.field,
+      instructorName: course.instructorName || "",
       requirements: course.requirements || "",
       outcomes: course.outcomes || "",
     });
@@ -1266,6 +1269,22 @@ const AdminDashboard = () => {
                                 </FormItem>
                               )}
                             />
+                            <div className="grid grid-cols-2 gap-4">
+                              <FormField
+                                control={courseForm.control}
+                                name="instructorName"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-space-300">Instructor</FormLabel>
+                                    <FormControl>
+                                      <Input {...field} placeholder="e.g., Dr. Jane Smith" className="bg-space-700 border-space-600 text-white" />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+
+                            </div>
                             <div className="grid grid-cols-3 gap-4">
                               <FormField
                                 control={courseForm.control}
