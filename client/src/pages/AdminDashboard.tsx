@@ -371,6 +371,14 @@ const AdminDashboard = () => {
     toast({ title: "Campaign statistics management", description: "Statistics update functionality coming soon!" });
   };
 
+  const handleManageStatistics = (type: string, item: any) => {
+    toast({ 
+      title: `${type} Statistics Management`, 
+      description: `Managing statistics for ${item.title}`,
+      className: "bg-cosmic-blue/10 border-cosmic-blue text-white"
+    });
+  };
+
   const closeDialogs = () => {
     setShowBlogDialog(false);
     setShowWorkshopDialog(false);
@@ -497,6 +505,93 @@ const AdminDashboard = () => {
     },
     onError: (error) => {
       toast({ title: "Error deleting user", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const deleteBlogPost = useMutation({
+    mutationFn: async (blogId: number) => {
+      const response = await apiRequest("DELETE", `/api/admin/blog-posts/${blogId}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/blog-posts"] });
+      toast({ title: "Blog post deleted successfully!" });
+    },
+    onError: (error) => {
+      toast({ title: "Error deleting blog post", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const deleteWorkshop = useMutation({
+    mutationFn: async (workshopId: number) => {
+      const response = await apiRequest("DELETE", `/api/admin/workshops/${workshopId}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/workshops"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/workshops"] });
+      toast({ title: "Workshop deleted successfully!" });
+    },
+    onError: (error) => {
+      toast({ title: "Error deleting workshop", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const deleteCourse = useMutation({
+    mutationFn: async (courseId: number) => {
+      const response = await apiRequest("DELETE", `/api/admin/courses/${courseId}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/courses"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/courses"] });
+      toast({ title: "Course deleted successfully!" });
+    },
+    onError: (error) => {
+      toast({ title: "Error deleting course", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const deleteCampaign = useMutation({
+    mutationFn: async (campaignId: number) => {
+      const response = await apiRequest("DELETE", `/api/admin/campaigns/${campaignId}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/campaigns"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/campaigns"] });
+      toast({ title: "Campaign deleted successfully!" });
+    },
+    onError: (error) => {
+      toast({ title: "Error deleting campaign", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const deleteWorkshopRegistration = useMutation({
+    mutationFn: async (registrationId: number) => {
+      const response = await apiRequest("DELETE", `/api/admin/workshop-registrations/${registrationId}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/workshop-registrations"] });
+      toast({ title: "Workshop registration deleted successfully!" });
+    },
+    onError: (error) => {
+      toast({ title: "Error deleting workshop registration", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const deleteContactInquiry = useMutation({
+    mutationFn: async (inquiryId: number) => {
+      const response = await apiRequest("DELETE", `/api/admin/inquiries/${inquiryId}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/inquiries"] });
+      toast({ title: "Contact inquiry deleted successfully!" });
+    },
+    onError: (error) => {
+      toast({ title: "Error deleting contact inquiry", description: error.message, variant: "destructive" });
     },
   });
 
@@ -998,6 +1093,19 @@ const AdminDashboard = () => {
                                   <Button
                                     variant="ghost"
                                     size="sm"
+                                    onClick={() => handleManageStatistics("Blog", post)}
+                                    className="text-green-400 hover:bg-green-400/10"
+                                  >
+                                    <Target className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                      if (confirm(`Are you sure you want to delete the blog post "${post.title}"?`)) {
+                                        deleteBlogPost.mutate(post.id);
+                                      }
+                                    }}
                                     className="text-red-400 hover:bg-red-400/10"
                                   >
                                     <Trash2 className="w-4 h-4" />
@@ -1182,6 +1290,26 @@ const AdminDashboard = () => {
                                     className="text-yellow-400 hover:bg-yellow-400/10"
                                   >
                                     <Edit className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleManageStatistics("Workshop Registration", registration)}
+                                    className="text-green-400 hover:bg-green-400/10"
+                                  >
+                                    <Target className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                      if (confirm(`Are you sure you want to delete the workshop registration from ${registration.name}?`)) {
+                                        deleteWorkshopRegistration.mutate(registration.id);
+                                      }
+                                    }}
+                                    className="text-red-400 hover:bg-red-400/10"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
                                   </Button>
                                 </div>
                               </TableCell>
@@ -1534,6 +1662,19 @@ const AdminDashboard = () => {
                                   <Button
                                     variant="ghost"
                                     size="sm"
+                                    onClick={() => handleManageStatistics("Course", course)}
+                                    className="text-green-400 hover:bg-green-400/10"
+                                  >
+                                    <Target className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                      if (confirm(`Are you sure you want to delete the course "${course.title}"?`)) {
+                                        deleteCourse.mutate(course.id);
+                                      }
+                                    }}
                                     className="text-red-400 hover:bg-red-400/10"
                                   >
                                     <Trash2 className="w-4 h-4" />
@@ -2179,13 +2320,18 @@ const AdminDashboard = () => {
                                     variant="ghost"
                                     size="sm"
                                     className="text-green-400 hover:bg-green-400/10"
-                                    onClick={() => handleUpdateCampaignStats(campaign)}
+                                    onClick={() => handleManageStatistics("Campaign", campaign)}
                                   >
                                     <Target className="w-4 h-4" />
                                   </Button>
                                   <Button
                                     variant="ghost"
                                     size="sm"
+                                    onClick={() => {
+                                      if (confirm(`Are you sure you want to delete the campaign "${campaign.title}"?`)) {
+                                        deleteCampaign.mutate(campaign.id);
+                                      }
+                                    }}
                                     className="text-red-400 hover:bg-red-400/10"
                                   >
                                     <Trash2 className="w-4 h-4" />
@@ -2264,6 +2410,26 @@ const AdminDashboard = () => {
                                     className="text-green-400 hover:bg-green-400/10"
                                   >
                                     <MessageSquare className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleManageStatistics("Contact Inquiry", inquiry)}
+                                    className="text-green-400 hover:bg-green-400/10"
+                                  >
+                                    <Target className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                      if (confirm(`Are you sure you want to delete the inquiry from ${inquiry.name}?`)) {
+                                        deleteContactInquiry.mutate(inquiry.id);
+                                      }
+                                    }}
+                                    className="text-red-400 hover:bg-red-400/10"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
                                   </Button>
                                 </div>
                               </TableCell>

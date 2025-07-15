@@ -73,6 +73,7 @@ export interface IStorage {
   getWorkshopById(id: number): Promise<Workshop | undefined>;
   createWorkshop(workshop: InsertWorkshop): Promise<Workshop>;
   updateWorkshop(id: number, workshop: Partial<Workshop>): Promise<Workshop>;
+  deleteWorkshop(id: number): Promise<void>;
   enrollInWorkshop(enrollment: InsertWorkshopEnrollment): Promise<WorkshopEnrollment>;
   getUserWorkshops(userId: string): Promise<Workshop[]>;
   
@@ -80,12 +81,14 @@ export interface IStorage {
   createWorkshopRegistration(registration: InsertWorkshopRegistration): Promise<WorkshopRegistration>;
   getWorkshopRegistrations(): Promise<WorkshopRegistration[]>;
   updateWorkshopRegistrationStatus(id: number, status: string): Promise<WorkshopRegistration>;
+  deleteWorkshopRegistration(id: number): Promise<void>;
   
   // Course operations
   getCourses(): Promise<Course[]>;
   getCourseById(id: number): Promise<Course | undefined>;
   createCourse(course: InsertCourse): Promise<Course>;
   updateCourse(id: number, course: Partial<Course>): Promise<Course>;
+  deleteCourse(id: number): Promise<void>;
   enrollInCourse(enrollment: InsertCourseEnrollment): Promise<CourseEnrollment>;
   getUserCourses(userId: string): Promise<Course[]>;
   
@@ -94,6 +97,7 @@ export interface IStorage {
   getCampaignById(id: number): Promise<Campaign | undefined>;
   createCampaign(campaign: InsertCampaign): Promise<Campaign>;
   updateCampaign(id: number, campaign: Partial<Campaign>): Promise<Campaign>;
+  deleteCampaign(id: number): Promise<void>;
   joinCampaign(participant: InsertCampaignParticipant): Promise<CampaignParticipant>;
   getUserCampaigns(userId: string): Promise<Campaign[]>;
   
@@ -102,6 +106,7 @@ export interface IStorage {
   getBlogPostById(id: number): Promise<BlogPost | undefined>;
   createBlogPost(post: InsertBlogPost): Promise<BlogPost>;
   updateBlogPost(id: number, post: Partial<BlogPost>): Promise<BlogPost>;
+  deleteBlogPost(id: number): Promise<void>;
   
   // Achievement operations
   getAchievements(): Promise<Achievement[]>;
@@ -110,6 +115,7 @@ export interface IStorage {
   // Contact operations
   createContactInquiry(inquiry: InsertContactInquiry): Promise<ContactInquiry>;
   getContactInquiries(): Promise<ContactInquiry[]>;
+  deleteContactInquiry(id: number): Promise<void>;
   
   // LMS operations
   // Course modules
@@ -218,6 +224,10 @@ export class DatabaseStorage implements IStorage {
     return updatedWorkshop;
   }
 
+  async deleteWorkshop(id: number): Promise<void> {
+    await db.delete(workshops).where(eq(workshops.id, id));
+  }
+
   async enrollInWorkshop(enrollment: InsertWorkshopEnrollment): Promise<WorkshopEnrollment> {
     const [newEnrollment] = await db.insert(workshopEnrollments).values(enrollment).returning();
     return newEnrollment;
@@ -272,6 +282,10 @@ export class DatabaseStorage implements IStorage {
     return updated;
   }
 
+  async deleteWorkshopRegistration(id: number): Promise<void> {
+    await db.delete(workshopRegistrations).where(eq(workshopRegistrations.id, id));
+  }
+
   // Course operations
   async getCourses(): Promise<Course[]> {
     return await db.select().from(courses).where(eq(courses.isActive, true)).orderBy(desc(courses.createdAt));
@@ -294,6 +308,10 @@ export class DatabaseStorage implements IStorage {
       .where(eq(courses.id, id))
       .returning();
     return updatedCourse;
+  }
+
+  async deleteCourse(id: number): Promise<void> {
+    await db.delete(courses).where(eq(courses.id, id));
   }
 
   async enrollInCourse(enrollment: InsertCourseEnrollment): Promise<CourseEnrollment> {
@@ -343,6 +361,10 @@ export class DatabaseStorage implements IStorage {
       .where(eq(campaigns.id, id))
       .returning();
     return updatedCampaign;
+  }
+
+  async deleteCampaign(id: number): Promise<void> {
+    await db.delete(campaigns).where(eq(campaigns.id, id));
   }
 
   async joinCampaign(participant: InsertCampaignParticipant): Promise<CampaignParticipant> {
@@ -397,6 +419,10 @@ export class DatabaseStorage implements IStorage {
     return updatedPost;
   }
 
+  async deleteBlogPost(id: number): Promise<void> {
+    await db.delete(blogPosts).where(eq(blogPosts.id, id));
+  }
+
   // Achievement operations
   async getAchievements(): Promise<Achievement[]> {
     return await db.select().from(achievements).orderBy(desc(achievements.achievedAt));
@@ -415,6 +441,10 @@ export class DatabaseStorage implements IStorage {
 
   async getContactInquiries(): Promise<ContactInquiry[]> {
     return await db.select().from(contactInquiries).orderBy(desc(contactInquiries.createdAt));
+  }
+
+  async deleteContactInquiry(id: number): Promise<void> {
+    await db.delete(contactInquiries).where(eq(contactInquiries.id, id));
   }
 
   // LMS operations

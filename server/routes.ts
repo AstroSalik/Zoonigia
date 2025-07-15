@@ -294,6 +294,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete('/api/admin/blog-posts/:id', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteBlogPost(parseInt(id));
+      res.json({ message: "Blog post deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting blog post:", error);
+      res.status(500).json({ message: "Failed to delete blog post" });
+    }
+  });
+
+  app.delete('/api/admin/workshops/:id', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteWorkshop(parseInt(id));
+      res.json({ message: "Workshop deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting workshop:", error);
+      res.status(500).json({ message: "Failed to delete workshop" });
+    }
+  });
+
+  app.delete('/api/admin/courses/:id', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteCourse(parseInt(id));
+      res.json({ message: "Course deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting course:", error);
+      res.status(500).json({ message: "Failed to delete course" });
+    }
+  });
+
+  app.delete('/api/admin/campaigns/:id', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteCampaign(parseInt(id));
+      res.json({ message: "Campaign deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting campaign:", error);
+      res.status(500).json({ message: "Failed to delete campaign" });
+    }
+  });
+
+  app.delete('/api/admin/workshop-registrations/:id', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteWorkshopRegistration(parseInt(id));
+      res.json({ message: "Workshop registration deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting workshop registration:", error);
+      res.status(500).json({ message: "Failed to delete workshop registration" });
+    }
+  });
+
+  app.delete('/api/admin/inquiries/:id', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteContactInquiry(parseInt(id));
+      res.json({ message: "Contact inquiry deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting contact inquiry:", error);
+      res.status(500).json({ message: "Failed to delete contact inquiry" });
+    }
+  });
+
   // User routes
   app.post("/api/users", async (req, res) => {
     try {
