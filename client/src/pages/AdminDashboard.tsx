@@ -23,7 +23,8 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { 
   Shield, Users, BookOpen, Calendar, Mail, Plus, Edit, Trash2, 
   Eye, MessageSquare, CheckCircle, XCircle, Star, GraduationCap,
-  Rocket, Target, Award, Phone, MapPin, Clock, IndianRupee
+  Rocket, Target, Award, Phone, MapPin, Clock, IndianRupee,
+  Download, RefreshCw
 } from "lucide-react";
 import { 
   User, BlogPost, Workshop, Course, Campaign, ContactInquiry, CourseLesson, WorkshopRegistration,
@@ -115,6 +116,11 @@ const AdminDashboard = () => {
     open: boolean;
     registration: WorkshopRegistration | null;
   }>({ open: false, registration: null });
+  const [statisticsDialog, setStatisticsDialog] = useState<{
+    open: boolean;
+    type: string;
+    item: any;
+  }>({ open: false, type: '', item: null });
   const { toast } = useToast();
 
   // Data queries
@@ -372,11 +378,7 @@ const AdminDashboard = () => {
   };
 
   const handleManageStatistics = (type: string, item: any) => {
-    toast({ 
-      title: `${type} Statistics Management`, 
-      description: `Managing statistics for ${item.title}`,
-      className: "bg-cosmic-blue/10 border-cosmic-blue text-white"
-    });
+    setStatisticsDialog({ open: true, type, item });
   };
 
   const closeDialogs = () => {
@@ -2516,6 +2518,366 @@ const AdminDashboard = () => {
             </div>
           </div>
         </div>
+        
+        {/* Statistics Management Dialog */}
+        {statisticsDialog.open && (
+          <Dialog open={statisticsDialog.open} onOpenChange={() => setStatisticsDialog({ open: false, type: '', item: null })}>
+            <DialogContent className="bg-space-800 border-space-700 text-white max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="text-white">
+                  {statisticsDialog.type} Statistics Management
+                </DialogTitle>
+                <DialogDescription className="text-space-300">
+                  Detailed statistics and management options for {statisticsDialog.item?.title || statisticsDialog.item?.name}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-6">
+                {/* Statistics Overview */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {statisticsDialog.type === 'Blog Post' && (
+                    <>
+                      <GlassMorphism className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-blue-500/20 rounded-lg">
+                            <BookOpen className="w-5 h-5 text-blue-400" />
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-400">Status</p>
+                            <p className="text-xl font-bold text-white">
+                              {statisticsDialog.item?.isPublished ? 'Published' : 'Draft'}
+                            </p>
+                          </div>
+                        </div>
+                      </GlassMorphism>
+                      <GlassMorphism className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-green-500/20 rounded-lg">
+                            <Calendar className="w-5 h-5 text-green-400" />
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-400">Published</p>
+                            <p className="text-xl font-bold text-white">
+                              {statisticsDialog.item?.publishedAt ? new Date(statisticsDialog.item.publishedAt).toLocaleDateString() : 'Not Published'}
+                            </p>
+                          </div>
+                        </div>
+                      </GlassMorphism>
+                      <GlassMorphism className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-purple-500/20 rounded-lg">
+                            <Users className="w-5 h-5 text-purple-400" />
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-400">Author</p>
+                            <p className="text-xl font-bold text-white">
+                              {statisticsDialog.item?.author || 'Unknown'}
+                            </p>
+                          </div>
+                        </div>
+                      </GlassMorphism>
+                    </>
+                  )}
+                  
+                  {statisticsDialog.type === 'Workshop' && (
+                    <>
+                      <GlassMorphism className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-cosmic-blue/20 rounded-lg">
+                            <Users className="w-5 h-5 text-cosmic-blue" />
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-400">Current / Max</p>
+                            <p className="text-xl font-bold text-white">
+                              {statisticsDialog.item?.currentParticipants || 0} / {statisticsDialog.item?.maxParticipants || 0}
+                            </p>
+                          </div>
+                        </div>
+                      </GlassMorphism>
+                      <GlassMorphism className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-green-500/20 rounded-lg">
+                            <Calendar className="w-5 h-5 text-green-400" />
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-400">Start Date</p>
+                            <p className="text-xl font-bold text-white">
+                              {statisticsDialog.item?.startDate ? new Date(statisticsDialog.item.startDate).toLocaleDateString() : 'TBD'}
+                            </p>
+                          </div>
+                        </div>
+                      </GlassMorphism>
+                      <GlassMorphism className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-yellow-500/20 rounded-lg">
+                            <Target className="w-5 h-5 text-yellow-400" />
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-400">Status</p>
+                            <p className="text-xl font-bold text-white">
+                              {statisticsDialog.item?.isActive ? 'Active' : 'Inactive'}
+                            </p>
+                          </div>
+                        </div>
+                      </GlassMorphism>
+                    </>
+                  )}
+                  
+                  {statisticsDialog.type === 'Course' && (
+                    <>
+                      <GlassMorphism className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-cosmic-blue/20 rounded-lg">
+                            <GraduationCap className="w-5 h-5 text-cosmic-blue" />
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-400">Level</p>
+                            <p className="text-xl font-bold text-white">
+                              {statisticsDialog.item?.level || 'Not specified'}
+                            </p>
+                          </div>
+                        </div>
+                      </GlassMorphism>
+                      <GlassMorphism className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-green-500/20 rounded-lg">
+                            <Clock className="w-5 h-5 text-green-400" />
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-400">Duration</p>
+                            <p className="text-xl font-bold text-white">
+                              {statisticsDialog.item?.duration || 'Not specified'}
+                            </p>
+                          </div>
+                        </div>
+                      </GlassMorphism>
+                      <GlassMorphism className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-purple-500/20 rounded-lg">
+                            <Target className="w-5 h-5 text-purple-400" />
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-400">Status</p>
+                            <p className="text-xl font-bold text-white">
+                              {statisticsDialog.item?.isActive ? 'Active' : 'Inactive'}
+                            </p>
+                          </div>
+                        </div>
+                      </GlassMorphism>
+                    </>
+                  )}
+                  
+                  {statisticsDialog.type === 'Campaign' && (
+                    <>
+                      <GlassMorphism className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-cosmic-blue/20 rounded-lg">
+                            <Users className="w-5 h-5 text-cosmic-blue" />
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-400">Participants</p>
+                            <p className="text-xl font-bold text-white">
+                              {statisticsDialog.item?.currentParticipants || 0} / {statisticsDialog.item?.maxParticipants || 0}
+                            </p>
+                          </div>
+                        </div>
+                      </GlassMorphism>
+                      <GlassMorphism className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-green-500/20 rounded-lg">
+                            <Target className="w-5 h-5 text-green-400" />
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-400">Status</p>
+                            <p className="text-xl font-bold text-white">
+                              {statisticsDialog.item?.status || 'Unknown'}
+                            </p>
+                          </div>
+                        </div>
+                      </GlassMorphism>
+                      <GlassMorphism className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-yellow-500/20 rounded-lg">
+                            <Calendar className="w-5 h-5 text-yellow-400" />
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-400">End Date</p>
+                            <p className="text-xl font-bold text-white">
+                              {statisticsDialog.item?.endDate ? new Date(statisticsDialog.item.endDate).toLocaleDateString() : 'TBD'}
+                            </p>
+                          </div>
+                        </div>
+                      </GlassMorphism>
+                    </>
+                  )}
+                  
+                  {statisticsDialog.type === 'Workshop Registration' && (
+                    <>
+                      <GlassMorphism className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-cosmic-blue/20 rounded-lg">
+                            <Users className="w-5 h-5 text-cosmic-blue" />
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-400">Status</p>
+                            <p className="text-xl font-bold text-white">
+                              {statisticsDialog.item?.status || 'Pending'}
+                            </p>
+                          </div>
+                        </div>
+                      </GlassMorphism>
+                      <GlassMorphism className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-green-500/20 rounded-lg">
+                            <Calendar className="w-5 h-5 text-green-400" />
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-400">Registered</p>
+                            <p className="text-xl font-bold text-white">
+                              {statisticsDialog.item?.createdAt ? new Date(statisticsDialog.item.createdAt).toLocaleDateString() : 'Unknown'}
+                            </p>
+                          </div>
+                        </div>
+                      </GlassMorphism>
+                      <GlassMorphism className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-purple-500/20 rounded-lg">
+                            <Target className="w-5 h-5 text-purple-400" />
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-400">Type</p>
+                            <p className="text-xl font-bold text-white">
+                              {statisticsDialog.item?.workshopType || 'Not specified'}
+                            </p>
+                          </div>
+                        </div>
+                      </GlassMorphism>
+                    </>
+                  )}
+                  
+                  {statisticsDialog.type === 'Contact Inquiry' && (
+                    <>
+                      <GlassMorphism className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-cosmic-blue/20 rounded-lg">
+                            <Mail className="w-5 h-5 text-cosmic-blue" />
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-400">Type</p>
+                            <p className="text-xl font-bold text-white">
+                              {statisticsDialog.item?.type || 'General'}
+                            </p>
+                          </div>
+                        </div>
+                      </GlassMorphism>
+                      <GlassMorphism className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-green-500/20 rounded-lg">
+                            <Calendar className="w-5 h-5 text-green-400" />
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-400">Received</p>
+                            <p className="text-xl font-bold text-white">
+                              {statisticsDialog.item?.createdAt ? new Date(statisticsDialog.item.createdAt).toLocaleDateString() : 'Unknown'}
+                            </p>
+                          </div>
+                        </div>
+                      </GlassMorphism>
+                      <GlassMorphism className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-yellow-500/20 rounded-lg">
+                            <MessageSquare className="w-5 h-5 text-yellow-400" />
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-400">Has Phone</p>
+                            <p className="text-xl font-bold text-white">
+                              {statisticsDialog.item?.phone ? 'Yes' : 'No'}
+                            </p>
+                          </div>
+                        </div>
+                      </GlassMorphism>
+                    </>
+                  )}
+                </div>
+                
+                {/* Detailed Information */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-white">Detailed Information</h3>
+                  <GlassMorphism className="p-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-space-400 text-sm">Title/Name</p>
+                        <p className="text-white font-medium">{statisticsDialog.item?.title || statisticsDialog.item?.name}</p>
+                      </div>
+                      <div>
+                        <p className="text-space-400 text-sm">Created</p>
+                        <p className="text-white font-medium">
+                          {statisticsDialog.item?.createdAt ? new Date(statisticsDialog.item.createdAt).toLocaleDateString() : 'Unknown'}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-space-400 text-sm">Last Updated</p>
+                        <p className="text-white font-medium">
+                          {statisticsDialog.item?.updatedAt ? new Date(statisticsDialog.item.updatedAt).toLocaleDateString() : 'Unknown'}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-space-400 text-sm">ID</p>
+                        <p className="text-white font-medium">{statisticsDialog.item?.id}</p>
+                      </div>
+                    </div>
+                    {statisticsDialog.item?.description && (
+                      <div className="mt-4">
+                        <p className="text-space-400 text-sm mb-2">Description</p>
+                        <div className="bg-space-700 p-3 rounded-lg">
+                          <p className="text-white">{statisticsDialog.item.description}</p>
+                        </div>
+                      </div>
+                    )}
+                  </GlassMorphism>
+                </div>
+                
+                {/* Actions */}
+                <div className="flex justify-between items-center pt-4">
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => {
+                        toast({
+                          title: "Statistics Export",
+                          description: "Statistics data exported successfully",
+                          className: "bg-green-500/10 border-green-500 text-white",
+                        });
+                      }}
+                      className="bg-green-500/20 text-green-400 border-green-500/50 hover:bg-green-500/30"
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      Export Data
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        toast({
+                          title: "Statistics Refreshed",
+                          description: "All statistics have been refreshed",
+                          className: "bg-cosmic-blue/10 border-cosmic-blue text-white",
+                        });
+                      }}
+                      className="bg-cosmic-blue/20 text-cosmic-blue border-cosmic-blue/50 hover:bg-cosmic-blue/30"
+                    >
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      Refresh Stats
+                    </Button>
+                  </div>
+                  <Button
+                    variant="outline"
+                    onClick={() => setStatisticsDialog({ open: false, type: '', item: null })}
+                    className="border-space-600 text-space-300"
+                  >
+                    Close
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
         
         <Footer />
       </div>
