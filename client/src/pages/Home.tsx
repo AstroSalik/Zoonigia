@@ -6,7 +6,7 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import Hero3D from "@/components/Hero3D";
 import GlassMorphism from "@/components/GlassMorphism";
-import OrbitalAnimation from "@/components/OrbitalAnimation";
+import CosmicBackground from "@/components/OrbitalAnimation";
 import { 
   Rocket, 
   Users, 
@@ -25,8 +25,10 @@ import {
 
 const Home = () => {
   return (
-    <div className="min-h-screen bg-space-900 text-space-50">
-      <Navigation />
+    <div className="min-h-screen bg-space-900 text-space-50 relative">
+      <CosmicBackground />
+      <div className="relative z-10">
+        <Navigation />
       {/* Hero Section */}
       <section className="min-h-screen flex items-center justify-center relative overflow-hidden star-field">
         <div className="absolute inset-0 bg-gradient-to-br from-space-900 via-space-800 to-space-900"></div>
@@ -138,28 +140,7 @@ const Home = () => {
           </div>
         </div>
       </section>
-      {/* Orbital Animation Section */}
-      <section className="py-20 bg-gradient-to-b from-space-900 via-space-800 to-space-900 relative overflow-hidden">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="text-center mb-8">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-              Explore the <span className="text-cosmic-blue">Cosmic Dance</span>
-            </h2>
-            <p className="text-xl text-space-200 max-w-3xl mx-auto">
-              Witness the elegant choreography of celestial bodies as they orbit through space and time
-            </p>
-          </div>
-          
-          <OrbitalAnimation />
-          
-          <div className="text-center mt-8">
-            <p className="text-space-300 text-lg">
-              From planetary motion to quantum mechanics, discover the fundamental forces that shape our universe
-            </p>
-          </div>
-        </div>
-      </section>
+
 
       {/* Interdisciplinary Learning Section */}
       <section className="py-20 bg-space-800/20">
@@ -387,7 +368,8 @@ const Home = () => {
           </div>
         </div>
       </section>
-      <Footer />
+        <Footer />
+      </div>
     </div>
   );
 };
