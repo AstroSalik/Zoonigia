@@ -26,26 +26,32 @@ function Router() {
 
   return (
     <Switch>
+      {/* Root route - show Landing for non-authenticated, Home for authenticated */}
       {isLoading || !isAuthenticated ? (
         <Route path="/" component={Landing} />
       ) : (
-        <>
-          <Route path="/" component={Home} />
-          <Route path="/about" component={About} />
-          <Route path="/register" component={Register} />
-          <Route path="/workshops" component={Workshops} />
-          <Route path="/courses" component={Courses} />
-          <Route path="/courses/:id" component={CourseDetail} />
-          <Route path="/campaigns" component={Campaigns} />
-          <Route path="/schools" component={Schools} />
-          <Route path="/collaborators" component={Collaborators} />
-          <Route path="/shop" component={Shop} />
-          <Route path="/blog" component={Blog} />
-          <Route path="/blog/:id" component={BlogPost} />
-          <Route path="/contact" component={Contact} />
-          <Route path="/admin" component={AdminDashboard} />
-        </>
+        <Route path="/" component={Home} />
       )}
+      
+      {/* Public pages accessible to all users */}
+      <Route path="/about" component={About} />
+      <Route path="/register" component={Register} />
+      <Route path="/workshops" component={Workshops} />
+      <Route path="/courses" component={Courses} />
+      <Route path="/courses/:id" component={CourseDetail} />
+      <Route path="/campaigns" component={Campaigns} />
+      <Route path="/schools" component={Schools} />
+      <Route path="/collaborators" component={Collaborators} />
+      <Route path="/shop" component={Shop} />
+      <Route path="/blog" component={Blog} />
+      <Route path="/blog/:id" component={BlogPost} />
+      <Route path="/contact" component={Contact} />
+      
+      {/* Admin route - only accessible to authenticated users */}
+      {isAuthenticated && (
+        <Route path="/admin" component={AdminDashboard} />
+      )}
+      
       <Route component={NotFound} />
     </Switch>
   );
