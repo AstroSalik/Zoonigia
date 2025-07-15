@@ -30,7 +30,7 @@ const About = () => {
               </span>
             </h1>
             <p className="text-xl text-space-200 mb-8">
-              Empowering future innovators and explorers through immersive science education
+              Empowering future innovators and explorers through immersive science discovery
             </p>
             <div className="flex justify-center">
               <Button className="cosmic-gradient hover:opacity-90 px-8 py-4 text-lg">
@@ -47,13 +47,13 @@ const About = () => {
           <div className="max-w-4xl mx-auto text-center mb-16">
             <h2 className="text-4xl font-space font-bold mb-6">Discover Zoonigia</h2>
             <p className="text-xl text-space-200 mb-8">
-              Watch our introduction video to learn more about our mission and innovative approach to frontier sciences education
+              Watch our introduction video to learn more about our mission and innovative approach to frontier sciences exploration
             </p>
             <div className="relative w-full h-0 pb-[56.25%] rounded-lg overflow-hidden bg-space-800">
               <iframe
                 className="absolute top-0 left-0 w-full h-full"
                 src="https://www.youtube.com/embed/Tgr6BrgIBec"
-                title="What is Zoonigia - Frontier Sciences Education Platform"
+                title="What is Zoonigia - Frontier Sciences Discovery Platform"
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
@@ -73,9 +73,9 @@ const About = () => {
                 <h2 className="text-3xl font-space font-bold">Our Mission</h2>
               </div>
               <p className="text-space-200 text-lg leading-relaxed">
-                To revolutionize science education by making complex concepts accessible, engaging, and inspiring 
+                To revolutionize science discovery by making complex concepts accessible, engaging, and inspiring 
                 for students of all ages. We believe that hands-on learning and immersive experiences unlock 
-                the potential for scientific discovery and innovation.
+                the potential for scientific breakthrough and innovation.
               </p>
             </GlassMorphism>
             

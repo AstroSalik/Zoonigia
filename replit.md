@@ -1,18 +1,19 @@
-# Zoonigia - Frontier Sciences Education Platform
+# Zoonigia - Frontier Sciences Discovery Platform
 
 ## Overview
 
-Zoonigia is a comprehensive full-stack web application designed to empower future innovators and explorers through immersive science education. The platform serves as a hub for frontier sciences education, connecting students, educators, schools, collaborators, and sponsors through various educational programs including workshops, courses, campaigns, and expert sessions.
+Zoonigia is a comprehensive full-stack web application designed to empower future innovators and explorers through immersive science discovery. The platform serves as a hub for frontier sciences exploration, connecting students, educators, schools, collaborators, and sponsors through various educational programs including workshops, courses, campaigns, and expert sessions.
 
 ## Recent Changes (July 2025)
 
 ### Platform Terminology Update (July 15, 2025)
 - Updated all platform references from "space science" to "frontier sciences"
-- Modified landing page descriptions to reflect broader scientific scope
+- Replaced "education" with more engaging terms like "experience", "discovery", "exploration", and "learning"
+- Modified landing page descriptions to reflect broader scientific scope and catchier language
 - Updated video titles and descriptions across platform
 - Changed admin dashboard category selections to "Frontier Sciences"
 - Updated course and lesson content to use new terminology
-- Enhanced platform branding to better represent quantum physics and other frontier sciences
+- Enhanced platform branding to better represent quantum physics and other frontier sciences with dynamic language
 
 ### Landing Page Video Integration (July 15, 2025)
 - Added Zoonigia introduction video to landing page hero section (Video ID: Tgr6BrgIBec)

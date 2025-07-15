@@ -31,7 +31,7 @@ const Landing = () => {
                 <span className="cosmic-gradient bg-clip-text text-transparent"> Universe</span>
               </h1>
               <p className="text-xl text-space-300 leading-relaxed">
-                Join Zoonigia's immersive frontier sciences education platform. Discover workshops, 
+                Join Zoonigia's immersive frontier sciences experience. Discover workshops, 
                 collaborate with NASA on real research, and unlock your potential as a future space explorer.
               </p>
             </div>
@@ -68,7 +68,7 @@ const Landing = () => {
                   Welcome to Zoonigia
                 </h3>
                 <p className="text-space-300">
-                  Discover how we're revolutionizing frontier sciences education
+                  Discover how we're revolutionizing frontier sciences learning
                 </p>
               </div>
             </GlassMorphism>
@@ -83,7 +83,7 @@ const Landing = () => {
             What Makes Zoonigia Special
           </h2>
           <p className="text-xl text-space-300 max-w-3xl mx-auto">
-            Experience cutting-edge frontier sciences education through hands-on workshops, 
+            Experience cutting-edge frontier sciences learning through hands-on workshops, 
             real research opportunities, and expert guidance
           </p>
         </div>
