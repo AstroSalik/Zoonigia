@@ -48,7 +48,7 @@ const Home = () => {
             <span className="text-space-50">And Beyond</span>
           </h1>
           <p className="text-xl md:text-2xl text-space-200 mb-8 animate-slideUp">
-            Empowering Future Innovators and Explorers through Immersive Frontier Sciences where Science meets Literature and Philosophy
+            Empowering Future Innovators and Explorers through Immersive Frontier Sciences - an interdisciplinary journey blending scientific discovery with literary wonder and philosophical inquiry
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slideUp">
             <Link href="/workshops">
