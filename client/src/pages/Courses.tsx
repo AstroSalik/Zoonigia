@@ -199,9 +199,17 @@ const Courses = () => {
                   </div>
                   
                   <div className="flex items-center justify-between">
-                    <span className="text-3xl font-bold text-cosmic-blue">
-                      ₹{course.price}
-                    </span>
+                    <div className="flex flex-col">
+                      {course.status === 'upcoming' ? (
+                        <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/50 w-fit">
+                          Coming Soon
+                        </Badge>
+                      ) : (
+                        <span className="text-3xl font-bold text-cosmic-blue">
+                          ₹{course.price}
+                        </span>
+                      )}
+                    </div>
                     <div className="flex gap-2">
                       <Link href={`/courses/${course.id}`}>
                         <Button variant="outline" className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900">
@@ -209,12 +217,28 @@ const Courses = () => {
                           <ArrowRight className="w-4 h-4 ml-2" />
                         </Button>
                       </Link>
-                      <Button 
-                        className="cosmic-gradient hover:opacity-90 px-6"
-                        onClick={() => setLocation(`/courses/${course.id}`)}
-                      >
-                        Enroll Now
-                      </Button>
+                      {course.status === 'upcoming' ? (
+                        <Button 
+                          disabled
+                          className="bg-gray-600 text-gray-400 cursor-not-allowed px-6"
+                        >
+                          Coming Soon
+                        </Button>
+                      ) : course.status === 'accepting_registrations' ? (
+                        <Button 
+                          className="bg-orange-500 hover:bg-orange-600 px-6"
+                          onClick={() => setLocation(`/courses/${course.id}`)}
+                        >
+                          Register Now
+                        </Button>
+                      ) : (
+                        <Button 
+                          className="cosmic-gradient hover:opacity-90 px-6"
+                          onClick={() => setLocation(`/courses/${course.id}`)}
+                        >
+                          Enroll Now
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </CardContent>

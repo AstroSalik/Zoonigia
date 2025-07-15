@@ -96,7 +96,7 @@ export const courses = pgTable("courses", {
   imageUrl: varchar("image_url"),
   instructorId: varchar("instructor_id").references(() => users.id),
   instructorName: varchar("instructor_name"),
-  status: varchar("status").default("draft"), // draft, published, archived
+  status: varchar("status").default("upcoming"), // upcoming, accepting_registrations, live
   category: varchar("category"),
   totalLessons: integer("total_lessons").default(0),
   totalDuration: integer("total_duration").default(0), // in minutes

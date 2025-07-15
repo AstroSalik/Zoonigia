@@ -6,6 +6,21 @@ Zoonigia is a comprehensive full-stack web application designed to empower futur
 
 ## Recent Changes (July 2025)
 
+### Course Status Lifecycle Management System (July 15, 2025)
+- Implemented comprehensive course status management with three states: "Upcoming", "Accepting Registrations", and "Live"
+- Enhanced database schema with course status field and proper lifecycle management
+- Added course status selection in admin dashboard with proper form validation and editing capabilities
+- Updated frontend course display to show status-based behavior:
+  * "Upcoming" courses: Display "Coming Soon" with disabled enrollment buttons
+  * "Accepting Registrations" courses: Show pricing, enable registration, display preview content only
+  * "Live" courses: Full course content access with enrollment and progress tracking
+- Implemented status-based content accessibility in CourseDetail.tsx with lesson filtering
+- Added proper course status badges and messaging throughout the platform
+- Enhanced course enrollment flow with different button states and messaging for each status
+- Created comprehensive course content management with preview lesson support
+- Updated course review system to only allow reviews for live courses
+- Added informative messages for empty content states based on course status
+
 ### Comprehensive Admin Campaign Management System (July 15, 2025)
 - Enhanced database schema with additional campaign fields: field, duration, targetParticipants, requirements, timeline, outcomes
 - Added comprehensive campaign statistics dashboard with total campaigns, active campaigns, participants, and revenue tracking

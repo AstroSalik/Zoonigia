@@ -63,6 +63,7 @@ const courseFormSchema = insertCourseSchema.extend({
   level: z.enum(["beginner", "intermediate", "advanced"]),
   field: z.string().min(1, "Field is required"),
   instructorName: z.string().optional(),
+  status: z.enum(["upcoming", "accepting_registrations", "live"]).default("upcoming"),
   requirements: z.string().optional(),
   outcomes: z.string().optional(),
 });
@@ -259,6 +260,7 @@ const AdminDashboard = () => {
       level: "beginner",
       field: "",
       instructorName: "",
+      status: "upcoming",
       requirements: "",
       outcomes: "",
     },
@@ -343,6 +345,7 @@ const AdminDashboard = () => {
       level: course.level,
       field: course.field,
       instructorName: course.instructorName || "",
+      status: course.status || "upcoming",
       requirements: course.requirements || "",
       outcomes: course.outcomes || "",
     });
@@ -1408,9 +1411,11 @@ const AdminDashboard = () => {
                   <Dialog open={showCourseDialog} onOpenChange={setShowCourseDialog}>
                     <DialogContent className="bg-space-800 border-space-700 text-white max-w-2xl">
                         <DialogHeader>
-                          <DialogTitle className="text-white">Create New Course</DialogTitle>
+                          <DialogTitle className="text-white">
+                            {editMode.type === 'course' ? 'Edit Course' : 'Create New Course'}
+                          </DialogTitle>
                           <DialogDescription className="text-space-300">
-                            Add a new educational course to the platform
+                            {editMode.type === 'course' ? 'Update course information and settings' : 'Add a new educational course to the platform'}
                           </DialogDescription>
                         </DialogHeader>
                         <Form {...courseForm}>
@@ -1428,7 +1433,7 @@ const AdminDashboard = () => {
                                 </FormItem>
                               )}
                             />
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-3 gap-4">
                               <FormField
                                 control={courseForm.control}
                                 name="field"
@@ -1470,6 +1475,28 @@ const AdminDashboard = () => {
                                         <SelectItem value="beginner">Beginner</SelectItem>
                                         <SelectItem value="intermediate">Intermediate</SelectItem>
                                         <SelectItem value="advanced">Advanced</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={courseForm.control}
+                                name="status"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-space-300">Status</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                      <FormControl>
+                                        <SelectTrigger className="bg-space-700 border-space-600 text-white">
+                                          <SelectValue placeholder="Select status" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent className="bg-space-700 border-space-600">
+                                        <SelectItem value="upcoming">Upcoming</SelectItem>
+                                        <SelectItem value="accepting_registrations">Accepting Registrations</SelectItem>
+                                        <SelectItem value="live">Live</SelectItem>
                                       </SelectContent>
                                     </Select>
                                     <FormMessage />
@@ -1600,7 +1627,7 @@ const AdminDashboard = () => {
                                 disabled={createCourse.isPending}
                                 className="bg-cosmic-blue hover:bg-cosmic-blue/90"
                               >
-                                {createCourse.isPending ? "Creating..." : "Create Course"}
+                                {createCourse.isPending ? (editMode.type === 'course' ? "Updating..." : "Creating...") : (editMode.type === 'course' ? "Update Course" : "Create Course")}
                               </Button>
                             </div>
                           </form>
@@ -1616,9 +1643,9 @@ const AdminDashboard = () => {
                             <TableHead className="text-space-300">Title</TableHead>
                             <TableHead className="text-space-300">Field</TableHead>
                             <TableHead className="text-space-300">Level</TableHead>
+                            <TableHead className="text-space-300">Status</TableHead>
                             <TableHead className="text-space-300">Duration</TableHead>
                             <TableHead className="text-space-300">Price</TableHead>
-                            <TableHead className="text-space-300">Capacity</TableHead>
                             <TableHead className="text-space-300">Actions</TableHead>
                           </TableRow>
                         </TableHeader>
@@ -1636,9 +1663,25 @@ const AdminDashboard = () => {
                                   {course.level}
                                 </Badge>
                               </TableCell>
+                              <TableCell>
+                                <Badge variant="outline" className={
+                                  course.status === 'upcoming' ? 'text-blue-400 border-blue-400' :
+                                  course.status === 'accepting_registrations' ? 'text-orange-400 border-orange-400' :
+                                  'text-green-400 border-green-400'
+                                }>
+                                  {course.status === 'upcoming' ? 'Upcoming' :
+                                   course.status === 'accepting_registrations' ? 'Accepting Registrations' :
+                                   'Live'}
+                                </Badge>
+                              </TableCell>
                               <TableCell className="text-space-300">{course.duration}</TableCell>
-                              <TableCell className="text-space-300">₹{course.price}</TableCell>
-                              <TableCell className="text-space-300">{course.capacity}</TableCell>
+                              <TableCell className="text-space-300">
+                                {course.status === 'upcoming' ? (
+                                  <span className="text-gray-500">Coming Soon</span>
+                                ) : (
+                                  `₹${course.price}`
+                                )}
+                              </TableCell>
                               <TableCell>
                                 <div className="flex items-center gap-2">
                                   <Button

@@ -242,10 +242,12 @@ export default function CourseDetail() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span>Price:</span>
-                      <span className="text-2xl font-bold">₹{course.price}</span>
-                    </div>
+                    {course.status !== 'upcoming' && (
+                      <div className="flex items-center justify-between">
+                        <span>Price:</span>
+                        <span className="text-2xl font-bold">₹{course.price}</span>
+                      </div>
+                    )}
                     
                     <div className="flex items-center justify-between">
                       <span>Level:</span>
@@ -254,45 +256,87 @@ export default function CourseDetail() {
 
                     <div className="flex items-center justify-between">
                       <span>Status:</span>
-                      <Badge variant={course.status === 'published' ? 'default' : 'secondary'}>
-                        {course.status}
+                      <Badge variant={course.status === 'live' ? 'default' : 'secondary'}>
+                        {course.status === 'upcoming' ? 'Coming Soon' : 
+                         course.status === 'accepting_registrations' ? 'Accepting Registrations' : 
+                         'Live'}
                       </Badge>
                     </div>
 
-                    {isAuthenticated ? (
-                      isEnrolled ? (
-                        <div className="space-y-4">
-                          <div className="text-center">
-                            <CheckCircle className="w-8 h-8 text-green-400 mx-auto mb-2" />
-                            <p className="text-green-400 font-medium">Enrolled</p>
-                          </div>
-                          <div>
-                            <div className="flex justify-between text-sm mb-2">
-                              <span>Progress</span>
-                              <span>{Math.round(progressPercentage)}%</span>
+                    {course.status === 'upcoming' ? (
+                      <div className="text-center">
+                        <p className="text-blue-400 font-medium">Coming Soon</p>
+                        <p className="text-sm text-white/70 mt-2">
+                          This course is not yet available for enrollment.
+                        </p>
+                      </div>
+                    ) : course.status === 'accepting_registrations' ? (
+                      isAuthenticated ? (
+                        isEnrolled ? (
+                          <div className="space-y-4">
+                            <div className="text-center">
+                              <CheckCircle className="w-8 h-8 text-green-400 mx-auto mb-2" />
+                              <p className="text-green-400 font-medium">Registered</p>
                             </div>
-                            <Progress value={progressPercentage} className="h-2" />
-                            <p className="text-xs text-white/70 mt-1">
-                              {completedLessons} of {totalLessons} lessons completed
-                            </p>
+                            <div className="text-center">
+                              <p className="text-sm text-white/70">
+                                You'll receive access to full course content once it goes live.
+                              </p>
+                            </div>
                           </div>
-                        </div>
+                        ) : (
+                          <Button 
+                            onClick={() => enrollMutation.mutate()} 
+                            disabled={enrollMutation.isPending}
+                            className="w-full bg-orange-500 hover:bg-orange-600"
+                          >
+                            {enrollMutation.isPending ? 'Registering...' : 'Register Now'}
+                          </Button>
+                        )
                       ) : (
                         <Button 
-                          onClick={() => enrollMutation.mutate()} 
-                          disabled={enrollMutation.isPending}
-                          className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                          onClick={() => navigate('/api/login')}
+                          className="w-full bg-orange-500 hover:bg-orange-600"
                         >
-                          {enrollMutation.isPending ? 'Enrolling...' : 'Enroll Now'}
+                          Login to Register
                         </Button>
                       )
                     ) : (
-                      <Button 
-                        onClick={() => navigate('/api/login')}
-                        className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-                      >
-                        Login to Enroll
-                      </Button>
+                      isAuthenticated ? (
+                        isEnrolled ? (
+                          <div className="space-y-4">
+                            <div className="text-center">
+                              <CheckCircle className="w-8 h-8 text-green-400 mx-auto mb-2" />
+                              <p className="text-green-400 font-medium">Enrolled</p>
+                            </div>
+                            <div>
+                              <div className="flex justify-between text-sm mb-2">
+                                <span>Progress</span>
+                                <span>{Math.round(progressPercentage)}%</span>
+                              </div>
+                              <Progress value={progressPercentage} className="h-2" />
+                              <p className="text-xs text-white/70 mt-1">
+                                {completedLessons} of {totalLessons} lessons completed
+                              </p>
+                            </div>
+                          </div>
+                        ) : (
+                          <Button 
+                            onClick={() => enrollMutation.mutate()} 
+                            disabled={enrollMutation.isPending}
+                            className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                          >
+                            {enrollMutation.isPending ? 'Enrolling...' : 'Enroll Now'}
+                          </Button>
+                        )
+                      ) : (
+                        <Button 
+                          onClick={() => navigate('/api/login')}
+                          className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                        >
+                          Login to Enroll
+                        </Button>
+                      )
                     )}
                   </div>
                 </CardContent>
@@ -315,12 +359,23 @@ export default function CourseDetail() {
               <CardHeader>
                 <CardTitle className="text-white">Course Curriculum</CardTitle>
                 <CardDescription className="text-white/70">
-                  {totalLessons} lessons • {course.totalDuration || 0} minutes total
+                  {course.status === 'upcoming' ? 'Coming Soon' : 
+                   course.status === 'accepting_registrations' ? 'Preview Content Only' :
+                   `${totalLessons} lessons • ${course.totalDuration || 0} minutes total`}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {lessons.map((lesson: CourseLesson) => {
+                  {lessons
+                    .filter((lesson: CourseLesson) => {
+                      // Show all lessons for live courses
+                      if (course.status === 'live') return true;
+                      // Show only preview lessons for accepting registrations courses
+                      if (course.status === 'accepting_registrations') return lesson.isPreview;
+                      // Show no lessons for upcoming courses
+                      return false;
+                    })
+                    .map((lesson: CourseLesson) => {
                     const isCompleted = progress.some((p: StudentProgress) => 
                       p.lessonId === lesson.id && p.completed
                     );
@@ -359,7 +414,7 @@ export default function CourseDetail() {
                         </div>
 
                         <div className="flex items-center gap-2">
-                          {(isEnrolled || lesson.isPreview) && (
+                          {(course.status === 'live' && isEnrolled) || lesson.isPreview ? (
                             <Button
                               variant="outline"
                               size="sm"
@@ -371,9 +426,27 @@ export default function CourseDetail() {
                             >
                               {lesson.type === 'video' ? 'Watch' : 'View'}
                             </Button>
+                          ) : course.status === 'accepting_registrations' ? (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              disabled
+                              className="text-gray-500 border-gray-500 cursor-not-allowed"
+                            >
+                              {lesson.isPreview ? 'Preview' : 'Locked'}
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              disabled
+                              className="text-gray-500 border-gray-500 cursor-not-allowed"
+                            >
+                              Coming Soon
+                            </Button>
                           )}
                           
-                          {isEnrolled && !isCompleted && (
+                          {course.status === 'live' && isEnrolled && !isCompleted && (
                             <Button
                               variant="outline"
                               size="sm"
@@ -388,6 +461,18 @@ export default function CourseDetail() {
                       </div>
                     );
                   })}
+                  
+                  {course.status === 'upcoming' && (
+                    <div className="text-center py-8">
+                      <p className="text-white/70">Course curriculum will be available soon.</p>
+                    </div>
+                  )}
+                  
+                  {course.status === 'accepting_registrations' && lessons.filter(l => l.isPreview).length === 0 && (
+                    <div className="text-center py-8">
+                      <p className="text-white/70">No preview lessons available yet.</p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -403,7 +488,7 @@ export default function CourseDetail() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
-                  {isEnrolled && (
+                  {isEnrolled && course.status === 'live' && (
                     <div className="border-b border-white/20 pb-6">
                       <h4 className="text-white font-medium mb-4">Write a Review</h4>
                       <Form {...form}>
