@@ -385,7 +385,15 @@ const Campaigns = () => {
                   <div className="bg-space-800 p-4 rounded-lg mb-6">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm text-space-400">Campaign Progress</span>
-                      <span className="text-sm text-cosmic-green">Ongoing Registrations</span>
+                      <span className={`text-sm ${
+                        campaign.status === "upcoming" ? "text-cosmic-yellow" :
+                        campaign.status === "active" ? "text-cosmic-green" :
+                        "text-cosmic-orange"
+                      }`}>
+                        {campaign.status === "upcoming" ? "Upcoming" :
+                         campaign.status === "active" ? "Ongoing Registrations" :
+                         "Registration Closed"}
+                      </span>
                     </div>
                     <Progress value={campaign.progress || 20} className="h-2" />
                   </div>
@@ -416,7 +424,9 @@ const Campaigns = () => {
                       className="w-full bg-cosmic-blue hover:bg-blue-600"
                       disabled={campaign.status !== "active"}
                     >
-                      {campaign.status === "active" ? `Register Now - ₹${campaign.price}` : "Registration Closed"}
+                      {campaign.status === "upcoming" ? "Registrations Open Soon" :
+                       campaign.status === "active" ? `Register Now - ₹${campaign.price}` : 
+                       "Registration Closed"}
                     </Button>
                   </Link>
                 </CardContent>
