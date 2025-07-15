@@ -184,7 +184,11 @@ const Blog = () => {
                             <Calendar className="w-4 h-4 mr-2" />
                             Dec 10, 2024
                           </div>
-                          <Button variant="ghost" className="text-cosmic-blue hover:text-blue-400 p-0">
+                          <Button 
+                            variant="ghost" 
+                            className="text-cosmic-blue hover:text-blue-400 p-0"
+                            onClick={() => setLocation(`/blog/sample-1`)}
+                          >
                             Read More <ArrowRight className="w-4 h-4 ml-1" />
                           </Button>
                         </div>
@@ -215,7 +219,11 @@ const Blog = () => {
                             <Calendar className="w-4 h-4 mr-2" />
                             Dec 8, 2024
                           </div>
-                          <Button variant="ghost" className="text-cosmic-blue hover:text-blue-400 p-0">
+                          <Button 
+                            variant="ghost" 
+                            className="text-cosmic-blue hover:text-blue-400 p-0"
+                            onClick={() => setLocation(`/blog/sample-2`)}
+                          >
                             Read More <ArrowRight className="w-4 h-4 ml-1" />
                           </Button>
                         </div>

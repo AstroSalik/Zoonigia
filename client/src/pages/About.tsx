@@ -30,9 +30,11 @@ const About = () => {
             </h1>
             <p className="text-xl text-space-200 mb-8">Empowering future innovators and explorers through immersive frontier sciences exploration</p>
             <div className="flex justify-center">
-              <Button className="cosmic-gradient hover:opacity-90 px-8 py-4 text-lg">
-                <Link href="/register">Join Our Mission</Link>
-              </Button>
+              <Link href="/register">
+                <Button className="cosmic-gradient hover:opacity-90 px-8 py-4 text-lg">
+                  Join Our Mission
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -174,12 +176,16 @@ const About = () => {
               Be part of a community that's pushing the boundaries of science education and inspiring the next generation.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button className="cosmic-gradient hover:opacity-90 px-8 py-4 text-lg">
-                <Link href="/register">Get Started Today</Link>
-              </Button>
-              <Button variant="outline" className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900 px-8 py-4 text-lg">
-                <Link href="/contact">Contact Us</Link>
-              </Button>
+              <Link href="/register">
+                <Button className="cosmic-gradient hover:opacity-90 px-8 py-4 text-lg">
+                  Get Started Today
+                </Button>
+              </Link>
+              <Link href="/contact">
+                <Button variant="outline" className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900 px-8 py-4 text-lg">
+                  Contact Us
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

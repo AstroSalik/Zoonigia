@@ -376,7 +376,11 @@ const Contact = () => {
                 <p className="text-space-300 mb-4">
                   Want to support our mission or explore collaboration opportunities? We'd love to hear from you.
                 </p>
-                <Button variant="outline" className="border-cosmic-purple text-cosmic-purple hover:bg-cosmic-purple hover:text-space-900">
+                <Button 
+                  variant="outline" 
+                  className="border-cosmic-purple text-cosmic-purple hover:bg-cosmic-purple hover:text-space-900"
+                  onClick={() => window.location.href = 'mailto:founder@zoonigia.com'}
+                >
                   Collaboration Team
                 </Button>
               </GlassMorphism>
@@ -422,7 +426,11 @@ const Contact = () => {
               </div>
               
               <div className="text-center mt-8">
-                <Button variant="outline" className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900">
+                <Button 
+                  variant="outline" 
+                  className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900"
+                  onClick={() => window.location.href = 'mailto:help@zoonigia.com'}
+                >
                   View All FAQs
                 </Button>
               </div>
@@ -437,11 +445,18 @@ const Contact = () => {
                 For urgent matters or technical issues during workshops, please contact our support team directly.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button className="bg-cosmic-green hover:bg-green-600 px-8">
+                <Button 
+                  className="bg-cosmic-green hover:bg-green-600 px-8"
+                  onClick={() => window.location.href = 'tel:+919876543210'}
+                >
                   <Phone className="w-5 h-5 mr-2" />
                   Call Support: +91 98765 43210
                 </Button>
-                <Button variant="outline" className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900 px-8">
+                <Button 
+                  variant="outline" 
+                  className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900 px-8"
+                  onClick={() => window.location.href = 'mailto:support@zoonigia.com'}
+                >
                   <Mail className="w-5 h-5 mr-2" />
                   Email: support@zoonigia.com
                 </Button>

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +27,7 @@ const Courses = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedField, setSelectedField] = useState("all");
   const [selectedLevel, setSelectedLevel] = useState("all");
+  const [, setLocation] = useLocation();
 
   const { data: courses, isLoading } = useQuery<Course[]>({
     queryKey: ["/api/courses"],
@@ -208,7 +209,10 @@ const Courses = () => {
                           <ArrowRight className="w-4 h-4 ml-2" />
                         </Button>
                       </Link>
-                      <Button className="cosmic-gradient hover:opacity-90 px-6">
+                      <Button 
+                        className="cosmic-gradient hover:opacity-90 px-6"
+                        onClick={() => setLocation(`/courses/${course.id}`)}
+                      >
                         Enroll Now
                       </Button>
                     </div>
@@ -275,10 +279,17 @@ const Courses = () => {
                 Join thousands of students who are already advancing their careers with our comprehensive courses
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button className="cosmic-gradient hover:opacity-90 px-8">
+                <Button 
+                  className="cosmic-gradient hover:opacity-90 px-8"
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                >
                   View All Courses
                 </Button>
-                <Button variant="outline" className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900 px-8">
+                <Button 
+                  variant="outline" 
+                  className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900 px-8"
+                  onClick={() => setLocation('/contact')}
+                >
                   Contact for Custom Training
                 </Button>
               </div>

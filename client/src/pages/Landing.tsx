@@ -48,6 +48,7 @@ const Landing = () => {
               <Button 
                 variant="outline" 
                 className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900 px-8 py-6 text-lg"
+                onClick={() => window.location.href = '/about'}
               >
                 Learn More
               </Button>
