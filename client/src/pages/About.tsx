@@ -28,7 +28,7 @@ const About = () => {
                 About Zoonigia
               </span>
             </h1>
-            <p className="text-xl text-space-200 mb-8">Empowering future innovators and explorers through immersive frontier sciences exploration where science blends literature and philosophy</p>
+            <p className="text-xl text-space-200 mb-8">Empowering future innovators and explorers through immersive frontier sciences exploration</p>
             <div className="flex justify-center">
               <Button className="cosmic-gradient hover:opacity-90 px-8 py-4 text-lg">
                 <Link href="/register">Join Our Mission</Link>
