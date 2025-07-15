@@ -70,7 +70,8 @@ const Schools = () => {
   const inquiryMutation = useMutation({
     mutationFn: async (data: SchoolInquiryData) => {
       const response = await apiRequest("POST", "/api/contact", {
-        ...data,
+        name: data.contactPerson,
+        email: data.email,
         subject: "School Partnership Inquiry",
         message: `School: ${data.schoolName}\nContact: ${data.contactPerson}\nPhone: ${data.phone}\nLocation: ${data.location}\nStudents: ${data.studentCount}\nPrograms: ${data.preferredPrograms.join(", ")}\nAdditional Requirements: ${data.additionalRequirements}`,
         inquiryType: "partnership",
