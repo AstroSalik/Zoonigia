@@ -1,17 +1,21 @@
-import * as client from "openid-client";
+import { Issuer, generators } from "openid-client";
 import session from "express-session";
 import crypto from "crypto";
 import type { Express, Request, Response, NextFunction } from "express";
 
-let googleConfig: any;
+let googleClient: any;
 
 export async function setupAuth(app: Express) {
-  // Discover Google issuer configuration
-  googleConfig = await client.discovery(
-    new URL("https://accounts.google.com"),
-    process.env.GOOGLE_CLIENT_ID!,
-    process.env.GOOGLE_CLIENT_SECRET!
-  );
+  // Discover Google issuer
+  const googleIssuer = await Issuer.discover("https://accounts.google.com");
+
+  // Create client with credentials
+  googleClient = new googleIssuer.Client({
+    client_id: process.env.GOOGLE_CLIENT_ID!,
+    client_secret: process.env.GOOGLE_CLIENT_SECRET!,
+    redirect_uris: [process.env.GOOGLE_REDIRECT_URI!],
+    response_types: ["code"],
+  });
 
   // Set up session
   app.use(
@@ -25,49 +29,40 @@ export async function setupAuth(app: Express) {
 
   // Route: /auth/login
   app.get("/auth/login", (req: Request, res: Response) => {
-    try {
-      const codeVerifier = client.randomPKCECodeVerifier();
-      const codeChallenge = crypto
-        .createHash("sha256")
-        .update(codeVerifier)
-        .digest("base64url");
-      (req.session as any).codeVerifier = codeVerifier;
+    const codeVerifier = generators.codeVerifier();
+    const codeChallenge = crypto
+      .createHash("sha256")
+      .update(codeVerifier)
+      .digest("base64url");
 
-      // Use current domain for redirect URI in development
-      const currentDomain = `${req.protocol}://${req.get('host')}`;
-      const redirectUri = `${currentDomain}/auth/callback`;
+    (req.session as any).codeVerifier = codeVerifier;
 
-      const authUrl = client.buildAuthorizationUrl(googleConfig, {
-        scope: "openid email profile",
-        code_challenge: codeChallenge,
-        code_challenge_method: "S256",
-        redirect_uri: redirectUri,
-      });
+    const authUrl = googleClient.authorizationUrl({
+      scope: "openid email profile",
+      code_challenge: codeChallenge,
+      code_challenge_method: "S256",
+    });
 
-      res.redirect(authUrl.href);
-    } catch (error) {
-      console.error("Login error:", error);
-      res.status(500).send("Authentication error");
-    }
+    res.redirect(authUrl);
   });
 
   // Route: /auth/callback
   app.get("/auth/callback", async (req: Request, res: Response) => {
     try {
-      const codeVerifier = (req.session as any).codeVerifier;
-      const currentUrl = new URL(req.url!, `http://${req.headers.host}`);
+      const params = googleClient.callbackParams(req);
+      const tokenSet = await googleClient.callback(
+        process.env.GOOGLE_REDIRECT_URI!,
+        params,
+        { code_verifier: (req.session as any).codeVerifier }
+      );
 
-      const tokenSet = await client.authorizationCodeGrant(googleConfig, currentUrl, {
-        pkceCodeVerifier: codeVerifier,
-      });
+      const userinfo = await googleClient.userinfo(tokenSet.access_token!);
 
-      const userinfo = await client.fetchUserInfo(googleConfig, tokenSet.access_token!);
-      
       // Store user info in session with claims structure
       (req.session as any).user = {
         claims: userinfo,
         access_token: tokenSet.access_token,
-        expires_at: tokenSet.expires_at
+        expires_at: tokenSet.expires_at,
       };
 
       // Upsert user in database
