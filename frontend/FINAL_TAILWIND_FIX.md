@@ -29,13 +29,11 @@ css: {
 }
 ```
 
-### ✅ 3. Added Vercel Root Directory Configuration
-**NEW FILE**: `vercel.json`
-```json
-{
-  "rootDirectory": "frontend"
-}
-```
+### ✅ 3. Vercel Root Directory Configuration
+**IMPORTANT**: Set root directory to `frontend` in Vercel Dashboard:
+- Go to Project Settings → General → Root Directory
+- Set to: `frontend`
+- Save and redeploy
 
 ## Configuration Status - ALL VERIFIED
 
@@ -51,10 +49,8 @@ frontend/
 └── package.json          ✅ All dependencies present
 ```
 
-### ✅ Root Level
-```
-├── vercel.json           ✅ { "rootDirectory": "frontend" }
-```
+### ✅ Vercel Dashboard Configuration
+- Root Directory: `frontend` (set in Vercel Dashboard UI)
 
 ## Why This Fix Works
 1. **Direct PostCSS Import**: Guarantees Vercel processes Tailwind during build
