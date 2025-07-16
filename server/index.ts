@@ -40,6 +40,15 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
 
+  // Debug route to test server is working
+  app.get("/test", (_req, res) => {
+    res.json({ 
+      message: "Server is up and routing correctly",
+      environment: process.env.NODE_ENV,
+      timestamp: new Date().toISOString()
+    });
+  });
+
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
