@@ -72,6 +72,9 @@ const Navigation = () => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56 bg-space-800 border-space-700" align="end" forceMount>
+                  <div className="px-2 py-1.5 text-sm text-space-400 border-b border-space-700">
+                    Logged in as {user?.firstName || user?.email}
+                  </div>
                   <DropdownMenuItem className="text-space-200 hover:text-space-50 hover:bg-space-700">
                     <User className="mr-2 h-4 w-4" />
                     <span>Profile</span>

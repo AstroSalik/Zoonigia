@@ -39,6 +39,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test route to verify authentication
+  app.get("/api/auth/test", isAuthenticated, async (req: any, res) => {
+    res.json({
+      message: "Authentication successful!",
+      user: req.user.claims,
+      timestamp: new Date().toISOString(),
+    });
+  });
+
   // Admin middleware
   const isAdmin = async (req: any, res: any, next: any) => {
     try {
