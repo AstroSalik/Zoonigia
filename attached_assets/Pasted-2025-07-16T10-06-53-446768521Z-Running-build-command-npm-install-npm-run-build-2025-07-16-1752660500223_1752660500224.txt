@@ -1,0 +1,61 @@
+2025-07-16T10:06:53.446768521Z ==> Running build command 'npm install; npm run build'...
+2025-07-16T10:07:03.435283225Z 
+2025-07-16T10:07:03.437447621Z added 505 packages, and audited 506 packages in 10s
+2025-07-16T10:07:03.437471762Z 
+2025-07-16T10:07:03.437489422Z 66 packages are looking for funding
+2025-07-16T10:07:03.437495742Z   run `npm fund` for details
+2025-07-16T10:07:03.471785975Z 
+2025-07-16T10:07:03.471813375Z 9 vulnerabilities (1 low, 8 moderate)
+2025-07-16T10:07:03.471816165Z 
+2025-07-16T10:07:03.471819425Z To address issues that do not require attention, run:
+2025-07-16T10:07:03.471821565Z   npm audit fix
+2025-07-16T10:07:03.471823625Z 
+2025-07-16T10:07:03.471825856Z To address all issues (including breaking changes), run:
+2025-07-16T10:07:03.471828996Z   npm audit fix --force
+2025-07-16T10:07:03.471830936Z 
+2025-07-16T10:07:03.471833746Z Run `npm audit` for details.
+2025-07-16T10:07:03.740420764Z 
+2025-07-16T10:07:03.740450214Z > rest-express@1.0.0 build
+2025-07-16T10:07:03.740454955Z > vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+2025-07-16T10:07:03.740462084Z 
+2025-07-16T10:07:03.964272316Z vite v5.4.19 building for production...
+2025-07-16T10:07:04.028385206Z transforming...
+2025-07-16T10:07:04.403543461Z Browserslist: browsers data (caniuse-lite) is 9 months old. Please run:
+2025-07-16T10:07:04.403570931Z   npx update-browserslist-db@latest
+2025-07-16T10:07:04.403575361Z   Why you should do it regularly: https://github.com/browserslist/update-db#readme
+2025-07-16T10:07:10.238589551Z ✓ 2213 modules transformed.
+2025-07-16T10:07:10.732183176Z rendering chunks...
+2025-07-16T10:07:10.743645821Z computing gzip size...
+2025-07-16T10:07:10.768636805Z ../dist/index.html                   0.63 kB │ gzip:   0.38 kB
+2025-07-16T10:07:10.768752197Z ../dist/assets/index-D8wCKlcf.css   96.66 kB │ gzip:  15.92 kB
+2025-07-16T10:07:10.768822138Z ../dist/assets/index-du2o5w1d.js   960.41 kB │ gzip: 261.49 kB
+2025-07-16T10:07:10.769009253Z 
+2025-07-16T10:07:10.769019203Z (!) Some chunks are larger than 500 kB after minification. Consider:
+2025-07-16T10:07:10.769022773Z - Using dynamic import() to code-split the application
+2025-07-16T10:07:10.769028483Z - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+2025-07-16T10:07:10.769031413Z - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+2025-07-16T10:07:10.769521724Z ✓ built in 6.78s
+2025-07-16T10:07:10.838044837Z 
+2025-07-16T10:07:10.838072188Z   dist/index.js  73.3kb
+2025-07-16T10:07:10.838076858Z 
+2025-07-16T10:07:10.838081298Z ⚡ Done in 7ms
+2025-07-16T10:07:12.355569198Z ==> Uploading build...
+2025-07-16T10:07:21.186505762Z ==> Uploaded in 5.5s. Compression took 3.4s
+2025-07-16T10:07:21.225069616Z ==> Build successful 🎉
+2025-07-16T10:07:26.651387584Z ==> Deploying...
+2025-07-16T10:07:44.018680249Z ==> Running 'npm run start'
+2025-07-16T10:07:44.31772379Z 
+2025-07-16T10:07:44.31774568Z > rest-express@1.0.0 start
+2025-07-16T10:07:44.31774953Z > NODE_ENV=production node dist/index.js
+2025-07-16T10:07:44.31775117Z 
+2025-07-16T10:07:46.758200603Z Warning: connect.session() MemoryStore is not
+2025-07-16T10:07:46.758220983Z designed for a production environment, as it will leak
+2025-07-16T10:07:46.758223373Z memory, and will not scale past a single process.
+2025-07-16T10:07:46.819495214Z 10:07:46 AM [express] serving on port 10000
+2025-07-16T10:07:48.490026885Z ==> Your service is live 🎉
+2025-07-16T10:07:48.669978976Z ==> 
+2025-07-16T10:07:48.841058879Z ==> ///////////////////////////////////////////////////////////
+2025-07-16T10:07:49.010823032Z ==> 
+2025-07-16T10:07:49.184406444Z ==> Available at your primary URL https://zoonigia-web.onrender.com
+2025-07-16T10:07:49.400837882Z ==> 
+2025-07-16T10:07:49.90410418Z ==> ///////////////////////////////////////////////////////////
