@@ -22,7 +22,7 @@ import Contact from "@/pages/Contact";
 import AdminDashboard from "@/pages/AdminDashboard";
 import Landing from "@/pages/Landing";
 
-function Router() {
+function AppRouter() {
   const { isAuthenticated, isLoading } = useAuth();
 
   return (
@@ -64,7 +64,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
-        <Router />
+        <AppRouter />
       </TooltipProvider>
     </QueryClientProvider>
   );
