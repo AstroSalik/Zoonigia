@@ -1,0 +1,225 @@
+Absolutely! Here's a clear, detailed guide with clear separation between **what to instruct your Replit (or remote CI) agent to do** (“Agent Steps”) and **what you, the developer, need to do and review** (“Your Steps”).
+
+---
+
+## 🧩 Overview
+
+We’ll split into two independent services:
+
+1. **Frontend**
+
+   * Tech: Vite + React + Wouter
+   * Deploy to: **Vercel**
+
+2. **Backend**
+
+   * Tech: Express + OpenID‑Client (Google OIDC with PKCE) + session + PostgreSQL
+   * Deploy to: **Render**
+
+This separation ensures each environment builds and deploys cleanly without conflicts.
+
+---
+
+## 🔧 Agent Steps (Automated/CI-Friendly)
+
+Copy and paste these steps into your CI/deployment agent scripts:
+
+### Frontend (Vercel)
+
+```bash
+cd frontend
+npm ci            # install clean
+npm run build     # produce dist/
+# (Vercel builds automatically after push)
+```
+
+### Backend (Render)
+
+```bash
+cd backend
+npm ci
+npm run build     # compile if TS, or no-op if JS
+npm start         # Launch server
+```
+
+Make sure environment variables are passed in Render dashboard:
+
+* `SESSION_SECRET`
+* `DATABASE_URL`
+* `GOOGLE_CLIENT_ID`
+* `GOOGLE_CLIENT_SECRET`
+* `GOOGLE_REDIRECT_URI=https://<your-backend>.onrender.com/auth/callback`
+* `NODE_ENV=production`
+
+---
+
+## 💻 Your Steps (Manual / Setup)
+
+### 1. Repo structure
+
+```
+/
+├─ frontend/
+│   └─ vite.config.ts
+│   └─ src/
+│   └─ package.json
+├─ backend/
+│   └─ server.ts
+│   └─ auth.ts
+│   └─ storage.ts
+│   └─ package.json
+└─ README.md
+```
+
+### 2. **frontend/package.json**
+
+```json
+{
+  "name": "zoonigia-frontend",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "react": "...",
+    "react-dom": "...",
+    "wouter": "^2.7.8"
+  },
+  "devDependencies": {
+    "vite": "^5.4.19",
+    "@vitejs/plugin-react": "^4.3.2"
+  }
+}
+```
+
+### 3. **frontend/vite.config.ts**
+
+```ts
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+  plugins: [react()],
+  build: {
+    outDir: "dist"
+  }
+});
+```
+
+### 4. **frontend/src/App.tsx** (Essential bits only)
+
+```ts
+const API = import.meta.env.VITE_API_URL;
+
+function fetchUser() {
+  return fetch(`${API}/api/auth/user`, { credentials: 'include' });
+}
+```
+
+And ensure `VITE_API_URL` is set to your backend URL in Vercel.
+
+### 5. **backend/package.json**
+
+```json
+{
+  "name": "zoonigia-backend",
+  "type": "module",
+  "scripts": {
+    "build": "echo build done",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "...",
+    "openid-client": "...",
+    "express-session": "...",
+    "connect-pg-simple": "...",
+    "crypto": "...",
+    "pg": "..."
+  }
+}
+```
+
+### 6. **backend/server.ts**
+
+```ts
+import express from 'express';
+import path from 'path';
+import session from 'express-session';
+import pgStore from 'connect-pg-simple';
+import authRouter from './auth.js';
+import apiRouter from './api.js';
+
+const app = express();
+
+app.use(session({
+  store: new (pgStore(session))({ conString: process.env.DATABASE_URL }),
+  secret: process.env.SESSION_SECRET!,
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: process.env.NODE_ENV === 'production' }
+}));
+
+app.use(authRouter);
+app.use('/api', apiRouter);
+
+// Serve frontend static files
+const distPath = path.resolve(process.cwd(), '../frontend/dist');
+app.use(express.static(distPath));
+
+// Fallback for SPA
+app.all('*', (_req, res) => {
+  res.sendFile(path.join(distPath, 'index.html'));
+});
+
+app.listen(+process.env.PORT!, () => console.log('Backend listening'));
+```
+
+### 7. **backend/auth.ts**
+
+Paste your existing OIDC code here—making sure:
+
+* Issuer is discovered with `Issuer.discover(...)`
+* Client is `new issuer.Client({ client_id, client_secret, redirect_uris: [process.env.GOOGLE_REDIRECT_URI] })`
+* PKCE uses crypto to generate code challenge/verifier
+* Callback stores `req.session.user` with tokens and claims
+
+### 8. Configure Vercel
+
+* Set Build command: `npm ci && npm run build`
+* Output directory: `frontend/dist`
+* Add env var: `VITE_API_URL=https://<your-backend>.onrender.com`
+
+### 9. Configure Render
+
+* Root dir: `backend/`
+* Build: `npm ci && npm run build`
+* Start: `npm start`
+* Env vars as shown above
+
+---
+
+## ✅ Final Self-Check (Before Deploying)
+
+| Checkpoint                         | Confirmed |
+| ---------------------------------- | :-------: |
+| Frontend builds successfully       |     ☐     |
+| Backend starts and listens         |     ☐     |
+| `/api/auth/user` returns JSON      |     ☐     |
+| Frontend served via Vercel         |     ☐     |
+| OIDC login flow works end-to-end   |     ☐     |
+| SPA routing works (no blue screen) |     ☐     |
+| Session persists across requests   |     ☐     |
+
+---
+
+## 🔜 Next
+
+1. Implement/finalize file contents above.
+2. Push `frontend/` and `backend/` directories to GitHub.
+3. Configure deployments for each.
+4. Run through the checklist above.
+5. 🎉 Enjoy a fully separated, working, deployable app!
+
+—
+
+**Let me know once you’ve done #1–3**, and I can help you test specific routes or verify build configurations live!
