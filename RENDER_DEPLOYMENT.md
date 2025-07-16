@@ -5,11 +5,13 @@
 - ✅ Server configuration correct
 - ✅ SPA routing fallback implemented
 - ✅ Static file serving configured
-- ✅ Vite properly installed as dev dependency
+- ✅ Vite properly installed as regular dependency (v5.4.19)
 - ✅ Build process working (takes ~2-3 minutes due to icon bundling)
+- ✅ Dependency conflicts resolved (Vite v5 compatible with React plugins)
 
 ## The Issue (RESOLVED)
 The previous "vite: not found" error was due to missing dependency, now fixed.
+Vite v6 compatibility issues with React plugins resolved by downgrading to v5.4.19.
 
 ## Exact Solution
 
@@ -24,7 +26,7 @@ The configuration is now production-ready:
 
 **Build Command:**
 ```bash
-npm run build
+npm install --legacy-peer-deps && npm run build
 ```
 
 **Start Command:**
