@@ -90,10 +90,7 @@ const Navigation = () => {
                   )}
                   <DropdownMenuItem 
                     className="text-space-200 hover:text-space-50 hover:bg-space-700"
-                    onClick={() => {
-                      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-                      window.location.href = `${API_BASE_URL}/auth/logout`;
-                    }}
+                    onClick={() => window.location.href = '/auth/logout'}
                   >
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Log out</span>
@@ -105,10 +102,7 @@ const Navigation = () => {
                 <Button 
                   variant="outline" 
                   className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900"
-                  onClick={() => {
-                    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-                    window.location.href = `${API_BASE_URL}/auth/login`;
-                  }}
+                  onClick={() => window.location.href = '/auth/login'}
                 >
                   Sign In
                 </Button>
