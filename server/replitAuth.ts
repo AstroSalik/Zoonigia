@@ -7,10 +7,10 @@ let googleClient: any;
 
 export async function setupAuth(app: Express) {
   // Discover Google issuer
-  const googleIssuer = await Issuer.discover("https://accounts.google.com");
+  const issuer = await Issuer.discover("https://accounts.google.com");
 
   // Create client with credentials
-  googleClient = new googleIssuer.Client({
+  googleClient = new issuer.Client({
     client_id: process.env.GOOGLE_CLIENT_ID!,
     client_secret: process.env.GOOGLE_CLIENT_SECRET!,
     redirect_uris: [process.env.GOOGLE_REDIRECT_URI!],

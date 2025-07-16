@@ -16,6 +16,7 @@ Zoonigia is a comprehensive full-stack web application designed to empower futur
 - Updated authentication middleware to handle Google OAuth session format
 - Resolved redirect URI configuration for proper local development and production deployment
 - **COMPLETED**: Fixed "[object Promise]" error in authentication URL generation
+- **COMPLETED**: Resolved client_id required error by properly separating issuer discovery from client creation
 - **COMPLETED**: Authentication flow now fully functional with proper PKCE code challenges
 - **COMPLETED**: All authentication endpoints working correctly with secure session management
 - **COMPLETED**: Added personalized welcome message for Munaf with toast notification system

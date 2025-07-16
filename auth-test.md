@@ -7,7 +7,8 @@
 1. **Authentication URL Generation**: ✅ WORKING
    - Test: `curl -I http://localhost:5000/auth/login`
    - Result: Properly redirects to Google OAuth with valid PKCE challenge
-   - Code challenge: `qgCuSUSNK8FZBzbrHxRyJiDm2FEP8LjYPL5xnyM6EgU` (not `[object Promise]`)
+   - Code challenge: `-lqyMcqrIJ4O9xh7rKZQphdM8uPDxkxXetDADjkZE4E` (not `[object Promise]`)
+   - Fixed client_id error by separating issuer discovery from client creation
 
 2. **Protected Route Access**: ✅ WORKING
    - Test: `curl http://localhost:5000/api/auth/test`
