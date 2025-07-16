@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { 
+import {
   insertWorkshopEnrollmentSchema,
   insertCourseEnrollmentSchema,
   insertCampaignParticipantSchema,
@@ -11,13 +11,13 @@ import {
   insertBlogPostSchema,
   insertWorkshopSchema,
   insertCourseSchema,
-  insertCampaignSchema
+  insertCampaignSchema,
 } from "@shared/schema";
 import { z } from "zod";
 import Stripe from "stripe";
 
 if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+  throw new Error("Missing required Stripe secret: STRIPE_SECRET_KEY");
 }
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: "2023-10-16",
@@ -28,7 +28,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   await setupAuth(app);
 
   // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  app.get("/api/auth/user", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
@@ -55,341 +55,517 @@ export async function registerRoutes(app: Express): Promise<Server> {
   };
 
   // Admin routes
-  app.get('/api/admin/users', isAuthenticated, isAdmin, async (req: any, res) => {
-    try {
-      const users = await storage.getAllUsers();
-      res.json(users);
-    } catch (error) {
-      console.error("Error fetching users:", error);
-      res.status(500).json({ message: "Failed to fetch users" });
-    }
-  });
+  app.get(
+    "/api/admin/users",
+    isAuthenticated,
+    isAdmin,
+    async (req: any, res) => {
+      try {
+        const users = await storage.getAllUsers();
+        res.json(users);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+        res.status(500).json({ message: "Failed to fetch users" });
+      }
+    },
+  );
 
-  app.get('/api/admin/blog-posts', isAuthenticated, isAdmin, async (req: any, res) => {
-    try {
-      const posts = await storage.getBlogPosts();
-      res.json(posts);
-    } catch (error) {
-      console.error("Error fetching blog posts:", error);
-      res.status(500).json({ message: "Failed to fetch blog posts" });
-    }
-  });
+  app.get(
+    "/api/admin/blog-posts",
+    isAuthenticated,
+    isAdmin,
+    async (req: any, res) => {
+      try {
+        const posts = await storage.getBlogPosts();
+        res.json(posts);
+      } catch (error) {
+        console.error("Error fetching blog posts:", error);
+        res.status(500).json({ message: "Failed to fetch blog posts" });
+      }
+    },
+  );
 
-  app.get('/api/admin/workshops', isAuthenticated, isAdmin, async (req: any, res) => {
-    try {
-      const workshops = await storage.getWorkshops();
-      res.json(workshops);
-    } catch (error) {
-      console.error("Error fetching workshops:", error);
-      res.status(500).json({ message: "Failed to fetch workshops" });
-    }
-  });
+  app.get(
+    "/api/admin/workshops",
+    isAuthenticated,
+    isAdmin,
+    async (req: any, res) => {
+      try {
+        const workshops = await storage.getWorkshops();
+        res.json(workshops);
+      } catch (error) {
+        console.error("Error fetching workshops:", error);
+        res.status(500).json({ message: "Failed to fetch workshops" });
+      }
+    },
+  );
 
-  app.get('/api/admin/courses', isAuthenticated, isAdmin, async (req: any, res) => {
-    try {
-      const courses = await storage.getCourses();
-      res.json(courses);
-    } catch (error) {
-      console.error("Error fetching courses:", error);
-      res.status(500).json({ message: "Failed to fetch courses" });
-    }
-  });
+  app.get(
+    "/api/admin/courses",
+    isAuthenticated,
+    isAdmin,
+    async (req: any, res) => {
+      try {
+        const courses = await storage.getCourses();
+        res.json(courses);
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+        res.status(500).json({ message: "Failed to fetch courses" });
+      }
+    },
+  );
 
-  app.get('/api/admin/campaigns', isAuthenticated, isAdmin, async (req: any, res) => {
-    try {
-      const campaigns = await storage.getCampaigns();
-      res.json(campaigns);
-    } catch (error) {
-      console.error("Error fetching campaigns:", error);
-      res.status(500).json({ message: "Failed to fetch campaigns" });
-    }
-  });
+  app.get(
+    "/api/admin/campaigns",
+    isAuthenticated,
+    isAdmin,
+    async (req: any, res) => {
+      try {
+        const campaigns = await storage.getCampaigns();
+        res.json(campaigns);
+      } catch (error) {
+        console.error("Error fetching campaigns:", error);
+        res.status(500).json({ message: "Failed to fetch campaigns" });
+      }
+    },
+  );
 
   // Admin POST routes for content creation
-  app.post('/api/admin/blog-posts', isAuthenticated, isAdmin, async (req: any, res) => {
-    try {
-      const postData = insertBlogPostSchema.parse(req.body);
-      const post = await storage.createBlogPost(postData);
-      res.json(post);
-    } catch (error) {
-      console.error("Error creating blog post:", error);
-      res.status(500).json({ message: "Failed to create blog post" });
-    }
-  });
-
-  app.post('/api/admin/workshops', isAuthenticated, isAdmin, async (req: any, res) => {
-    try {
-      const workshopData = insertWorkshopSchema.parse(req.body);
-      const workshop = await storage.createWorkshop(workshopData);
-      res.json(workshop);
-    } catch (error) {
-      console.error("Error creating workshop:", error);
-      res.status(500).json({ message: "Failed to create workshop" });
-    }
-  });
-
-  app.post('/api/admin/courses', isAuthenticated, isAdmin, async (req: any, res) => {
-    try {
-      // Clean the request body to handle empty strings for numeric fields
-      const cleanedBody = { ...req.body };
-      if (cleanedBody.price === '' || cleanedBody.price === null || cleanedBody.price === undefined) {
-        delete cleanedBody.price;
+  app.post(
+    "/api/admin/blog-posts",
+    isAuthenticated,
+    isAdmin,
+    async (req: any, res) => {
+      try {
+        const postData = insertBlogPostSchema.parse(req.body);
+        const post = await storage.createBlogPost(postData);
+        res.json(post);
+      } catch (error) {
+        console.error("Error creating blog post:", error);
+        res.status(500).json({ message: "Failed to create blog post" });
       }
-      if (cleanedBody.capacity === '' || cleanedBody.capacity === null || cleanedBody.capacity === undefined) {
-        delete cleanedBody.capacity;
-      }
-      if (cleanedBody.duration === '' || cleanedBody.duration === null || cleanedBody.duration === undefined) {
-        delete cleanedBody.duration;
-      }
-      if (cleanedBody.instructorName === '' || cleanedBody.instructorName === null || cleanedBody.instructorName === undefined) {
-        delete cleanedBody.instructorName;
-      }
-      
-      const courseData = insertCourseSchema.parse(cleanedBody);
-      const course = await storage.createCourse(courseData);
-      res.json(course);
-    } catch (error) {
-      console.error("Error creating course:", error);
-      res.status(500).json({ message: "Failed to create course" });
-    }
-  });
+    },
+  );
 
-  app.post('/api/admin/campaigns', isAuthenticated, isAdmin, async (req: any, res) => {
-    try {
-      const campaignData = insertCampaignSchema.parse(req.body);
-      const campaign = await storage.createCampaign(campaignData);
-      res.json(campaign);
-    } catch (error) {
-      console.error("Error creating campaign:", error);
-      res.status(500).json({ message: "Failed to create campaign" });
-    }
-  });
+  app.post(
+    "/api/admin/workshops",
+    isAuthenticated,
+    isAdmin,
+    async (req: any, res) => {
+      try {
+        const workshopData = insertWorkshopSchema.parse(req.body);
+        const workshop = await storage.createWorkshop(workshopData);
+        res.json(workshop);
+      } catch (error) {
+        console.error("Error creating workshop:", error);
+        res.status(500).json({ message: "Failed to create workshop" });
+      }
+    },
+  );
 
-  app.put('/api/admin/campaigns/:id', isAuthenticated, isAdmin, async (req: any, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      const campaignData = insertCampaignSchema.parse(req.body);
-      const campaign = await storage.updateCampaign(id, campaignData);
-      res.json(campaign);
-    } catch (error) {
-      console.error("Error updating campaign:", error);
-      res.status(500).json({ message: "Failed to update campaign" });
-    }
-  });
+  app.post(
+    "/api/admin/courses",
+    isAuthenticated,
+    isAdmin,
+    async (req: any, res) => {
+      try {
+        // Clean the request body to handle empty strings for numeric fields
+        const cleanedBody = { ...req.body };
+        if (
+          cleanedBody.price === "" ||
+          cleanedBody.price === null ||
+          cleanedBody.price === undefined
+        ) {
+          delete cleanedBody.price;
+        }
+        if (
+          cleanedBody.capacity === "" ||
+          cleanedBody.capacity === null ||
+          cleanedBody.capacity === undefined
+        ) {
+          delete cleanedBody.capacity;
+        }
+        if (
+          cleanedBody.duration === "" ||
+          cleanedBody.duration === null ||
+          cleanedBody.duration === undefined
+        ) {
+          delete cleanedBody.duration;
+        }
+        if (
+          cleanedBody.instructorName === "" ||
+          cleanedBody.instructorName === null ||
+          cleanedBody.instructorName === undefined
+        ) {
+          delete cleanedBody.instructorName;
+        }
 
-  app.post('/api/admin/courses/:courseId/lessons', isAuthenticated, isAdmin, async (req: any, res) => {
-    try {
-      const courseId = parseInt(req.params.courseId);
-      const lessonData = {
-        ...req.body,
-        courseId,
-      };
-      const lesson = await storage.createCourseLesson(lessonData);
-      res.json(lesson);
-    } catch (error) {
-      console.error("Error creating lesson:", error);
-      res.status(500).json({ message: "Failed to create lesson" });
-    }
-  });
+        const courseData = insertCourseSchema.parse(cleanedBody);
+        const course = await storage.createCourse(courseData);
+        res.json(course);
+      } catch (error) {
+        console.error("Error creating course:", error);
+        res.status(500).json({ message: "Failed to create course" });
+      }
+    },
+  );
+
+  app.post(
+    "/api/admin/campaigns",
+    isAuthenticated,
+    isAdmin,
+    async (req: any, res) => {
+      try {
+        const campaignData = insertCampaignSchema.parse(req.body);
+        const campaign = await storage.createCampaign(campaignData);
+        res.json(campaign);
+      } catch (error) {
+        console.error("Error creating campaign:", error);
+        res.status(500).json({ message: "Failed to create campaign" });
+      }
+    },
+  );
+
+  app.put(
+    "/api/admin/campaigns/:id",
+    isAuthenticated,
+    isAdmin,
+    async (req: any, res) => {
+      try {
+        const id = parseInt(req.params.id);
+        const campaignData = insertCampaignSchema.parse(req.body);
+        const campaign = await storage.updateCampaign(id, campaignData);
+        res.json(campaign);
+      } catch (error) {
+        console.error("Error updating campaign:", error);
+        res.status(500).json({ message: "Failed to update campaign" });
+      }
+    },
+  );
+
+  app.post(
+    "/api/admin/courses/:courseId/lessons",
+    isAuthenticated,
+    isAdmin,
+    async (req: any, res) => {
+      try {
+        const courseId = parseInt(req.params.courseId);
+        const lessonData = {
+          ...req.body,
+          courseId,
+        };
+        const lesson = await storage.createCourseLesson(lessonData);
+        res.json(lesson);
+      } catch (error) {
+        console.error("Error creating lesson:", error);
+        res.status(500).json({ message: "Failed to create lesson" });
+      }
+    },
+  );
 
   // Update endpoints
-  app.put('/api/admin/blog-posts/:id', isAuthenticated, isAdmin, async (req: any, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      const blogData = insertBlogPostSchema.parse(req.body);
-      const blog = await storage.updateBlogPost(id, blogData);
-      res.json(blog);
-    } catch (error) {
-      console.error("Error updating blog post:", error);
-      res.status(500).json({ message: "Failed to update blog post" });
-    }
-  });
+  app.put(
+    "/api/admin/blog-posts/:id",
+    isAuthenticated,
+    isAdmin,
+    async (req: any, res) => {
+      try {
+        const id = parseInt(req.params.id);
+        const blogData = insertBlogPostSchema.parse(req.body);
+        const blog = await storage.updateBlogPost(id, blogData);
+        res.json(blog);
+      } catch (error) {
+        console.error("Error updating blog post:", error);
+        res.status(500).json({ message: "Failed to update blog post" });
+      }
+    },
+  );
 
-  app.put('/api/admin/workshops/:id', isAuthenticated, isAdmin, async (req: any, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      const workshopData = insertWorkshopSchema.parse(req.body);
-      const workshop = await storage.updateWorkshop(id, workshopData);
-      res.json(workshop);
-    } catch (error) {
-      console.error("Error updating workshop:", error);
-      res.status(500).json({ message: "Failed to update workshop" });
-    }
-  });
+  app.put(
+    "/api/admin/workshops/:id",
+    isAuthenticated,
+    isAdmin,
+    async (req: any, res) => {
+      try {
+        const id = parseInt(req.params.id);
+        const workshopData = insertWorkshopSchema.parse(req.body);
+        const workshop = await storage.updateWorkshop(id, workshopData);
+        res.json(workshop);
+      } catch (error) {
+        console.error("Error updating workshop:", error);
+        res.status(500).json({ message: "Failed to update workshop" });
+      }
+    },
+  );
 
-  app.put('/api/admin/courses/:id', isAuthenticated, isAdmin, async (req: any, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      
-      // Clean the request body to handle empty strings for numeric fields
-      const cleanedBody = { ...req.body };
-      if (cleanedBody.price === '' || cleanedBody.price === null || cleanedBody.price === undefined) {
-        delete cleanedBody.price;
-      }
-      if (cleanedBody.capacity === '' || cleanedBody.capacity === null || cleanedBody.capacity === undefined) {
-        delete cleanedBody.capacity;
-      }
-      if (cleanedBody.duration === '' || cleanedBody.duration === null || cleanedBody.duration === undefined) {
-        delete cleanedBody.duration;
-      }
-      if (cleanedBody.instructorName === '' || cleanedBody.instructorName === null || cleanedBody.instructorName === undefined) {
-        delete cleanedBody.instructorName;
-      }
-      
-      const courseData = insertCourseSchema.parse(cleanedBody);
-      const course = await storage.updateCourse(id, courseData);
-      res.json(course);
-    } catch (error) {
-      console.error("Error updating course:", error);
-      res.status(500).json({ message: "Failed to update course" });
-    }
-  });
+  app.put(
+    "/api/admin/courses/:id",
+    isAuthenticated,
+    isAdmin,
+    async (req: any, res) => {
+      try {
+        const id = parseInt(req.params.id);
 
-  app.put('/api/admin/campaigns/:id', isAuthenticated, isAdmin, async (req: any, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      const campaignData = insertCampaignSchema.parse(req.body);
-      const campaign = await storage.updateCampaign(id, campaignData);
-      res.json(campaign);
-    } catch (error) {
-      console.error("Error updating campaign:", error);
-      res.status(500).json({ message: "Failed to update campaign" });
-    }
-  });
+        // Clean the request body to handle empty strings for numeric fields
+        const cleanedBody = { ...req.body };
+        if (
+          cleanedBody.price === "" ||
+          cleanedBody.price === null ||
+          cleanedBody.price === undefined
+        ) {
+          delete cleanedBody.price;
+        }
+        if (
+          cleanedBody.capacity === "" ||
+          cleanedBody.capacity === null ||
+          cleanedBody.capacity === undefined
+        ) {
+          delete cleanedBody.capacity;
+        }
+        if (
+          cleanedBody.duration === "" ||
+          cleanedBody.duration === null ||
+          cleanedBody.duration === undefined
+        ) {
+          delete cleanedBody.duration;
+        }
+        if (
+          cleanedBody.instructorName === "" ||
+          cleanedBody.instructorName === null ||
+          cleanedBody.instructorName === undefined
+        ) {
+          delete cleanedBody.instructorName;
+        }
+
+        const courseData = insertCourseSchema.parse(cleanedBody);
+        const course = await storage.updateCourse(id, courseData);
+        res.json(course);
+      } catch (error) {
+        console.error("Error updating course:", error);
+        res.status(500).json({ message: "Failed to update course" });
+      }
+    },
+  );
+
+  app.put(
+    "/api/admin/campaigns/:id",
+    isAuthenticated,
+    isAdmin,
+    async (req: any, res) => {
+      try {
+        const id = parseInt(req.params.id);
+        const campaignData = insertCampaignSchema.parse(req.body);
+        const campaign = await storage.updateCampaign(id, campaignData);
+        res.json(campaign);
+      } catch (error) {
+        console.error("Error updating campaign:", error);
+        res.status(500).json({ message: "Failed to update campaign" });
+      }
+    },
+  );
 
   // Admin PATCH route for user management
-  app.patch('/api/admin/users/:id', isAuthenticated, isAdmin, async (req: any, res) => {
-    try {
-      const { id } = req.params;
-      const { isAdmin } = req.body;
-      const user = await storage.updateUserAdminStatus(id, isAdmin);
-      res.json(user);
-    } catch (error) {
-      console.error("Error updating user:", error);
-      res.status(500).json({ message: "Failed to update user" });
-    }
-  });
+  app.patch(
+    "/api/admin/users/:id",
+    isAuthenticated,
+    isAdmin,
+    async (req: any, res) => {
+      try {
+        const { id } = req.params;
+        const { isAdmin } = req.body;
+        const user = await storage.updateUserAdminStatus(id, isAdmin);
+        res.json(user);
+      } catch (error) {
+        console.error("Error updating user:", error);
+        res.status(500).json({ message: "Failed to update user" });
+      }
+    },
+  );
 
-  app.get('/api/admin/inquiries', isAuthenticated, isAdmin, async (req: any, res) => {
-    try {
-      const inquiries = await storage.getContactInquiries();
-      res.json(inquiries);
-    } catch (error) {
-      console.error("Error fetching inquiries:", error);
-      res.status(500).json({ message: "Failed to fetch inquiries" });
-    }
-  });
+  app.get(
+    "/api/admin/inquiries",
+    isAuthenticated,
+    isAdmin,
+    async (req: any, res) => {
+      try {
+        const inquiries = await storage.getContactInquiries();
+        res.json(inquiries);
+      } catch (error) {
+        console.error("Error fetching inquiries:", error);
+        res.status(500).json({ message: "Failed to fetch inquiries" });
+      }
+    },
+  );
 
-  app.get('/api/admin/workshop-registrations', isAuthenticated, isAdmin, async (req: any, res) => {
-    try {
-      const registrations = await storage.getWorkshopRegistrations();
-      res.json(registrations);
-    } catch (error) {
-      console.error("Error fetching workshop registrations:", error);
-      res.status(500).json({ message: "Failed to fetch workshop registrations" });
-    }
-  });
+  app.get(
+    "/api/admin/workshop-registrations",
+    isAuthenticated,
+    isAdmin,
+    async (req: any, res) => {
+      try {
+        const registrations = await storage.getWorkshopRegistrations();
+        res.json(registrations);
+      } catch (error) {
+        console.error("Error fetching workshop registrations:", error);
+        res
+          .status(500)
+          .json({ message: "Failed to fetch workshop registrations" });
+      }
+    },
+  );
 
-  app.patch('/api/admin/workshop-registrations/:id/status', isAuthenticated, isAdmin, async (req: any, res) => {
-    try {
-      const { id } = req.params;
-      const { status } = req.body;
-      const registration = await storage.updateWorkshopRegistrationStatus(parseInt(id), status);
-      res.json(registration);
-    } catch (error) {
-      console.error("Error updating workshop registration status:", error);
-      res.status(500).json({ message: "Failed to update registration status" });
-    }
-  });
+  app.patch(
+    "/api/admin/workshop-registrations/:id/status",
+    isAuthenticated,
+    isAdmin,
+    async (req: any, res) => {
+      try {
+        const { id } = req.params;
+        const { status } = req.body;
+        const registration = await storage.updateWorkshopRegistrationStatus(
+          parseInt(id),
+          status,
+        );
+        res.json(registration);
+      } catch (error) {
+        console.error("Error updating workshop registration status:", error);
+        res
+          .status(500)
+          .json({ message: "Failed to update registration status" });
+      }
+    },
+  );
 
-  app.patch('/api/admin/users/:id/admin-status', isAuthenticated, isAdmin, async (req: any, res) => {
-    try {
-      const { id } = req.params;
-      const { isAdmin } = req.body;
-      const user = await storage.updateUserAdminStatus(id, isAdmin);
-      res.json(user);
-    } catch (error) {
-      console.error("Error updating admin status:", error);
-      res.status(500).json({ message: "Failed to update admin status" });
-    }
-  });
+  app.patch(
+    "/api/admin/users/:id/admin-status",
+    isAuthenticated,
+    isAdmin,
+    async (req: any, res) => {
+      try {
+        const { id } = req.params;
+        const { isAdmin } = req.body;
+        const user = await storage.updateUserAdminStatus(id, isAdmin);
+        res.json(user);
+      } catch (error) {
+        console.error("Error updating admin status:", error);
+        res.status(500).json({ message: "Failed to update admin status" });
+      }
+    },
+  );
 
-  app.delete('/api/admin/users/:id', isAuthenticated, isAdmin, async (req: any, res) => {
-    try {
-      const { id } = req.params;
-      await storage.deleteUser(id);
-      res.json({ message: "User deleted successfully" });
-    } catch (error) {
-      console.error("Error deleting user:", error);
-      res.status(500).json({ message: "Failed to delete user" });
-    }
-  });
+  app.delete(
+    "/api/admin/users/:id",
+    isAuthenticated,
+    isAdmin,
+    async (req: any, res) => {
+      try {
+        const { id } = req.params;
+        await storage.deleteUser(id);
+        res.json({ message: "User deleted successfully" });
+      } catch (error) {
+        console.error("Error deleting user:", error);
+        res.status(500).json({ message: "Failed to delete user" });
+      }
+    },
+  );
 
-  app.delete('/api/admin/blog-posts/:id', isAuthenticated, isAdmin, async (req: any, res) => {
-    try {
-      const { id } = req.params;
-      await storage.deleteBlogPost(parseInt(id));
-      res.json({ message: "Blog post deleted successfully" });
-    } catch (error) {
-      console.error("Error deleting blog post:", error);
-      res.status(500).json({ message: "Failed to delete blog post" });
-    }
-  });
+  app.delete(
+    "/api/admin/blog-posts/:id",
+    isAuthenticated,
+    isAdmin,
+    async (req: any, res) => {
+      try {
+        const { id } = req.params;
+        await storage.deleteBlogPost(parseInt(id));
+        res.json({ message: "Blog post deleted successfully" });
+      } catch (error) {
+        console.error("Error deleting blog post:", error);
+        res.status(500).json({ message: "Failed to delete blog post" });
+      }
+    },
+  );
 
-  app.delete('/api/admin/workshops/:id', isAuthenticated, isAdmin, async (req: any, res) => {
-    try {
-      const { id } = req.params;
-      await storage.deleteWorkshop(parseInt(id));
-      res.json({ message: "Workshop deleted successfully" });
-    } catch (error) {
-      console.error("Error deleting workshop:", error);
-      res.status(500).json({ message: "Failed to delete workshop" });
-    }
-  });
+  app.delete(
+    "/api/admin/workshops/:id",
+    isAuthenticated,
+    isAdmin,
+    async (req: any, res) => {
+      try {
+        const { id } = req.params;
+        await storage.deleteWorkshop(parseInt(id));
+        res.json({ message: "Workshop deleted successfully" });
+      } catch (error) {
+        console.error("Error deleting workshop:", error);
+        res.status(500).json({ message: "Failed to delete workshop" });
+      }
+    },
+  );
 
-  app.delete('/api/admin/courses/:id', isAuthenticated, isAdmin, async (req: any, res) => {
-    try {
-      const { id } = req.params;
-      await storage.deleteCourse(parseInt(id));
-      res.json({ message: "Course deleted successfully" });
-    } catch (error) {
-      console.error("Error deleting course:", error);
-      res.status(500).json({ message: "Failed to delete course" });
-    }
-  });
+  app.delete(
+    "/api/admin/courses/:id",
+    isAuthenticated,
+    isAdmin,
+    async (req: any, res) => {
+      try {
+        const { id } = req.params;
+        await storage.deleteCourse(parseInt(id));
+        res.json({ message: "Course deleted successfully" });
+      } catch (error) {
+        console.error("Error deleting course:", error);
+        res.status(500).json({ message: "Failed to delete course" });
+      }
+    },
+  );
 
-  app.delete('/api/admin/campaigns/:id', isAuthenticated, isAdmin, async (req: any, res) => {
-    try {
-      const { id } = req.params;
-      await storage.deleteCampaign(parseInt(id));
-      res.json({ message: "Campaign deleted successfully" });
-    } catch (error) {
-      console.error("Error deleting campaign:", error);
-      res.status(500).json({ message: "Failed to delete campaign" });
-    }
-  });
+  app.delete(
+    "/api/admin/campaigns/:id",
+    isAuthenticated,
+    isAdmin,
+    async (req: any, res) => {
+      try {
+        const { id } = req.params;
+        await storage.deleteCampaign(parseInt(id));
+        res.json({ message: "Campaign deleted successfully" });
+      } catch (error) {
+        console.error("Error deleting campaign:", error);
+        res.status(500).json({ message: "Failed to delete campaign" });
+      }
+    },
+  );
 
-  app.delete('/api/admin/workshop-registrations/:id', isAuthenticated, isAdmin, async (req: any, res) => {
-    try {
-      const { id } = req.params;
-      await storage.deleteWorkshopRegistration(parseInt(id));
-      res.json({ message: "Workshop registration deleted successfully" });
-    } catch (error) {
-      console.error("Error deleting workshop registration:", error);
-      res.status(500).json({ message: "Failed to delete workshop registration" });
-    }
-  });
+  app.delete(
+    "/api/admin/workshop-registrations/:id",
+    isAuthenticated,
+    isAdmin,
+    async (req: any, res) => {
+      try {
+        const { id } = req.params;
+        await storage.deleteWorkshopRegistration(parseInt(id));
+        res.json({ message: "Workshop registration deleted successfully" });
+      } catch (error) {
+        console.error("Error deleting workshop registration:", error);
+        res
+          .status(500)
+          .json({ message: "Failed to delete workshop registration" });
+      }
+    },
+  );
 
-  app.delete('/api/admin/inquiries/:id', isAuthenticated, isAdmin, async (req: any, res) => {
-    try {
-      const { id } = req.params;
-      await storage.deleteContactInquiry(parseInt(id));
-      res.json({ message: "Contact inquiry deleted successfully" });
-    } catch (error) {
-      console.error("Error deleting contact inquiry:", error);
-      res.status(500).json({ message: "Failed to delete contact inquiry" });
-    }
-  });
+  app.delete(
+    "/api/admin/inquiries/:id",
+    isAuthenticated,
+    isAdmin,
+    async (req: any, res) => {
+      try {
+        const { id } = req.params;
+        await storage.deleteContactInquiry(parseInt(id));
+        res.json({ message: "Contact inquiry deleted successfully" });
+      } catch (error) {
+        console.error("Error deleting contact inquiry:", error);
+        res.status(500).json({ message: "Failed to delete contact inquiry" });
+      }
+    },
+  );
 
   // User routes
   app.post("/api/users", async (req, res) => {
@@ -443,13 +619,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const registrationData = req.body;
       console.log("Workshop registration received:", registrationData);
-      
+
       // Store registration in database
-      const registration = await storage.createWorkshopRegistration(registrationData);
-      
-      res.json({ 
-        message: "Registration successful", 
-        registrationId: registration.id 
+      const registration =
+        await storage.createWorkshopRegistration(registrationData);
+
+      res.json({
+        message: "Registration successful",
+        registrationId: registration.id,
       });
     } catch (error) {
       console.error("Error processing workshop registration:", error);
@@ -461,12 +638,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/courses", async (req, res) => {
     try {
       let courses = await storage.getCourses();
-      
+
       // Add sample courses if none exist
       if (courses.length === 0) {
         await storage.createCourse({
           title: "Introduction to Space Science",
-          description: "Explore the fundamentals of frontier sciences including planetary motion, stellar evolution, and cosmic phenomena. Perfect for beginners looking to understand the universe.",
+          description:
+            "Explore the fundamentals of frontier sciences including planetary motion, stellar evolution, and cosmic phenomena. Perfect for beginners looking to understand the universe.",
           field: "astronomy",
           level: "beginner",
           duration: "8 weeks",
@@ -481,17 +659,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
             "Understand the structure and evolution of the universe",
             "Learn about planetary systems and their characteristics",
             "Explore stellar lifecycles and cosmic phenomena",
-            "Develop skills in astronomical observation and data analysis"
+            "Develop skills in astronomical observation and data analysis",
           ],
           prerequisites: [
             "Basic mathematics knowledge",
-            "Interest in science and astronomy"
-          ]
+            "Interest in science and astronomy",
+          ],
         });
 
         await storage.createCourse({
           title: "Advanced Robotics & AI",
-          description: "Dive deep into robotics engineering and artificial intelligence. Learn to build autonomous robots, implement machine learning algorithms, and create intelligent systems.",
+          description:
+            "Dive deep into robotics engineering and artificial intelligence. Learn to build autonomous robots, implement machine learning algorithms, and create intelligent systems.",
           field: "robotics",
           level: "advanced",
           duration: "12 weeks",
@@ -506,18 +685,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
             "Master advanced robotics concepts and algorithms",
             "Implement AI and machine learning in robotic systems",
             "Build and program autonomous robots",
-            "Understand sensor integration and control systems"
+            "Understand sensor integration and control systems",
           ],
           prerequisites: [
             "Programming experience in Python or C++",
             "Basic understanding of electronics",
-            "Linear algebra and calculus knowledge"
-          ]
+            "Linear algebra and calculus knowledge",
+          ],
         });
 
         await storage.createCourse({
           title: "Quantum Computing Fundamentals",
-          description: "Enter the revolutionary world of quantum computing. Learn quantum mechanics principles, quantum algorithms, and their applications in modern computing.",
+          description:
+            "Enter the revolutionary world of quantum computing. Learn quantum mechanics principles, quantum algorithms, and their applications in modern computing.",
           field: "quantum",
           level: "intermediate",
           duration: "10 weeks",
@@ -532,105 +712,111 @@ export async function registerRoutes(app: Express): Promise<Server> {
             "Understand quantum mechanics principles",
             "Learn quantum algorithms and programming",
             "Explore quantum cryptography and communication",
-            "Apply quantum computing to real-world problems"
+            "Apply quantum computing to real-world problems",
           ],
           prerequisites: [
             "Linear algebra and complex numbers",
             "Basic programming knowledge",
-            "Understanding of classical computing"
-          ]
+            "Understanding of classical computing",
+          ],
         });
 
         courses = await storage.getCourses();
-        
+
         // Add sample lessons for the first course
         if (courses.length > 0) {
           const firstCourse = courses[0];
-          
+
           // Create modules for the first course
           await storage.createCourseModule({
             courseId: firstCourse.id,
             title: "Introduction to the Universe",
             description: "Basic concepts and overview of frontier sciences",
-            orderIndex: 1
+            orderIndex: 1,
           });
-          
+
           await storage.createCourseModule({
             courseId: firstCourse.id,
             title: "Solar System Exploration",
             description: "Study our solar system and its components",
-            orderIndex: 2
+            orderIndex: 2,
           });
-          
+
           await storage.createCourseModule({
             courseId: firstCourse.id,
             title: "Stellar Evolution",
             description: "Learn about star formation and lifecycle",
-            orderIndex: 3
+            orderIndex: 3,
           });
-          
+
           // Create sample lessons for the first course
           await storage.createCourseLesson({
             courseId: firstCourse.id,
             title: "Welcome to Frontier Sciences",
-            description: "Introduction to the course and frontier sciences fundamentals",
-            content: "<p>Welcome to our comprehensive frontier sciences course! In this lesson, we'll explore the basic principles of astronomy and space exploration.</p><p>You'll learn about the scale of the universe, from planets to galaxies, and discover how scientists study celestial objects.</p>",
+            description:
+              "Introduction to the course and frontier sciences fundamentals",
+            content:
+              "<p>Welcome to our comprehensive frontier sciences course! In this lesson, we'll explore the basic principles of astronomy and space exploration.</p><p>You'll learn about the scale of the universe, from planets to galaxies, and discover how scientists study celestial objects.</p>",
             videoUrl: "https://example.com/intro-video",
             duration: 30,
             orderIndex: 1,
             type: "video",
             isPreview: true,
-            resources: ["Course syllabus", "Space science glossary"]
+            resources: ["Course syllabus", "Space science glossary"],
           });
-          
+
           await storage.createCourseLesson({
             courseId: firstCourse.id,
             title: "The Scale of the Universe",
             description: "Understanding distances and sizes in space",
-            content: "<p>The universe is incredibly vast, with distances measured in light-years and astronomical units. This lesson covers the scale from Earth to the observable universe.</p>",
+            content:
+              "<p>The universe is incredibly vast, with distances measured in light-years and astronomical units. This lesson covers the scale from Earth to the observable universe.</p>",
             videoUrl: "https://example.com/scale-video",
             duration: 45,
             orderIndex: 2,
             type: "video",
-            resources: ["Scale comparison chart", "Interactive universe map"]
+            resources: ["Scale comparison chart", "Interactive universe map"],
           });
-          
+
           await storage.createCourseLesson({
             courseId: firstCourse.id,
             title: "Planetary Motion Laws",
             description: "Kepler's laws and orbital mechanics",
-            content: "<p>Johannes Kepler discovered three fundamental laws that describe planetary motion. These laws revolutionized our understanding of the solar system.</p>",
+            content:
+              "<p>Johannes Kepler discovered three fundamental laws that describe planetary motion. These laws revolutionized our understanding of the solar system.</p>",
             duration: 40,
             orderIndex: 3,
             type: "text",
-            resources: ["Kepler's laws worksheet", "Orbital calculator"]
+            resources: ["Kepler's laws worksheet", "Orbital calculator"],
           });
-          
+
           await storage.createCourseLesson({
             courseId: firstCourse.id,
             title: "Solar System Overview",
             description: "Tour of planets, moons, and other objects",
-            content: "<p>Our solar system contains eight planets, numerous moons, asteroids, and comets. Each world has unique characteristics and history.</p>",
+            content:
+              "<p>Our solar system contains eight planets, numerous moons, asteroids, and comets. Each world has unique characteristics and history.</p>",
             videoUrl: "https://example.com/solar-system-video",
             duration: 60,
             orderIndex: 4,
             type: "video",
-            resources: ["Planet fact sheets", "Solar system timeline"]
+            resources: ["Planet fact sheets", "Solar system timeline"],
           });
-          
+
           await storage.createCourseLesson({
             courseId: firstCourse.id,
             title: "Knowledge Check: Solar System",
             description: "Test your understanding of solar system basics",
-            content: "<p>Complete this quiz to test your knowledge of the solar system and planetary characteristics.</p>",
+            content:
+              "<p>Complete this quiz to test your knowledge of the solar system and planetary characteristics.</p>",
             duration: 20,
             orderIndex: 5,
             type: "quiz",
-            resources: ["Quiz reference guide"]
+            resources: ["Quiz reference guide"],
           });
         }
       }
-      
+
       res.json(courses);
     } catch (error) {
       console.error("Error fetching courses:", error);
@@ -667,7 +853,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Course modules
   app.get("/api/courses/:courseId/modules", async (req, res) => {
     try {
-      const modules = await storage.getCourseModules(parseInt(req.params.courseId));
+      const modules = await storage.getCourseModules(
+        parseInt(req.params.courseId),
+      );
       res.json(modules);
     } catch (error) {
       console.error("Error fetching course modules:", error);
@@ -675,23 +863,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/courses/:courseId/modules", isAuthenticated, async (req, res) => {
-    try {
-      const module = await storage.createCourseModule({
-        ...req.body,
-        courseId: parseInt(req.params.courseId)
-      });
-      res.json(module);
-    } catch (error) {
-      console.error("Error creating course module:", error);
-      res.status(500).json({ message: "Failed to create course module" });
-    }
-  });
+  app.post(
+    "/api/courses/:courseId/modules",
+    isAuthenticated,
+    async (req, res) => {
+      try {
+        const module = await storage.createCourseModule({
+          ...req.body,
+          courseId: parseInt(req.params.courseId),
+        });
+        res.json(module);
+      } catch (error) {
+        console.error("Error creating course module:", error);
+        res.status(500).json({ message: "Failed to create course module" });
+      }
+    },
+  );
 
   // Course lessons
   app.get("/api/courses/:courseId/lessons", async (req, res) => {
     try {
-      const lessons = await storage.getCourseLessons(parseInt(req.params.courseId));
+      const lessons = await storage.getCourseLessons(
+        parseInt(req.params.courseId),
+      );
       res.json(lessons);
     } catch (error) {
       console.error("Error fetching course lessons:", error);
@@ -712,50 +906,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/courses/:courseId/lessons", isAuthenticated, async (req, res) => {
-    try {
-      const lesson = await storage.createCourseLesson({
-        ...req.body,
-        courseId: parseInt(req.params.courseId)
-      });
-      res.json(lesson);
-    } catch (error) {
-      console.error("Error creating course lesson:", error);
-      res.status(500).json({ message: "Failed to create course lesson" });
-    }
-  });
+  app.post(
+    "/api/courses/:courseId/lessons",
+    isAuthenticated,
+    async (req, res) => {
+      try {
+        const lesson = await storage.createCourseLesson({
+          ...req.body,
+          courseId: parseInt(req.params.courseId),
+        });
+        res.json(lesson);
+      } catch (error) {
+        console.error("Error creating course lesson:", error);
+        res.status(500).json({ message: "Failed to create course lesson" });
+      }
+    },
+  );
 
   // Student progress
-  app.get("/api/courses/:courseId/progress", isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const progress = await storage.getStudentProgress(userId, parseInt(req.params.courseId));
-      res.json(progress);
-    } catch (error) {
-      console.error("Error fetching student progress:", error);
-      res.status(500).json({ message: "Failed to fetch student progress" });
-    }
-  });
+  app.get(
+    "/api/courses/:courseId/progress",
+    isAuthenticated,
+    async (req: any, res) => {
+      try {
+        const userId = req.user.claims.sub;
+        const progress = await storage.getStudentProgress(
+          userId,
+          parseInt(req.params.courseId),
+        );
+        res.json(progress);
+      } catch (error) {
+        console.error("Error fetching student progress:", error);
+        res.status(500).json({ message: "Failed to fetch student progress" });
+      }
+    },
+  );
 
-  app.post("/api/lessons/:lessonId/progress", isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const progress = await storage.createStudentProgress({
-        ...req.body,
-        userId,
-        lessonId: parseInt(req.params.lessonId)
-      });
-      res.json(progress);
-    } catch (error) {
-      console.error("Error creating student progress:", error);
-      res.status(500).json({ message: "Failed to create student progress" });
-    }
-  });
+  app.post(
+    "/api/lessons/:lessonId/progress",
+    isAuthenticated,
+    async (req: any, res) => {
+      try {
+        const userId = req.user.claims.sub;
+        const progress = await storage.createStudentProgress({
+          ...req.body,
+          userId,
+          lessonId: parseInt(req.params.lessonId),
+        });
+        res.json(progress);
+      } catch (error) {
+        console.error("Error creating student progress:", error);
+        res.status(500).json({ message: "Failed to create student progress" });
+      }
+    },
+  );
 
   // Course quizzes
   app.get("/api/courses/:courseId/quizzes", async (req, res) => {
     try {
-      const quizzes = await storage.getCourseQuizzes(parseInt(req.params.courseId));
+      const quizzes = await storage.getCourseQuizzes(
+        parseInt(req.params.courseId),
+      );
       res.json(quizzes);
     } catch (error) {
       console.error("Error fetching course quizzes:", error);
@@ -763,25 +974,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/quizzes/:quizId/attempts", isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const attempt = await storage.createQuizAttempt({
-        ...req.body,
-        userId,
-        quizId: parseInt(req.params.quizId)
-      });
-      res.json(attempt);
-    } catch (error) {
-      console.error("Error creating quiz attempt:", error);
-      res.status(500).json({ message: "Failed to create quiz attempt" });
-    }
-  });
+  app.post(
+    "/api/quizzes/:quizId/attempts",
+    isAuthenticated,
+    async (req: any, res) => {
+      try {
+        const userId = req.user.claims.sub;
+        const attempt = await storage.createQuizAttempt({
+          ...req.body,
+          userId,
+          quizId: parseInt(req.params.quizId),
+        });
+        res.json(attempt);
+      } catch (error) {
+        console.error("Error creating quiz attempt:", error);
+        res.status(500).json({ message: "Failed to create quiz attempt" });
+      }
+    },
+  );
 
   // Course reviews
   app.get("/api/courses/:courseId/reviews", async (req, res) => {
     try {
-      const reviews = await storage.getCourseReviews(parseInt(req.params.courseId));
+      const reviews = await storage.getCourseReviews(
+        parseInt(req.params.courseId),
+      );
       res.json(reviews);
     } catch (error) {
       console.error("Error fetching course reviews:", error);
@@ -789,20 +1006,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/courses/:courseId/reviews", isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const review = await storage.createCourseReview({
-        ...req.body,
-        userId,
-        courseId: parseInt(req.params.courseId)
-      });
-      res.json(review);
-    } catch (error) {
-      console.error("Error creating course review:", error);
-      res.status(500).json({ message: "Failed to create course review" });
-    }
-  });
+  app.post(
+    "/api/courses/:courseId/reviews",
+    isAuthenticated,
+    async (req: any, res) => {
+      try {
+        const userId = req.user.claims.sub;
+        const review = await storage.createCourseReview({
+          ...req.body,
+          userId,
+          courseId: parseInt(req.params.courseId),
+        });
+        res.json(review);
+      } catch (error) {
+        console.error("Error creating course review:", error);
+        res.status(500).json({ message: "Failed to create course review" });
+      }
+    },
+  );
 
   // User certificates
   app.get("/api/user/certificates", isAuthenticated, async (req: any, res) => {
@@ -820,12 +1041,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/campaigns", async (req, res) => {
     try {
       let campaigns = await storage.getCampaigns();
-      
+
       // Add sample campaigns if none exist
       if (campaigns.length === 0) {
         await storage.createCampaign({
           title: "Zoonigia Asteroid Search Campaign",
-          description: "Collaborate with NASA Citizen Science and IASC to discover real asteroids and name them officially",
+          description:
+            "Collaborate with NASA Citizen Science and IASC to discover real asteroids and name them officially",
           type: "asteroid_search",
           field: "Astronomy",
           duration: "16 weeks",
@@ -834,12 +1056,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           partner: "NASA • IASC • University of Hawaii",
           status: "active",
           progress: 20,
-          price: "300.00"
+          price: "300.00",
         });
-        
+
         campaigns = await storage.getCampaigns();
       }
-      
+
       res.json(campaigns);
     } catch (error) {
       console.error("Error fetching campaigns:", error);
@@ -873,55 +1095,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create payment intent for campaign enrollment
-  app.post("/api/campaigns/create-payment-intent", isAuthenticated, async (req: any, res) => {
-    try {
-      const { campaignId, paymentAmount } = req.body;
-      const userId = req.user.claims.sub;
-      
-      // Create payment intent
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount: Math.round(paymentAmount * 100), // Convert to cents
-        currency: "inr",
-        metadata: {
-          campaignId: campaignId.toString(),
-          userId: userId
-        }
-      });
-      
-      res.json({ 
-        clientSecret: paymentIntent.client_secret,
-        paymentIntentId: paymentIntent.id
-      });
-    } catch (error) {
-      console.error("Error creating payment intent:", error);
-      res.status(500).json({ message: "Failed to create payment intent" });
-    }
-  });
+  app.post(
+    "/api/campaigns/create-payment-intent",
+    isAuthenticated,
+    async (req: any, res) => {
+      try {
+        const { campaignId, paymentAmount } = req.body;
+        const userId = req.user.claims.sub;
+
+        // Create payment intent
+        const paymentIntent = await stripe.paymentIntents.create({
+          amount: Math.round(paymentAmount * 100), // Convert to cents
+          currency: "inr",
+          metadata: {
+            campaignId: campaignId.toString(),
+            userId: userId,
+          },
+        });
+
+        res.json({
+          clientSecret: paymentIntent.client_secret,
+          paymentIntentId: paymentIntent.id,
+        });
+      } catch (error) {
+        console.error("Error creating payment intent:", error);
+        res.status(500).json({ message: "Failed to create payment intent" });
+      }
+    },
+  );
 
   app.post("/api/campaigns/enroll", isAuthenticated, async (req: any, res) => {
     try {
       const { campaignId, paymentIntentId, registrationData } = req.body;
       const userId = req.user.claims.sub;
-      
+
       // Verify payment was successful
-      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
-      
+      const paymentIntent =
+        await stripe.paymentIntents.retrieve(paymentIntentId);
+
       if (paymentIntent.status !== "succeeded") {
         return res.status(400).json({ message: "Payment not completed" });
       }
-      
+
       // Create campaign enrollment with confirmed payment
       const enrollment = await storage.joinCampaign({
         campaignId,
         userId,
         paymentStatus: "paid",
-        paymentAmount: (paymentIntent.amount / 100).toString()
+        paymentAmount: (paymentIntent.amount / 100).toString(),
       });
-      
-      res.json({ 
-        success: true, 
+
+      res.json({
+        success: true,
         enrollment,
-        message: "Successfully enrolled in campaign" 
+        message: "Successfully enrolled in campaign",
       });
     } catch (error) {
       console.error("Error enrolling in campaign:", error);

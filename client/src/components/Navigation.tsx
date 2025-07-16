@@ -87,7 +87,7 @@ const Navigation = () => {
                   )}
                   <DropdownMenuItem 
                     className="text-space-200 hover:text-space-50 hover:bg-space-700"
-                    onClick={() => window.location.href = '/api/logout'}
+                    onClick={() => window.location.href = '/auth/logout'}
                   >
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Log out</span>
@@ -99,7 +99,7 @@ const Navigation = () => {
                 <Button 
                   variant="outline" 
                   className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900"
-                  onClick={() => window.location.href = '/api/login'}
+                  onClick={() => window.location.href = '/auth/login'}
                 >
                   Sign In
                 </Button>
@@ -163,7 +163,7 @@ const Navigation = () => {
                       <Button 
                         variant="outline" 
                         className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900"
-                        onClick={() => window.location.href = '/api/logout'}
+                        onClick={() => window.location.href = '/auth/logout'}
                       >
                         <LogOut className="mr-2 h-4 w-4" />
                         Log out
@@ -174,7 +174,7 @@ const Navigation = () => {
                       <Button 
                         variant="outline" 
                         className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900"
-                        onClick={() => window.location.href = '/api/login'}
+                        onClick={() => window.location.href = '/auth/login'}
                       >
                         Sign In
                       </Button>
