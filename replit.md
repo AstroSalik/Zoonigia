@@ -6,6 +6,18 @@ Zoonigia is a comprehensive full-stack web application designed to empower futur
 
 ## Recent Changes (July 2025)
 
+### Google OAuth Authentication Migration (July 16, 2025)
+- Successfully migrated from Replit Auth to Google OAuth authentication system
+- Updated authentication route structure from `/api/login` to `/auth/login`, `/auth/logout`, and `/auth/callback`
+- Fixed openid-client library compatibility issues with modern ES module API
+- Implemented proper PKCE (Proof Key for Code Exchange) flow with crypto-based code challenge generation
+- Updated Navigation component and Landing page to use new authentication endpoints
+- Fixed session management structure to work with Google OAuth user claims
+- Updated authentication middleware to handle Google OAuth session format
+- Resolved redirect URI configuration for proper local development and production deployment
+
+## Recent Changes (July 2025)
+
 ### Course Field Options and About Section Enhancement (July 15, 2025)
 - Updated course field options to include frontier sciences: Quantum Mechanics, Technology & AI, Astrophysics, Space Technology, Robotics, Biotechnology, Nanotechnology, and Renewable Energy
 - Added "about" field to course database schema for detailed course information display

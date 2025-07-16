@@ -1,5 +1,6 @@
 import * as client from "openid-client";
 import session from "express-session";
+import crypto from "crypto";
 import type { Express, Request, Response, NextFunction } from "express";
 
 let googleConfig: any;
@@ -24,18 +25,30 @@ export async function setupAuth(app: Express) {
 
   // Route: /auth/login
   app.get("/auth/login", (req: Request, res: Response) => {
-    const codeVerifier = client.randomPKCECodeVerifier();
-    const codeChallenge = client.calculatePKCECodeChallenge(codeVerifier);
-    (req.session as any).codeVerifier = codeVerifier;
+    try {
+      const codeVerifier = client.randomPKCECodeVerifier();
+      const codeChallenge = crypto
+        .createHash("sha256")
+        .update(codeVerifier)
+        .digest("base64url");
+      (req.session as any).codeVerifier = codeVerifier;
 
-    const authUrl = client.buildAuthorizationUrl(googleConfig, {
-      scope: "openid email profile",
-      code_challenge: codeChallenge,
-      code_challenge_method: "S256",
-      redirect_uri: process.env.GOOGLE_REDIRECT_URI!,
-    });
+      // Use current domain for redirect URI in development
+      const currentDomain = `${req.protocol}://${req.get('host')}`;
+      const redirectUri = `${currentDomain}/auth/callback`;
 
-    res.redirect(authUrl.href);
+      const authUrl = client.buildAuthorizationUrl(googleConfig, {
+        scope: "openid email profile",
+        code_challenge: codeChallenge,
+        code_challenge_method: "S256",
+        redirect_uri: redirectUri,
+      });
+
+      res.redirect(authUrl.href);
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).send("Authentication error");
+    }
   });
 
   // Route: /auth/callback

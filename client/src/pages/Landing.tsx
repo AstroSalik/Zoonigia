@@ -41,7 +41,7 @@ const Landing = () => {
             <div className="flex flex-col sm:flex-row gap-4">
               <Button 
                 className="cosmic-gradient hover:opacity-90 px-8 py-6 text-lg font-semibold"
-                onClick={() => window.location.href = '/api/login'}
+                onClick={() => window.location.href = '/auth/login'}
               >
                 Get Started
               </Button>
