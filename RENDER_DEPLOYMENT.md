@@ -29,6 +29,11 @@ The configuration is now production-ready:
 npm install --legacy-peer-deps && npm run build
 ```
 
+**Alternative Build Command (if peer deps issues persist):**
+```bash
+npm install --force && npm run build
+```
+
 **Start Command:**
 ```bash
 npm start
