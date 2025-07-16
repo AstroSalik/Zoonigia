@@ -1,7 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
-import postcss from './postcss.config.js';
 
 export default defineConfig({
   plugins: [react()],
@@ -11,9 +10,6 @@ export default defineConfig({
       "@shared": path.resolve(__dirname, "./shared"),
       "@assets": path.resolve(__dirname, "../attached_assets"),
     },
-  },
-  css: {
-    postcss,
   },
   build: {
     outDir: "dist",
