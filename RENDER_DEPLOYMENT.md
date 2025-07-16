@@ -13,11 +13,12 @@ The previous "vite: not found" error was due to missing dependency, now fixed.
 
 ## Exact Solution
 
-### 1. Build Configuration (Already Correct)
-The current configuration is correct:
+### 1. Build Configuration (✅ FIXED)
+The configuration is now production-ready:
 - `vite.config.ts` builds to `dist/`
 - `server/vite.ts` serves from `dist/`
 - `package.json` has correct build script
+- **✅ Vite moved to regular dependencies** (was in devDependencies)
 
 ### 2. For Render Deployment
 
@@ -33,7 +34,7 @@ npm start
 
 **Environment Variables Required:**
 - `NODE_ENV=production`
-- All Google OAuth secrets
+- All Google OAuth secrets (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI)
 - Database URL
 - Session secret
 

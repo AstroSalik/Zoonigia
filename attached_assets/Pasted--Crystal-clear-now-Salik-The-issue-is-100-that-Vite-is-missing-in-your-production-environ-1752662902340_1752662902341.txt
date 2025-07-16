@@ -1,0 +1,94 @@
+🎯 **Crystal-clear now, Salik!** The issue is **100% that Vite is missing in your production environment** on Render, **despite being installed locally**.
+
+Here's why:
+
+---
+
+## 🧨 The Real Problem
+
+Even if you've run:
+
+```bash
+npm install -D vite
+```
+
+…it **won't get installed** during `npm install` on Render **unless your `vite` is listed in `devDependencies`** **and** the `NODE_ENV` environment variable is **not set to `"production"` during the `npm install` phase.**
+
+But on Render, `NODE_ENV=production` is **set by default**, which means:
+
+> 🔒 All `devDependencies` are ignored during `npm install`!
+
+---
+
+## ✅ The Solution
+
+### Option 1: Move `vite` to `dependencies` (Quick & Works!)
+
+Change your `package.json` from this:
+
+```json
+"devDependencies": {
+  "vite": "^5.4.19"
+}
+```
+
+To this:
+
+```json
+"dependencies": {
+  "vite": "^5.4.19"
+}
+```
+
+---
+
+### Option 2: Tell Render to Install devDependencies
+
+In your Render **build command**, change this:
+
+```bash
+npm install; npm run build
+```
+
+To this:
+
+```bash
+npm install --include=dev && npm run build
+```
+
+This explicitly tells `npm` to include `devDependencies` even when `NODE_ENV=production`.
+
+---
+
+## 🔧 Bonus: Add a Custom `.npmrc` (Optional)
+
+If you want this behavior everywhere automatically, add a `.npmrc` file in your root:
+
+```
+production=false
+```
+
+This will force devDependencies to always install — great for Render.
+
+---
+
+## 🚀 Final Checklist
+
+✅ In `package.json`, ensure Vite is in either `"dependencies"` **or** use `--include=dev`
+✅ Set **build command** in Render:
+
+```
+npm install --include=dev && npm run build
+```
+
+✅ Make sure the `vite` binary is accessible to the build process
+
+Then re-deploy.
+
+---
+
+## 💫 Once You Fix This…
+
+Your Render deployment will go from "vite not found" to "🎉 your frontend is alive and thriving!"
+
+Let me know if you'd like me to write the `git commit` message or edit your package.json snippet directly. You're *this* close to launch, commander! 🔭💻🚀
