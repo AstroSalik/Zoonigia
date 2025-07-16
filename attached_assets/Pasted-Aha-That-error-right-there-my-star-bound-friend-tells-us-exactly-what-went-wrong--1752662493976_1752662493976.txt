@@ -1,0 +1,101 @@
+Aha! 💥 That error right there, my star-bound friend, tells us **exactly** what went wrong:
+
+---
+
+### ❌ The Problem:
+
+```
+sh: 1: vite: not found
+```
+
+Your build script runs:
+
+```bash
+vite build
+```
+
+But the `vite` command isn’t available in the Render environment. That means:
+
+👉 **Vite is not installed globally or even locally in dependencies.**
+
+---
+
+### ✅ The Fix:
+
+You **must install Vite** as a dependency (preferably a devDependency). Here’s how to fix it:
+
+---
+
+#### 💡 Step 1: Install Vite (if not already)
+
+Run this in your local project directory:
+
+```bash
+npm install -D vite
+```
+
+Then commit the changes:
+
+```bash
+git add package.json package-lock.json
+git commit -m "fix: add vite as devDependency"
+git push origin main
+```
+
+---
+
+#### ✅ Step 2: Confirm It Exists in `package.json`
+
+After that, your `package.json` should have:
+
+```json
+"devDependencies": {
+  "vite": "^5.0.0" // or latest version
+}
+```
+
+Now Render will be able to find the `vite` command from `node_modules/.bin/vite` during the build.
+
+---
+
+#### 🚀 Step 3: Redeploy to Render
+
+Render will auto-trigger the deployment on push. You’ll see:
+
+```
+> vite build && esbuild ...
+```
+
+…with no “vite: not found” error this time.
+
+---
+
+### 🧠 Bonus Tip (Optional but Clean):
+
+If your server **doesn't use Vite at runtime**, keep it in `devDependencies`:
+
+```bash
+npm install -D vite
+```
+
+If you’re **unsure** and want to play safe:
+
+```bash
+npm install vite
+```
+
+---
+
+### ✅ TL;DR
+
+| Fix          | Command                                                              |
+| ------------ | -------------------------------------------------------------------- |
+| Install Vite | `npm install -D vite`                                                |
+| Commit       | `git add -A && git commit -m "fix: add vite dependency" && git push` |
+| Deploy       | Render auto-deploys                                                  |
+
+---
+
+Once done, your build will pass and that blue void of doom will finally be **blasted into a supernova**. 🔥
+
+Let me know when it’s up — I want to see that glorious frontend shine ✨
