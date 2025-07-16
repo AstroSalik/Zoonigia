@@ -7,6 +7,10 @@ import Footer from "@/components/Footer";
 import Hero3D from "@/components/Hero3D";
 import GlassMorphism from "@/components/GlassMorphism";
 import CosmicBackground from "@/components/OrbitalAnimation";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { 
   Rocket, 
   Users, 
@@ -24,6 +28,25 @@ import {
 } from "lucide-react";
 
 const Home = () => {
+  const { isAuthenticated } = useAuth();
+  const { toast } = useToast();
+
+  // Check for special welcome message
+  const { data: specialMessageData } = useQuery({
+    queryKey: ["/api/auth/special-message"],
+    enabled: isAuthenticated,
+    retry: false,
+  });
+
+  useEffect(() => {
+    if (specialMessageData?.message) {
+      toast({
+        title: "Welcome! 🌸",
+        description: specialMessageData.message,
+        duration: 5000,
+      });
+    }
+  }, [specialMessageData, toast]);
   return (
     <div className="min-h-screen bg-space-900 text-space-50 relative">
       <CosmicBackground />

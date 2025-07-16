@@ -22,6 +22,7 @@
    - Navigation component shows "Logged in as [name]" for authenticated users
    - Proper avatar display with fallback to initials
    - Admin dashboard access for admin users
+   - Special welcome message for Munaf: "Welcome back, Eternal Peace 🌸"
 
 ### Technical Implementation Details
 

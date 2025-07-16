@@ -75,6 +75,12 @@ export async function setupAuth(app: Express) {
         profileImageUrl: userinfo.picture,
       });
 
+      // Special welcome message for Munaf
+      if (userinfo.email === 'munafsultan111@gmail.com') {
+        // Store special message in session for frontend to display
+        (req.session as any).specialMessage = "Welcome back, Eternal Peace 🌸";
+      }
+
       res.redirect("/");
     } catch (error) {
       console.error("Authentication callback error:", error);

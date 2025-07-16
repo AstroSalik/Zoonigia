@@ -18,6 +18,8 @@ Zoonigia is a comprehensive full-stack web application designed to empower futur
 - **COMPLETED**: Fixed "[object Promise]" error in authentication URL generation
 - **COMPLETED**: Authentication flow now fully functional with proper PKCE code challenges
 - **COMPLETED**: All authentication endpoints working correctly with secure session management
+- **COMPLETED**: Added personalized welcome message for Munaf with toast notification system
+- **COMPLETED**: Enhanced user experience with "Logged in as" display in navigation dropdown
 
 ## Recent Changes (July 2025)
 

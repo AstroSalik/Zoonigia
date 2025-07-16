@@ -48,6 +48,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Get and clear special welcome message
+  app.get("/api/auth/special-message", isAuthenticated, async (req: any, res) => {
+    const specialMessage = (req.session as any).specialMessage;
+    if (specialMessage) {
+      // Clear the message after sending it
+      delete (req.session as any).specialMessage;
+      res.json({ message: specialMessage });
+    } else {
+      res.json({ message: null });
+    }
+  });
+
   // Admin middleware
   const isAdmin = async (req: any, res: any, next: any) => {
     try {
