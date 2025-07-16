@@ -21,7 +21,7 @@ import {
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import GlassMorphism from "@/components/GlassMorphism";
-import { Course } from "@shared/schema";
+import { Course } from "@shared/types";
 
 const Courses = () => {
   const [searchTerm, setSearchTerm] = useState("");

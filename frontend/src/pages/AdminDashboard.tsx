@@ -28,49 +28,43 @@ import {
 } from "lucide-react";
 import { 
   User, BlogPost, Workshop, Course, Campaign, ContactInquiry, CourseLesson, WorkshopRegistration,
-  insertBlogPostSchema, insertWorkshopSchema, insertCourseSchema, insertCampaignSchema, insertCourseLessonSchema
-} from "@shared/schema";
+  InsertBlogPost, InsertWorkshop, InsertCourse, InsertCampaign, InsertCourseLesson
+} from "@shared/types";
 
 // Form schemas
-const blogPostFormSchema = insertBlogPostSchema.extend({
+const blogPostFormSchema = z.object({
   title: z.string().min(1, "Title is required"),
   content: z.string().min(1, "Content is required"),
   excerpt: z.string().min(1, "Excerpt is required"),
   author: z.string().min(1, "Author is required"),
-  category: z.string().min(1, "Category is required"),
+  published: z.boolean().default(false),
   imageUrl: z.string().optional(),
-  tags: z.string().optional(),
 });
 
-const workshopFormSchema = insertWorkshopSchema.extend({
+const workshopFormSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
   duration: z.string().min(1, "Duration is required"),
-  price: z.string().optional(),
-  capacity: z.number().min(1, "Capacity must be at least 1"),
-  level: z.enum(["beginner", "intermediate", "advanced"]),
-  category: z.string().min(1, "Category is required"),
-  requirements: z.string().optional(),
-  outcomes: z.string().optional(),
+  price: z.number().min(0, "Price must be non-negative"),
+  maxParticipants: z.number().min(1, "Max participants must be at least 1"),
+  imageUrl: z.string().optional(),
 });
 
-const courseFormSchema = insertCourseSchema.extend({
+const courseFormSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
   about: z.string().optional(),
   duration: z.string().optional(),
-  price: z.string().optional(),
-  capacity: z.number().optional(),
+  price: z.number().min(0, "Price must be non-negative"),
   level: z.enum(["beginner", "intermediate", "advanced"]),
   field: z.enum(["quantum_mechanics", "tech_ai", "astrophysics", "space_technology", "robotics", "biotechnology", "nanotechnology", "renewable_energy"]),
   instructorName: z.string().optional(),
   status: z.enum(["upcoming", "accepting_registrations", "live"]).default("upcoming"),
-  requirements: z.string().optional(),
-  outcomes: z.string().optional(),
+  imageUrl: z.string().optional(),
 }).superRefine((data, ctx) => {
   // For accepting_registrations and live status, make certain fields required
   if (data.status === "accepting_registrations" || data.status === "live") {
-    if (!data.price || data.price.trim() === "") {
+    if (!data.price || data.price <= 0) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Price is required for accepting registrations and live courses",
@@ -101,38 +95,33 @@ const courseFormSchema = insertCourseSchema.extend({
   }
 });
 
-const campaignFormSchema = insertCampaignSchema.extend({
+const campaignFormSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
-  type: z.string().min(1, "Type is required"),
   field: z.string().optional(),
   duration: z.string().optional(),
-  startDate: z.string().min(1, "Start date is required"),
-  endDate: z.string().min(1, "End date is required"),
-  partner: z.string().optional(),
-  status: z.enum(["upcoming", "active", "closed", "completed"]).default("upcoming"),
-  maxParticipants: z.number().optional(),
-  targetParticipants: z.number().optional(),
-  price: z.string().optional(),
+  price: z.number().min(0, "Price must be non-negative"),
   imageUrl: z.string().optional(),
+  status: z.enum(["upcoming", "active", "closed", "completed"]).default("upcoming"),
+  targetParticipants: z.number().min(1, "Target participants must be at least 1"),
   requirements: z.string().optional(),
   timeline: z.string().optional(),
   outcomes: z.string().optional(),
 }).superRefine((data, ctx) => {
   // For active and closed status, make certain fields required
   if (data.status === "active" || data.status === "closed") {
-    if (!data.price || data.price.trim() === "") {
+    if (!data.price || data.price <= 0) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Price is required for active and closed campaigns",
         path: ["price"],
       });
     }
-    if (!data.maxParticipants || data.maxParticipants < 1) {
+    if (!data.targetParticipants || data.targetParticipants < 1) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Max participants must be at least 1 for active and closed campaigns",
-        path: ["maxParticipants"],
+        message: "Target participants must be at least 1 for active and closed campaigns",
+        path: ["targetParticipants"],
       });
     }
     if (!data.duration || data.duration.trim() === "") {
@@ -152,15 +141,12 @@ const campaignFormSchema = insertCampaignSchema.extend({
   }
 });
 
-const lessonFormSchema = insertCourseLessonSchema.extend({
+const lessonFormSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
   content: z.string().min(1, "Content is required"),
   videoUrl: z.string().optional(),
-  duration: z.number().min(1, "Duration must be at least 1 minute"),
   orderIndex: z.number().min(1, "Order index is required"),
-  type: z.enum(["video", "text", "quiz", "assignment"]),
-  resources: z.string().optional(),
   isPreview: z.boolean().default(false),
 });
 

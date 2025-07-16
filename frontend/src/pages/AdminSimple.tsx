@@ -7,7 +7,7 @@ import Footer from "@/components/Footer";
 import GlassMorphism from "@/components/GlassMorphism";
 import AdminRoute from "@/components/AdminRoute";
 import { Shield, Users, BookOpen, Calendar, Mail } from "lucide-react";
-import { User, BlogPost, Workshop, Course, Campaign, ContactInquiry } from "@shared/schema";
+import { User, BlogPost, Workshop, Course, Campaign, ContactInquiry } from "@shared/types";
 
 const AdminSimple = () => {
   const { data: users = [] } = useQuery<User[]>({

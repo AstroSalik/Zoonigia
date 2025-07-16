@@ -15,7 +15,7 @@ import { isUnauthorizedError } from "@/lib/authUtils";
 import { useEffect, useState } from "react";
 import { useStripe, useElements, Elements, PaymentElement } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
-import type { Campaign } from "@shared/schema";
+import type { Campaign } from "@shared/types";
 import Navigation from "@/components/Navigation";
 
 // Initialize Stripe
