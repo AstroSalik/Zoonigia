@@ -25,7 +25,7 @@ import {
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import GlassMorphism from "@/components/GlassMorphism";
-import { Campaign } from "@shared/schema";
+import { Campaign } from "@shared/types";
 import { apiRequest } from "@/lib/queryClient";
 import { useState, useEffect } from "react";
 

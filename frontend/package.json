@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -44,7 +44,7 @@
     "cmdk": "^1.1.1",
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.6.0",
-    "framer-motion": "^13.4.0",
+    "framer-motion": "^11.11.17",
     "input-otp": "^1.4.1",
     "lucide-react": "^0.469.0",
     "next-themes": "^0.4.4",

@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Calendar, MapPin, Users, Clock, Telescope, Headphones, Star, Mic, Monitor, Lightbulb, Rocket, ChevronRight, Check, Mail, Phone, Building, Globe } from "lucide-react";
+import { Calendar, Users, Clock, Telescope, Headphones, Star, Mic, Monitor, Lightbulb, Rocket, Check, Mail, Phone, Building, Globe } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import GlassMorphism from "@/components/GlassMorphism";
@@ -37,10 +37,10 @@ const registrationSchema = z.object({
 type RegistrationFormData = z.infer<typeof registrationSchema>;
 
 const Workshops = () => {
-  const [selectedWorkshop, setSelectedWorkshop] = useState<string | null>(null);
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
-  const queryClient = useQueryClient();
+
 
   const form = useForm<RegistrationFormData>({
     resolver: zodResolver(registrationSchema),
@@ -69,9 +69,9 @@ const Workshops = () => {
       });
       form.reset();
       setIsDialogOpen(false);
-      setSelectedWorkshop(null);
+
     },
-    onError: (error) => {
+    onError: () => {
       toast({
         title: "Registration Failed",
         description: "Please try again later.",
@@ -84,10 +84,7 @@ const Workshops = () => {
     registrationMutation.mutate(data);
   };
 
-  const handleRegister = (workshopId: string) => {
-    setSelectedWorkshop(workshopId);
-    setIsDialogOpen(true);
-  };
+
 
   // Workshop offerings data
   const workshopOfferings = [

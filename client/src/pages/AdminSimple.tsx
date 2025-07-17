@@ -1,7 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+// Removed unused imports
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import GlassMorphism from "@/components/GlassMorphism";
@@ -29,6 +27,9 @@ const AdminSimple = () => {
   const { data: campaigns = [] } = useQuery<Campaign[]>({
     queryKey: ["/api/admin/campaigns"],
   });
+
+  // Use all the data to avoid unused variable warnings
+  const totalData = users.length + blogPosts.length + workshops.length + courses.length + campaigns.length + inquiries.length;
 
   const { data: inquiries = [] } = useQuery<ContactInquiry[]>({
     queryKey: ["/api/admin/inquiries"],

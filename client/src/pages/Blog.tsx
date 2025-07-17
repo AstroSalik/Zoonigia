@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+// Removed unused Select imports
 import { useState } from "react";
 import { useLocation } from "wouter";
 import Navigation from "@/components/Navigation";
@@ -25,14 +25,14 @@ import { BlogPost } from "@shared/types";
 
 const Blog = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedCategory] = useState("all");
   const [, setLocation] = useLocation();
 
   const { data: blogPosts, isLoading: blogLoading } = useQuery<BlogPost[]>({
     queryKey: ["/api/blog-posts"],
   });
 
-  const { data: achievements, isLoading: achievementsLoading } = useQuery<Achievement[]>({
+  const { data: achievements, isLoading: achievementsLoading } = useQuery<any[]>({
     queryKey: ["/api/achievements"],
   });
 

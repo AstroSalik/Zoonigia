@@ -4,13 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Rocket, Menu, X, LogOut, User, Shield } from "lucide-react";
+import { Rocket, Menu, LogOut, User as UserIcon, Shield } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { User } from "@shared/types";
 
 const Navigation = () => {
   const [location] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated } = useAuth();
 
   const navItems = [
     { href: "/", label: "Home" },
@@ -64,7 +65,7 @@ const Navigation = () => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={user?.profileImageUrl} alt={user?.firstName || "User"} />
+                      <AvatarImage src={user?.profileImageUrl || ""} alt={user?.firstName || "User"} />
                       <AvatarFallback className="bg-cosmic-blue text-space-900">
                         {user?.firstName?.[0] || user?.email?.[0]?.toUpperCase() || "U"}
                       </AvatarFallback>
@@ -73,10 +74,10 @@ const Navigation = () => {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56 bg-space-800 border-space-700" align="end" forceMount>
                   <div className="px-2 py-1.5 text-sm text-space-400 border-b border-space-700">
-                    Logged in as {user?.firstName || user?.email}
+                    Logged in as {user?.firstName || user?.email || "User"}
                   </div>
                   <DropdownMenuItem className="text-space-200 hover:text-space-50 hover:bg-space-700">
-                    <User className="mr-2 h-4 w-4" />
+                    <UserIcon className="mr-2 h-4 w-4" />
                     <span>Profile</span>
                   </DropdownMenuItem>
                   {user?.isAdmin && (
@@ -149,7 +150,7 @@ const Navigation = () => {
                     <>
                       <div className="flex items-center space-x-3 p-3 bg-space-800 rounded-lg">
                         <Avatar className="h-10 w-10">
-                          <AvatarImage src={user?.profileImageUrl} alt={user?.firstName || "User"} />
+                          <AvatarImage src={user?.profileImageUrl || ""} alt={user?.firstName || "User"} />
                           <AvatarFallback className="bg-cosmic-blue text-space-900">
                             {user?.firstName?.[0] || user?.email?.[0]?.toUpperCase() || "U"}
                           </AvatarFallback>
@@ -158,9 +159,9 @@ const Navigation = () => {
                           <div className="text-space-50 font-medium">
                             {user?.firstName && user?.lastName 
                               ? `${user.firstName} ${user.lastName}` 
-                              : user?.email}
+                              : user?.email || "User"}
                           </div>
-                          <div className="text-space-400 text-sm">{user?.email}</div>
+                          <div className="text-space-400 text-sm">{user?.email || ""}</div>
                         </div>
                       </div>
                       <Button 

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 
 interface FloatingParticle {
@@ -15,7 +15,7 @@ const CosmicBackground: React.FC = () => {
   const { scrollYProgress } = useScroll();
 
   // Create floating particles (reduced)
-  const particles: FloatingParticle[] = Array.from({ length: 30 }, (_, i) => ({
+  const particles: FloatingParticle[] = Array.from({ length: 30 }, () => ({
     x: Math.random() * 100,
     y: Math.random() * 100,
     size: Math.random() * 2 + 1,

@@ -23,7 +23,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { 
   Shield, Users, BookOpen, Calendar, Mail, Plus, Edit, Trash2, 
   Eye, MessageSquare, CheckCircle, XCircle, Star, GraduationCap,
-  Rocket, Target, Award, Phone, MapPin, Clock, IndianRupee,
+  Rocket, Target, Award, Phone, Clock, IndianRupee,
   Download, RefreshCw
 } from "lucide-react";
 import { 
@@ -82,7 +82,7 @@ const AdminDashboard = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [selectedInquiry, setSelectedInquiry] = useState<ContactInquiry | null>(null);
   const [showBlogDialog, setShowBlogDialog] = useState(false);
-  const [showWorkshopDialog, setShowWorkshopDialog] = useState(false);
+  const [showWorkshopDialog] = useState(false);
   const [showCourseDialog, setShowCourseDialog] = useState(false);
   const [showCampaignDialog, setShowCampaignDialog] = useState(false);
   const [showLessonDialog, setShowLessonDialog] = useState(false);
@@ -133,7 +133,7 @@ const AdminDashboard = () => {
     refetchInterval: 30000, // Refetch every 30 seconds
   });
 
-  const { data: campaignParticipants = [] } = useQuery({
+  const { data: campaignParticipants = [] } = useQuery<any[]>({
     queryKey: ["/api/admin/campaign-participants"],
     refetchInterval: 30000, // Refetch every 30 seconds
   });
@@ -165,15 +165,15 @@ const AdminDashboard = () => {
 
   const prevCampaignParticipantsCount = React.useRef<number | null>(null);
   React.useEffect(() => {
-    if (prevCampaignParticipantsCount.current !== null && campaignParticipants.length > prevCampaignParticipantsCount.current) {
+    if (prevCampaignParticipantsCount.current !== null && (campaignParticipants as any[]).length > prevCampaignParticipantsCount.current) {
       toast({
         title: "New Campaign Enrollment",
         description: "Someone has enrolled in a campaign!",
         className: "bg-purple-500/10 border-purple-500 text-white",
       });
     }
-    prevCampaignParticipantsCount.current = campaignParticipants.length;
-  }, [campaignParticipants.length, toast]);
+    prevCampaignParticipantsCount.current = (campaignParticipants as any[]).length;
+  }, [(campaignParticipants as any[]).length, toast]);
 
   // Status update mutation
   const updateRegistrationStatus = useMutation({
