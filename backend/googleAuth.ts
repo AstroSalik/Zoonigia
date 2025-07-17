@@ -9,11 +9,15 @@ const PgSession = connectPgSimple(session);
 // Google OAuth configuration
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID!;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET!;
-const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI || 'http://localhost:5000/auth/callback';
+const GOOGLE_REDIRECT_URI = `https://${process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000'}/auth/callback`;
 
 if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
   throw new Error('Google OAuth credentials missing');
 }
+
+console.log('Google OAuth Configuration:');
+console.log('- Client ID:', GOOGLE_CLIENT_ID.substring(0, 20) + '...');
+console.log('- Redirect URI:', GOOGLE_REDIRECT_URI);
 
 let googleClient: Client;
 
@@ -70,7 +74,7 @@ export async function setupAuth(app: express.Express) {
         return res.redirect('/auth/login');
       }
       
-      const tokenSet = await googleClient.callback(GOOGLE_REDIRECT_URI, { code }, { code_verifier: codeVerifier });
+      const tokenSet = await googleClient.callback(GOOGLE_REDIRECT_URI, { code: code as string }, { code_verifier: codeVerifier });
       const userinfo = await googleClient.userinfo(tokenSet.access_token!);
       
       // Store user session
