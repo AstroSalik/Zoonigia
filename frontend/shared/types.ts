@@ -24,44 +24,74 @@ export interface BlogPost {
   title: string;
   content: string;
   excerpt: string;
-  author: string;
-  category: string;
-  tags: string[];
-  imageUrl: string | null;
-  featured: boolean;
+  slug: string;
+  authorId: string;
+  authorName: string;
+  published: boolean;
+  publishedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface InsertBlogPost {
+  title: string;
+  content: string;
+  excerpt: string;
+  slug: string;
+  authorId: string;
+  authorName: string;
+  published?: boolean;
+  publishedAt?: Date | null;
 }
 
 export interface Workshop {
   id: number;
   title: string;
   description: string;
-  category: string;
   duration: string;
-  capacity: number;
   price: number;
-  imageUrl: string | null;
-  featured: boolean;
+  maxParticipants: number;
+  location: string;
+  imageUrl: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface InsertWorkshop {
+  title: string;
+  description: string;
+  duration: string;
+  price: number;
+  maxParticipants: number;
+  location: string;
+  imageUrl: string;
 }
 
 export interface Course {
   id: number;
   title: string;
   description: string;
-  field: string;
-  level: string;
-  duration: string;
-  price: number;
   instructorName: string;
-  about: string | null;
+  duration: string;
+  level: string;
+  price: number;
+  field: string;
+  imageUrl: string;
   status: string;
-  imageUrl: string | null;
-  featured: boolean;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface InsertCourse {
+  title: string;
+  description: string;
+  instructorName: string;
+  duration: string;
+  level: string;
+  price: number;
+  field: string;
+  imageUrl: string;
+  status?: string;
 }
 
 export interface Campaign {
@@ -70,118 +100,15 @@ export interface Campaign {
   description: string;
   field: string;
   duration: string;
+  price: number;
   targetParticipants: number;
   requirements: string;
   timeline: string;
   outcomes: string;
-  price: number;
-  status: string;
-  imageUrl: string | null;
-  featured: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface WorkshopRegistration {
-  id: number;
-  workshopId: number;
-  fullName: string;
-  email: string;
-  phone: string;
-  schoolName: string;
-  role: string;
-  grade: string | null;
-  workshopType: string;
-  experienceLevel: string;
-  interests: string[];
-  contactMethod: string;
-  lowerClassesRequest: boolean;
+  imageUrl: string;
   status: string;
   createdAt: Date;
   updatedAt: Date;
-}
-
-export interface ContactInquiry {
-  id: number;
-  name: string;
-  email: string;
-  phone: string | null;
-  organization: string | null;
-  inquiryType: string;
-  subject: string;
-  message: string;
-  status: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface CourseEnrollment {
-  id: number;
-  userId: string;
-  courseId: number;
-  status: string;
-  progress: number;
-  completedAt: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface CampaignParticipant {
-  id: number;
-  userId: string;
-  campaignId: number;
-  status: string;
-  joinedAt: Date;
-  completedAt: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface WorkshopEnrollment {
-  id: number;
-  userId: string;
-  workshopId: number;
-  status: string;
-  enrolledAt: Date;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-// Insert types for forms
-export interface InsertBlogPost {
-  title: string;
-  content: string;
-  excerpt: string;
-  author: string;
-  category: string;
-  tags: string[];
-  imageUrl?: string | null;
-  featured?: boolean;
-}
-
-export interface InsertWorkshop {
-  title: string;
-  description: string;
-  category: string;
-  duration: string;
-  capacity: number;
-  price: number;
-  imageUrl?: string | null;
-  featured?: boolean;
-}
-
-export interface InsertCourse {
-  title: string;
-  description: string;
-  field: string;
-  level: string;
-  duration: string;
-  price: number;
-  instructorName: string;
-  about?: string | null;
-  status?: string;
-  imageUrl?: string | null;
-  featured?: boolean;
 }
 
 export interface InsertCampaign {
@@ -189,58 +116,86 @@ export interface InsertCampaign {
   description: string;
   field: string;
   duration: string;
+  price: number;
   targetParticipants: number;
   requirements: string;
   timeline: string;
   outcomes: string;
-  price: number;
+  imageUrl: string;
   status?: string;
-  imageUrl?: string | null;
-  featured?: boolean;
 }
 
-export interface InsertWorkshopRegistration {
-  workshopId: number;
-  fullName: string;
+export interface ContactInquiry {
+  id: number;
+  name: string;
   email: string;
-  phone: string;
-  schoolName: string;
-  role: string;
-  grade?: string | null;
-  workshopType: string;
-  experienceLevel: string;
-  interests: string[];
-  contactMethod: string;
-  lowerClassesRequest: boolean;
-  status?: string;
+  subject: string;
+  message: string;
+  type: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface InsertContactInquiry {
   name: string;
   email: string;
-  phone?: string | null;
-  organization?: string | null;
-  inquiryType: string;
   subject: string;
   message: string;
+  type: string;
+}
+
+export interface WorkshopRegistration {
+  id: number;
+  schoolName: string;
+  contactName: string;
+  contactEmail: string;
+  contactPhone: string;
+  studentCount: number;
+  grades: string;
+  workshopType: string;
+  experienceLevel: string;
+  interests: string;
+  contactMethod: string;
+  lowerClassesRequest: string;
+  status: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface InsertWorkshopRegistration {
+  schoolName: string;
+  contactName: string;
+  contactEmail: string;
+  contactPhone: string;
+  studentCount: number;
+  grades: string;
+  workshopType: string;
+  experienceLevel: string;
+  interests: string;
+  contactMethod: string;
+  lowerClassesRequest: string;
   status?: string;
 }
 
-export interface InsertCourseEnrollment {
-  userId: string;
-  courseId: number;
-  status?: string;
-  progress?: number;
-}
-
-export interface InsertCampaignParticipant {
-  userId: string;
+export interface CampaignEnrollment {
+  id: number;
   campaignId: number;
-  status?: string;
+  userName: string;
+  userEmail: string;
+  userPhone: string;
+  userAge: number;
+  userGrade: string;
+  userSchool: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export interface InsertWorkshopEnrollment {
-  userId: string;
-  workshopId: number;
-  status?: string;
+export interface InsertCampaignEnrollment {
+  campaignId: number;
+  userName: string;
+  userEmail: string;
+  userPhone: string;
+  userAge: number;
+  userGrade: string;
+  userSchool: string;
 }

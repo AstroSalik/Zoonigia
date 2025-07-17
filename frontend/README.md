@@ -1,179 +1,88 @@
 # Zoonigia Frontend
 
-Modern React frontend for the Zoonigia EdTech platform, built with Vite and TypeScript.
+React/TypeScript frontend for the Zoonigia EdTech platform, optimized for Vercel deployment.
 
-## 🚀 Technology Stack
+## Features
 
-- **Framework**: React 18+ with TypeScript
-- **Build Tool**: Vite for fast development and optimized builds
-- **UI Framework**: Shadcn/ui with Radix UI components
-- **Styling**: Tailwind CSS with custom space-themed design
+- **Modern React Stack**: React 18+ with TypeScript, Vite build tool
+- **UI Components**: Shadcn/ui with Radix UI primitives
+- **Styling**: Tailwind CSS with custom space theme
 - **Routing**: Wouter for client-side routing
-- **State Management**: React Query (TanStack Query) for server state
-- **Form Handling**: React Hook Form with Zod validation
+- **State Management**: TanStack Query for server state
 - **Authentication**: Google OAuth integration
-- **Payment**: Stripe integration for course and campaign payments
+- **Forms**: React Hook Form with Zod validation
+- **Payment Processing**: Stripe integration
 
-## 📁 Project Structure
+## Development
 
-```
-frontend/
-├── src/
-│   ├── components/     # Reusable UI components
-│   │   ├── ui/        # Shadcn/ui components
-│   │   ├── Navigation.tsx
-│   │   ├── Footer.tsx
-│   │   ├── GlassMorphism.tsx
-│   │   └── AdminRoute.tsx
-│   ├── pages/         # Page components
-│   │   ├── Landing.tsx
-│   │   ├── Home.tsx
-│   │   ├── Courses.tsx
-│   │   ├── Campaigns.tsx
-│   │   ├── Blog.tsx
-│   │   └── AdminDashboard.tsx
-│   ├── hooks/         # Custom React hooks
-│   │   ├── useAuth.ts
-│   │   └── use-toast.ts
-│   ├── lib/           # Utility functions
-│   │   ├── utils.ts
-│   │   ├── queryClient.ts
-│   │   └── authUtils.ts
-│   ├── App.tsx        # Main app component
-│   ├── main.tsx       # App entry point
-│   └── index.css      # Global styles
-├── shared/
-│   └── types.ts       # Frontend-only TypeScript types
-├── components.json    # Shadcn/ui configuration
-├── tailwind.config.ts # Tailwind CSS configuration
-├── vite.config.ts     # Vite configuration
-├── tsconfig.json      # TypeScript configuration
-├── postcss.config.cjs # PostCSS configuration
-└── package.json       # Dependencies and scripts
-```
-
-## 🛠️ Development
-
-### Prerequisites
-- Node.js 18+ 
-- npm or yarn
-
-### Installation
 ```bash
-cd frontend
+# Install dependencies
 npm install
-```
 
-### Development Server
-```bash
+# Start development server
 npm run dev
-```
-The frontend will be available at `http://localhost:3000`
 
-### Build for Production
-```bash
+# Build for production
 npm run build
-```
 
-### Preview Production Build
-```bash
+# Preview production build
 npm run preview
 ```
 
-## 🔧 Configuration
+## Environment Variables
 
-### Environment Variables
-Create a `.env` file in the frontend directory:
-```
+For local development, create a `.env.local` file:
+
+```env
 VITE_API_URL=http://localhost:5000
 VITE_STRIPE_PUBLIC_KEY=pk_test_...
 ```
 
-### Styling
-- Custom space-themed design system
-- Dark mode support with CSS variables
-- Responsive design with mobile-first approach
-- Tailwind CSS with custom animations and components
+For production deployment on Vercel:
 
-### Authentication
-- Google OAuth integration
-- Session-based authentication with backend
-- Protected routes for authenticated users
-- Admin role-based access control
-
-## 📦 Key Features
-
-### User Interface
-- Modern, responsive design with space theme
-- Glass morphism effects and cosmic animations
-- Mobile-optimized navigation and layouts
-- Consistent component design system
-
-### Authentication & Authorization
-- Google OAuth login/logout
-- Session management with backend
-- Protected routes for authenticated users
-- Admin dashboard with role-based access
-
-### Content Management
-- Dynamic course catalog with filtering
-- Interactive campaign participation
-- Blog system with rich content
-- User registration and enrollment
-
-### Payment Integration
-- Stripe payment processing
-- Course and campaign payments
-- Secure checkout flow
-- Payment status tracking
-
-## 🚀 Deployment
-
-### Vercel Deployment
-1. Set root directory to `frontend` in Vercel dashboard
-2. Configure environment variables
-3. Deploy with automatic builds from Git
-
-### Build Configuration
-- PostCSS configuration for Tailwind CSS
-- Vite optimization for production
-- Asset optimization and bundling
-- TypeScript compilation
-
-## 📚 Development Guidelines
-
-### Code Style
-- TypeScript for type safety
-- Functional components with hooks
-- Consistent naming conventions
-- Proper error handling
-
-### State Management
-- React Query for server state
-- Local state with useState/useReducer
-- Custom hooks for reusable logic
-- Proper cache invalidation
-
-### Testing
-- Component testing with React Testing Library
-- Integration testing for user flows
-- E2E testing for critical paths
-- Unit testing for utility functions
-
-## 🔍 Troubleshooting
-
-### Common Issues
-- **Build Errors**: Check TypeScript types and imports
-- **Styling Issues**: Verify PostCSS configuration
-- **API Errors**: Check backend connection and CORS
-- **Authentication**: Verify Google OAuth configuration
-
-### Debug Mode
-Enable debug mode for detailed logging:
-```bash
-DEBUG=* npm run dev
+```env
+VITE_API_URL=https://zoonigia-web.onrender.com
+VITE_STRIPE_PUBLIC_KEY=pk_live_...
 ```
 
-## 📄 License
+## Deployment
 
-This project is part of the Zoonigia EdTech platform.
+This frontend is optimized for Vercel deployment:
+
+1. Connect your GitHub repository to Vercel
+2. Set the environment variables in Vercel dashboard
+3. Deploy with automatic builds on push to main branch
+
+## Project Structure
+
+```
+frontend/
+├── src/
+│   ├── components/       # Reusable UI components
+│   ├── hooks/           # Custom React hooks
+│   ├── lib/             # Utility functions and configurations
+│   ├── pages/           # Page components
+│   └── main.tsx         # Application entry point
+├── shared/
+│   └── types.ts         # Shared TypeScript types
+├── public/              # Static assets
+└── dist/                # Build output
+```
+
+## Authentication Flow
+
+The frontend communicates with the backend for authentication:
+
+1. User clicks "Login" → redirected to backend `/auth/login`
+2. Backend handles Google OAuth flow
+3. After successful auth, user is redirected back to frontend
+4. Frontend checks auth status via `/api/auth/user` endpoint
+
+## API Communication
+
+All API requests are made to the backend server:
+
+- Development: `http://localhost:5000`
+- Production: `https://zoonigia-web.onrender.com`
+
+The frontend includes proper CORS handling and credential management for cross-origin requests.
