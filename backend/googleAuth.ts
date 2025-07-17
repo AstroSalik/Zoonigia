@@ -9,7 +9,7 @@ const PgSession = connectPgSimple(session);
 // Google OAuth configuration
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID!;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET!;
-const GOOGLE_REDIRECT_URI = `https://${process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000'}/auth/callback`;
+const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI || 'https://zoonigia-web.onrender.com/auth/callback';
 
 if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
   throw new Error('Google OAuth credentials missing');
@@ -103,7 +103,7 @@ export async function setupAuth(app: express.Express) {
       // Clean up session
       delete (req.session as any).codeVerifier;
       
-      res.redirect(process.env.FRONTEND_URL || 'http://localhost:3000');
+      res.redirect(process.env.FRONTEND_URL || 'https://zoonigia-frontend.vercel.app');
     } catch (error) {
       console.error('Auth callback error:', error);
       res.redirect('/auth/login');
@@ -115,7 +115,7 @@ export async function setupAuth(app: express.Express) {
       if (err) {
         console.error('Session destruction error:', err);
       }
-      res.redirect(process.env.FRONTEND_URL || 'http://localhost:3000');
+      res.redirect(process.env.FRONTEND_URL || 'https://zoonigia-frontend.vercel.app');
     });
   });
 }
