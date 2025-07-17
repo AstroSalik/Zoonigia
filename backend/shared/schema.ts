@@ -2,19 +2,18 @@ import {
   pgTable,
   text,
   varchar,
+  integer,
+  boolean,
   timestamp,
   jsonb,
   index,
   serial,
-  integer,
-  boolean,
   decimal,
-  date,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// Session storage table for authentication
+// Session storage table - required for authentication
 export const sessions = pgTable(
   "sessions",
   {
@@ -22,350 +21,183 @@ export const sessions = pgTable(
     sess: jsonb("sess").notNull(),
     expire: timestamp("expire").notNull(),
   },
-  (table) => [index("IDX_session_expire").on(table.expire)],
+  (table) => [index("IDX_session_expire").on(table.expire)]
 );
 
-// Users table
+// User storage table - required for authentication
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().notNull(),
   email: varchar("email").unique(),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
-  userType: varchar("user_type").notNull().default("student"), // student, educator, school, collaborator, sponsor
-  institution: varchar("institution"),
-  isAdmin: boolean("is_admin").default(false),
+  isAdmin: boolean("is_admin").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Workshops table
-export const workshops = pgTable("workshops", {
-  id: serial("id").primaryKey(),
-  title: varchar("title").notNull(),
-  description: text("description").notNull(),
-  type: varchar("type").notNull(), // telescope, vr, expert_session, etc.
-  startDate: date("start_date").notNull(),
-  endDate: date("end_date").notNull(),
-  location: varchar("location"),
-  isVirtual: boolean("is_virtual").default(false),
-  maxParticipants: integer("max_participants"),
-  currentParticipants: integer("current_participants").default(0),
-  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
-  imageUrl: varchar("image_url"),
-  isActive: boolean("is_active").default(true),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-// Workshop enrollments
-export const workshopEnrollments = pgTable("workshop_enrollments", {
-  id: serial("id").primaryKey(),
-  workshopId: integer("workshop_id").references(() => workshops.id),
-  userId: varchar("user_id").references(() => users.id),
-  enrollmentDate: timestamp("enrollment_date").defaultNow(),
-  status: varchar("status").default("registered"), // registered, completed, cancelled
-});
-
-// Workshop registrations (from workshop page form)
-export const workshopRegistrations = pgTable("workshop_registrations", {
-  id: serial("id").primaryKey(),
-  name: varchar("name").notNull(),
-  email: varchar("email").notNull(),
-  phone: varchar("phone"),
-  organization: varchar("organization"),
-  experience: varchar("experience"), // beginner, intermediate, advanced
-  interests: text("interests"),
-  requestLowerClass: boolean("request_lower_class").default(false),
-  contactMethod: varchar("contact_method"), // email, phone, whatsapp
-  workshopType: varchar("workshop_type"), // community, campus
-  status: varchar("status").default("pending"), // pending, contacted, confirmed, cancelled
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-// Courses table - Enhanced for LMS
-export const courses = pgTable("courses", {
-  id: serial("id").primaryKey(),
-  title: varchar("title").notNull(),
-  description: text("description").notNull(),
-  about: text("about"), // detailed about section for course detail view
-  field: varchar("field").notNull(), // quantum_mechanics, tech_ai, astrophysics, etc.
-  level: varchar("level").notNull(), // beginner, intermediate, advanced
-  duration: varchar("duration"),
-  price: decimal("price", { precision: 10, scale: 2 }),
-  imageUrl: varchar("image_url"),
-  instructorId: varchar("instructor_id").references(() => users.id),
-  instructorName: varchar("instructor_name"),
-  status: varchar("status").default("upcoming"), // upcoming, accepting_registrations, live
-  category: varchar("category"),
-  totalLessons: integer("total_lessons").default(0),
-  totalDuration: integer("total_duration").default(0), // in minutes
-  enrollmentCount: integer("enrollment_count").default(0),
-  rating: decimal("rating", { precision: 3, scale: 2 }).default("0.00"),
-  reviewCount: integer("review_count").default(0),
-  learningObjectives: text("learning_objectives").array(),
-  prerequisites: text("prerequisites").array(),
-  isActive: boolean("is_active").default(true),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-// Course enrollments - Enhanced for LMS
-export const courseEnrollments = pgTable("course_enrollments", {
-  id: serial("id").primaryKey(),
-  courseId: integer("course_id").references(() => courses.id),
-  userId: varchar("user_id").references(() => users.id),
-  enrollmentDate: timestamp("enrollment_date").defaultNow(),
-  status: varchar("status").default("enrolled"), // enrolled, completed, dropped
-  progress: integer("progress").default(0), // percentage 0-100
-  completedLessons: integer("completed_lessons").default(0),
-  totalTimeSpent: integer("total_time_spent").default(0), // in minutes
-  lastAccessed: timestamp("last_accessed"),
-  certificateIssued: boolean("certificate_issued").default(false),
-});
-
-// Course modules/sections
-export const courseModules = pgTable("course_modules", {
-  id: serial("id").primaryKey(),
-  courseId: integer("course_id").references(() => courses.id).notNull(),
-  title: varchar("title").notNull(),
-  description: text("description"),
-  orderIndex: integer("order_index").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-// Course lessons
-export const courseLessons = pgTable("course_lessons", {
-  id: serial("id").primaryKey(),
-  courseId: integer("course_id").references(() => courses.id).notNull(),
-  moduleId: integer("module_id").references(() => courseModules.id),
-  title: varchar("title").notNull(),
-  description: text("description"),
-  content: text("content"), // lesson content/text
-  videoUrl: varchar("video_url"),
-  duration: integer("duration").default(0), // in minutes
-  orderIndex: integer("order_index").notNull(),
-  type: varchar("type").default("video"), // video, text, quiz, assignment
-  resources: text("resources").array(), // downloadable resources
-  isPreview: boolean("is_preview").default(false),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-// Course quizzes
-export const courseQuizzes = pgTable("course_quizzes", {
-  id: serial("id").primaryKey(),
-  courseId: integer("course_id").references(() => courses.id).notNull(),
-  lessonId: integer("lesson_id").references(() => courseLessons.id),
-  title: varchar("title").notNull(),
-  description: text("description"),
-  timeLimit: integer("time_limit"), // in minutes
-  passingScore: integer("passing_score").default(70),
-  maxAttempts: integer("max_attempts").default(3),
-  questions: jsonb("questions").notNull(), // quiz questions and answers
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-// Student progress tracking
-export const studentProgress = pgTable("student_progress", {
-  id: serial("id").primaryKey(),
-  userId: varchar("user_id").references(() => users.id).notNull(),
-  courseId: integer("course_id").references(() => courses.id).notNull(),
-  lessonId: integer("lesson_id").references(() => courseLessons.id),
-  completed: boolean("completed").default(false),
-  completedAt: timestamp("completed_at"),
-  timeSpent: integer("time_spent").default(0), // in minutes
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-// Quiz attempts
-export const quizAttempts = pgTable("quiz_attempts", {
-  id: serial("id").primaryKey(),
-  userId: varchar("user_id").references(() => users.id).notNull(),
-  quizId: integer("quiz_id").references(() => courseQuizzes.id).notNull(),
-  score: integer("score").notNull(),
-  answers: jsonb("answers").notNull(),
-  completedAt: timestamp("completed_at").defaultNow(),
-  timeSpent: integer("time_spent").default(0), // in minutes
-});
-
-// Course reviews
-export const courseReviews = pgTable("course_reviews", {
-  id: serial("id").primaryKey(),
-  courseId: integer("course_id").references(() => courses.id).notNull(),
-  userId: varchar("user_id").references(() => users.id).notNull(),
-  rating: integer("rating").notNull(), // 1-5 stars
-  review: text("review"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-// Course certificates
-export const courseCertificates = pgTable("course_certificates", {
-  id: serial("id").primaryKey(),
-  userId: varchar("user_id").references(() => users.id).notNull(),
-  courseId: integer("course_id").references(() => courses.id).notNull(),
-  certificateUrl: varchar("certificate_url"),
-  issuedAt: timestamp("issued_at").defaultNow(),
-  verificationCode: varchar("verification_code").notNull(),
-});
-
-// Campaigns table
-export const campaigns = pgTable("campaigns", {
-  id: serial("id").primaryKey(),
-  title: varchar("title").notNull(),
-  description: text("description").notNull(),
-  type: varchar("type").notNull(), // asteroid_search, poetry, research
-  field: varchar("field"),
-  duration: varchar("duration"),
-  startDate: date("start_date").notNull(),
-  endDate: date("end_date").notNull(),
-  partner: varchar("partner"), // NASA, IASC, etc.
-  status: varchar("status").default("upcoming"), // upcoming, active, closed, completed
-  progress: integer("progress").default(0), // percentage
-  maxParticipants: integer("max_participants"),
-  currentParticipants: integer("current_participants").default(0),
-  targetParticipants: integer("target_participants").default(100),
-  price: decimal("price", { precision: 10, scale: 2 }).default("0.00"),
-  imageUrl: varchar("image_url"),
-  requirements: text("requirements"),
-  timeline: text("timeline"),
-  outcomes: text("outcomes"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-// Campaign participants
-export const campaignParticipants = pgTable("campaign_participants", {
-  id: serial("id").primaryKey(),
-  campaignId: integer("campaign_id").references(() => campaigns.id),
-  userId: varchar("user_id").references(() => users.id),
-  joinDate: timestamp("join_date").defaultNow(),
-  status: varchar("status").default("active"), // active, completed, withdrawn
-  paymentStatus: varchar("payment_status").default("pending"), // pending, paid, failed
-  paymentAmount: decimal("payment_amount", { precision: 10, scale: 2 }),
-});
-
-// Blog posts table
 export const blogPosts = pgTable("blog_posts", {
   id: serial("id").primaryKey(),
-  title: varchar("title").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
   content: text("content").notNull(),
-  authorId: varchar("author_id").references(() => users.id),
-  authorName: varchar("author_name").notNull(),
-  authorTitle: varchar("author_title"),
-  authorImageUrl: varchar("author_image_url"),
-  publishedAt: timestamp("published_at").defaultNow(),
-  isPublished: boolean("is_published").default(false),
+  excerpt: text("excerpt").notNull(),
+  author: varchar("author", { length: 255 }).notNull(),
+  category: varchar("category", { length: 100 }).notNull(),
+  tags: text("tags").array().notNull().default([]),
   imageUrl: varchar("image_url"),
+  featured: boolean("featured").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Achievements table
-export const achievements = pgTable("achievements", {
+export const workshops = pgTable("workshops", {
   id: serial("id").primaryKey(),
-  userId: varchar("user_id").references(() => users.id),
-  studentName: varchar("student_name").notNull(),
-  school: varchar("school"),
-  achievementType: varchar("achievement_type").notNull(), // asteroid_discovery, research_publication, poetry_publication
-  title: varchar("title").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
   description: text("description").notNull(),
+  category: varchar("category", { length: 100 }).notNull(),
+  duration: varchar("duration", { length: 50 }).notNull(),
+  capacity: integer("capacity").notNull(),
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
   imageUrl: varchar("image_url"),
-  achievedAt: timestamp("achieved_at").defaultNow(),
+  featured: boolean("featured").default(false),
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Contact inquiries
+export const courses = pgTable("courses", {
+  id: serial("id").primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description").notNull(),
+  field: varchar("field", { length: 100 }).notNull(),
+  level: varchar("level", { length: 50 }).notNull(),
+  duration: varchar("duration", { length: 50 }).notNull(),
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  instructorName: varchar("instructor_name", { length: 255 }).notNull(),
+  about: text("about"),
+  status: varchar("status", { length: 50 }).default("upcoming").notNull(),
+  imageUrl: varchar("image_url"),
+  featured: boolean("featured").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const campaigns = pgTable("campaigns", {
+  id: serial("id").primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description").notNull(),
+  field: varchar("field", { length: 100 }).notNull(),
+  duration: varchar("duration", { length: 50 }).notNull(),
+  targetParticipants: integer("target_participants").notNull(),
+  requirements: text("requirements").notNull(),
+  timeline: text("timeline").notNull(),
+  outcomes: text("outcomes").notNull(),
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  status: varchar("status", { length: 50 }).default("upcoming").notNull(),
+  imageUrl: varchar("image_url"),
+  featured: boolean("featured").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const workshopRegistrations = pgTable("workshop_registrations", {
+  id: serial("id").primaryKey(),
+  workshopId: integer("workshop_id").notNull(),
+  fullName: varchar("full_name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull(),
+  phone: varchar("phone", { length: 20 }).notNull(),
+  schoolName: varchar("school_name", { length: 255 }).notNull(),
+  role: varchar("role", { length: 100 }).notNull(),
+  grade: varchar("grade", { length: 50 }),
+  workshopType: varchar("workshop_type", { length: 50 }).notNull(),
+  experienceLevel: varchar("experience_level", { length: 50 }).notNull(),
+  interests: text("interests").array().notNull().default([]),
+  contactMethod: varchar("contact_method", { length: 50 }).notNull(),
+  lowerClassesRequest: boolean("lower_classes_request").default(false),
+  status: varchar("status", { length: 50 }).default("pending").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const contactInquiries = pgTable("contact_inquiries", {
   id: serial("id").primaryKey(),
-  name: varchar("name").notNull(),
-  email: varchar("email").notNull(),
-  subject: varchar("subject").notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull(),
+  phone: varchar("phone", { length: 20 }),
+  organization: varchar("organization", { length: 255 }),
+  inquiryType: varchar("inquiry_type", { length: 100 }).notNull(),
+  subject: varchar("subject", { length: 255 }).notNull(),
   message: text("message").notNull(),
-  inquiryType: varchar("inquiry_type").default("general"), // general, partnership, collaboration
-  status: varchar("status").default("pending"), // pending, replied, resolved
+  status: varchar("status", { length: 50 }).default("new").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Type definitions
+export const courseEnrollments = pgTable("course_enrollments", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull(),
+  courseId: integer("course_id").notNull(),
+  status: varchar("status", { length: 50 }).default("enrolled").notNull(),
+  progress: integer("progress").default(0).notNull(),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const campaignParticipants = pgTable("campaign_participants", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull(),
+  campaignId: integer("campaign_id").notNull(),
+  status: varchar("status", { length: 50 }).default("active").notNull(),
+  joinedAt: timestamp("joined_at").defaultNow(),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const workshopEnrollments = pgTable("workshop_enrollments", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull(),
+  workshopId: integer("workshop_id").notNull(),
+  status: varchar("status", { length: 50 }).default("enrolled").notNull(),
+  enrolledAt: timestamp("enrolled_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Type exports
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
 
-export type InsertWorkshop = typeof workshops.$inferInsert;
-export type Workshop = typeof workshops.$inferSelect;
-
-export type InsertCourse = typeof courses.$inferInsert;
-export type Course = typeof courses.$inferSelect;
-
-export type InsertCampaign = typeof campaigns.$inferInsert;
-export type Campaign = typeof campaigns.$inferSelect;
-
-export type InsertBlogPost = typeof blogPosts.$inferInsert;
 export type BlogPost = typeof blogPosts.$inferSelect;
-
-export type InsertAchievement = typeof achievements.$inferInsert;
-export type Achievement = typeof achievements.$inferSelect;
-
-export type InsertContactInquiry = typeof contactInquiries.$inferInsert;
+export type Workshop = typeof workshops.$inferSelect;
+export type Course = typeof courses.$inferSelect;
+export type Campaign = typeof campaigns.$inferSelect;
+export type WorkshopRegistration = typeof workshopRegistrations.$inferSelect;
 export type ContactInquiry = typeof contactInquiries.$inferSelect;
-
-export type InsertWorkshopEnrollment = typeof workshopEnrollments.$inferInsert;
+export type CourseEnrollment = typeof courseEnrollments.$inferSelect;
+export type CampaignParticipant = typeof campaignParticipants.$inferSelect;
 export type WorkshopEnrollment = typeof workshopEnrollments.$inferSelect;
 
-export type InsertWorkshopRegistration = typeof workshopRegistrations.$inferInsert;
-export type WorkshopRegistration = typeof workshopRegistrations.$inferSelect;
-
-export type InsertCourseEnrollment = typeof courseEnrollments.$inferInsert;
-export type CourseEnrollment = typeof courseEnrollments.$inferSelect;
-
-export type InsertCampaignParticipant = typeof campaignParticipants.$inferInsert;
-export type CampaignParticipant = typeof campaignParticipants.$inferSelect;
-
-// LMS types
-export type InsertCourseModule = typeof courseModules.$inferInsert;
-export type CourseModule = typeof courseModules.$inferSelect;
-
-export type InsertCourseLesson = typeof courseLessons.$inferInsert;
-export type CourseLesson = typeof courseLessons.$inferSelect;
-
-export type InsertCourseQuiz = typeof courseQuizzes.$inferInsert;
-export type CourseQuiz = typeof courseQuizzes.$inferSelect;
-
-export type InsertStudentProgress = typeof studentProgress.$inferInsert;
-export type StudentProgress = typeof studentProgress.$inferSelect;
-
-export type InsertQuizAttempt = typeof quizAttempts.$inferInsert;
-export type QuizAttempt = typeof quizAttempts.$inferSelect;
-
-export type InsertCourseReview = typeof courseReviews.$inferInsert;
-export type CourseReview = typeof courseReviews.$inferSelect;
-
-export type InsertCourseCertificate = typeof courseCertificates.$inferInsert;
-export type CourseCertificate = typeof courseCertificates.$inferSelect;
-
-// Zod schemas
+// Insert schemas
 export const insertUserSchema = createInsertSchema(users);
+export const insertBlogPostSchema = createInsertSchema(blogPosts);
 export const insertWorkshopSchema = createInsertSchema(workshops);
 export const insertCourseSchema = createInsertSchema(courses);
 export const insertCampaignSchema = createInsertSchema(campaigns);
-export const insertBlogPostSchema = createInsertSchema(blogPosts);
-export const insertAchievementSchema = createInsertSchema(achievements);
-export const insertContactInquirySchema = createInsertSchema(contactInquiries);
-export const insertWorkshopEnrollmentSchema = createInsertSchema(workshopEnrollments);
 export const insertWorkshopRegistrationSchema = createInsertSchema(workshopRegistrations);
+export const insertContactInquirySchema = createInsertSchema(contactInquiries);
 export const insertCourseEnrollmentSchema = createInsertSchema(courseEnrollments);
 export const insertCampaignParticipantSchema = createInsertSchema(campaignParticipants);
+export const insertWorkshopEnrollmentSchema = createInsertSchema(workshopEnrollments);
 
-// LMS Zod schemas
-export const insertCourseModuleSchema = createInsertSchema(courseModules);
-export const insertCourseLessonSchema = createInsertSchema(courseLessons);
-export const insertCourseQuizSchema = createInsertSchema(courseQuizzes);
-export const insertStudentProgressSchema = createInsertSchema(studentProgress);
-export const insertQuizAttemptSchema = createInsertSchema(quizAttempts);
-export const insertCourseReviewSchema = createInsertSchema(courseReviews);
-export const insertCourseCertificateSchema = createInsertSchema(courseCertificates);
+// Insert types
+export type InsertUser = z.infer<typeof insertUserSchema>;
+export type InsertBlogPost = z.infer<typeof insertBlogPostSchema>;
+export type InsertWorkshop = z.infer<typeof insertWorkshopSchema>;
+export type InsertCourse = z.infer<typeof insertCourseSchema>;
+export type InsertCampaign = z.infer<typeof insertCampaignSchema>;
+export type InsertWorkshopRegistration = z.infer<typeof insertWorkshopRegistrationSchema>;
+export type InsertContactInquiry = z.infer<typeof insertContactInquirySchema>;
+export type InsertCourseEnrollment = z.infer<typeof insertCourseEnrollmentSchema>;
+export type InsertCampaignParticipant = z.infer<typeof insertCampaignParticipantSchema>;
+export type InsertWorkshopEnrollment = z.infer<typeof insertWorkshopEnrollmentSchema>;

@@ -1,33 +1,24 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "lib": ["ES2020"],
     "module": "ESNext",
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
+    "moduleResolution": "bundler",
     "allowImportingTsExtensions": false,
-    "resolveJsonModule": true,
     "isolatedModules": true,
-    "declaration": false,
-    "outDir": "./dist",
-    "rootDir": "./",
+    "moduleDetection": "force",
     "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "exactOptionalPropertyTypes": true,
     "skipLibCheck": true,
+    "noEmit": false,
+    "outDir": "./dist",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
       "@shared/*": ["./shared/*"]
     }
   },
-  "include": ["**/*.ts", "**/*.js"],
+  "include": ["**/*.ts", "shared/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }

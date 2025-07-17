@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupAuth, isAuthenticated } from "./googleAuth";
 import {
   insertWorkshopEnrollmentSchema,
   insertCourseEnrollmentSchema,
@@ -12,7 +12,7 @@ import {
   insertWorkshopSchema,
   insertCourseSchema,
   insertCampaignSchema,
-} from "@shared/schema";
+} from "./shared/schema";
 import { z } from "zod";
 import Stripe from "stripe";
 

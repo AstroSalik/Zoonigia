@@ -1,47 +1,37 @@
-import express from 'express';
-import cors from 'cors';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-import { registerRoutes } from './routes.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import express from "express";
+import { registerRoutes } from "./routes";
 
 const app = express();
 
-// CORS configuration for frontend
-app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://zoonigia.vercel.app', 'https://zoonigia-frontend.vercel.app']  // Add your Vercel domain
-    : ['http://localhost:3000', 'http://localhost:5173'],
-  credentials: true
-}));
+// CORS configuration for separated frontend/backend
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL || 'http://localhost:3000');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Trust proxy for secure cookies
-app.set('trust proxy', 1);
-
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV
-  });
-});
-
-// Register all routes
-const server = await registerRoutes(app);
-
 const PORT = process.env.PORT || 5000;
 
-server.listen(PORT, () => {
-  console.log(`🚀 Backend server running on port ${PORT}`);
-  console.log(`📡 Environment: ${process.env.NODE_ENV}`);
-  console.log(`🔗 CORS enabled for: ${process.env.NODE_ENV === 'production' ? 'production domains' : 'localhost'}`);
-});
+async function startServer() {
+  try {
+    const server = await registerRoutes(app);
+    
+    server.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+}
 
-export default app;
+startServer();

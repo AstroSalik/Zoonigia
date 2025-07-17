@@ -34,7 +34,7 @@ import {
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import type { Course, CourseLesson, CourseModule, StudentProgress, CourseReview } from '@shared/types';
+import type { Course } from '@shared/types';
 
 const reviewSchema = z.object({
   rating: z.number().min(1).max(5),

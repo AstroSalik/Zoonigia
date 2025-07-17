@@ -1,6 +1,4 @@
-// Frontend-only type definitions
-// No backend imports - only TypeScript interfaces and types
-
+// Frontend-only types without backend dependencies
 export interface User {
   id: string;
   email: string | null;
@@ -12,14 +10,39 @@ export interface User {
   updatedAt: Date;
 }
 
+export interface UpsertUser {
+  id: string;
+  email?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  profileImageUrl?: string | null;
+  isAdmin?: boolean;
+}
+
+export interface BlogPost {
+  id: number;
+  title: string;
+  content: string;
+  excerpt: string;
+  author: string;
+  category: string;
+  tags: string[];
+  imageUrl: string | null;
+  featured: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface Workshop {
   id: number;
   title: string;
   description: string;
+  category: string;
   duration: string;
-  maxParticipants: number;
+  capacity: number;
   price: number;
   imageUrl: string | null;
+  featured: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -28,14 +51,15 @@ export interface Course {
   id: number;
   title: string;
   description: string;
-  about: string | null;
-  instructorName: string;
-  duration: string;
-  level: string;
   field: string;
+  level: string;
+  duration: string;
   price: number;
-  imageUrl: string | null;
+  instructorName: string;
+  about: string | null;
   status: string;
+  imageUrl: string | null;
+  featured: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -51,20 +75,28 @@ export interface Campaign {
   timeline: string;
   outcomes: string;
   price: number;
-  imageUrl: string | null;
   status: string;
+  imageUrl: string | null;
+  featured: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface BlogPost {
+export interface WorkshopRegistration {
   id: number;
-  title: string;
-  content: string;
-  excerpt: string;
-  author: string;
-  imageUrl: string | null;
-  published: boolean;
+  workshopId: number;
+  fullName: string;
+  email: string;
+  phone: string;
+  schoolName: string;
+  role: string;
+  grade: string | null;
+  workshopType: string;
+  experienceLevel: string;
+  interests: string[];
+  contactMethod: string;
+  lowerClassesRequest: boolean;
+  status: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -75,155 +107,140 @@ export interface ContactInquiry {
   email: string;
   phone: string | null;
   organization: string | null;
+  inquiryType: string;
+  subject: string;
   message: string;
-  type: string;
-  createdAt: Date;
-}
-
-export interface WorkshopRegistration {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  organization: string;
-  role: string;
-  experienceLevel: string;
-  workshopType: string;
-  contactMethod: string;
-  lowerClassesRequest: boolean;
-  interests: string;
   status: string;
   createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface CourseEnrollment {
   id: number;
   userId: string;
   courseId: number;
-  enrolledAt: Date;
-  completedAt: Date | null;
+  status: string;
   progress: number;
+  completedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface CampaignParticipant {
   id: number;
   userId: string;
   campaignId: number;
-  joinedAt: Date;
   status: string;
+  joinedAt: Date;
+  completedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface WorkshopEnrollment {
   id: number;
   userId: string;
   workshopId: number;
-  enrolledAt: Date;
   status: string;
-}
-
-export interface Achievement {
-  id: number;
-  title: string;
-  description: string;
-  imageUrl: string | null;
-  createdAt: Date;
-}
-
-// LMS Types
-export interface CourseModule {
-  id: number;
-  courseId: number;
-  title: string;
-  description: string;
-  orderIndex: number;
+  enrolledAt: Date;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface CourseLesson {
-  id: number;
-  courseId: number;
-  moduleId: number | null;
+// Insert types for forms
+export interface InsertBlogPost {
   title: string;
   content: string;
-  videoUrl: string | null;
-  orderIndex: number;
-  isPreview: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  excerpt: string;
+  author: string;
+  category: string;
+  tags: string[];
+  imageUrl?: string | null;
+  featured?: boolean;
 }
 
-export interface CourseQuiz {
-  id: number;
-  courseId: number;
-  lessonId: number | null;
+export interface InsertWorkshop {
   title: string;
   description: string;
-  questions: any; // JSON type
-  passingScore: number;
-  createdAt: Date;
-  updatedAt: Date;
+  category: string;
+  duration: string;
+  capacity: number;
+  price: number;
+  imageUrl?: string | null;
+  featured?: boolean;
 }
 
-export interface StudentProgress {
-  id: number;
+export interface InsertCourse {
+  title: string;
+  description: string;
+  field: string;
+  level: string;
+  duration: string;
+  price: number;
+  instructorName: string;
+  about?: string | null;
+  status?: string;
+  imageUrl?: string | null;
+  featured?: boolean;
+}
+
+export interface InsertCampaign {
+  title: string;
+  description: string;
+  field: string;
+  duration: string;
+  targetParticipants: number;
+  requirements: string;
+  timeline: string;
+  outcomes: string;
+  price: number;
+  status?: string;
+  imageUrl?: string | null;
+  featured?: boolean;
+}
+
+export interface InsertWorkshopRegistration {
+  workshopId: number;
+  fullName: string;
+  email: string;
+  phone: string;
+  schoolName: string;
+  role: string;
+  grade?: string | null;
+  workshopType: string;
+  experienceLevel: string;
+  interests: string[];
+  contactMethod: string;
+  lowerClassesRequest: boolean;
+  status?: string;
+}
+
+export interface InsertContactInquiry {
+  name: string;
+  email: string;
+  phone?: string | null;
+  organization?: string | null;
+  inquiryType: string;
+  subject: string;
+  message: string;
+  status?: string;
+}
+
+export interface InsertCourseEnrollment {
   userId: string;
   courseId: number;
-  lessonId: number;
-  completed: boolean;
-  completedAt: Date | null;
-  timeSpent: number;
-  createdAt: Date;
-  updatedAt: Date;
+  status?: string;
+  progress?: number;
 }
 
-export interface QuizAttempt {
-  id: number;
+export interface InsertCampaignParticipant {
   userId: string;
-  quizId: number;
-  answers: any; // JSON type
-  score: number;
-  passed: boolean;
-  attemptedAt: Date;
+  campaignId: number;
+  status?: string;
 }
 
-export interface CourseReview {
-  id: number;
+export interface InsertWorkshopEnrollment {
   userId: string;
-  courseId: number;
-  rating: number;
-  comment: string | null;
-  createdAt: Date;
-  updatedAt: Date;
+  workshopId: number;
+  status?: string;
 }
-
-export interface CourseCertificate {
-  id: number;
-  userId: string;
-  courseId: number;
-  certificateUrl: string;
-  issuedAt: Date;
-}
-
-// Insert types for forms (without auto-generated fields)
-export type InsertUser = Omit<User, 'createdAt' | 'updatedAt'>;
-export type InsertWorkshop = Omit<Workshop, 'id' | 'createdAt' | 'updatedAt'>;
-export type InsertCourse = Omit<Course, 'id' | 'createdAt' | 'updatedAt'>;
-export type InsertCampaign = Omit<Campaign, 'id' | 'createdAt' | 'updatedAt'>;
-export type InsertBlogPost = Omit<BlogPost, 'id' | 'createdAt' | 'updatedAt'>;
-export type InsertContactInquiry = Omit<ContactInquiry, 'id' | 'createdAt'>;
-export type InsertWorkshopRegistration = Omit<WorkshopRegistration, 'id' | 'createdAt'>;
-export type InsertCourseEnrollment = Omit<CourseEnrollment, 'id' | 'enrolledAt'>;
-export type InsertCampaignParticipant = Omit<CampaignParticipant, 'id' | 'joinedAt'>;
-export type InsertWorkshopEnrollment = Omit<WorkshopEnrollment, 'id' | 'enrolledAt'>;
-export type InsertAchievement = Omit<Achievement, 'id' | 'createdAt'>;
-export type InsertCourseModule = Omit<CourseModule, 'id' | 'createdAt' | 'updatedAt'>;
-export type InsertCourseLesson = Omit<CourseLesson, 'id' | 'createdAt' | 'updatedAt'>;
-export type InsertCourseQuiz = Omit<CourseQuiz, 'id' | 'createdAt' | 'updatedAt'>;
-export type InsertStudentProgress = Omit<StudentProgress, 'id' | 'createdAt' | 'updatedAt'>;
-export type InsertQuizAttempt = Omit<QuizAttempt, 'id' | 'attemptedAt'>;
-export type InsertCourseReview = Omit<CourseReview, 'id' | 'createdAt' | 'updatedAt'>;
-export type InsertCourseCertificate = Omit<CourseCertificate, 'id' | 'issuedAt'>;
-
-// Upsert type for auth
-export type UpsertUser = Omit<User, 'createdAt' | 'updatedAt'>;
