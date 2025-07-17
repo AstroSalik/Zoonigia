@@ -7,8 +7,8 @@
     "skipLibCheck": true,
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
     "isolatedModules": true,
-    "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
     "strict": true,
@@ -22,5 +22,6 @@
       "@assets/*": ["../attached_assets/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "shared/**/*.ts"]
+  "include": ["src", "shared"],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }

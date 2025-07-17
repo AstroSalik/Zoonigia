@@ -12,7 +12,7 @@ import {
   Clock,
   Tag
 } from "lucide-react";
-import { BlogPost } from "@shared/types";
+import { BlogPost } from "@shared/schema";
 
 const BlogPostView = () => {
   const { id } = useParams<{ id: string }>();

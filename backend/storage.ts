@@ -53,7 +53,7 @@ import {
   workshopRegistrations,
   type WorkshopRegistration,
   type InsertWorkshopRegistration,
-} from "./shared/schema";
+} from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and } from "drizzle-orm";
 

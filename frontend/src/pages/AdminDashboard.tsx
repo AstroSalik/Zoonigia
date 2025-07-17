@@ -27,11 +27,12 @@ import {
   Download, RefreshCw
 } from "lucide-react";
 import { 
-  User, BlogPost, Workshop, Course, Campaign, ContactInquiry, WorkshopRegistration
-} from "@shared/types";
+  User, BlogPost, Workshop, Course, Campaign, ContactInquiry, CourseLesson, WorkshopRegistration,
+  insertBlogPostSchema, insertWorkshopSchema, insertCourseSchema, insertCampaignSchema, insertCourseLessonSchema
+} from "@shared/schema";
 
 // Form schemas
-const blogPostFormSchema = z.object({
+const blogPostFormSchema = insertBlogPostSchema.extend({
   title: z.string().min(1, "Title is required"),
   content: z.string().min(1, "Content is required"),
   excerpt: z.string().min(1, "Excerpt is required"),
@@ -39,54 +40,74 @@ const blogPostFormSchema = z.object({
   category: z.string().min(1, "Category is required"),
   imageUrl: z.string().optional(),
   tags: z.string().optional(),
-  featured: z.boolean().default(false),
 });
 
-const workshopFormSchema = z.object({
+const workshopFormSchema = insertWorkshopSchema.extend({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
   duration: z.string().min(1, "Duration is required"),
-  price: z.number().min(0, "Price must be non-negative"),
+  price: z.string().optional(),
   capacity: z.number().min(1, "Capacity must be at least 1"),
+  level: z.enum(["beginner", "intermediate", "advanced"]),
   category: z.string().min(1, "Category is required"),
-  imageUrl: z.string().optional(),
-  featured: z.boolean().default(false),
+  requirements: z.string().optional(),
+  outcomes: z.string().optional(),
 });
 
-const courseFormSchema = z.object({
+const courseFormSchema = insertCourseSchema.extend({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
-  field: z.string().min(1, "Field is required"),
-  level: z.string().min(1, "Level is required"),
-  duration: z.string().min(1, "Duration is required"),
-  price: z.number().min(0, "Price must be non-negative"),
-  instructorName: z.string().min(1, "Instructor name is required"),
   about: z.string().optional(),
-  status: z.string().default("upcoming"),
-  imageUrl: z.string().optional(),
-  featured: z.boolean().default(false),
+  duration: z.string().optional(),
+  price: z.string().optional(),
+  capacity: z.number().optional(),
+  level: z.enum(["beginner", "intermediate", "advanced"]),
+  field: z.enum(["quantum_mechanics", "tech_ai", "astrophysics", "space_technology", "robotics", "biotechnology", "nanotechnology", "renewable_energy"]),
+  instructorName: z.string().optional(),
+  status: z.enum(["upcoming", "accepting_registrations", "live"]).default("upcoming"),
+  requirements: z.string().optional(),
+  outcomes: z.string().optional(),
+}).superRefine((data, ctx) => {
+  // For accepting_registrations and live status, make certain fields required
+  if (data.status === "accepting_registrations" || data.status === "live") {
+    if (!data.price || data.price.trim() === "") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Price is required for accepting registrations and live courses",
+        path: ["price"],
+      });
+    }
+    if (!data.capacity || data.capacity < 1) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Capacity must be at least 1 for accepting registrations and live courses",
+        path: ["capacity"],
+      });
+    }
+    if (!data.instructorName || data.instructorName.trim() === "") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Instructor name is required for accepting registrations and live courses",
+        path: ["instructorName"],
+      });
+    }
+    if (!data.duration || data.duration.trim() === "") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Duration is required for accepting registrations and live courses",
+        path: ["duration"],
+      });
+    }
+  }
 });
 
-const campaignFormSchema = z.object({
+const campaignFormSchema = insertCampaignSchema.extend({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
-  field: z.string().min(1, "Field is required"),
-  duration: z.string().min(1, "Duration is required"),
-  targetParticipants: z.number().min(1, "Target participants must be at least 1"),
-  requirements: z.string().min(1, "Requirements are required"),
-  timeline: z.string().min(1, "Timeline is required"),
-  outcomes: z.string().min(1, "Outcomes are required"),
-  price: z.number().min(0, "Price must be non-negative"),
-  status: z.string().default("upcoming"),
-  imageUrl: z.string().optional(),
-  featured: z.boolean().default(false),
-});
-
-// Form type definitions
-type BlogPostFormData = z.infer<typeof blogPostFormSchema>;
-type WorkshopFormData = z.infer<typeof workshopFormSchema>;
-type CourseFormData = z.infer<typeof courseFormSchema>;
-type CampaignFormData = z.infer<typeof campaignFormSchema>;
+  type: z.string().min(1, "Type is required"),
+  field: z.string().optional(),
+  duration: z.string().optional(),
+  startDate: z.string().min(1, "Start date is required"),
   endDate: z.string().min(1, "End date is required"),
   partner: z.string().optional(),
   status: z.enum(["upcoming", "active", "closed", "completed"]).default("upcoming"),

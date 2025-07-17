@@ -21,7 +21,7 @@ import {
   Microscope,
   BookOpen
 } from "lucide-react";
-import { BlogPost } from "@shared/types";
+import { BlogPost, Achievement } from "@shared/schema";
 
 const Blog = () => {
   const [searchTerm, setSearchTerm] = useState("");

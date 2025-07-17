@@ -3,32 +3,34 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "tsx server.ts",
-    "build": "tsc",
-    "start": "node dist/server.js",
-    "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio"
+    "dev": "tsx index.ts",
+    "build": "esbuild index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
+    "start": "node dist/index.js",
+    "db:push": "drizzle-kit push"
   },
   "dependencies": {
-    "@neondatabase/serverless": "^0.10.6",
-    "drizzle-orm": "^0.36.4",
-    "drizzle-zod": "^0.5.1",
+    "@neondatabase/serverless": "^0.10.4",
+    "connect-pg-simple": "^10.0.0",
+    "drizzle-orm": "^0.39.1",
+    "drizzle-zod": "^0.7.0",
     "express": "^4.21.2",
     "express-session": "^1.18.1",
-    "connect-pg-simple": "^10.0.0",
+    "memoizee": "^0.4.17",
     "openid-client": "^5.6.5",
-    "zod": "^3.24.2",
-    "zod-validation-error": "^3.4.0",
-    "stripe": "^17.3.1",
-    "ws": "^8.18.0"
+    "stripe": "^19.3.0",
+    "ws": "^8.19.0",
+    "zod": "^3.24.1",
+    "zod-validation-error": "^3.4.0"
   },
   "devDependencies": {
+    "@types/connect-pg-simple": "^7.0.5",
     "@types/express": "^5.0.0",
-    "@types/express-session": "^1.18.0",
-    "@types/connect-pg-simple": "^7.0.3",
-    "@types/node": "^22.10.2",
+    "@types/express-session": "^1.18.1",
+    "@types/memoizee": "^0.4.12",
+    "@types/node": "^22.10.5",
     "@types/ws": "^8.5.13",
-    "drizzle-kit": "^0.30.0",
+    "drizzle-kit": "^0.31.2",
+    "esbuild": "^0.24.2",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   }

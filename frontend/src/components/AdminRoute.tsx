@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
-import { User } from "@shared/types";
+import { User } from "@shared/schema";
 
 interface AdminRouteProps {
   children: React.ReactNode;
