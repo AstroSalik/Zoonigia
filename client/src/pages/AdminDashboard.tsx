@@ -27,37 +27,40 @@ import {
   Download, RefreshCw
 } from "lucide-react";
 import { 
-  User, BlogPost, Workshop, Course, Campaign, ContactInquiry, CourseLesson, WorkshopRegistration,
-  insertBlogPostSchema, insertWorkshopSchema, insertCourseSchema, insertCampaignSchema, insertCourseLessonSchema
-} from "@shared/schema";
+  User, BlogPost, Workshop, Course, Campaign, ContactInquiry, WorkshopRegistration,
+  InsertBlogPost, InsertWorkshop, InsertCourse, InsertCampaign
+} from "@shared/types";
 
 // Form schemas
-const blogPostFormSchema = insertBlogPostSchema.extend({
+const blogPostFormSchema = z.object({
   title: z.string().min(1, "Title is required"),
   content: z.string().min(1, "Content is required"),
   excerpt: z.string().min(1, "Excerpt is required"),
-  author: z.string().min(1, "Author is required"),
-  category: z.string().min(1, "Category is required"),
-  imageUrl: z.string().optional(),
-  tags: z.string().optional(),
+  authorName: z.string().min(1, "Author is required"),
+  slug: z.string().min(1, "Slug is required"),
+  published: z.boolean().default(false),
 });
 
-const workshopFormSchema = insertWorkshopSchema.extend({
+const workshopFormSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
   duration: z.string().min(1, "Duration is required"),
-  price: z.string().optional(),
-  capacity: z.number().min(1, "Capacity must be at least 1"),
-  level: z.enum(["beginner", "intermediate", "advanced"]),
-  category: z.string().min(1, "Category is required"),
-  requirements: z.string().optional(),
-  outcomes: z.string().optional(),
+  price: z.number().min(0, "Price must be 0 or higher"),
+  maxParticipants: z.number().min(1, "Max participants must be at least 1"),
+  location: z.string().min(1, "Location is required"),
+  imageUrl: z.string().optional(),
 });
 
-const courseFormSchema = insertCourseSchema.extend({
+const courseFormSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
-  about: z.string().optional(),
+  instructorName: z.string().min(1, "Instructor name is required"),
+  duration: z.string().min(1, "Duration is required"),
+  level: z.string().min(1, "Level is required"),
+  price: z.number().min(0, "Price must be 0 or higher"),
+  field: z.string().min(1, "Field is required"),
+  imageUrl: z.string().optional(),
+  status: z.string().default("upcoming"),
   duration: z.string().optional(),
   price: z.string().optional(),
   capacity: z.number().optional(),
