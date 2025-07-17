@@ -56,115 +56,25 @@ const courseFormSchema = z.object({
   description: z.string().min(1, "Description is required"),
   instructorName: z.string().min(1, "Instructor name is required"),
   duration: z.string().min(1, "Duration is required"),
-  level: z.string().min(1, "Level is required"),
-  price: z.number().min(0, "Price must be 0 or higher"),
-  field: z.string().min(1, "Field is required"),
-  imageUrl: z.string().optional(),
-  status: z.string().default("upcoming"),
-  duration: z.string().optional(),
-  price: z.string().optional(),
-  capacity: z.number().optional(),
   level: z.enum(["beginner", "intermediate", "advanced"]),
+  price: z.number().min(0, "Price must be 0 or higher"),
   field: z.enum(["quantum_mechanics", "tech_ai", "astrophysics", "space_technology", "robotics", "biotechnology", "nanotechnology", "renewable_energy"]),
-  instructorName: z.string().optional(),
+  imageUrl: z.string().optional(),
   status: z.enum(["upcoming", "accepting_registrations", "live"]).default("upcoming"),
-  requirements: z.string().optional(),
-  outcomes: z.string().optional(),
-}).superRefine((data, ctx) => {
-  // For accepting_registrations and live status, make certain fields required
-  if (data.status === "accepting_registrations" || data.status === "live") {
-    if (!data.price || data.price.trim() === "") {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Price is required for accepting registrations and live courses",
-        path: ["price"],
-      });
-    }
-    if (!data.capacity || data.capacity < 1) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Capacity must be at least 1 for accepting registrations and live courses",
-        path: ["capacity"],
-      });
-    }
-    if (!data.instructorName || data.instructorName.trim() === "") {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Instructor name is required for accepting registrations and live courses",
-        path: ["instructorName"],
-      });
-    }
-    if (!data.duration || data.duration.trim() === "") {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Duration is required for accepting registrations and live courses",
-        path: ["duration"],
-      });
-    }
-  }
 });
 
-const campaignFormSchema = insertCampaignSchema.extend({
+const campaignFormSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
-  type: z.string().min(1, "Type is required"),
-  field: z.string().optional(),
-  duration: z.string().optional(),
-  startDate: z.string().min(1, "Start date is required"),
-  endDate: z.string().min(1, "End date is required"),
-  partner: z.string().optional(),
-  status: z.enum(["upcoming", "active", "closed", "completed"]).default("upcoming"),
-  maxParticipants: z.number().optional(),
-  targetParticipants: z.number().optional(),
-  price: z.string().optional(),
+  field: z.string().min(1, "Field is required"),
+  duration: z.string().min(1, "Duration is required"),
+  price: z.number().min(0, "Price must be 0 or higher"),
+  targetParticipants: z.number().min(1, "Target participants must be at least 1"),
+  requirements: z.string().min(1, "Requirements are required"),
+  timeline: z.string().min(1, "Timeline is required"),
+  outcomes: z.string().min(1, "Outcomes are required"),
   imageUrl: z.string().optional(),
-  requirements: z.string().optional(),
-  timeline: z.string().optional(),
-  outcomes: z.string().optional(),
-}).superRefine((data, ctx) => {
-  // For active and closed status, make certain fields required
-  if (data.status === "active" || data.status === "closed") {
-    if (!data.price || data.price.trim() === "") {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Price is required for active and closed campaigns",
-        path: ["price"],
-      });
-    }
-    if (!data.maxParticipants || data.maxParticipants < 1) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Max participants must be at least 1 for active and closed campaigns",
-        path: ["maxParticipants"],
-      });
-    }
-    if (!data.duration || data.duration.trim() === "") {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Duration is required for active and closed campaigns",
-        path: ["duration"],
-      });
-    }
-    if (!data.field || data.field.trim() === "") {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Field is required for active and closed campaigns",
-        path: ["field"],
-      });
-    }
-  }
-});
-
-const lessonFormSchema = insertCourseLessonSchema.extend({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().optional(),
-  content: z.string().min(1, "Content is required"),
-  videoUrl: z.string().optional(),
-  duration: z.number().min(1, "Duration must be at least 1 minute"),
-  orderIndex: z.number().min(1, "Order index is required"),
-  type: z.enum(["video", "text", "quiz", "assignment"]),
-  resources: z.string().optional(),
-  isPreview: z.boolean().default(false),
+  status: z.enum(["upcoming", "active", "closed", "completed"]).default("upcoming"),
 });
 
 const AdminDashboard = () => {
