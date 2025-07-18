@@ -27,8 +27,8 @@ export async function setupAuth(app: Express) {
     }),
   );
 
-  // Route: /auth/login
-  app.get("/auth/login", (req: Request, res: Response) => {
+  // Route: /api/login
+  app.get("/api/login", (req: Request, res: Response) => {
     const codeVerifier = generators.codeVerifier();
     const codeChallenge = crypto
       .createHash("sha256")
@@ -46,8 +46,8 @@ export async function setupAuth(app: Express) {
     res.redirect(authUrl);
   });
 
-  // Route: /auth/callback
-  app.get("/auth/callback", async (req: Request, res: Response) => {
+  // Route: /api/callback
+  app.get("/api/callback", async (req: Request, res: Response) => {
     try {
       const params = googleClient.callbackParams(req);
       const tokenSet = await googleClient.callback(
@@ -84,12 +84,12 @@ export async function setupAuth(app: Express) {
       res.redirect("/");
     } catch (error) {
       console.error("Authentication callback error:", error);
-      res.redirect("/auth/login");
+      res.redirect("/api/login");
     }
   });
 
-  // Route: /auth/logout
-  app.get("/auth/logout", (req: Request, res: Response) => {
+  // Route: /api/logout
+  app.get("/api/logout", (req: Request, res: Response) => {
     req.session.destroy(() => {
       res.redirect("/");
     });
