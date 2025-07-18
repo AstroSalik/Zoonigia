@@ -25,6 +25,11 @@ Zoonigia is a comprehensive full-stack web application designed to empower futur
 - **COMPLETED**: Created package-lock.json for backend dependency resolution
 - **COMPLETED**: Zero remaining references to old environment variable names
 - **COMPLETED**: Vercel deployment configuration complete with proper CORS origins
+- **COMPLETED**: Fixed authentication routes from /auth/* to /api/* to match frontend calls
+- **COMPLETED**: Added vercel.json and _redirects for proper SPA routing on Vercel  
+- **COMPLETED**: Local development server working correctly with courses and campaigns data
+- **PENDING**: Google OAuth redirect URI update needed: /auth/callback → /api/callback
+- **PENDING**: Render backend redeployment needed for authentication route fixes
 
 ### TypeScript Build Resolution (July 17, 2025)
 - **COMPLETED**: Successfully resolved persistent TypeScript build errors (reduced from 151 to 0 errors)
