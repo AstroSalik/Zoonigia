@@ -32,10 +32,10 @@ export function getSession() {
     secret: process.env.SESSION_SECRET!,
     store: sessionStore,
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,
     cookie: {
       httpOnly: true,
-      secure: true,
+      secure: false, // Set to false for development
       maxAge: sessionTtl,
     },
   });
@@ -48,7 +48,6 @@ function updateUserSession(
   user.claims = tokenset.claims();
   user.access_token = tokenset.access_token;
   user.refresh_token = tokenset.refresh_token;
-  user.expires_at = user.claims?.exp;
 }
 
 async function upsertUser(
@@ -71,12 +70,17 @@ export async function setupAuth(app: Express) {
 
   const issuer = await getOidcConfig();
 
-  for (const domain of process.env
-    .REPLIT_DOMAINS!.split(",")) {
-    
+  // Add localhost for development
+  const domains = process.env.REPLIT_DOMAINS!.split(",");
+  if (!domains.includes("localhost")) {
+    domains.push("localhost");
+  }
+
+  for (const domain of domains) {
+    const protocol = domain === "localhost" ? "http" : "https";
     const client = new issuer.Client({
       client_id: process.env.REPL_ID!,
-      redirect_uris: [`https://${domain}/api/callback`],
+      redirect_uris: [`${protocol}://${domain}/api/callback`],
       response_types: ['code'],
     });
 
@@ -128,12 +132,12 @@ export async function setupAuth(app: Express) {
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
   const user = req.user as any;
 
-  if (!req.isAuthenticated() || !user.expires_at) {
+  if (!req.isAuthenticated() || !user || !user.claims) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
   const now = Math.floor(Date.now() / 1000);
-  if (now <= user.expires_at) {
+  if (user.claims.exp && now <= user.claims.exp) {
     return next();
   }
 
