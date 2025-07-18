@@ -1,5 +1,4 @@
-import { Issuer, Strategy } from "openid-client";
-
+import * as client from "openid-client";
 import passport from "passport";
 import session from "express-session";
 import type { Express, RequestHandler } from "express";
@@ -13,8 +12,14 @@ if (!process.env.REPLIT_DOMAINS) {
 
 const getOidcConfig = memoize(
   async () => {
-    const issuer = await Issuer.discover(process.env.ISSUER_URL ?? "https://replit.com/oidc");
-    return issuer;
+    const issuer = await client.Issuer.discover(
+      process.env.ISSUER_URL ?? "https://replit.com/oidc"
+    );
+    return new issuer.Client({
+      client_id: process.env.REPL_ID!,
+      redirect_uris: [`https://${process.env.REPLIT_DOMAINS?.split(',')[0]}/api/callback`],
+      response_types: ['code'],
+    });
   },
   { maxAge: 3600 * 1000 }
 );
@@ -32,10 +37,10 @@ export function getSession() {
     secret: process.env.SESSION_SECRET!,
     store: sessionStore,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: false, // Set to false for development
+      secure: true,
       maxAge: sessionTtl,
     },
   });
@@ -43,17 +48,15 @@ export function getSession() {
 
 function updateUserSession(
   user: any,
-  tokenset: any
+  tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers
 ) {
-  user.claims = tokenset.claims();
-  user.access_token = tokenset.access_token;
-  user.refresh_token = tokenset.refresh_token;
+  user.claims = tokens.claims();
+  user.access_token = tokens.access_token;
+  user.refresh_token = tokens.refresh_token;
   user.expires_at = user.claims?.exp;
 }
 
-async function upsertUser(
-  claims: any,
-) {
+async function upsertUser(claims: any) {
   await storage.upsertUser({
     id: claims["sub"],
     email: claims["email"],
@@ -69,65 +72,56 @@ export async function setupAuth(app: Express) {
   app.use(passport.initialize());
   app.use(passport.session());
 
-  const issuer = await getOidcConfig();
+  const client_config = await getOidcConfig();
 
-  const verify = async (tokenset: any, done: any) => {
-    const user = {};
-    updateUserSession(user, tokenset);
-    await upsertUser(tokenset.claims());
-    done(null, user);
+  // Simple custom strategy that handles OpenID Connect
+  const customStrategy = {
+    name: 'replit-oidc',
+    authenticate: async function(req: any, options: any) {
+      const self = this;
+      
+      try {
+        if (req.query.code) {
+          // Handle callback
+          const tokenSet = await client_config.callback(
+            `${req.protocol}://${req.hostname}/api/callback`,
+            req.query
+          );
+          
+          const user = {};
+          updateUserSession(user, tokenSet);
+          await upsertUser(tokenSet.claims());
+          
+          return self.success(user);
+        } else {
+          // Handle initial auth
+          const authUrl = client_config.authorizationUrl({
+            redirect_uri: `${req.protocol}://${req.hostname}/api/callback`,
+            scope: 'openid email profile offline_access',
+          });
+          
+          return self.redirect(authUrl);
+        }
+      } catch (error) {
+        console.error('Auth error:', error);
+        return self.error(error);
+      }
+    }
   };
 
-  // Add localhost for development
-  const domains = process.env.REPLIT_DOMAINS!.split(",");
-  if (!domains.includes("localhost")) {
-    domains.push("localhost");
-  }
-
-  for (const domain of domains) {
-    const protocol = domain === "localhost" ? "http" : "https";
-    const client = new issuer.Client({
-      client_id: process.env.REPL_ID!,
-      redirect_uris: [`${protocol}://${domain}/api/callback`],
-      response_types: ['code'],
-    });
-
-    const strategy = new Strategy(
-      {
-        client,
-        params: {
-          scope: "openid email profile offline_access",
-        },
-      },
-      verify
-    );
-
-    passport.use(`replitauth:${domain}`, strategy);
-  }
-
+  passport.use(customStrategy);
   passport.serializeUser((user: Express.User, cb) => cb(null, user));
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
-  app.get("/api/login", (req, res, next) => {
-    passport.authenticate(`replitauth:${req.hostname}`, {
-      prompt: "login consent",
-      scope: ["openid", "email", "profile", "offline_access"],
-    })(req, res, next);
-  });
-
-  app.get("/api/callback", (req, res, next) => {
-    passport.authenticate(`replitauth:${req.hostname}`, {
-      successReturnToOrRedirect: "/",
-      failureRedirect: "/api/login",
-    })(req, res, next);
-  });
+  app.get("/api/login", passport.authenticate('replit-oidc'));
+  app.get("/api/callback", passport.authenticate('replit-oidc', {
+    successReturnToOrRedirect: "/",
+    failureRedirect: "/api/login",
+  }));
 
   app.get("/api/logout", (req, res) => {
     req.logout(() => {
-      const endSessionUrl = issuer.end_session_endpoint 
-        ? `${issuer.end_session_endpoint}?client_id=${process.env.REPL_ID!}&post_logout_redirect_uri=${req.protocol}://${req.hostname}`
-        : `${req.protocol}://${req.hostname}`;
-      res.redirect(endSessionUrl);
+      res.redirect(`${req.protocol}://${req.hostname}`);
     });
   });
 }
@@ -135,7 +129,7 @@ export async function setupAuth(app: Express) {
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
   const user = req.user as any;
 
-  if (!req.isAuthenticated() || !user.expires_at) {
+  if (!req.isAuthenticated() || !user?.expires_at) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
@@ -151,11 +145,8 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
   }
 
   try {
-    const issuer = await getOidcConfig();
-    const client = new issuer.Client({
-      client_id: process.env.REPL_ID!,
-    });
-    const tokenSet = await client.refresh(refreshToken);
+    const client_config = await getOidcConfig();
+    const tokenSet = await client_config.refresh(refreshToken);
     updateUserSession(user, tokenSet);
     return next();
   } catch (error) {
