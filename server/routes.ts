@@ -28,7 +28,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   await setupAuth(app);
 
   // Auth routes
-  app.get("/api/auth/user", isAuthenticated, async (req: any, res) => {
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
@@ -36,27 +36,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
-
-  // Test route to verify authentication
-  app.get("/api/auth/test", isAuthenticated, async (req: any, res) => {
-    res.json({
-      message: "Authentication successful!",
-      user: req.user.claims,
-      timestamp: new Date().toISOString(),
-    });
-  });
-
-  // Get and clear special welcome message
-  app.get("/api/auth/special-message", isAuthenticated, async (req: any, res) => {
-    const specialMessage = (req.session as any).specialMessage;
-    if (specialMessage) {
-      // Clear the message after sending it
-      delete (req.session as any).specialMessage;
-      res.json({ message: specialMessage });
-    } else {
-      res.json({ message: null });
     }
   });
 

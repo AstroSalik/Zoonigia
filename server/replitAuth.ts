@@ -1,112 +1,81 @@
-import { Issuer, generators } from "openid-client";
 import session from "express-session";
-import crypto from "crypto";
-import type { Express, Request, Response, NextFunction } from "express";
+import type { Express, RequestHandler } from "express";
+import { storage } from "./storage";
 
-let googleClient: any;
+export function getSession() {
+  return session({
+    secret: process.env.SESSION_SECRET || "zoonigia-dev-secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      secure: false, // Set to true in production with HTTPS
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
+    },
+  });
+}
 
 export async function setupAuth(app: Express) {
-  // Discover Google issuer
-  const issuer = await Issuer.discover("https://accounts.google.com");
+  app.set("trust proxy", 1);
+  app.use(getSession());
 
-  // Create client with credentials
-  googleClient = new issuer.Client({
-    client_id: process.env.GOOGLE_CLIENT_ID!,
-    client_secret: process.env.GOOGLE_CLIENT_SECRET!,
-    redirect_uris: [process.env.GOOGLE_REDIRECT_URI!],
-    response_types: ["code"],
-  });
-
-  // Set up session
-  app.use(
-    session({
-      secret: process.env.SESSION_SECRET!,
-      resave: false,
-      saveUninitialized: false,
-      cookie: { secure: false }, // true if using HTTPS (like in production)
-    }),
-  );
-
-  // Route: /api/login
-  app.get("/api/login", (req: Request, res: Response) => {
-    const codeVerifier = generators.codeVerifier();
-    const codeChallenge = crypto
-      .createHash("sha256")
-      .update(codeVerifier)
-      .digest("base64url");
-
-    (req.session as any).codeVerifier = codeVerifier;
-
-    const authUrl = googleClient.authorizationUrl({
-      scope: "openid email profile",
-      code_challenge: codeChallenge,
-      code_challenge_method: "S256",
-    });
-
-    res.redirect(authUrl);
-  });
-
-  // Route: /api/callback
-  app.get("/api/callback", async (req: Request, res: Response) => {
+  app.get("/api/login", async (req, res) => {
+    // Create a demo user session for the July 15th state
+    const demoUser = {
+      claims: {
+        sub: "demo-user-1234",
+        email: "demo@zoonigia.com",
+        first_name: "Demo",
+        last_name: "User",
+        profile_image_url: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
+      },
+      access_token: "demo-token",
+      expires_at: Math.floor(Date.now() / 1000) + 3600 // 1 hour from now
+    };
+    
+    // Store user in session
+    (req.session as any).user = demoUser;
+    
+    // Ensure user exists in database
     try {
-      const params = googleClient.callbackParams(req);
-      const tokenSet = await googleClient.callback(
-        process.env.GOOGLE_REDIRECT_URI!,
-        params,
-        { code_verifier: (req.session as any).codeVerifier }
-      );
-
-      const userinfo = await googleClient.userinfo(tokenSet.access_token!);
-
-      // Store user info in session with claims structure
-      (req.session as any).user = {
-        claims: userinfo,
-        access_token: tokenSet.access_token,
-        expires_at: tokenSet.expires_at,
-      };
-
-      // Upsert user in database
-      const { storage } = await import("./storage");
       await storage.upsertUser({
-        id: userinfo.sub,
-        email: userinfo.email,
-        firstName: userinfo.given_name,
-        lastName: userinfo.family_name,
-        profileImageUrl: userinfo.picture,
+        id: demoUser.claims.sub,
+        email: demoUser.claims.email,
+        firstName: demoUser.claims.first_name,
+        lastName: demoUser.claims.last_name,
+        profileImageUrl: demoUser.claims.profile_image_url,
       });
-
-      // Special welcome message for Munaf
-      if (userinfo.email === 'munafsultan111@gmail.com') {
-        // Store special message in session for frontend to display
-        (req.session as any).specialMessage = "Welcome back, Eternal Peace 🌸";
-      }
-
-      res.redirect("/");
     } catch (error) {
-      console.error("Authentication callback error:", error);
-      res.redirect("/api/login");
+      console.error("Error creating demo user:", error);
     }
+    
+    res.redirect("/");
   });
 
-  // Route: /api/logout
-  app.get("/api/logout", (req: Request, res: Response) => {
+  app.get("/api/callback", (req, res) => {
+    res.redirect("/");
+  });
+
+  app.get("/api/logout", (req, res) => {
     req.session.destroy(() => {
       res.redirect("/");
     });
   });
 }
 
-// Middleware: isAuthenticated
-export function isAuthenticated(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) {
+export const isAuthenticated: RequestHandler = async (req, res, next) => {
   const sessionUser = (req.session as any).user;
-  if (sessionUser && sessionUser.claims) {
-    req.user = sessionUser;
-    return next();
-  } else {
+  
+  if (!sessionUser || !sessionUser.claims) {
     return res.status(401).json({ message: "Unauthorized" });
   }
-}
+
+  // Check if session is still valid
+  const now = Math.floor(Date.now() / 1000);
+  if (sessionUser.expires_at && now > sessionUser.expires_at) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  req.user = sessionUser;
+  return next();
+};
