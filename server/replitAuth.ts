@@ -1,7 +1,4 @@
-import * as client from "openid-client";
-import { Strategy as OpenIDConnectStrategy } from "passport-openidconnect";
-
-import passport from "passport";
+import { Issuer, generators } from "openid-client";
 import session from "express-session";
 import type { Express, RequestHandler } from "express";
 import memoize from "memoizee";
@@ -14,7 +11,7 @@ if (!process.env.REPLIT_DOMAINS) {
 
 const getOidcConfig = memoize(
   async () => {
-    const issuer = await client.Issuer.discover(
+    const issuer = await Issuer.discover(
       process.env.ISSUER_URL ?? "https://replit.com/oidc"
     );
     return issuer;
@@ -71,97 +68,146 @@ async function upsertUser(
 export async function setupAuth(app: Express) {
   app.set("trust proxy", 1);
   app.use(getSession());
-  app.use(passport.initialize());
-  app.use(passport.session());
 
   const issuer = await getOidcConfig();
 
   for (const domain of process.env
     .REPLIT_DOMAINS!.split(",")) {
     
-    const strategy = new OpenIDConnectStrategy(
-      {
-        issuer: issuer.issuer,
-        authorizationURL: issuer.authorization_endpoint,
-        tokenURL: issuer.token_endpoint,
-        userInfoURL: issuer.userinfo_endpoint,
-        clientID: process.env.REPL_ID!,
-        clientSecret: process.env.REPL_SECRET || "",
-        callbackURL: `https://${domain}/api/callback`,
-        scope: ["openid", "email", "profile", "offline_access"],
-      },
-      async (accessToken: string, refreshToken: string, profile: any, done: any) => {
-        try {
-          const user = {};
-          updateUserSession(user, accessToken, refreshToken, profile);
-          await upsertUser(profile._json);
-          done(null, user);
-        } catch (error) {
-          done(error);
-        }
-      }
-    );
+    const client = new issuer.Client({
+      client_id: process.env.REPL_ID!,
+      redirect_uris: [`https://${domain}/api/callback`],
+      response_types: ['code'],
+    });
 
-    passport.use(`replitauth:${domain}`, strategy);
+    // Store client for this domain
+    (app as any)[`replitclient:${domain}`] = client;
   }
 
-  passport.serializeUser((user: Express.User, cb) => cb(null, user));
-  passport.deserializeUser((user: Express.User, cb) => cb(null, user));
+  app.get("/api/login", async (req, res) => {
+    try {
+      const client = (app as any)[`replitclient:${req.hostname}`];
+      if (!client) {
+        return res.status(500).send("Client not configured for this domain");
+      }
 
-  app.get("/api/login", (req, res, next) => {
-    passport.authenticate(`replitauth:${req.hostname}`, {
-      prompt: "login consent",
-      scope: ["openid", "email", "profile", "offline_access"],
-    })(req, res, next);
+      const code_verifier = generators.codeVerifier();
+      const code_challenge = generators.codeChallenge(code_verifier);
+      const state = generators.state();
+
+      // Store in session for callback
+      (req.session as any).code_verifier = code_verifier;
+      (req.session as any).state = state;
+
+      const authUrl = client.authorizationUrl({
+        scope: 'openid email profile offline_access',
+        code_challenge,
+        code_challenge_method: 'S256',
+        state,
+      });
+
+      res.redirect(authUrl);
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).send("Authentication error");
+    }
   });
 
-  app.get("/api/callback", (req, res, next) => {
-    passport.authenticate(`replitauth:${req.hostname}`, {
-      successReturnToOrRedirect: "/",
-      failureRedirect: "/api/login",
-    })(req, res, next);
+  app.get("/api/callback", async (req, res) => {
+    try {
+      const client = (app as any)[`replitclient:${req.hostname}`];
+      if (!client) {
+        return res.status(500).send("Client not configured for this domain");
+      }
+
+      const params = client.callbackParams(req);
+      const code_verifier = (req.session as any).code_verifier;
+      const state = (req.session as any).state;
+
+      if (!code_verifier || !state) {
+        return res.status(400).send("Missing session data");
+      }
+
+      if (params.state !== state) {
+        return res.status(400).send("Invalid state parameter");
+      }
+
+      const tokenSet = await client.callback(`https://${req.hostname}/api/callback`, params, { 
+        code_verifier,
+        state 
+      });
+
+      const claims = tokenSet.claims();
+      
+      // Create user session
+      const user = {
+        claims,
+        access_token: tokenSet.access_token,
+        refresh_token: tokenSet.refresh_token,
+        expires_at: claims.exp,
+      };
+
+      (req.session as any).user = user;
+
+      // Create user in database
+      await upsertUser(claims);
+
+      res.redirect("/");
+    } catch (error) {
+      console.error("Callback error:", error);
+      res.redirect("/api/login");
+    }
   });
 
   app.get("/api/logout", (req, res) => {
-    req.logout(() => {
-      const endSessionUrl = issuer.end_session_endpoint 
+    req.session.destroy(() => {
+      const logoutUrl = issuer.end_session_endpoint 
         ? `${issuer.end_session_endpoint}?client_id=${process.env.REPL_ID!}&post_logout_redirect_uri=${req.protocol}://${req.hostname}`
-        : `${req.protocol}://${req.hostname}`;
-      res.redirect(endSessionUrl);
+        : "/";
+      res.redirect(logoutUrl);
     });
   });
 }
 
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
-  const user = req.user as any;
+  const user = (req.session as any).user;
 
-  if (!req.isAuthenticated() || !user.expires_at) {
+  if (!user || !user.claims) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
   const now = Math.floor(Date.now() / 1000);
-  if (now <= user.expires_at) {
-    return next();
+  if (user.expires_at && now > user.expires_at) {
+    // Try to refresh token
+    const refreshToken = user.refresh_token;
+    if (!refreshToken) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+      const issuer = await getOidcConfig();
+      const client = new issuer.Client({
+        client_id: process.env.REPL_ID!,
+      });
+      
+      const tokenSet = await client.refresh(refreshToken);
+      const claims = tokenSet.claims();
+      
+      // Update session
+      (req.session as any).user = {
+        claims,
+        access_token: tokenSet.access_token,
+        refresh_token: tokenSet.refresh_token,
+        expires_at: claims.exp,
+      };
+
+      req.user = (req.session as any).user;
+      return next();
+    } catch (error) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
   }
 
-  const refreshToken = user.refresh_token;
-  if (!refreshToken) {
-    res.status(401).json({ message: "Unauthorized" });
-    return;
-  }
-
-  try {
-    const issuer = await getOidcConfig();
-    const openidClient = new issuer.Client({
-      client_id: process.env.REPL_ID!,
-      client_secret: process.env.REPL_SECRET || "",
-    });
-    
-    const tokenSet = await openidClient.refresh(refreshToken);
-    updateUserSession(user, tokenSet.access_token!, tokenSet.refresh_token!, { _json: tokenSet.claims() });
-    return next();
-  } catch (error) {
-    res.status(401).json({ message: "Unauthorized" });
-    return;
-  }
+  req.user = user;
+  return next();
 };
