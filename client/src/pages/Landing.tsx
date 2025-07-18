@@ -41,7 +41,7 @@ const Landing = () => {
             <div className="flex flex-col sm:flex-row gap-4">
               <Button 
                 className="cosmic-gradient hover:opacity-90 px-8 py-6 text-lg font-semibold"
-                onClick={() => window.location.href = '/auth/login'}
+                onClick={() => window.location.href = `${import.meta.env.VITE_BACKEND_URL}/api/login`}
               >
                 Get Started
               </Button>
