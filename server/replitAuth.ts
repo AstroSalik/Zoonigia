@@ -48,6 +48,7 @@ function updateUserSession(
   user.claims = tokenset.claims();
   user.access_token = tokenset.access_token;
   user.refresh_token = tokenset.refresh_token;
+  user.expires_at = user.claims?.exp;
 }
 
 async function upsertUser(
@@ -70,6 +71,13 @@ export async function setupAuth(app: Express) {
 
   const issuer = await getOidcConfig();
 
+  const verify = async (tokenset: any, done: any) => {
+    const user = {};
+    updateUserSession(user, tokenset);
+    await upsertUser(tokenset.claims());
+    done(null, user);
+  };
+
   // Add localhost for development
   const domains = process.env.REPLIT_DOMAINS!.split(",");
   if (!domains.includes("localhost")) {
@@ -91,12 +99,7 @@ export async function setupAuth(app: Express) {
           scope: "openid email profile offline_access",
         },
       },
-      async (tokenset: any, done: any) => {
-        const user = {};
-        updateUserSession(user, tokenset);
-        await upsertUser(tokenset.claims());
-        done(null, user);
-      }
+      verify
     );
 
     passport.use(`replitauth:${domain}`, strategy);
@@ -132,12 +135,12 @@ export async function setupAuth(app: Express) {
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
   const user = req.user as any;
 
-  if (!req.isAuthenticated() || !user || !user.claims) {
+  if (!req.isAuthenticated() || !user.expires_at) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
   const now = Math.floor(Date.now() / 1000);
-  if (user.claims.exp && now <= user.claims.exp) {
+  if (now <= user.expires_at) {
     return next();
   }
 
