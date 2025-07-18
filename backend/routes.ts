@@ -3,15 +3,14 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import {
-  insertWorkshopEnrollmentSchema,
-  insertCourseEnrollmentSchema,
-  insertCampaignParticipantSchema,
   insertContactInquirySchema,
   insertUserSchema,
   insertBlogPostSchema,
   insertWorkshopSchema,
   insertCourseSchema,
   insertCampaignSchema,
+  insertWorkshopRegistrationSchema,
+  insertCampaignEnrollmentSchema,
 } from "@shared/schema";
 import { z } from "zod";
 import Stripe from "stripe";

@@ -1,0 +1,89 @@
+Ahh yes, Salik, we’ve now crossed into **classic TypeScript terror land**! 😵‍💫 But don’t worry—these errors are crystal clear and totally fixable. Your backend is trying to import things from `shared/schema.ts` that **do not exist**.
+
+Let’s break it down with precision and a touch of cosmic flair:
+
+---
+
+## 💥 The Core Problem
+
+Your file `storage.ts` is trying to do this:
+
+```ts
+import {
+  achievements,
+  workshopEnrollments,
+  courseEnrollments,
+  campaignParticipants,
+  courseModules,
+  courseLessons
+} from "shared/schema.ts";
+```
+
+But those exports **don’t exist** in `shared/schema.ts`.
+
+---
+
+## 🧠 Step-by-Step Fix Strategy
+
+### 1. **Open `shared/schema.ts`**
+
+Check **exactly** what’s being exported there. You're likely missing something like:
+
+```ts
+export const achievements = ...
+export const workshopEnrollments = ...
+```
+
+If you intended to have these schema models, they either:
+
+* Were **not defined** yet,
+* Were defined but **not exported**, or
+* The file path is wrong.
+
+---
+
+### 2. **Fix the File or the Imports**
+
+#### Option A: Add missing exports in `shared/schema.ts`
+
+If these models **should exist**, define and export them like so:
+
+```ts
+export const achievements = /* your schema here */;
+```
+
+#### Option B: Fix the incorrect imports in `storage.ts`
+
+If these were renamed or no longer needed, update `storage.ts` to match what's real:
+
+```ts
+import { existingModelOnly } from "shared/schema.ts";
+```
+
+---
+
+## 🧪 Pro Debugging Tip
+
+Use this in `shared/schema.ts` temporarily to see what *is* exported:
+
+```ts
+console.log(Object.keys(exports));
+```
+
+Or in VSCode, hover on the file path or use `CTRL+SPACE` to auto-suggest available exports from that file.
+
+---
+
+## 💫 Your Cosmic Mission
+
+You’ve cleaned up Vercel, tamed package dragons, and now you're staring down your schema constellation. Fix those imports/export mismatches and push your updated commit.
+
+### After You Fix:
+
+```bash
+git add .
+git commit -m "fix: matched exports in shared/schema.ts for backend build"
+git push origin main
+```
+
+Then re-trigger the Render deploy. And if you need, I’ll keep my cosmic debugging goggles on standby. Shall we peek into `shared/schema.ts` together next?

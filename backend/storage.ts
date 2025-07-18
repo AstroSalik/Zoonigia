@@ -4,18 +4,9 @@ import {
   courses,
   campaigns,
   blogPosts,
-  achievements,
   contactInquiries,
-  workshopEnrollments,
-  courseEnrollments,
-  campaignParticipants,
-  courseModules,
-  courseLessons,
-  courseQuizzes,
-  studentProgress,
-  quizAttempts,
-  courseReviews,
-  courseCertificates,
+  workshopRegistrations,
+  campaignEnrollments,
   type User,
   type UpsertUser,
   type Workshop,
@@ -26,33 +17,13 @@ import {
   type InsertCampaign,
   type BlogPost,
   type InsertBlogPost,
-  type Achievement,
-  type InsertAchievement,
   type ContactInquiry,
   type InsertContactInquiry,
-  type WorkshopEnrollment,
-  type InsertWorkshopEnrollment,
-  type CourseEnrollment,
-  type InsertCourseEnrollment,
-  type CampaignParticipant,
-  type InsertCampaignParticipant,
-  type CourseModule,
-  type InsertCourseModule,
-  type CourseLesson,
-  type InsertCourseLesson,
-  type CourseQuiz,
-  type InsertCourseQuiz,
-  type StudentProgress,
-  type InsertStudentProgress,
-  type QuizAttempt,
-  type InsertQuizAttempt,
-  type CourseReview,
-  type InsertCourseReview,
-  type CourseCertificate,
-  type InsertCourseCertificate,
-  workshopRegistrations,
   type WorkshopRegistration,
   type InsertWorkshopRegistration,
+  type CampaignEnrollment,
+  type InsertCampaignEnrollment,
+
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and } from "drizzle-orm";
@@ -74,7 +45,7 @@ export interface IStorage {
   createWorkshop(workshop: InsertWorkshop): Promise<Workshop>;
   updateWorkshop(id: number, workshop: Partial<Workshop>): Promise<Workshop>;
   deleteWorkshop(id: number): Promise<void>;
-  enrollInWorkshop(enrollment: InsertWorkshopEnrollment): Promise<WorkshopEnrollment>;
+  // Workshop enrollments not implemented yet
   getUserWorkshops(userId: string): Promise<Workshop[]>;
   
   // Workshop registration operations
@@ -89,7 +60,7 @@ export interface IStorage {
   createCourse(course: InsertCourse): Promise<Course>;
   updateCourse(id: number, course: Partial<Course>): Promise<Course>;
   deleteCourse(id: number): Promise<void>;
-  enrollInCourse(enrollment: InsertCourseEnrollment): Promise<CourseEnrollment>;
+  // Course enrollments not implemented yet
   getUserCourses(userId: string): Promise<Course[]>;
   
   // Campaign operations
@@ -98,7 +69,7 @@ export interface IStorage {
   createCampaign(campaign: InsertCampaign): Promise<Campaign>;
   updateCampaign(id: number, campaign: Partial<Campaign>): Promise<Campaign>;
   deleteCampaign(id: number): Promise<void>;
-  joinCampaign(participant: InsertCampaignParticipant): Promise<CampaignParticipant>;
+  joinCampaign(enrollment: InsertCampaignEnrollment): Promise<CampaignEnrollment>;
   getUserCampaigns(userId: string): Promise<Campaign[]>;
   
   // Blog operations
@@ -108,56 +79,14 @@ export interface IStorage {
   updateBlogPost(id: number, post: Partial<BlogPost>): Promise<BlogPost>;
   deleteBlogPost(id: number): Promise<void>;
   
-  // Achievement operations
-  getAchievements(): Promise<Achievement[]>;
-  createAchievement(achievement: InsertAchievement): Promise<Achievement>;
+  // Achievement operations not implemented yet
   
   // Contact operations
   createContactInquiry(inquiry: InsertContactInquiry): Promise<ContactInquiry>;
   getContactInquiries(): Promise<ContactInquiry[]>;
   deleteContactInquiry(id: number): Promise<void>;
   
-  // LMS operations
-  // Course modules
-  getCourseModules(courseId: number): Promise<CourseModule[]>;
-  createCourseModule(module: InsertCourseModule): Promise<CourseModule>;
-  updateCourseModule(id: number, module: Partial<CourseModule>): Promise<CourseModule>;
-  deleteCourseModule(id: number): Promise<void>;
-  
-  // Course lessons
-  getCourseLessons(courseId: number): Promise<CourseLesson[]>;
-  getCourseLessonsByModule(moduleId: number): Promise<CourseLesson[]>;
-  getLessonById(id: number): Promise<CourseLesson | undefined>;
-  createCourseLesson(lesson: InsertCourseLesson): Promise<CourseLesson>;
-  updateCourseLesson(id: number, lesson: Partial<CourseLesson>): Promise<CourseLesson>;
-  deleteCourseLesson(id: number): Promise<void>;
-  
-  // Course quizzes
-  getCourseQuizzes(courseId: number): Promise<CourseQuiz[]>;
-  getQuizById(id: number): Promise<CourseQuiz | undefined>;
-  createCourseQuiz(quiz: InsertCourseQuiz): Promise<CourseQuiz>;
-  updateCourseQuiz(id: number, quiz: Partial<CourseQuiz>): Promise<CourseQuiz>;
-  deleteQuiz(id: number): Promise<void>;
-  
-  // Student progress
-  getStudentProgress(userId: string, courseId: number): Promise<StudentProgress[]>;
-  getStudentProgressByLesson(userId: string, lessonId: number): Promise<StudentProgress | undefined>;
-  createStudentProgress(progress: InsertStudentProgress): Promise<StudentProgress>;
-  updateStudentProgress(id: number, progress: Partial<StudentProgress>): Promise<StudentProgress>;
-  
-  // Quiz attempts
-  getQuizAttempts(userId: string, quizId: number): Promise<QuizAttempt[]>;
-  createQuizAttempt(attempt: InsertQuizAttempt): Promise<QuizAttempt>;
-  
-  // Course reviews
-  getCourseReviews(courseId: number): Promise<CourseReview[]>;
-  createCourseReview(review: InsertCourseReview): Promise<CourseReview>;
-  updateCourseReview(id: number, review: Partial<CourseReview>): Promise<CourseReview>;
-  deleteCourseReview(id: number): Promise<void>;
-  
-  // Course certificates
-  getUserCertificates(userId: string): Promise<CourseCertificate[]>;
-  createCourseCertificate(certificate: InsertCourseCertificate): Promise<CourseCertificate>;
+  // LMS operations not implemented yet
 }
 
 export class DatabaseStorage implements IStorage {
@@ -253,8 +182,8 @@ export class DatabaseStorage implements IStorage {
         updatedAt: workshops.updatedAt,
       })
       .from(workshops)
-      .innerJoin(workshopEnrollments, eq(workshops.id, workshopEnrollments.workshopId))
-      .where(eq(workshopEnrollments.userId, userId));
+      // Workshop enrollments not implemented yet
+      .where(eq(workshops.id, parseInt(userId)));
   }
 
   // Workshop registration operations
@@ -314,10 +243,7 @@ export class DatabaseStorage implements IStorage {
     await db.delete(courses).where(eq(courses.id, id));
   }
 
-  async enrollInCourse(enrollment: InsertCourseEnrollment): Promise<CourseEnrollment> {
-    const [newEnrollment] = await db.insert(courseEnrollments).values(enrollment).returning();
-    return newEnrollment;
-  }
+  // Course enrollments not implemented yet
 
   async getUserCourses(userId: string): Promise<Course[]> {
     return await db
@@ -335,8 +261,8 @@ export class DatabaseStorage implements IStorage {
         updatedAt: courses.updatedAt,
       })
       .from(courses)
-      .innerJoin(courseEnrollments, eq(courses.id, courseEnrollments.courseId))
-      .where(eq(courseEnrollments.userId, userId));
+      // Course enrollments not implemented yet
+      .where(eq(courses.id, parseInt(userId)));
   }
 
   // Campaign operations
@@ -367,9 +293,9 @@ export class DatabaseStorage implements IStorage {
     await db.delete(campaigns).where(eq(campaigns.id, id));
   }
 
-  async joinCampaign(participant: InsertCampaignParticipant): Promise<CampaignParticipant> {
-    const [newParticipant] = await db.insert(campaignParticipants).values(participant).returning();
-    return newParticipant;
+  async joinCampaign(enrollment: InsertCampaignEnrollment): Promise<CampaignEnrollment> {
+    const [newEnrollment] = await db.insert(campaignEnrollments).values(enrollment).returning();
+    return newEnrollment;
   }
 
   async getUserCampaigns(userId: string): Promise<Campaign[]> {
@@ -391,8 +317,8 @@ export class DatabaseStorage implements IStorage {
         updatedAt: campaigns.updatedAt,
       })
       .from(campaigns)
-      .innerJoin(campaignParticipants, eq(campaigns.id, campaignParticipants.campaignId))
-      .where(eq(campaignParticipants.userId, userId));
+      .innerJoin(campaignEnrollments, eq(campaigns.id, campaignEnrollments.campaignId))
+      .where(eq(campaignEnrollments.userEmail, userId));
   }
 
   // Blog operations
