@@ -48,7 +48,7 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
           <h1 className="text-2xl font-bold text-white mb-4">Authentication Required</h1>
           <p className="text-space-300 mb-6">Please log in to access this page.</p>
           <button
-            onClick={() => window.location.href = "/api/login"}
+            onClick={() => window.location.href = `${import.meta.env.VITE_API_URL}/api/login`}
             className="cosmic-gradient px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity"
           >
             Log In

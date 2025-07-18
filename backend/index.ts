@@ -1,4 +1,5 @@
 import express, { type Request, Response, NextFunction } from "express";
+import cors from "cors";
 import { registerRoutes } from "./routes";
 import path from "path";
 
@@ -14,6 +15,20 @@ function log(message: string, source = "express") {
 }
 
 const app = express();
+
+// CORS configuration for frontend
+app.use(cors({
+  origin: [
+    'https://zoonigia-frontend.vercel.app',
+    'https://zoonigia.vercel.app',
+    'http://localhost:5173',
+    'http://localhost:3000'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 

@@ -169,7 +169,7 @@ const Landing = () => {
             </p>
             <Button 
               className="cosmic-gradient hover:opacity-90 px-12 py-4 text-lg font-semibold"
-              onClick={() => window.location.href = '/api/login'}
+              onClick={() => window.location.href = `${import.meta.env.VITE_API_URL}/api/login`}
             >
               Sign Up Now
             </Button>
