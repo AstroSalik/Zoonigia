@@ -203,7 +203,7 @@ const Campaigns = () => {
           variant: "destructive",
         });
         setTimeout(() => {
-          window.location.href = `${import.meta.env.VITE_API_URL}/api/login`;
+          window.location.href = `${import.meta.env.VITE_BACKEND_URL}/api/login`;
         }, 1000);
         return;
       }

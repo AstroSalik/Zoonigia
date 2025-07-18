@@ -19,8 +19,8 @@ const app = express();
 // CORS configuration for frontend
 app.use(cors({
   origin: [
-    'https://zoonigia-frontend.vercel.app',
     'https://zoonigia.vercel.app',
+    'https://zoonigia-frontend.vercel.app',
     'http://localhost:5173',
     'http://localhost:3000'
   ],
@@ -65,6 +65,16 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
 
+  // Friendly root route
+  app.get("/", (_req, res) => {
+    res.json({ 
+      message: "Welcome to the Zoonigia backend 🚀",
+      status: "Server is running",
+      environment: process.env.NODE_ENV,
+      timestamp: new Date().toISOString()
+    });
+  });
+
   // Debug route to test server is working
   app.get("/test", (_req, res) => {
     res.json({ 
@@ -83,18 +93,7 @@ app.use((req, res, next) => {
   });
 
   // Backend-only server - no frontend serving
-  // Add CORS for frontend communication
-  app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-    
-    if (req.method === 'OPTIONS') {
-      res.sendStatus(200);
-    } else {
-      next();
-    }
-  });
+  // CORS is already configured above with the cors middleware
 
   // ALWAYS serve the app on the port specified in the environment variable PORT
   // Other ports are firewalled. Default to 5000 if not specified.

@@ -295,7 +295,7 @@ export default function CourseDetail() {
                         )
                       ) : (
                         <Button 
-                          onClick={() => window.location.href = `${import.meta.env.VITE_API_URL}/api/login`}
+                          onClick={() => window.location.href = `${import.meta.env.VITE_BACKEND_URL}/api/login`}
                           className="w-full bg-orange-500 hover:bg-orange-600"
                         >
                           Login to Register
@@ -331,7 +331,7 @@ export default function CourseDetail() {
                         )
                       ) : (
                         <Button 
-                          onClick={() => window.location.href = `${import.meta.env.VITE_API_URL}/api/login`}
+                          onClick={() => window.location.href = `${import.meta.env.VITE_BACKEND_URL}/api/login`}
                           className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
                         >
                           Login to Enroll

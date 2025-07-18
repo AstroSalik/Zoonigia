@@ -164,7 +164,7 @@ export default function CampaignDetail() {
           variant: "destructive",
         });
         setTimeout(() => {
-          window.location.href = `${import.meta.env.VITE_API_URL}/api/login`;
+          window.location.href = `${import.meta.env.VITE_BACKEND_URL}/api/login`;
         }, 500);
         return;
       }
@@ -245,7 +245,7 @@ export default function CampaignDetail() {
         variant: "destructive",
       });
       setTimeout(() => {
-        window.location.href = `${import.meta.env.VITE_API_URL}/api/login`;
+        window.location.href = `${import.meta.env.VITE_BACKEND_URL}/api/login`;
       }, 500);
       return;
     }
