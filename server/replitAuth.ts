@@ -54,13 +54,17 @@ function updateUserSession(user: any, tokenset: any) {
 async function upsertUser(
   claims: any,
 ) {
-  await storage.upsertUser({
+  // Handle cases where email might not be provided by Replit OIDC
+  const userData = {
     id: claims["sub"],
-    email: claims["email"],
-    firstName: claims["first_name"],
-    lastName: claims["last_name"],
-    profileImageUrl: claims["profile_image_url"],
-  });
+    email: claims["email"] || null, // Email might be null if not verified or not shared
+    firstName: claims["first_name"] || null,
+    lastName: claims["last_name"] || null,
+    profileImageUrl: claims["profile_image_url"] || null,
+  };
+  
+  console.log("Upserting user with data:", userData);
+  await storage.upsertUser(userData);
 }
 
 export async function setupAuth(app: Express) {
@@ -73,8 +77,11 @@ export async function setupAuth(app: Express) {
 
   const verify = async (tokenset: any, done: any) => {
     const user = {};
+    const claims = tokenset.claims();
+    console.log("Received claims from Replit OIDC:", JSON.stringify(claims, null, 2));
+    
     updateUserSession(user, tokenset);
-    await upsertUser(tokenset.claims());
+    await upsertUser(claims);
     done(null, user);
   };
 
@@ -116,9 +123,31 @@ export async function setupAuth(app: Express) {
 
   app.get("/api/callback", (req, res, next) => {
     console.log(`Callback received from: ${req.hostname}`, req.query);
-    passport.authenticate(`replitauth:${req.hostname}`, {
-      successReturnToOrRedirect: "/",
-      failureRedirect: "/api/login",
+    
+    // Check for error in callback
+    if (req.query.error) {
+      console.error("OIDC Error:", req.query.error_description || req.query.error);
+      return res.redirect("/api/login");
+    }
+    
+    passport.authenticate(`replitauth:${req.hostname}`, (err: any, user: any, info: any) => {
+      if (err) {
+        console.error("Authentication error:", err);
+        return res.redirect("/api/login");
+      }
+      if (!user) {
+        console.error("No user returned from authentication");
+        return res.redirect("/api/login");
+      }
+      
+      req.logIn(user, (err) => {
+        if (err) {
+          console.error("Login error:", err);
+          return res.redirect("/api/login");
+        }
+        console.log("User successfully authenticated and logged in");
+        return res.redirect("/");
+      });
     })(req, res, next);
   });
 
