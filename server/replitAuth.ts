@@ -80,10 +80,27 @@ export async function setupAuth(app: Express) {
   passport.serializeUser((user: Express.User, cb) => cb(null, user));
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
-  app.get("/api/login", (req, res) => {
+  app.get("/api/login", async (req, res) => {
+    const codeVerifier = client.generators.codeVerifier();
+    const codeChallenge = client.generators.codeChallenge(codeVerifier);
+    
+    // Store code verifier in session
+    req.session.codeVerifier = codeVerifier;
+    
+    // Save session before redirect
+    await new Promise((resolve, reject) => {
+      req.session.save((err) => {
+        if (err) reject(err);
+        else resolve(null);
+      });
+    });
+    
     const authUrl = config.authorizationUrl({
       scope: "openid email profile",
+      response_type: "code",
       redirect_uri: `https://${req.hostname}/api/callback`,
+      code_challenge: codeChallenge,
+      code_challenge_method: 'S256',
     });
     res.redirect(authUrl);
   });
