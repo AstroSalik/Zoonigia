@@ -58,16 +58,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get current user (no authentication middleware needed since Firebase handles auth)
+  // Get current user by Firebase UID or email
   app.get('/api/auth/user/:uid', async (req, res) => {
     try {
-      const user = await storage.getUser(req.params.uid);
+      const uid = req.params.uid;
+      
+      // First try to find user by Firebase UID
+      let user = await storage.getUser(uid);
+      
+      // If not found by UID, check if there's a user with Firebase email
+      if (!user) {
+        // We need to get all users and find by Firebase info - this is temporary
+        const allUsers = await storage.getAllUsers();
+        user = allUsers.find(u => u.id === uid);
+      }
+      
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
       res.json(user);
     } catch (error) {
       console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  // Get user by email (for Firebase sync)
+  app.get('/api/auth/user-by-email/:email', async (req, res) => {
+    try {
+      const email = decodeURIComponent(req.params.email);
+      const allUsers = await storage.getAllUsers();
+      const user = allUsers.find(u => u.email === email);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user by email:", error);
       res.status(500).json({ message: "Failed to fetch user" });
     }
   });

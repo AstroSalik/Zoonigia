@@ -27,11 +27,18 @@ export function useAuth() {
             })
           });
 
-          // Fetch user from database
-          const response = await fetch(`/api/auth/user/${user.uid}`);
+          // Try to fetch user by email first (for existing users)
+          let response = await fetch(`/api/auth/user-by-email/${encodeURIComponent(user.email!)}`);
           if (response.ok) {
             const dbUserData = await response.json();
             setDbUser(dbUserData);
+          } else {
+            // Fallback to Firebase UID
+            response = await fetch(`/api/auth/user/${user.uid}`);
+            if (response.ok) {
+              const dbUserData = await response.json();
+              setDbUser(dbUserData);
+            }
           }
         } catch (error) {
           console.error('Error syncing user:', error);
