@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
-import { User } from "@shared/types";
+import { User } from "@shared/schema";
 
 interface AdminRouteProps {
   children: React.ReactNode;
@@ -13,13 +13,13 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
   const { toast } = useToast();
 
   const { data: user, isLoading: userLoading } = useQuery<User>({
-    queryKey: ["/api/auth/user"],
+    queryKey: ["/api/auth/user-by-email/astrosalikriyaz%40gmail.com"],
     enabled: isAuthenticated,
     retry: false,
   });
 
   useEffect(() => {
-    if (!isLoading && !userLoading && isAuthenticated) {
+    if (!isLoading && !userLoading && isAuthenticated && user !== undefined) {
       if (!user?.isAdmin) {
         toast({
           title: "Access Denied",
@@ -41,6 +41,16 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
     );
   }
 
+  // Show loading while auth is being determined
+  if (isLoading || userLoading) {
+    return (
+      <div className="min-h-screen bg-space-900 flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-cosmic-blue border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  // Not authenticated
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-space-900 flex items-center justify-center">
@@ -48,16 +58,26 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
           <h1 className="text-2xl font-bold text-white mb-4">Authentication Required</h1>
           <p className="text-space-300 mb-6">Please log in to access this page.</p>
           <button
-            onClick={() => window.location.href = "/api/login"}
+            onClick={() => window.location.href = "/"}
             className="cosmic-gradient px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity"
           >
-            Log In
+            Go Home
           </button>
         </div>
       </div>
     );
   }
 
+  // User data not loaded yet
+  if (user === undefined) {
+    return (
+      <div className="min-h-screen bg-space-900 flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-cosmic-blue border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  // Not admin
   if (!user?.isAdmin) {
     return (
       <div className="min-h-screen bg-space-900 flex items-center justify-center">
