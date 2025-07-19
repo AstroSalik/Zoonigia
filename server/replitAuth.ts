@@ -75,26 +75,7 @@ export async function setupAuth(app: Express) {
 
   const config = await getOidcConfig();
 
-  const verify = async (req: any, done: any) => {
-    try {
-      const { code } = req.query;
-      if (!code) return done(new Error('No authorization code'));
-      
-      const tokenSet = await config.callback(`https://${req.hostname}/api/callback`, { code });
-      const user = {};
-      updateUserSession(user, tokenSet);
-      await upsertUser(tokenSet.claims());
-      done(null, user);
-    } catch (error) {
-      done(error);
-    }
-  };
-
-  for (const domain of process.env
-    .REPLIT_DOMAINS!.split(",")) {
-    const strategy = new Strategy(verify);
-    passport.use(`replitauth:${domain}`, strategy);
-  }
+  // We don't need the strategy since we're handling callback directly
 
   passport.serializeUser((user: Express.User, cb) => cb(null, user));
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
@@ -107,10 +88,30 @@ export async function setupAuth(app: Express) {
     res.redirect(authUrl);
   });
 
-  app.get("/api/callback", passport.authenticate(`replitauth:${process.env.REPLIT_DOMAINS!.split(',')[0]}`, {
-    successReturnToOrRedirect: "/",
-    failureRedirect: "/api/login",
-  }));
+  app.get("/api/callback", async (req, res) => {
+    try {
+      const { code } = req.query;
+      if (!code) {
+        return res.redirect("/api/login");
+      }
+      
+      const tokenSet = await config.callback(`https://${req.hostname}/api/callback`, { code });
+      const user = {};
+      updateUserSession(user, tokenSet);
+      await upsertUser(tokenSet.claims());
+      
+      req.login(user, (err) => {
+        if (err) {
+          console.error('Login error:', err);
+          return res.redirect("/api/login");
+        }
+        res.redirect("/");
+      });
+    } catch (error) {
+      console.error('Callback error:', error);
+      res.redirect("/api/login");
+    }
+  });
 
   app.get("/api/logout", (req, res) => {
     req.logout(() => {
