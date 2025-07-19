@@ -35,7 +35,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Check if this is a designated admin email
       const adminEmails = [
-        'salik.riyaz27@gmail.com', // Add your admin email here
+        'astrosalikriyaz@gmail.com', // Primary admin email
+        'salik.riyaz27@gmail.com', // Secondary admin email
         // Add more admin emails as needed
       ];
       
