@@ -12,9 +12,30 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
+  // Get Firebase user for admin requests
+  let headers: Record<string, string> = {};
+  
+  if (data) {
+    headers["Content-Type"] = "application/json";
+  }
+  
+  // Add Firebase UID for admin routes
+  if (url.includes('/admin/')) {
+    try {
+      const { waitForAuth } = await import('@/lib/adminClient');
+      const user = await waitForAuth();
+      if (user) {
+        headers["X-User-ID"] = user.uid;
+      }
+    } catch (error) {
+      console.error('Failed to get Firebase user for admin request:', error);
+      // Don't throw here, let the server handle the missing auth
+    }
+  }
+
   const res = await fetch(url, {
     method,
-    headers: data ? { "Content-Type": "application/json" } : {},
+    headers,
     body: data ? JSON.stringify(data) : undefined,
     credentials: "include",
   });
@@ -29,8 +50,26 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const res = await fetch(queryKey.join("/") as string, {
+    const url = queryKey.join("/") as string;
+    
+    // Add Firebase UID for admin routes
+    let headers: Record<string, string> = {};
+    if (url.includes('/admin/')) {
+      try {
+        const { waitForAuth } = await import('@/lib/adminClient');
+        const user = await waitForAuth();
+        if (user) {
+          headers["X-User-ID"] = user.uid;
+        }
+      } catch (error) {
+        console.error('Failed to get Firebase user for admin query:', error);
+        // Don't throw here, let the server handle the missing auth
+      }
+    }
+    
+    const res = await fetch(url, {
       credentials: "include",
+      headers,
     });
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {

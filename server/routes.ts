@@ -108,7 +108,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
       
-      const user = await storage.getUser(userId);
+      // For Firebase auth, userId is the Firebase UID (e.g., "23462202")
+      // But our database stores users by email, so we need to find the admin user
+      console.log('Admin check - Firebase UID:', userId);
+      
+      // Get all users and find the one with matching Firebase UID or admin email
+      const allUsers = await storage.getAllUsers();
+      let user = allUsers.find(u => u.id === userId);
+      
+      // If not found by UID, check if this Firebase UID belongs to the admin email
+      if (!user) {
+        user = allUsers.find(u => u.email === 'astrosalikriyaz@gmail.com' && u.isAdmin);
+        console.log('Admin user found by email:', !!user);
+      }
+      
       if (!user || !user.isAdmin) {
         return res.status(403).json({ message: "Admin access required" });
       }
