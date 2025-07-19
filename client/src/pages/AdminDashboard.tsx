@@ -28,8 +28,8 @@ import {
 } from "lucide-react";
 import { 
   User, BlogPost, Workshop, Course, Campaign, ContactInquiry, WorkshopRegistration,
-  InsertBlogPost, InsertWorkshop, InsertCourse, InsertCampaign
-} from "@shared/types";
+  InsertBlogPost, InsertWorkshop, InsertCourse, InsertCampaign, lessonFormSchema
+} from "@shared/schema";
 
 // Form schemas
 const blogPostFormSchema = z.object({

@@ -369,3 +369,16 @@ export const insertStudentProgressSchema = createInsertSchema(studentProgress);
 export const insertQuizAttemptSchema = createInsertSchema(quizAttempts);
 export const insertCourseReviewSchema = createInsertSchema(courseReviews);
 export const insertCourseCertificateSchema = createInsertSchema(courseCertificates);
+
+// Admin form schemas
+export const lessonFormSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().optional(),
+  content: z.string().min(1, "Content is required"),
+  videoUrl: z.string().optional(),
+  duration: z.number().min(1, "Duration must be at least 1 minute"),
+  orderIndex: z.number().min(1, "Order index must be at least 1"),
+  type: z.enum(["video", "text", "quiz", "assignment"]),
+  resources: z.string().optional(),
+  isPreview: z.boolean().default(false),
+});
