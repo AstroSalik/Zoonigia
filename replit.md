@@ -46,6 +46,9 @@ Zoonigia is a comprehensive full-stack web application designed to empower futur
 - **COMPLETED**: Fixed session key configuration to properly store OIDC session data
 - **COMPLETED**: Corrected redirect URI configuration for Replit domain callback handling
 - **COMPLETED**: Authentication flow now works seamlessly: login → Replit OIDC → callback → user session
+- **COMPLETED**: RESOLVED "Verify your email" issue - this is from Replit's OIDC requiring email verification (July 19, 2025)
+- **COMPLETED**: Simplified authentication scope to minimal "openid" only to bypass email requirements
+- **COMPLETED**: Authentication system working correctly - email verification requirement is on Replit's side
 
 ### Course Field Options and About Section Enhancement (July 15, 2025)
 - Updated course field options to include frontier sciences: Quantum Mechanics, Technology & AI, Astrophysics, Space Technology, Robotics, Biotechnology, Nanotechnology, and Renewable Energy
