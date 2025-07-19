@@ -54,22 +54,7 @@ const Landing = () => {
               </Button>
             </div>
             
-            {/* Development Bypass - Only shown in development */}
-            {import.meta.env.DEV && (
-              <div className="mt-6 p-4 border border-yellow-500/30 bg-yellow-500/10 rounded-lg">
-                <p className="text-sm text-yellow-300 mb-3">
-                  Development Mode: Bypass Replit email verification requirement
-                </p>
-                <Button 
-                  size="sm"
-                  variant="outline" 
-                  className="border-yellow-500 text-yellow-300 hover:bg-yellow-500 hover:text-space-900"
-                  onClick={() => window.location.href = '/api/dev-login'}
-                >
-                  Dev Login (Skip Email Verification)
-                </Button>
-              </div>
-            )}
+
           </div>
           
           <div className="relative">

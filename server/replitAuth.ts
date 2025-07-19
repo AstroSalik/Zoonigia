@@ -1,5 +1,6 @@
 import * as client from "openid-client";
-import { Strategy, Issuer } from "openid-client";
+import { Strategy, type VerifyFunction } from "openid-client";
+
 import passport from "passport";
 import session from "express-session";
 import type { Express, RequestHandler } from "express";
@@ -13,7 +14,7 @@ if (!process.env.REPLIT_DOMAINS) {
 
 const getOidcConfig = memoize(
   async () => {
-    const issuer = await Issuer.discover(process.env.ISSUER_URL ?? "https://replit.com/oidc");
+    const issuer = await client.Issuer.discover(process.env.ISSUER_URL ?? "https://replit.com/oidc");
     return new issuer.Client({
       client_id: process.env.REPL_ID!,
       response_types: ['code'],
@@ -38,33 +39,32 @@ export function getSession() {
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: true,
       maxAge: sessionTtl,
     },
   });
 }
 
-function updateUserSession(user: any, tokenset: any) {
-  user.claims = tokenset.claims();
-  user.access_token = tokenset.access_token;
-  user.refresh_token = tokenset.refresh_token;
+function updateUserSession(
+  user: any,
+  tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers
+) {
+  user.claims = tokens.claims();
+  user.access_token = tokens.access_token;
+  user.refresh_token = tokens.refresh_token;
   user.expires_at = user.claims?.exp;
 }
 
 async function upsertUser(
   claims: any,
 ) {
-  // Handle cases where email might not be provided by Replit OIDC
-  const userData = {
+  await storage.upsertUser({
     id: claims["sub"],
-    email: claims["email"] || null, // Email might be null if not verified or not shared
-    firstName: claims["first_name"] || null,
-    lastName: claims["last_name"] || null,
-    profileImageUrl: claims["profile_image_url"] || null,
-  };
-  
-  console.log("Upserting user with data:", userData);
-  await storage.upsertUser(userData);
+    email: claims["email"],
+    firstName: claims["first_name"],
+    lastName: claims["last_name"],
+    profileImageUrl: claims["profile_image_url"],
+  });
 }
 
 export async function setupAuth(app: Express) {
@@ -73,25 +73,22 @@ export async function setupAuth(app: Express) {
   app.use(passport.initialize());
   app.use(passport.session());
 
-  const oidcClient = await getOidcConfig();
+  const config = await getOidcConfig();
 
   const verify = async (tokenset: any, done: any) => {
     const user = {};
-    const claims = tokenset.claims();
-    console.log("Received claims from Replit OIDC:", JSON.stringify(claims, null, 2));
-    
     updateUserSession(user, tokenset);
-    await upsertUser(claims);
+    await upsertUser(tokenset.claims());
     done(null, user);
   };
 
-  for (const domain of process.env.REPLIT_DOMAINS!.split(",")) {
+  for (const domain of process.env
+    .REPLIT_DOMAINS!.split(",")) {
     const strategy = new Strategy(
       {
-        client: oidcClient,
-        sessionKey: `oidc:${domain}`,
+        client: config,
         params: {
-          scope: "openid",
+          scope: "openid email profile",
           redirect_uri: `https://${domain}/api/callback`,
         },
       },
@@ -99,14 +96,13 @@ export async function setupAuth(app: Express) {
     );
     passport.use(`replitauth:${domain}`, strategy);
   }
-  
-  // Use the same strategy for localhost but with correct redirect URI
+
+  // Add localhost strategy for development
   const localhostStrategy = new Strategy(
     {
-      client: oidcClient,
-      sessionKey: `oidc:${process.env.REPLIT_DOMAINS!.split(",")[0]}`,
+      client: config,
       params: {
-        scope: "openid",
+        scope: "openid email profile",
         redirect_uri: `https://${process.env.REPLIT_DOMAINS!.split(",")[0]}/api/callback`,
       },
     },
@@ -117,83 +113,25 @@ export async function setupAuth(app: Express) {
   passport.serializeUser((user: Express.User, cb) => cb(null, user));
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
-  // Development authentication bypass route
-  app.get("/api/dev-login", async (req, res) => {
-    if (process.env.NODE_ENV !== "development") {
-      return res.status(404).json({ message: "Not found" });
-    }
-    
-    console.log("Using development authentication bypass");
-    
-    // Create a mock user session for development
-    const mockUser = {
-      claims: {
-        sub: "dev-user-123",
-        email: null,
-        first_name: "Developer", 
-        last_name: "User",
-        profile_image_url: null
-      },
-      access_token: "dev-token",
-      refresh_token: null,
-      expires_at: Math.floor(Date.now() / 1000) + 3600
-    };
-    
-    try {
-      // Upsert the development user first
-      await upsertUser(mockUser.claims);
-      
-      // Set user session manually
-      req.session.passport = { user: mockUser };
-      
-      console.log("Development user authenticated successfully");
-      return res.redirect("/");
-    } catch (error) {
-      console.error("Development login error:", error);
-      return res.redirect("/");
-    }
-  });
-
   app.get("/api/login", (req, res, next) => {
     passport.authenticate(`replitauth:${req.hostname}`)(req, res, next);
   });
 
   app.get("/api/callback", (req, res, next) => {
-    console.log(`Callback received from: ${req.hostname}`, req.query);
-    
-    // Check for error in callback
-    if (req.query.error) {
-      console.error("OIDC Error:", req.query.error_description || req.query.error);
-      return res.redirect("/api/login");
-    }
-    
-    passport.authenticate(`replitauth:${req.hostname}`, (err: any, user: any, info: any) => {
-      if (err) {
-        console.error("Authentication error:", err);
-        return res.redirect("/api/login");
-      }
-      if (!user) {
-        console.error("No user returned from authentication");
-        return res.redirect("/api/login");
-      }
-      
-      req.logIn(user, (err) => {
-        if (err) {
-          console.error("Login error:", err);
-          return res.redirect("/api/login");
-        }
-        console.log("User successfully authenticated and logged in");
-        return res.redirect("/");
-      });
+    passport.authenticate(`replitauth:${req.hostname}`, {
+      successReturnToOrRedirect: "/",
+      failureRedirect: "/api/login",
     })(req, res, next);
   });
 
   app.get("/api/logout", (req, res) => {
     req.logout(() => {
-      const logoutUrl = oidcClient.endSessionUrl({
-        post_logout_redirect_uri: `${req.protocol}://${req.hostname}`,
-      });
-      res.redirect(logoutUrl);
+      res.redirect(
+        client.buildEndSessionUrl(config, {
+          client_id: process.env.REPL_ID!,
+          post_logout_redirect_uri: `${req.protocol}://${req.hostname}`,
+        }).href
+      );
     });
   });
 }
@@ -217,9 +155,9 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
   }
 
   try {
-    const oidcClient = await getOidcConfig();
-    const tokenSet = await oidcClient.refresh(refreshToken);
-    updateUserSession(user, tokenSet);
+    const config = await getOidcConfig();
+    const tokenResponse = await client.refreshTokenGrant(config, refreshToken);
+    updateUserSession(user, tokenResponse);
     return next();
   } catch (error) {
     res.status(401).json({ message: "Unauthorized" });
