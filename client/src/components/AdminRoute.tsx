@@ -33,14 +33,6 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
     }
   }, [isAuthenticated, isLoading, userLoading, user, toast]);
 
-  if (isLoading || userLoading) {
-    return (
-      <div className="min-h-screen bg-space-900 flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-cosmic-blue border-t-transparent rounded-full" />
-      </div>
-    );
-  }
-
   // Show loading while auth is being determined
   if (isLoading || userLoading) {
     return (

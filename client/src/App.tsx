@@ -18,6 +18,7 @@ import Schools from "@/pages/Schools";
 import Blog from "@/pages/Blog";
 import BlogPost from "@/pages/BlogPost";
 import Contact from "@/pages/Contact";
+import Collaborators from "@/pages/Collaborators";
 import AdminDashboard from "@/pages/AdminDashboard";
 import Landing from "@/pages/Landing";
 
@@ -46,6 +47,7 @@ function AppRouter() {
       <Route path="/blog" component={Blog} />
       <Route path="/blog/:id" component={BlogPost} />
       <Route path="/contact" component={Contact} />
+      <Route path="/collaborators" component={Collaborators} />
       
       {/* Admin route - only accessible to authenticated users */}
       {isAuthenticated && (
