@@ -91,7 +91,7 @@ export async function setupAuth(app: Express) {
         client: oidcClient,
         sessionKey: `oidc:${domain}`,
         params: {
-          scope: "openid email profile",
+          scope: "openid profile",
           redirect_uri: `https://${domain}/api/callback`,
         },
       },
@@ -106,7 +106,7 @@ export async function setupAuth(app: Express) {
       client: oidcClient,
       sessionKey: `oidc:${process.env.REPLIT_DOMAINS!.split(",")[0]}`,
       params: {
-        scope: "openid email profile",
+        scope: "openid profile",
         redirect_uri: `https://${process.env.REPLIT_DOMAINS!.split(",")[0]}/api/callback`,
       },
     },
