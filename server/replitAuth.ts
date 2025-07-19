@@ -117,6 +117,43 @@ export async function setupAuth(app: Express) {
   passport.serializeUser((user: Express.User, cb) => cb(null, user));
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
+  // Development authentication bypass route
+  app.get("/api/dev-login", async (req, res) => {
+    if (process.env.NODE_ENV !== "development") {
+      return res.status(404).json({ message: "Not found" });
+    }
+    
+    console.log("Using development authentication bypass");
+    
+    // Create a mock user session for development
+    const mockUser = {
+      claims: {
+        sub: "dev-user-123",
+        email: null,
+        first_name: "Developer", 
+        last_name: "User",
+        profile_image_url: null
+      },
+      access_token: "dev-token",
+      refresh_token: null,
+      expires_at: Math.floor(Date.now() / 1000) + 3600
+    };
+    
+    try {
+      // Upsert the development user first
+      await upsertUser(mockUser.claims);
+      
+      // Set user session manually
+      req.session.passport = { user: mockUser };
+      
+      console.log("Development user authenticated successfully");
+      return res.redirect("/");
+    } catch (error) {
+      console.error("Development login error:", error);
+      return res.redirect("/");
+    }
+  });
+
   app.get("/api/login", (req, res, next) => {
     passport.authenticate(`replitauth:${req.hostname}`)(req, res, next);
   });
