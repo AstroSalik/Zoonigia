@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+// Firebase auth - no need for replitAuth imports
 import {
   insertWorkshopEnrollmentSchema,
   insertCourseEnrollmentSchema,
@@ -124,7 +124,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin routes
   app.get(
     "/api/admin/users",
-    isAuthenticated,
     isAdmin,
     async (req: any, res) => {
       try {
@@ -139,7 +138,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get(
     "/api/admin/blog-posts",
-    isAuthenticated,
     isAdmin,
     async (req: any, res) => {
       try {
@@ -154,7 +152,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get(
     "/api/admin/workshops",
-    isAuthenticated,
+    
     isAdmin,
     async (req: any, res) => {
       try {
@@ -169,7 +167,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get(
     "/api/admin/courses",
-    isAuthenticated,
+    
     isAdmin,
     async (req: any, res) => {
       try {
@@ -184,7 +182,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get(
     "/api/admin/campaigns",
-    isAuthenticated,
+    
     isAdmin,
     async (req: any, res) => {
       try {
@@ -200,7 +198,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin POST routes for content creation
   app.post(
     "/api/admin/blog-posts",
-    isAuthenticated,
+    
     isAdmin,
     async (req: any, res) => {
       try {
@@ -216,7 +214,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post(
     "/api/admin/workshops",
-    isAuthenticated,
+    
     isAdmin,
     async (req: any, res) => {
       try {
@@ -232,7 +230,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post(
     "/api/admin/courses",
-    isAuthenticated,
+    
     isAdmin,
     async (req: any, res) => {
       try {
@@ -279,7 +277,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post(
     "/api/admin/campaigns",
-    isAuthenticated,
+    
     isAdmin,
     async (req: any, res) => {
       try {
@@ -295,7 +293,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put(
     "/api/admin/campaigns/:id",
-    isAuthenticated,
+    
     isAdmin,
     async (req: any, res) => {
       try {
@@ -312,7 +310,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post(
     "/api/admin/courses/:courseId/lessons",
-    isAuthenticated,
+    
     isAdmin,
     async (req: any, res) => {
       try {
@@ -333,7 +331,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Update endpoints
   app.put(
     "/api/admin/blog-posts/:id",
-    isAuthenticated,
+    
     isAdmin,
     async (req: any, res) => {
       try {
@@ -350,7 +348,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put(
     "/api/admin/workshops/:id",
-    isAuthenticated,
+    
     isAdmin,
     async (req: any, res) => {
       try {
@@ -367,7 +365,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put(
     "/api/admin/courses/:id",
-    isAuthenticated,
+    
     isAdmin,
     async (req: any, res) => {
       try {
@@ -416,7 +414,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put(
     "/api/admin/campaigns/:id",
-    isAuthenticated,
+    
     isAdmin,
     async (req: any, res) => {
       try {
@@ -434,7 +432,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin PATCH route for user management
   app.patch(
     "/api/admin/users/:id",
-    isAuthenticated,
+    
     isAdmin,
     async (req: any, res) => {
       try {
@@ -451,7 +449,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get(
     "/api/admin/inquiries",
-    isAuthenticated,
+    
     isAdmin,
     async (req: any, res) => {
       try {
@@ -466,7 +464,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get(
     "/api/admin/workshop-registrations",
-    isAuthenticated,
+    
     isAdmin,
     async (req: any, res) => {
       try {
@@ -483,7 +481,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch(
     "/api/admin/workshop-registrations/:id/status",
-    isAuthenticated,
+    
     isAdmin,
     async (req: any, res) => {
       try {
@@ -505,7 +503,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch(
     "/api/admin/users/:id/admin-status",
-    isAuthenticated,
+    
     isAdmin,
     async (req: any, res) => {
       try {
@@ -522,7 +520,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete(
     "/api/admin/users/:id",
-    isAuthenticated,
+    
     isAdmin,
     async (req: any, res) => {
       try {
@@ -538,7 +536,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete(
     "/api/admin/blog-posts/:id",
-    isAuthenticated,
+    
     isAdmin,
     async (req: any, res) => {
       try {
@@ -554,7 +552,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete(
     "/api/admin/workshops/:id",
-    isAuthenticated,
+    
     isAdmin,
     async (req: any, res) => {
       try {
@@ -570,7 +568,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete(
     "/api/admin/courses/:id",
-    isAuthenticated,
+    
     isAdmin,
     async (req: any, res) => {
       try {
@@ -586,7 +584,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete(
     "/api/admin/campaigns/:id",
-    isAuthenticated,
+    
     isAdmin,
     async (req: any, res) => {
       try {
@@ -602,7 +600,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete(
     "/api/admin/workshop-registrations/:id",
-    isAuthenticated,
+    
     isAdmin,
     async (req: any, res) => {
       try {
@@ -620,7 +618,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete(
     "/api/admin/inquiries/:id",
-    isAuthenticated,
+    
     isAdmin,
     async (req: any, res) => {
       try {
@@ -932,7 +930,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post(
     "/api/courses/:courseId/modules",
-    isAuthenticated,
+    
     async (req, res) => {
       try {
         const module = await storage.createCourseModule({
@@ -975,7 +973,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post(
     "/api/courses/:courseId/lessons",
-    isAuthenticated,
+    
     async (req, res) => {
       try {
         const lesson = await storage.createCourseLesson({
@@ -993,7 +991,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Student progress
   app.get(
     "/api/courses/:courseId/progress",
-    isAuthenticated,
+    
     async (req: any, res) => {
       try {
         const userId = req.user.claims.sub;
@@ -1011,7 +1009,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post(
     "/api/lessons/:lessonId/progress",
-    isAuthenticated,
+    
     async (req: any, res) => {
       try {
         const userId = req.user.claims.sub;
@@ -1043,7 +1041,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post(
     "/api/quizzes/:quizId/attempts",
-    isAuthenticated,
+    
     async (req: any, res) => {
       try {
         const userId = req.user.claims.sub;
@@ -1075,7 +1073,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post(
     "/api/courses/:courseId/reviews",
-    isAuthenticated,
+    
     async (req: any, res) => {
       try {
         const userId = req.user.claims.sub;
@@ -1093,7 +1091,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   );
 
   // User certificates
-  app.get("/api/user/certificates", isAuthenticated, async (req: any, res) => {
+  app.get("/api/user/certificates", async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const certificates = await storage.getUserCertificates(userId);
@@ -1164,7 +1162,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create payment intent for campaign enrollment
   app.post(
     "/api/campaigns/create-payment-intent",
-    isAuthenticated,
+    
     async (req: any, res) => {
       try {
         const { campaignId, paymentAmount } = req.body;
@@ -1191,7 +1189,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     },
   );
 
-  app.post("/api/campaigns/enroll", isAuthenticated, async (req: any, res) => {
+  app.post("/api/campaigns/enroll", async (req: any, res) => {
     try {
       const { campaignId, paymentIntentId, registrationData } = req.body;
       const userId = req.user.claims.sub;
