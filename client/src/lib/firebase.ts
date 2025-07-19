@@ -9,9 +9,10 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
+// Temporarily allow app to load while Firebase is being configured
 if (!firebaseConfig.apiKey || !firebaseConfig.projectId || !firebaseConfig.appId) {
-  throw new Error('Missing Firebase configuration. Please check your environment variables.');
+  console.warn('Firebase configuration missing. Authentication features will be disabled.');
 }
 
-const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
+const app = firebaseConfig.apiKey ? initializeApp(firebaseConfig) : null;
+export const auth = app ? getAuth(app) : null;
