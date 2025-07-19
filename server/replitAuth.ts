@@ -103,7 +103,6 @@ export async function setupAuth(app: Express) {
       redirect_uri: `https://${req.hostname}/api/callback`,
       code_challenge: codeChallenge,
       code_challenge_method: 'S256',
-      prompt: 'none', // Skip consent screen if already logged in
     });
     
     const authUrl = `https://replit.com/oidc/auth?${params.toString()}`;
