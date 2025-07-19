@@ -1,15 +1,45 @@
 import { useState, useEffect } from 'react';
-import { User } from 'firebase/auth';
+import { User as FirebaseUser } from 'firebase/auth';
+import { User } from '@shared/schema';
 import { onAuthChanged } from '@/lib/googleAuth';
 
 export function useAuth() {
-  const [user, setUser] = useState<User | null>(null);
+  const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
+  const [dbUser, setDbUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Listen for auth state changes
-    const unsubscribe = onAuthChanged((user) => {
-      setUser(user);
+    const unsubscribe = onAuthChanged(async (user) => {
+      setFirebaseUser(user);
+      
+      if (user) {
+        try {
+          // Sync user to database
+          await fetch('/api/auth/sync-user', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              uid: user.uid,
+              email: user.email,
+              displayName: user.displayName,
+              photoURL: user.photoURL
+            })
+          });
+
+          // Fetch user from database
+          const response = await fetch(`/api/auth/user/${user.uid}`);
+          if (response.ok) {
+            const dbUserData = await response.json();
+            setDbUser(dbUserData);
+          }
+        } catch (error) {
+          console.error('Error syncing user:', error);
+        }
+      } else {
+        setDbUser(null);
+      }
+      
       setIsLoading(false);
     });
 
@@ -17,8 +47,9 @@ export function useAuth() {
   }, []);
 
   return {
-    user,
+    user: dbUser,
+    firebaseUser,
     isLoading,
-    isAuthenticated: !!user,
+    isAuthenticated: !!firebaseUser,
   };
 }

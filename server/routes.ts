@@ -24,14 +24,46 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware
-  await setupAuth(app);
-
-  // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  // Firebase user sync endpoint - creates/updates user in database when Firebase user signs in
+  app.post('/api/auth/sync-user', async (req, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const { uid, email, displayName, photoURL } = req.body;
+      
+      if (!uid || !email) {
+        return res.status(400).json({ message: "Missing required user data" });
+      }
+
+      // Check if this is a designated admin email
+      const adminEmails = [
+        'salik.riyaz27@gmail.com', // Add your admin email here
+        // Add more admin emails as needed
+      ];
+      
+      const userData = {
+        id: uid,
+        email: email,
+        firstName: displayName?.split(' ')[0] || null,
+        lastName: displayName?.split(' ').slice(1).join(' ') || null,
+        profileImageUrl: photoURL || null,
+        userType: 'student' as const,
+        isAdmin: adminEmails.includes(email.toLowerCase())
+      };
+
+      const user = await storage.upsertUser(userData);
+      res.json(user);
+    } catch (error) {
+      console.error("Error syncing user:", error);
+      res.status(500).json({ message: "Failed to sync user" });
+    }
+  });
+
+  // Get current user (no authentication middleware needed since Firebase handles auth)
+  app.get('/api/auth/user/:uid', async (req, res) => {
+    try {
+      const user = await storage.getUser(req.params.uid);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
       res.json(user);
     } catch (error) {
       console.error("Error fetching user:", error);
@@ -39,14 +71,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin middleware
+  // Admin middleware for Firebase authentication
   const isAdmin = async (req: any, res: any, next: any) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.headers['x-user-id']; // Firebase UID from frontend
+      if (!userId) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+      
       const user = await storage.getUser(userId);
       if (!user || !user.isAdmin) {
         return res.status(403).json({ message: "Admin access required" });
       }
+      
+      req.user = user;
       next();
     } catch (error) {
       console.error("Error checking admin status:", error);
