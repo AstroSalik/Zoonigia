@@ -65,16 +65,16 @@ const Navigation = () => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={user?.profileImageUrl || ""} alt={user?.firstName || "User"} />
+                      <AvatarImage src={user?.photoURL || ""} alt={user?.displayName || "User"} />
                       <AvatarFallback className="bg-cosmic-blue text-space-900">
-                        {user?.firstName?.[0] || user?.email?.[0]?.toUpperCase() || "U"}
+                        {user?.displayName?.[0] || user?.email?.[0]?.toUpperCase() || "U"}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56 bg-space-800 border-space-700" align="end" forceMount>
                   <div className="px-2 py-1.5 text-sm text-space-400 border-b border-space-700">
-                    Logged in as {user?.firstName || user?.email || "User"}
+                    Logged in as {user?.displayName || user?.email || "User"}
                   </div>
                   <DropdownMenuItem className="text-space-200 hover:text-space-50 hover:bg-space-700">
                     <UserIcon className="mr-2 h-4 w-4" />
@@ -91,7 +91,7 @@ const Navigation = () => {
                   )}
                   <DropdownMenuItem 
                     className="text-space-200 hover:text-space-50 hover:bg-space-700"
-                    onClick={() => window.location.href = '/api/logout'}
+                    onClick={() => import('@/lib/googleAuth').then(({ signOutUser }) => signOutUser())}
                   >
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Log out</span>
@@ -103,7 +103,7 @@ const Navigation = () => {
                 <Button 
                   variant="outline" 
                   className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900"
-                  onClick={() => window.location.href = '/api/login'}
+                  onClick={() => import('@/lib/googleAuth').then(({ signInWithGoogle }) => signInWithGoogle())}
                 >
                   Sign In
                 </Button>
