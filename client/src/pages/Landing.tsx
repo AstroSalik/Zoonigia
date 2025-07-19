@@ -41,7 +41,14 @@ const Landing = () => {
             <div className="flex flex-col sm:flex-row gap-4">
               <Button 
                 className="cosmic-gradient hover:opacity-90 px-8 py-6 text-lg font-semibold"
-                onClick={() => import('@/lib/googleAuth').then(({ signInWithGoogle }) => signInWithGoogle())}
+                onClick={async () => {
+                  try {
+                    const { signInWithGoogle } = await import('@/lib/googleAuth');
+                    await signInWithGoogle();
+                  } catch (error) {
+                    console.error('Sign in failed:', error);
+                  }
+                }}
               >
                 Get Started
               </Button>

@@ -103,7 +103,14 @@ const Navigation = () => {
                 <Button 
                   variant="outline" 
                   className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900"
-                  onClick={() => import('@/lib/googleAuth').then(({ signInWithGoogle }) => signInWithGoogle())}
+                  onClick={async () => {
+                    try {
+                      const { signInWithGoogle } = await import('@/lib/googleAuth');
+                      await signInWithGoogle();
+                    } catch (error) {
+                      console.error('Sign in failed:', error);
+                    }
+                  }}
                 >
                   Sign In
                 </Button>
