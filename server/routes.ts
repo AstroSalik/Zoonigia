@@ -63,19 +63,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const uid = req.params.uid;
       
-      // First try to find user by Firebase UID
-      let user = await storage.getUser(uid);
+      // Cache headers for user data (5 minutes)
+      res.set({
+        'Cache-Control': 'private, max-age=300',
+        'ETag': `user-${uid}-${Date.now()}`
+      });
       
-      // If not found by UID, check if there's a user with Firebase email
-      if (!user) {
-        // We need to get all users and find by Firebase info - this is temporary
-        const allUsers = await storage.getAllUsers();
-        user = allUsers.find(u => u.id === uid);
-      }
+      const user = await storage.getUser(uid);
       
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
+      
       res.json(user);
     } catch (error) {
       console.error("Error fetching user:", error);
@@ -87,8 +86,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/auth/user-by-email/:email', async (req, res) => {
     try {
       const email = decodeURIComponent(req.params.email);
-      const allUsers = await storage.getAllUsers();
-      const user = allUsers.find(u => u.email === email);
+      
+      // Cache headers
+      res.set({
+        'Cache-Control': 'private, max-age=300',
+        'ETag': `email-${email.replace('@', '-')}-${Date.now()}`
+      });
+      
+      const user = await storage.getUserByEmail(email);
       
       if (!user) {
         return res.status(404).json({ message: "User not found" });

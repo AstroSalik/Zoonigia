@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Rocket, Menu, LogOut, User as UserIcon, Shield } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { signInWithGoogle, signOutUser } from "@/lib/googleAuth";
 import { User } from "@shared/schema";
 
 const Navigation = () => {
@@ -91,7 +92,7 @@ const Navigation = () => {
                   )}
                   <DropdownMenuItem 
                     className="text-space-200 hover:text-space-50 hover:bg-space-700"
-                    onClick={() => import('@/lib/googleAuth').then(({ signOutUser }) => signOutUser())}
+                    onClick={() => signOutUser()}
                   >
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Log out</span>
@@ -105,10 +106,9 @@ const Navigation = () => {
                   className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900"
                   onClick={async () => {
                     try {
-                      const { signInWithGoogle } = await import('@/lib/googleAuth');
                       await signInWithGoogle();
                     } catch (error) {
-                      console.error('Sign in failed:', error);
+                      // Sign in failed - user will see Firebase error modal
                     }
                   }}
                 >

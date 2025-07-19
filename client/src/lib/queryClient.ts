@@ -62,7 +62,6 @@ export const getQueryFn: <T>(options: {
           headers["X-User-ID"] = user.uid;
         }
       } catch (error) {
-        console.error('Failed to get Firebase user for admin query:', error);
         // Don't throw here, let the server handle the missing auth
       }
     }
@@ -86,11 +85,12 @@ export const queryClient = new QueryClient({
       queryFn: getQueryFn({ on401: "throw" }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: Infinity,
-      retry: false,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes
+      retry: 1,
     },
     mutations: {
-      retry: false,
+      retry: 1,
     },
   },
 });

@@ -163,41 +163,37 @@ export interface IStorage {
 export class DatabaseStorage implements IStorage {
   // User operations
   async getUser(id: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
+    const [user] = await db.select().from(users).where(eq(users.id, id)).limit(1);
     return user;
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
-    // First check if user already exists by email
-    const existingUser = await db.select().from(users).where(eq(users.email, userData.email!)).limit(1);
-    
-    if (existingUser.length > 0) {
-      // User exists, update their data (but keep their original ID)
-      const [updatedUser] = await db
-        .update(users)
-        .set({
+    // Use PostgreSQL UPSERT for better performance
+    const [user] = await db
+      .insert(users)
+      .values(userData)
+      .onConflictDoUpdate({
+        target: users.email,
+        set: {
           firstName: userData.firstName,
           lastName: userData.lastName,
           profileImageUrl: userData.profileImageUrl,
           isAdmin: userData.isAdmin,
           updatedAt: new Date(),
-        })
-        .where(eq(users.email, userData.email!))
-        .returning();
-      return updatedUser;
-    } else {
-      // User doesn't exist, create new user with Firebase UID
-      const [user] = await db
-        .insert(users)
-        .values(userData)
-        .returning();
-      return user;
-    }
+        },
+      })
+      .returning();
+    return user;
   }
 
-  // Admin operations
+  // Admin operations with pagination
   async getAllUsers(): Promise<User[]> {
-    return await db.select().from(users).orderBy(desc(users.createdAt));
+    return await db.select().from(users).orderBy(desc(users.createdAt)).limit(1000);
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+    return user;
   }
 
   async updateUserAdminStatus(userId: string, isAdmin: boolean): Promise<User> {
@@ -219,7 +215,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getWorkshopById(id: number): Promise<Workshop | undefined> {
-    const [workshop] = await db.select().from(workshops).where(eq(workshops.id, id));
+    const [workshop] = await db.select().from(workshops).where(eq(workshops.id, id)).limit(1);
     return workshop;
   }
 

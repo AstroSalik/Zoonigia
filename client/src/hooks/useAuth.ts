@@ -41,7 +41,7 @@ export function useAuth() {
             }
           }
         } catch (error) {
-          console.error('Error syncing user:', error);
+          // Error syncing user - user can still use the app with Firebase user
         }
       } else {
         setDbUser(null);

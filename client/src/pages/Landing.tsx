@@ -14,6 +14,7 @@ import {
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import GlassMorphism from "@/components/GlassMorphism";
+import { signInWithGoogle } from "@/lib/googleAuth";
 
 const Landing = () => {
   return (
@@ -43,10 +44,9 @@ const Landing = () => {
                 className="cosmic-gradient hover:opacity-90 px-8 py-6 text-lg font-semibold"
                 onClick={async () => {
                   try {
-                    const { signInWithGoogle } = await import('@/lib/googleAuth');
                     await signInWithGoogle();
                   } catch (error) {
-                    console.error('Sign in failed:', error);
+                    // Sign in failed - user will see Firebase error modal
                   }
                 }}
               >

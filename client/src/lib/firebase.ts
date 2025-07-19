@@ -9,11 +9,13 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:729979576138:web:0305b8f640b4469512abb3",
 };
 
-console.log('Firebase config loaded:', {
-  hasApiKey: !!firebaseConfig.apiKey,
-  projectId: firebaseConfig.projectId,
-  hasAppId: !!firebaseConfig.appId
-});
+if (import.meta.env.DEV) {
+  console.log('Firebase config loaded:', {
+    hasApiKey: !!firebaseConfig.apiKey,
+    projectId: firebaseConfig.projectId,
+    hasAppId: !!firebaseConfig.appId
+  });
+}
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
