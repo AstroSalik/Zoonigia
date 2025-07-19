@@ -1,7 +1,7 @@
 import * as client from "openid-client";
-import { Strategy, type VerifyFunction } from "openid-client";
 
 import passport from "passport";
+import { Strategy } from "passport-custom";
 import session from "express-session";
 import type { Express, RequestHandler } from "express";
 import memoize from "memoizee";
@@ -75,54 +75,42 @@ export async function setupAuth(app: Express) {
 
   const config = await getOidcConfig();
 
-  const verify = async (tokenset: any, done: any) => {
-    const user = {};
-    updateUserSession(user, tokenset);
-    await upsertUser(tokenset.claims());
-    done(null, user);
+  const verify = async (req: any, done: any) => {
+    try {
+      const { code } = req.query;
+      if (!code) return done(new Error('No authorization code'));
+      
+      const tokenSet = await config.callback(`https://${req.hostname}/api/callback`, { code });
+      const user = {};
+      updateUserSession(user, tokenSet);
+      await upsertUser(tokenSet.claims());
+      done(null, user);
+    } catch (error) {
+      done(error);
+    }
   };
 
   for (const domain of process.env
     .REPLIT_DOMAINS!.split(",")) {
-    const strategy = new Strategy(
-      {
-        client: config,
-        params: {
-          scope: "openid email profile",
-          redirect_uri: `https://${domain}/api/callback`,
-        },
-      },
-      verify
-    );
+    const strategy = new Strategy(verify);
     passport.use(`replitauth:${domain}`, strategy);
   }
-
-  // Add localhost strategy for development
-  const localhostStrategy = new Strategy(
-    {
-      client: config,
-      params: {
-        scope: "openid email profile",
-        redirect_uri: `https://${process.env.REPLIT_DOMAINS!.split(",")[0]}/api/callback`,
-      },
-    },
-    verify
-  );
-  passport.use(`replitauth:localhost`, localhostStrategy);
 
   passport.serializeUser((user: Express.User, cb) => cb(null, user));
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
-  app.get("/api/login", (req, res, next) => {
-    passport.authenticate(`replitauth:${req.hostname}`)(req, res, next);
+  app.get("/api/login", (req, res) => {
+    const authUrl = config.authorizationUrl({
+      scope: "openid email profile",
+      redirect_uri: `https://${req.hostname}/api/callback`,
+    });
+    res.redirect(authUrl);
   });
 
-  app.get("/api/callback", (req, res, next) => {
-    passport.authenticate(`replitauth:${req.hostname}`, {
-      successReturnToOrRedirect: "/",
-      failureRedirect: "/api/login",
-    })(req, res, next);
-  });
+  app.get("/api/callback", passport.authenticate(`replitauth:${process.env.REPLIT_DOMAINS!.split(',')[0]}`, {
+    successReturnToOrRedirect: "/",
+    failureRedirect: "/api/login",
+  }));
 
   app.get("/api/logout", (req, res) => {
     req.logout(() => {
