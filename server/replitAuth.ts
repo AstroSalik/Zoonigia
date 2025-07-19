@@ -82,9 +82,9 @@ export async function setupAuth(app: Express) {
     const strategy = new Strategy(
       {
         client: oidcClient,
+        sessionKey: `oidc:${domain}`,
         params: {
-          scope: "openid email profile offline_access",
-          prompt: "login consent",
+          scope: "openid email profile",
           redirect_uri: `https://${domain}/api/callback`,
         },
       },
@@ -97,9 +97,9 @@ export async function setupAuth(app: Express) {
   const localhostStrategy = new Strategy(
     {
       client: oidcClient,
+      sessionKey: `oidc:${process.env.REPLIT_DOMAINS!.split(",")[0]}`,
       params: {
-        scope: "openid email profile offline_access", 
-        prompt: "login consent",
+        scope: "openid email profile",
         redirect_uri: `https://${process.env.REPLIT_DOMAINS!.split(",")[0]}/api/callback`,
       },
     },
@@ -111,9 +111,7 @@ export async function setupAuth(app: Express) {
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
   app.get("/api/login", (req, res, next) => {
-    passport.authenticate(`replitauth:${req.hostname}`, {
-      scope: ["openid", "email", "profile", "offline_access"],
-    })(req, res, next);
+    passport.authenticate(`replitauth:${req.hostname}`)(req, res, next);
   });
 
   app.get("/api/callback", (req, res, next) => {
