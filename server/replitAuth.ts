@@ -1,7 +1,6 @@
 import * as client from "openid-client";
 
 import passport from "passport";
-import { Strategy } from "passport-custom";
 import session from "express-session";
 import type { Express, RequestHandler } from "express";
 import memoize from "memoizee";
@@ -18,6 +17,7 @@ const getOidcConfig = memoize(
     return new issuer.Client({
       client_id: process.env.REPL_ID!,
       response_types: ['code'],
+      token_endpoint_auth_method: 'none', // Use PKCE, no client secret needed
     });
   },
   { maxAge: 3600 * 1000 }
@@ -75,7 +75,7 @@ export async function setupAuth(app: Express) {
 
   const config = await getOidcConfig();
 
-  // We don't need the strategy since we're handling callback directly
+  // Simple direct OIDC flow without passport strategies
 
   passport.serializeUser((user: Express.User, cb) => cb(null, user));
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
@@ -90,26 +90,47 @@ export async function setupAuth(app: Express) {
 
   app.get("/api/callback", async (req, res) => {
     try {
-      const { code } = req.query;
-      if (!code) {
-        return res.redirect("/api/login");
+      console.log('Callback received:', req.query);
+      const { code, error: authError } = req.query;
+      
+      if (authError) {
+        console.error('Auth error from Replit:', authError);
+        return res.status(400).json({ error: 'Authentication failed', details: authError });
       }
       
-      const tokenSet = await config.callback(`https://${req.hostname}/api/callback`, { code });
+      if (!code) {
+        console.error('No authorization code received');
+        return res.status(400).json({ error: 'No authorization code received' });
+      }
+      
+      console.log('Exchanging code for tokens...');
+      const redirectUri = `https://${req.hostname}/api/callback`;
+      const codeVerifier = req.session.codeVerifier;
+      
+      if (!codeVerifier) {
+        console.error('No code verifier in session');
+        return res.status(400).json({ error: 'Invalid session state' });
+      }
+      
+      const tokenSet = await config.callback(redirectUri, { code }, { code_verifier: codeVerifier });
+      console.log('Token exchange successful');
+      
       const user = {};
       updateUserSession(user, tokenSet);
       await upsertUser(tokenSet.claims());
+      console.log('User session created');
       
       req.login(user, (err) => {
         if (err) {
           console.error('Login error:', err);
-          return res.redirect("/api/login");
+          return res.status(500).json({ error: 'Login failed', details: err.message });
         }
+        console.log('User logged in successfully, redirecting to home');
         res.redirect("/");
       });
     } catch (error) {
       console.error('Callback error:', error);
-      res.redirect("/api/login");
+      res.status(500).json({ error: 'Callback processing failed', details: error.message });
     }
   });
 
