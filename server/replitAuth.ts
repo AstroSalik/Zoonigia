@@ -95,13 +95,18 @@ export async function setupAuth(app: Express) {
       });
     });
     
-    const authUrl = config.authorizationUrl({
-      scope: "openid email profile",
-      response_type: "code",
+    // Use minimal scope to bypass email verification requirement
+    const params = new URLSearchParams({
+      client_id: process.env.REPL_ID!,
+      response_type: 'code',
+      scope: 'openid',
       redirect_uri: `https://${req.hostname}/api/callback`,
       code_challenge: codeChallenge,
       code_challenge_method: 'S256',
+      prompt: 'none', // Skip consent screen if already logged in
     });
+    
+    const authUrl = `https://replit.com/oidc/auth?${params.toString()}`;
     res.redirect(authUrl);
   });
 
