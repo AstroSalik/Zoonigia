@@ -38,7 +38,7 @@ export function getSession() {
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === "production",
       maxAge: sessionTtl,
     },
   });
@@ -93,14 +93,14 @@ export async function setupAuth(app: Express) {
     passport.use(`replitauth:${domain}`, strategy);
   }
   
-  // Add localhost strategy for development
+  // Use the same strategy for localhost but with correct redirect URI
   const localhostStrategy = new Strategy(
     {
       client: oidcClient,
       params: {
         scope: "openid email profile offline_access", 
         prompt: "login consent",
-        redirect_uri: `http://localhost:5000/api/callback`,
+        redirect_uri: `https://${process.env.REPLIT_DOMAINS!.split(",")[0]}/api/callback`,
       },
     },
     verify
@@ -117,6 +117,7 @@ export async function setupAuth(app: Express) {
   });
 
   app.get("/api/callback", (req, res, next) => {
+    console.log(`Callback received from: ${req.hostname}`, req.query);
     passport.authenticate(`replitauth:${req.hostname}`, {
       successReturnToOrRedirect: "/",
       failureRedirect: "/api/login",
