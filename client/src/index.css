@@ -206,6 +206,62 @@
   }
 }
 
+@keyframes rotateLight {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes shootingStar {
+  0% {
+    opacity: 0;
+    transform: translateX(-100px) translateY(-100px) rotate(-30deg);
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(200px) translateY(200px) rotate(-30deg);
+  }
+}
+
+@keyframes lightBeam {
+  0% {
+    opacity: 0.1;
+    transform: skewX(-15deg) scaleY(0.8);
+  }
+  50% {
+    opacity: 0.2;
+    transform: skewX(0deg) scaleY(1);
+  }
+  100% {
+    opacity: 0.1;
+    transform: skewX(15deg) scaleY(0.8);
+  }
+}
+
+@keyframes floatParticle {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) translateX(0px) scale(0.5);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(0px) translateX(10px) scale(1);
+  }
+  80% {
+    opacity: 1;
+    transform: translateY(-10px) translateX(-10px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-30px) translateX(20px) scale(0.5);
+  }
+}
+
 @layer utilities {
   .text-cosmic-pink { color: var(--cosmic-pink); }
   .text-cosmic-yellow { color: var(--cosmic-yellow); }

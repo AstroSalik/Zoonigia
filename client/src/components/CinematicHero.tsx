@@ -31,9 +31,43 @@ export default function CinematicHero() {
   }, []);
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-black">
-      {/* Film grain overlay */}
-      <div className="absolute inset-0 opacity-30 mix-blend-multiply">
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-black via-space-900/95 to-space-900">
+      {/* Enhanced cosmic background with stars */}
+      <div className="absolute inset-0">
+        {/* Animated stars */}
+        {[...Array(150)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-1 h-1 bg-white rounded-full animate-pulse"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 3}s`,
+              animationDuration: `${2 + Math.random() * 3}s`,
+              opacity: Math.random() * 0.8 + 0.2,
+            }}
+          />
+        ))}
+        
+        {/* Shooting stars */}
+        {[...Array(3)].map((_, i) => (
+          <div
+            key={`shooting-${i}`}
+            className="absolute h-px bg-gradient-to-r from-transparent via-blue-400 to-transparent"
+            style={{
+              width: `${50 + Math.random() * 100}px`,
+              left: `${Math.random() * 80}%`,
+              top: `${Math.random() * 60}%`,
+              transform: 'rotate(-30deg)',
+              animation: `shootingStar ${3 + Math.random() * 4}s ease-out infinite`,
+              animationDelay: `${Math.random() * 10}s`,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Enhanced film grain overlay */}
+      <div className="absolute inset-0 opacity-20 mix-blend-multiply">
         <div 
           className="w-full h-full"
           style={{
@@ -43,60 +77,96 @@ export default function CinematicHero() {
         />
       </div>
 
-      {/* Dramatic lighting */}
+      {/* Enhanced dramatic lighting system */}
       <div className="absolute inset-0">
-        {/* Main spotlight */}
+        {/* Main interactive spotlight */}
         <div 
           className="absolute w-full h-full"
           style={{
-            background: `radial-gradient(ellipse ${400 + mousePosition.x * 2}px ${600 + mousePosition.y * 2}px at ${50 + (mousePosition.x - 50) * 0.3}% ${50 + (mousePosition.y - 50) * 0.3}%, 
-              rgba(59, 130, 246, 0.15) 0%, 
-              rgba(139, 92, 246, 0.1) 30%, 
-              rgba(0, 0, 0, 0.8) 60%, 
-              rgba(0, 0, 0, 0.95) 100%)`,
-            transition: 'background 0.3s ease-out',
+            background: `radial-gradient(ellipse ${500 + mousePosition.x * 3}px ${700 + mousePosition.y * 3}px at ${50 + (mousePosition.x - 50) * 0.4}% ${50 + (mousePosition.y - 50) * 0.4}%, 
+              rgba(59, 130, 246, 0.25) 0%, 
+              rgba(139, 92, 246, 0.15) 20%, 
+              rgba(6, 182, 212, 0.1) 40%, 
+              rgba(0, 0, 0, 0.7) 65%, 
+              rgba(0, 0, 0, 0.9) 100%)`,
+            transition: 'background 0.2s ease-out',
           }}
         />
 
-        {/* Side rim lighting */}
+        {/* Volumetric atmosphere lights */}
         <div className="absolute inset-0">
-          <div className="absolute left-0 top-0 w-px h-full bg-gradient-to-b from-transparent via-blue-400/30 to-transparent" />
-          <div className="absolute right-0 top-0 w-px h-full bg-gradient-to-b from-transparent via-purple-400/30 to-transparent" />
-          <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-cyan-400/20 to-transparent" />
+          <div 
+            className="absolute w-full h-full"
+            style={{
+              background: `conic-gradient(from ${mousePosition.x * 3.6}deg at 50% 50%, 
+                transparent 0deg, 
+                rgba(59, 130, 246, 0.1) 60deg, 
+                transparent 120deg, 
+                rgba(139, 92, 246, 0.08) 180deg, 
+                transparent 240deg, 
+                rgba(6, 182, 212, 0.06) 300deg, 
+                transparent 360deg)`,
+              animation: 'rotateLight 20s linear infinite',
+            }}
+          />
         </div>
 
-        {/* Volumetric light beams */}
+        {/* Enhanced rim lighting */}
         <div className="absolute inset-0">
-          {[...Array(8)].map((_, i) => (
+          <div className="absolute left-0 top-0 w-1 h-full bg-gradient-to-b from-transparent via-blue-400/40 to-transparent blur-sm" />
+          <div className="absolute right-0 top-0 w-1 h-full bg-gradient-to-b from-transparent via-purple-400/40 to-transparent blur-sm" />
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-400/30 to-transparent blur-sm" />
+          <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-emerald-400/20 to-transparent blur-sm" />
+        </div>
+
+        {/* Enhanced volumetric light beams */}
+        <div className="absolute inset-0">
+          {[...Array(12)].map((_, i) => (
             <div
               key={i}
-              className="absolute top-0 w-1 h-full opacity-10"
+              className="absolute top-0 h-full opacity-15"
               style={{
-                left: `${10 + i * 12}%`,
-                background: 'linear-gradient(180deg, rgba(59, 130, 246, 0.8) 0%, rgba(59, 130, 246, 0.1) 40%, transparent 100%)',
-                transform: `rotate(${-2 + i * 0.5}deg) translateY(-10px)`,
-                filter: 'blur(2px)',
-                animation: `lightSweep ${6 + i * 0.5}s ease-in-out infinite`,
-                animationDelay: `${i * 0.3}s`,
+                width: `${2 + Math.random()}px`,
+                left: `${5 + i * 8}%`,
+                background: `linear-gradient(180deg, 
+                  ${i % 3 === 0 ? 'rgba(59, 130, 246, 0.4)' : 
+                    i % 3 === 1 ? 'rgba(139, 92, 246, 0.3)' : 'rgba(6, 182, 212, 0.3)'} 0%, 
+                  transparent 40%, 
+                  ${i % 2 === 0 ? 'rgba(139, 92, 246, 0.2)' : 'rgba(59, 130, 246, 0.2)'} 100%)`,
+                transform: `skewX(${-15 + Math.sin(Date.now() * 0.001 + i) * 8}deg)`,
+                animation: `lightBeam ${2 + i * 0.3}s ease-in-out infinite alternate`,
+                filter: 'blur(0.5px)',
               }}
             />
           ))}
         </div>
 
-        {/* Floating dust particles */}
+        {/* Enhanced floating particles system */}
         <div className="absolute inset-0">
-          {[...Array(30)].map((_, i) => (
+          {[...Array(35)].map((_, i) => (
             <div
               key={i}
-              className="absolute w-1 h-1 bg-white/20 rounded-full"
+              className="absolute rounded-full opacity-40"
               style={{
+                width: `${1 + Math.random() * 3}px`,
+                height: `${1 + Math.random() * 3}px`,
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
-                animation: `floatDust ${8 + Math.random() * 4}s linear infinite`,
-                animationDelay: `${Math.random() * 8}s`,
+                backgroundColor: i % 4 === 0 ? '#3b82f6' : 
+                                i % 4 === 1 ? '#8b5cf6' : 
+                                i % 4 === 2 ? '#06b6d4' : '#ffffff',
+                animation: `floatParticle ${8 + Math.random() * 15}s ease-in-out infinite`,
+                animationDelay: `${Math.random() * 10}s`,
+                filter: 'blur(0.5px)',
               }}
             />
           ))}
+        </div>
+
+        {/* Atmospheric depth layers */}
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-black/10" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/10 via-transparent to-black/10" />
         </div>
       </div>
 

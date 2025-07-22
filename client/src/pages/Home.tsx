@@ -49,13 +49,34 @@ const Home = () => {
   }, [specialMessageData, toast]);
   
   return (
-    <div className="min-h-screen bg-space-900 text-space-50 relative">
+    <div className="min-h-screen bg-gradient-to-b from-black via-space-900/95 to-space-900 text-space-50 relative">
+      {/* Extended cosmic background for seamless blending */}
+      <div className="fixed inset-0 z-0">
+        {/* Animated stars across entire page */}
+        {[...Array(200)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-1 h-1 bg-white rounded-full animate-pulse"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 200}%`,
+              animationDelay: `${Math.random() * 3}s`,
+              animationDuration: `${2 + Math.random() * 3}s`,
+              opacity: Math.random() * 0.6 + 0.1,
+            }}
+          />
+        ))}
+        
+        {/* Ambient cosmic glow */}
+        <div className="absolute inset-0 bg-gradient-to-b from-space-900/20 via-space-800/30 to-space-900/50" />
+      </div>
+      
       <div className="relative z-10">
         <Navigation />
         {/* Cinematic Hero Section */}
         <CinematicHero />
-      {/* Video Section */}
-      <section id="video-section" className="py-20 bg-space-800/30">
+      {/* Video Section with blended background */}
+      <section id="video-section" className="py-20 bg-gradient-to-b from-space-900/60 via-space-800/40 to-space-800/60 backdrop-blur-sm">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center mb-16">
             <h2 className="text-4xl font-space font-bold mb-6">
@@ -75,8 +96,23 @@ const Home = () => {
           </div>
         </div>
       </section>
-      {/* Stats Section */}
-      <section className="py-20 bg-space-800/50">
+      {/* Stats Section with cosmic integration */}
+      <section className="py-20 bg-gradient-to-b from-space-800/60 via-space-800/40 to-space-800/60 backdrop-blur-sm relative">
+        {/* Subtle cosmic particles */}
+        <div className="absolute inset-0 overflow-hidden">
+          {[...Array(15)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute w-2 h-2 bg-cosmic-blue/20 rounded-full animate-pulse"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 5}s`,
+                animationDuration: `${3 + Math.random() * 4}s`,
+              }}
+            />
+          ))}
+        </div>
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="text-center">
@@ -98,8 +134,8 @@ const Home = () => {
           </div>
         </div>
       </section>
-      {/* Inspirational Quote Section */}
-      <section className="py-20 bg-gradient-to-br from-space-900 via-space-800 to-space-900 relative overflow-hidden">
+      {/* Inspirational Quote Section with enhanced cosmic atmosphere */}
+      <section className="py-20 bg-gradient-to-br from-space-900/80 via-space-800/60 to-space-900/80 relative overflow-hidden backdrop-blur-sm">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-10 w-32 h-32 bg-cosmic-blue rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute bottom-10 right-10 w-40 h-40 bg-cosmic-purple rounded-full blur-3xl animate-pulse delay-1000"></div>
