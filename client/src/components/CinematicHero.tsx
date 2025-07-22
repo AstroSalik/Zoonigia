@@ -189,10 +189,11 @@ export default function CinematicHero() {
 
       {/* Scroll indicator with fade on scroll */}
       <div 
-        className="fixed bottom-4 sm:bottom-8 left-0 right-0 z-10 flex justify-center transition-opacity duration-300"
+        className="fixed bottom-4 sm:bottom-8 left-0 right-0 z-10 flex justify-center transition-opacity duration-300 pointer-events-none"
         style={{
           animation: 'fadeInUp 1s ease-out 2.5s both',
-          opacity: Math.max(0, 1 - (scrollY / (window.innerHeight * 0.8))),
+          opacity: scrollY < (window.innerHeight * 0.7) ? Math.max(0, 1 - (scrollY / (window.innerHeight * 0.5))) : 0,
+          visibility: scrollY < (window.innerHeight * 0.7) ? 'visible' : 'hidden',
         }}
       >
         <div className="flex flex-col items-center space-y-2 sm:space-y-3 text-slate-400 animate-pulse">
