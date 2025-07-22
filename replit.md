@@ -19,11 +19,11 @@ Zoonigia is a comprehensive full-stack web application designed to empower futur
 - **COMPLETED**: Mobile optimization: Removed subtitle, improved responsive sizing for titles and buttons
 - **COMPLETED**: Enhanced mobile scroll indicator placement and sizing for better mobile experience
 - **COMPLETED**: Added scroll-based fade effect for scroll indicator - fades out when scrolling past hero section
-- **COMPLETED**: Recreated hero header exactly matching user's space/astronaut reference image
-- **COMPLETED**: Implemented cosmic purple/blue nebula background with multiple radial gradients and star field
-- **COMPLETED**: Added large "STELLAR" background text with transparency matching the reference design
-- **COMPLETED**: Created astronaut helmet/figure on right side with realistic 3D perspective and blue reflections
-- **COMPLETED**: Added "EXPLORING THE GALAXY" title, description text, and "DISCOVER" button matching exact layout
+- **COMPLETED**: Redesigned hero header with clean, minimal approach after user feedback
+- **COMPLETED**: Implemented simple dark gradient background (gray to black to blue)
+- **COMPLETED**: Created centered layout with large "Everything Science for your future" typography
+- **COMPLETED**: Added clean blue primary button and outline secondary button
+- **COMPLETED**: Focused on content and readability with simplified visual design
 
 ### COMPREHENSIVE PRODUCTION OPTIMIZATION COMPLETE (July 19, 2025)
 - **COMPLETED**: Implemented comprehensive code splitting with lazy loading - bundle now split into 20+ optimized chunks (most under 1KB)
