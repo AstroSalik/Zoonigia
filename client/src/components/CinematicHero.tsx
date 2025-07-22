@@ -97,26 +97,15 @@ export default function CinematicHero() {
           <div className={`max-w-5xl mx-auto transition-all duration-2000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             
             {/* Cinematic title sequence */}
-            <div className="space-y-8 mb-12">
-              {/* Subtitle appears first */}
-              <div 
-                className="text-blue-300 text-lg font-medium tracking-widest uppercase opacity-80"
-                style={{
-                  animation: 'fadeInUp 1s ease-out 0.5s both',
-                  textShadow: '0 0 20px rgba(59, 130, 246, 0.5)',
-                }}
-              >
-                Frontier Sciences Discovery Platform
-              </div>
-
+            <div className="space-y-6 sm:space-y-8 mb-8 sm:mb-12">
               {/* Main title with dramatic entrance */}
               <h1 
-                className="text-6xl sm:text-7xl lg:text-8xl font-bold leading-tight"
+                className="text-4xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold leading-tight px-4 sm:px-0"
                 style={{
-                  animation: 'titleReveal 2s ease-out 1s both',
+                  animation: 'titleReveal 2s ease-out 0.5s both',
                 }}
               >
-                <span className="block text-white mb-4 drop-shadow-2xl">
+                <span className="block text-white mb-2 sm:mb-4 drop-shadow-2xl">
                   Everything Science
                 </span>
                 <span 
@@ -131,9 +120,9 @@ export default function CinematicHero() {
               
               {/* Description with typewriter effect */}
               <p 
-                className="text-xl sm:text-2xl text-slate-300 max-w-4xl mx-auto leading-relaxed"
+                className="text-lg sm:text-xl lg:text-2xl text-slate-300 max-w-4xl mx-auto leading-relaxed px-4 sm:px-0"
                 style={{
-                  animation: 'fadeInUp 1.5s ease-out 2s both',
+                  animation: 'fadeInUp 1.5s ease-out 1.5s both',
                 }}
               >
                 Enter a world where quantum mysteries unfold, cosmic secrets reveal themselves, 
@@ -143,21 +132,21 @@ export default function CinematicHero() {
 
             {/* CTA Buttons with cinematic entrance */}
             <div 
-              className="flex flex-col sm:flex-row gap-6 justify-center"
+              className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center px-4 sm:px-0"
               style={{
-                animation: 'fadeInUp 1s ease-out 2.5s both',
+                animation: 'fadeInUp 1s ease-out 2s both',
               }}
             >
               <Link href="/courses">
                 <Button 
                   size="lg" 
-                  className="relative bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-size-200 hover:bg-pos-100 text-white font-semibold px-12 py-6 text-xl group transition-all duration-500 shadow-2xl hover:shadow-blue-500/50 border border-blue-400/20"
+                  className="relative bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-size-200 hover:bg-pos-100 text-white font-semibold px-8 sm:px-12 py-4 sm:py-6 text-lg sm:text-xl group transition-all duration-500 shadow-2xl hover:shadow-blue-500/50 border border-blue-400/20 w-full sm:w-auto"
                   style={{
                     boxShadow: '0 0 40px rgba(59, 130, 246, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
                   }}
                 >
                   <span className="relative z-10">Begin Your Journey</span>
-                  <ArrowRight className="ml-3 h-6 w-6 group-hover:translate-x-2 transition-transform duration-300" />
+                  <ArrowRight className="ml-2 sm:ml-3 h-5 sm:h-6 w-5 sm:w-6 group-hover:translate-x-2 transition-transform duration-300" />
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
                 </Button>
               </Link>
@@ -165,7 +154,7 @@ export default function CinematicHero() {
               <Button 
                 variant="outline" 
                 size="lg"
-                className="border-2 border-slate-400/30 text-white hover:bg-slate-800/30 backdrop-blur-md px-12 py-6 text-xl group transition-all duration-300 hover:border-blue-400/50"
+                className="border-2 border-slate-400/30 text-white hover:bg-slate-800/30 backdrop-blur-md px-8 sm:px-12 py-4 sm:py-6 text-lg sm:text-xl group transition-all duration-300 hover:border-blue-400/50 w-full sm:w-auto"
                 onClick={() => {
                   document.querySelector('#video-section')?.scrollIntoView({ behavior: 'smooth' });
                 }}
@@ -173,7 +162,7 @@ export default function CinematicHero() {
                   boxShadow: '0 0 20px rgba(255, 255, 255, 0.1)',
                 }}
               >
-                <Play className="mr-3 h-6 w-6 group-hover:scale-125 transition-transform duration-300" />
+                <Play className="mr-2 sm:mr-3 h-5 sm:h-6 w-5 sm:w-6 group-hover:scale-125 transition-transform duration-300" />
                 Experience Preview
               </Button>
             </div>
@@ -191,14 +180,14 @@ export default function CinematicHero() {
 
       {/* Scroll indicator */}
       <div 
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10"
+        className="absolute bottom-4 sm:bottom-8 left-1/2 transform -translate-x-1/2 z-10"
         style={{
-          animation: 'fadeInUp 1s ease-out 3s both',
+          animation: 'fadeInUp 1s ease-out 2.5s both',
         }}
       >
-        <div className="flex flex-col items-center space-y-3 text-slate-400 animate-pulse">
-          <div className="text-sm tracking-wider">SCROLL TO DISCOVER</div>
-          <div className="w-px h-8 bg-gradient-to-b from-slate-400 to-transparent" />
+        <div className="flex flex-col items-center space-y-2 sm:space-y-3 text-slate-400 animate-pulse">
+          <div className="text-xs sm:text-sm tracking-wider">SCROLL TO DISCOVER</div>
+          <div className="w-px h-6 sm:h-8 bg-gradient-to-b from-slate-400 to-transparent" />
         </div>
       </div>
     </div>
