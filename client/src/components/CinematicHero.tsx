@@ -180,7 +180,7 @@ export default function CinematicHero() {
 
       {/* Scroll indicator */}
       <div 
-        className="absolute bottom-4 sm:bottom-8 left-1/2 transform -translate-x-1/2 z-10"
+        className="fixed bottom-4 sm:bottom-8 left-0 right-0 z-10 flex justify-center"
         style={{
           animation: 'fadeInUp 1s ease-out 2.5s both',
         }}
