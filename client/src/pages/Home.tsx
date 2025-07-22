@@ -6,7 +6,7 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import Hero3D from "@/components/Hero3D";
 import GlassMorphism from "@/components/GlassMorphism";
-import CosmicBackground from "@/components/OrbitalAnimation";
+
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
@@ -49,9 +49,7 @@ const Home = () => {
   }, [specialMessageData, toast]);
   return (
     <div className="min-h-screen bg-space-900 text-space-50 relative">
-      <CosmicBackground />
-      <div className="relative z-10">
-        <Navigation />
+      <Navigation />
       {/* Hero Section */}
       <section className="min-h-screen flex items-center justify-center relative overflow-hidden star-field">
         <div className="absolute inset-0 bg-gradient-to-br from-space-900 via-space-800 to-space-900"></div>
@@ -392,8 +390,8 @@ const Home = () => {
           </div>
         </div>
       </section>
-        <Footer />
-      </div>
+      
+      <Footer />
     </div>
   );
 };
