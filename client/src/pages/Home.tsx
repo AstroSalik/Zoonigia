@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import Hero3D from "@/components/Hero3D";
+import StellanHero from "@/components/StellanHero";
 import GlassMorphism from "@/components/GlassMorphism";
 import CosmicBackground from "@/components/OrbitalAnimation";
 import { useAuth } from "@/hooks/useAuth";
@@ -47,55 +47,15 @@ const Home = () => {
       });
     }
   }, [specialMessageData, toast]);
+
   return (
     <div className="min-h-screen bg-space-900 text-space-50 relative">
       <CosmicBackground />
-      <div className="relative z-10">
-        <Navigation />
+      <Navigation />
+      
       {/* Hero Section */}
-      <section className="min-h-screen flex items-center justify-center relative overflow-hidden star-field">
-        <div className="absolute inset-0 bg-gradient-to-br from-space-900 via-space-800 to-space-900"></div>
-        <div className="absolute inset-0 opacity-30">
-          <img 
-            src="https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1920&h=1080" 
-            alt="Deep space with stars and nebula" 
-            className="w-full h-full object-cover"
-          />
-        </div>
-        
-        <Hero3D />
-        
-        <div className="relative z-10 text-center max-w-4xl mx-auto px-4">
-          <h1 className="text-5xl md:text-7xl font-space font-bold mb-6 animate-fadeIn">
-            <span className="bg-gradient-to-r from-cosmic-blue to-cosmic-purple bg-clip-text text-transparent">
-              To The Stars
-            </span>
-            <br />
-            <span className="text-space-50">And Beyond</span>
-          </h1>
-          <p className="text-xl md:text-2xl text-space-200 mb-8 animate-slideUp">
-            Empowering Future Innovators and Explorers through Immersive Frontier Sciences - an interdisciplinary exploration blending scientific discovery with literary wonder and philosophical inquiry
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slideUp">
-            <Link href="/workshops">
-              <Button className="cosmic-gradient hover:opacity-90 px-8 py-4 text-lg">
-                <Rocket className="w-5 h-5 mr-2" />
-                Explore Zoonigia
-              </Button>
-            </Link>
-            <Link href="/about">
-              <Button variant="outline" className="glass-morphism border-space-600 hover:bg-white/20 px-8 py-4 text-lg">
-                <Play className="w-5 h-5 mr-2" />
-                Learn More
-              </Button>
-            </Link>
-          </div>
-        </div>
-        
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-          <ChevronDown className="w-8 h-8 text-cosmic-blue" />
-        </div>
-      </section>
+      <StellanHero />
+      
       {/* Video Section */}
       <section className="py-20 bg-space-800/30">
         <div className="container mx-auto px-4">
@@ -117,6 +77,75 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* Quick Actions Section */}
+      <section id="quick-actions" className="py-20 bg-space-800/30">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-space font-bold mb-6">
+              Start Your <span className="text-cosmic-blue">Journey</span>
+            </h2>
+            <p className="text-xl text-space-200 max-w-3xl mx-auto">
+              Choose your path into frontier sciences and begin your exploration of the universe
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <GlassMorphism className="p-6 text-center hover:bg-white/10 transition-colors group">
+              <div className="w-16 h-16 bg-cosmic-blue/20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-cosmic-blue/30 transition-colors">
+                <Telescope className="w-8 h-8 text-cosmic-blue" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Workshops</h3>
+              <p className="text-space-300 text-sm mb-4">
+                Interactive hands-on sessions with telescope observations and VR experiences
+              </p>
+              <Button asChild variant="outline" size="sm" className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-white">
+                <Link href="/workshops">Learn More</Link>
+              </Button>
+            </GlassMorphism>
+
+            <GlassMorphism className="p-6 text-center hover:bg-white/10 transition-colors group">
+              <div className="w-16 h-16 bg-cosmic-purple/20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-cosmic-purple/30 transition-colors">
+                <BookOpen className="w-8 h-8 text-cosmic-purple" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Courses</h3>
+              <p className="text-space-300 text-sm mb-4">
+                Structured learning programs in quantum mechanics and astrophysics
+              </p>
+              <Button asChild variant="outline" size="sm" className="border-cosmic-purple text-cosmic-purple hover:bg-cosmic-purple hover:text-white">
+                <Link href="/courses">Browse Courses</Link>
+              </Button>
+            </GlassMorphism>
+
+            <GlassMorphism className="p-6 text-center hover:bg-white/10 transition-colors group">
+              <div className="w-16 h-16 bg-cosmic-green/20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-cosmic-green/30 transition-colors">
+                <Microscope className="w-8 h-8 text-cosmic-green" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Campaigns</h3>
+              <p className="text-space-300 text-sm mb-4">
+                Join real research projects like asteroid searches with NASA
+              </p>
+              <Button asChild variant="outline" size="sm" className="border-cosmic-green text-cosmic-green hover:bg-cosmic-green hover:text-white">
+                <Link href="/campaigns">Join Research</Link>
+              </Button>
+            </GlassMorphism>
+
+            <GlassMorphism className="p-6 text-center hover:bg-white/10 transition-colors group">
+              <div className="w-16 h-16 bg-cosmic-orange/20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-cosmic-orange/30 transition-colors">
+                <School className="w-8 h-8 text-cosmic-orange" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Schools</h3>
+              <p className="text-space-300 text-sm mb-4">
+                Partnership programs with revenue sharing for educational institutions
+              </p>
+              <Button asChild variant="outline" size="sm" className="border-cosmic-orange text-cosmic-orange hover:bg-cosmic-orange hover:text-white">
+                <Link href="/schools">Partner With Us</Link>
+              </Button>
+            </GlassMorphism>
+          </div>
+        </div>
+      </section>
+
       {/* Stats Section */}
       <section className="py-20 bg-space-800/50">
         <div className="container mx-auto px-4">
@@ -140,6 +169,7 @@ const Home = () => {
           </div>
         </div>
       </section>
+
       {/* Inspirational Quote Section */}
       <section className="py-20 bg-gradient-to-br from-space-900 via-space-800 to-space-900 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
@@ -163,7 +193,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-
 
       {/* Interdisciplinary Learning Section */}
       <section className="py-20 bg-space-800/20">
@@ -212,163 +241,70 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Quick Actions */}
-      <section className="py-20">
+      {/* What Makes Zoonigia Special */}
+      <section className="py-20 bg-space-900/50">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-space font-bold text-center mb-12">Quick Actions</h2>
-          <div className="max-w-5xl mx-auto">
-            <Carousel
-              opts={{
-                align: "start",
-                loop: true,
-              }}
-              className="w-full"
-            >
-              <CarouselContent className="-ml-2 md:-ml-4">
-                <CarouselItem className="pl-2 md:pl-4 basis-4/5 md:basis-3/5 lg:basis-2/5">
-                  <div className="p-1">
-                    <GlassMorphism className="p-6 hover:bg-white/20 transition-all duration-300 group h-full">
-                      <div className="text-center">
-                        <Users className="w-12 h-12 text-cosmic-blue mb-4 mx-auto group-hover:scale-110 transition-transform" />
-                        <h3 className="text-xl font-semibold mb-2">Register for Workshop</h3>
-                        <p className="text-space-300 mb-4">Join our immersive workshops exploring frontier sciences through hands-on discovery</p>
-                        <Link href="/workshops">
-                          <Button className="bg-cosmic-blue hover:bg-blue-600">
-                            Browse Workshops
-                          </Button>
-                        </Link>
-                      </div>
-                    </GlassMorphism>
-                  </div>
-                </CarouselItem>
-                
-                <CarouselItem className="pl-2 md:pl-4 basis-4/5 md:basis-3/5 lg:basis-2/5">
-                  <div className="p-1">
-                    <GlassMorphism className="p-6 hover:bg-white/20 transition-all duration-300 group h-full">
-                      <div className="text-center">
-                        <School className="w-12 h-12 text-cosmic-purple mb-4 mx-auto group-hover:scale-110 transition-transform" />
-                        <h3 className="text-xl font-semibold mb-2">Book School Workshop</h3>
-                        <p className="text-space-300 mb-4">Bring Zoonigia's expertise directly to your institution</p>
-                        <Link href="/schools">
-                          <Button className="bg-cosmic-purple hover:bg-purple-600">
-                            Book Now
-                          </Button>
-                        </Link>
-                      </div>
-                    </GlassMorphism>
-                  </div>
-                </CarouselItem>
-                
-                <CarouselItem className="pl-2 md:pl-4 basis-4/5 md:basis-3/5 lg:basis-2/5">
-                  <div className="p-1">
-                    <GlassMorphism className="p-6 hover:bg-white/20 transition-all duration-300 group h-full">
-                      <div className="text-center">
-                        <Microscope className="w-12 h-12 text-cosmic-green mb-4 mx-auto group-hover:scale-110 transition-transform" />
-                        <h3 className="text-xl font-semibold mb-2">Enroll in Labs</h3>
-                        <p className="text-space-300 mb-4">Access real-time research labs and hands-on experiments</p>
-                        <Button className="bg-cosmic-green hover:bg-green-600 opacity-60" disabled>
-                          Coming April 2025
-                        </Button>
-                      </div>
-                    </GlassMorphism>
-                  </div>
-                </CarouselItem>
-              </CarouselContent>
-              <CarouselPrevious className="hidden md:flex -left-12 border-space-600 bg-space-800/80 text-space-50 hover:bg-space-700" />
-              <CarouselNext className="hidden md:flex -right-12 border-space-600 bg-space-800/80 text-space-50 hover:bg-space-700" />
-            </Carousel>
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-space font-bold mb-6">
+              What Makes Zoonigia <span className="text-cosmic-purple">Special</span>
+            </h2>
+            <p className="text-xl text-space-200 max-w-3xl mx-auto">
+              We combine cutting-edge science with immersive experiences and interdisciplinary thinking to create transformative learning
+            </p>
           </div>
-        </div>
-      </section>
-      
-      {/* Featured Courses */}
-      <section className="py-20 bg-space-800/30">
-        <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-space font-bold text-center mb-12">Featured Courses</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card className="bg-space-800/50 border-space-700 hover:scale-105 transition-transform">
-              <div className="relative">
-                <img 
-                  src="https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400" 
-                  alt="Basic astronomy course with telescope observations" 
-                  className="w-full h-48 object-cover rounded-t-lg"
-                />
-                <div className="absolute top-4 right-4 bg-cosmic-blue px-3 py-1 rounded-full text-sm font-semibold">
-                  Popular
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <Card className="bg-space-800/50 border-space-700 hover:bg-space-800 transition-colors">
+              <CardContent className="p-6 text-center">
+                <div className="w-12 h-12 bg-cosmic-blue/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Telescope className="w-6 h-6 text-cosmic-blue" />
                 </div>
-              </div>
-              <CardContent className="p-6">
-                <div className="flex items-center mb-2">
-                  <Telescope className="w-5 h-5 text-cosmic-blue mr-2" />
-                  <h3 className="text-xl font-semibold">Basic Astronomy</h3>
-                </div>
-                <p className="text-space-300 mb-4">Comprehensive introduction to astronomy and space science</p>
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm text-cosmic-blue">₹1,200 per student</span>
-                  <span className="text-sm text-space-400">6 weeks program</span>
-                </div>
-                <Link href="/courses">
-                  <Button className="w-full bg-cosmic-blue hover:bg-blue-600">
-                    Learn More
-                  </Button>
-                </Link>
+                <h3 className="text-lg font-semibold mb-2 text-space-50">Immersive Workshops</h3>
+                <p className="text-space-300 text-sm">
+                  VR experiences, telescope sessions, and hands-on activities bring science to life
+                </p>
               </CardContent>
             </Card>
-            
-            <Card className="bg-space-800/50 border-space-700 hover:scale-105 transition-transform">
-              <div className="relative">
-                <img 
-                  src="https://images.unsplash.com/photo-1593508512255-86ab42a8e620?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400" 
-                  alt="Robotics and AI course with hands-on projects" 
-                  className="w-full h-48 object-cover rounded-t-lg"
-                />
-              </div>
-              <CardContent className="p-6">
-                <div className="flex items-center mb-2">
-                  <Headphones className="w-5 h-5 text-cosmic-purple mr-2" />
-                  <h3 className="text-xl font-semibold">Robotics & AI</h3>
+
+            <Card className="bg-space-800/50 border-space-700 hover:bg-space-800 transition-colors">
+              <CardContent className="p-6 text-center">
+                <div className="w-12 h-12 bg-cosmic-green/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Microscope className="w-6 h-6 text-cosmic-green" />
                 </div>
-                <p className="text-space-300 mb-4">Build intelligent systems and explore artificial intelligence</p>
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm text-cosmic-purple">₹2,500 per student</span>
-                  <span className="text-sm text-space-400">8 weeks program</span>
-                </div>
-                <Link href="/courses">
-                  <Button className="w-full bg-cosmic-purple hover:bg-purple-600">
-                    Learn More
-                  </Button>
-                </Link>
+                <h3 className="text-lg font-semibold mb-2 text-space-50">Research Campaigns</h3>
+                <p className="text-space-300 text-sm">
+                  Participate in real NASA collaborations and contribute to actual discoveries
+                </p>
               </CardContent>
             </Card>
-            
-            <Card className="bg-space-800/50 border-space-700 hover:scale-105 transition-transform">
-              <div className="relative">
-                <img 
-                  src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400" 
-                  alt="Quantum mechanics course with advanced physics" 
-                  className="w-full h-48 object-cover rounded-t-lg"
-                />
-              </div>
-              <CardContent className="p-6">
-                <div className="flex items-center mb-2">
-                  <Star className="w-5 h-5 text-cosmic-green mr-2" />
-                  <h3 className="text-xl font-semibold">Quantum Mechanics</h3>
+
+            <Card className="bg-space-800/50 border-space-700 hover:bg-space-800 transition-colors">
+              <CardContent className="p-6 text-center">
+                <div className="w-12 h-12 bg-cosmic-purple/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Users className="w-6 h-6 text-cosmic-purple" />
                 </div>
-                <p className="text-space-300 mb-4">Explore the fundamental principles of quantum physics</p>
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm text-cosmic-green">₹3,000 per student</span>
-                  <span className="text-sm text-space-400">10 weeks program</span>
+                <h3 className="text-lg font-semibold mb-2 text-space-50">Expert Community</h3>
+                <p className="text-space-300 text-sm">
+                  Learn from astrophysicists, researchers, and industry professionals
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-space-800/50 border-space-700 hover:bg-space-800 transition-colors">
+              <CardContent className="p-6 text-center">
+                <div className="w-12 h-12 bg-cosmic-yellow/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Lightbulb className="w-6 h-6 text-cosmic-yellow" />
                 </div>
-                <Link href="/courses">
-                  <Button className="w-full bg-cosmic-green hover:bg-green-600">
-                    Learn More
-                  </Button>
-                </Link>
+                <h3 className="text-lg font-semibold mb-2 text-space-50">Interdisciplinary Learning</h3>
+                <p className="text-space-300 text-sm">
+                  Blend scientific rigor with literary wonder and philosophical inquiry
+                </p>
               </CardContent>
             </Card>
           </div>
         </div>
       </section>
+
       {/* CTA Section */}
       <section className="py-20">
         <div className="container mx-auto px-4">
@@ -392,8 +328,8 @@ const Home = () => {
           </div>
         </div>
       </section>
-        <Footer />
-      </div>
+
+      <Footer />
     </div>
   );
 };
