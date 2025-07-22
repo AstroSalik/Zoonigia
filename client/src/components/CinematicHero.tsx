@@ -19,83 +19,111 @@ export default function CinematicHero() {
   }, []);
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-black">
-      {/* Dark space background with nebula effect */}
+    <div className="relative min-h-screen overflow-hidden bg-black">
+      {/* Cosmic space background with purple/blue nebula */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-radial from-blue-900/20 via-slate-900/60 to-black" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40" />
-      </div>
-
-      {/* Dramatic vertical light beam - center focal point */}
-      <div className="absolute inset-0 flex items-center justify-center">
         <div 
-          className="w-2 h-full bg-gradient-to-b from-transparent via-blue-300 to-transparent opacity-80"
+          className="absolute inset-0"
           style={{
-            background: 'linear-gradient(to bottom, transparent 0%, rgba(147, 197, 253, 0.4) 20%, rgba(59, 130, 246, 0.8) 50%, rgba(147, 197, 253, 0.4) 80%, transparent 100%)',
-            filter: 'blur(1px)',
-            boxShadow: '0 0 40px rgba(59, 130, 246, 0.6), 0 0 80px rgba(59, 130, 246, 0.3)',
+            background: `
+              radial-gradient(circle at 20% 30%, rgba(147, 51, 234, 0.3) 0%, transparent 50%),
+              radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.2) 0%, transparent 50%),
+              radial-gradient(circle at 40% 70%, rgba(168, 85, 247, 0.2) 0%, transparent 50%),
+              radial-gradient(circle at 60% 40%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+              linear-gradient(135deg, #0f0f23 0%, #1e1b4b 50%, #0f0f23 100%)
+            `
           }}
         />
+        
+        {/* Star field */}
+        <div className="absolute inset-0">
+          {[...Array(100)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute bg-white rounded-full"
+              style={{
+                width: `${0.5 + Math.random() * 2}px`,
+                height: `${0.5 + Math.random() * 2}px`,
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                opacity: 0.4 + Math.random() * 0.6,
+                animation: `twinkle ${2 + Math.random() * 4}s ease-in-out infinite`,
+                animationDelay: `${Math.random() * 3}s`,
+              }}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Large astronaut figure on the right */}
+      <div className="absolute right-0 bottom-0 top-0 w-1/2 flex items-end justify-center">
         <div 
-          className="absolute w-1 h-full bg-gradient-to-b from-transparent via-white to-transparent opacity-90"
+          className="w-96 h-96 bg-gradient-to-t from-gray-600 via-gray-400 to-gray-300 rounded-full opacity-80"
           style={{
-            background: 'linear-gradient(to bottom, transparent 0%, rgba(255, 255, 255, 0.3) 30%, rgba(255, 255, 255, 0.9) 50%, rgba(255, 255, 255, 0.3) 70%, transparent 100%)',
-            filter: 'blur(0.5px)',
+            background: `
+              radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8) 0%, rgba(200, 200, 200, 0.6) 30%, rgba(100, 100, 100, 0.4) 100%),
+              linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(147, 51, 234, 0.1) 100%)
+            `,
+            transform: 'perspective(800px) rotateY(-15deg)',
+            filter: 'drop-shadow(0 20px 40px rgba(147, 51, 234, 0.3))',
+          }}
+        />
+        {/* Astronaut helmet reflection */}
+        <div 
+          className="absolute w-64 h-64 rounded-full opacity-30"
+          style={{
+            background: 'radial-gradient(circle at 40% 30%, rgba(59, 130, 246, 0.6) 0%, transparent 70%)',
+            transform: 'perspective(800px) rotateY(-15deg)',
           }}
         />
       </div>
 
-      {/* Subtle atmospheric glow around the beam */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div 
-          className="w-32 h-full bg-gradient-to-b from-transparent via-blue-500/10 to-transparent"
-          style={{
-            filter: 'blur(20px)',
-          }}
-        />
+      {/* Large title text spanning across top */}
+      <div className="absolute top-0 left-0 right-0 z-10 pt-20">
+        <div className="container mx-auto px-8">
+          <h1 
+            className="text-8xl sm:text-9xl lg:text-[12rem] font-black leading-none text-center opacity-20 animate-slide-up"
+            style={{ 
+              color: 'rgba(147, 51, 234, 0.3)',
+              letterSpacing: '0.2em',
+              animationDelay: '0.2s'
+            }}
+          >
+            STELLAR
+          </h1>
+        </div>
       </div>
 
-      {/* Main content - positioned on left like in image */}
-      <div className="relative z-10 flex items-center min-h-screen">
+      {/* Main content on left */}
+      <div className="relative z-20 flex items-center min-h-screen">
         <div className="container mx-auto px-8 lg:px-16">
-          <div className="max-w-2xl">
+          <div className="max-w-lg">
             
-            {/* Large bold title exactly like image */}
-            <div className="space-y-6 mb-10">
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight text-white animate-slide-up">
-                <div className="mb-2" style={{ animationDelay: '0.2s' }}>
-                  Everything Science
-                </div>
-                <div 
-                  className="animate-slide-up"
-                  style={{ animationDelay: '0.4s' }}
-                >
-                  for your future
-                </div>
-              </h1>
+            {/* Main title and subtitle */}
+            <div className="space-y-4 mb-8">
+              <h2 className="text-3xl font-bold text-white animate-slide-up" style={{ animationDelay: '0.4s' }}>
+                EXPLORING THE GALAXY
+              </h2>
               
-              {/* Description exactly like image */}
               <p 
-                className="text-lg text-gray-300 max-w-lg leading-relaxed animate-slide-up"
+                className="text-gray-300 leading-relaxed animate-slide-up"
                 style={{ animationDelay: '0.6s' }}
               >
-                Zoonigia, an innovative platform, serves as an all-in-one 
-                gateway for frontier sciences discovery and exploration.
+                We are committed to advancing the future of deep space travel to the farthest reaches of our solar system.
               </p>
             </div>
 
-            {/* Rounded button exactly like image */}
+            {/* Discover button */}
             <div 
               className="animate-slide-up"
               style={{ animationDelay: '0.8s' }}
             >
               <Link href="/courses">
                 <Button 
-                  size="lg" 
-                  className="bg-gradient-to-r from-orange-500 to-red-500 text-white font-medium px-8 py-4 text-base rounded-full hover:from-orange-600 hover:to-red-600 transition-all duration-300 shadow-lg hover:shadow-xl"
+                  variant="outline"
+                  className="border-2 border-white/30 text-white hover:bg-white/10 px-8 py-3 text-sm font-medium tracking-wider uppercase transition-all duration-300"
                 >
-                  TRY IT FREE
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  DISCOVER
                 </Button>
               </Link>
             </div>
@@ -103,17 +131,28 @@ export default function CinematicHero() {
         </div>
       </div>
 
-      {/* Simple scroll indicator */}
+      {/* Bottom navigation indicators */}
+      <div className="absolute bottom-8 right-8 flex flex-col space-y-4">
+        <div className="w-2 h-2 bg-white rounded-full opacity-40"></div>
+        <div className="w-2 h-2 bg-white rounded-full opacity-100"></div>
+        <div className="w-2 h-2 bg-white rounded-full opacity-40"></div>
+      </div>
+
+      {/* Page indicator */}
+      <div className="absolute bottom-8 right-16 text-white/60 text-sm">
+        01 / 03
+      </div>
+
+      {/* Simple chevron down indicator */}
       <div 
         className={`absolute bottom-8 left-1/2 transform -translate-x-1/2 transition-opacity duration-500 ${
           scrollY > 100 ? 'opacity-0' : 'opacity-60'
         }`}
       >
-        <div className="flex flex-col items-center space-y-2">
-          <span className="text-white/60 text-sm">Scroll to explore</span>
-          <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
-            <div className="w-1 h-3 bg-white/60 rounded-full mt-2 animate-bounce"></div>
-          </div>
+        <div className="text-white/60 animate-bounce">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <polyline points="6,9 12,15 18,9"></polyline>
+          </svg>
         </div>
       </div>
     </div>
