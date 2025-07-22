@@ -39,10 +39,10 @@ const Home = () => {
   });
 
   useEffect(() => {
-    if (specialMessageData?.message) {
+    if (specialMessageData && typeof specialMessageData === 'object' && 'message' in specialMessageData) {
       toast({
         title: "Welcome! 🌸",
-        description: specialMessageData.message,
+        description: (specialMessageData as { message: string }).message,
         duration: 5000,
       });
     }

@@ -24,9 +24,9 @@ const CosmicBackground: React.FC = () => {
     duration: Math.random() * 20 + 10,
   }));
 
-  // Scroll-based transformations - reversed direction
-  const planetRotation = useTransform(scrollYProgress, [0, 1], [180, 0]);
-  const planetScale = useTransform(scrollYProgress, [0, 0.5, 1], [1, 1.2, 1]);
+  // Smooth continuous rotation and consistent size
+  const planetRotation = useTransform(scrollYProgress, [0, 1], [0, 360]);
+  const planetScale = useTransform(scrollYProgress, [0, 0.5, 1], [1.5, 1.8, 1.5]);
 
   return (
     <div ref={containerRef} className="fixed inset-0 pointer-events-none overflow-hidden">
@@ -36,39 +36,55 @@ const CosmicBackground: React.FC = () => {
       {/* Fixed half-orbit on right side */}
       <div className="absolute inset-0">
         <div className="relative w-full h-full">
-          {/* Half orbit ring - fixed position, curved left side */}
-          <div className="absolute w-[60vw] h-[60vw] border-2 border-orange-400 opacity-40 rounded-full" 
+          {/* Enhanced orbit ring - matching new planet position */}
+          <div className="absolute w-[70vw] h-[70vw] border-2 border-orange-400 opacity-50 rounded-full" 
                style={{ 
-                 top: '50%', 
-                 right: '0%',
-                 transform: 'translate(30%, -50%)',
-                 clipPath: 'inset(0 50% 0 0)'
+                 top: '40%', 
+                 right: '-5%',
+                 transform: 'translate(35%, -50%)',
+                 clipPath: 'inset(0 60% 0 0)',
+                 filter: 'drop-shadow(0 0 20px rgba(255, 107, 53, 0.3))'
                }} />
           
-          {/* TRAPPIST-1 Planet orbiting the half-orbit */}
+          {/* Enhanced TRAPPIST-1 Planet - Larger and Smoother Animation */}
           <motion.div
-            className="absolute w-44 h-44 rounded-full shadow-2xl z-10"
+            className="absolute w-64 h-64 rounded-full shadow-2xl z-10"
             style={{ 
-              top: '50%',
-              right: '30vw',
+              top: '40%',
+              right: '15%',
               transform: 'translate(50%, -50%)',
-              transformOrigin: '30vw 0',
-              rotate: planetRotation,
-              background: 'radial-gradient(circle at 30% 30%, #ff6b35, #d84315, #8b2500)',
-              boxShadow: '0 0 80px rgba(255, 107, 53, 0.9), inset -10px -10px 25px rgba(0, 0, 0, 0.4)',
+              background: 'linear-gradient(135deg, #ff6b35 0%, #f7931e 25%, #ff4500 50%, #dc2626 75%, #991b1b 100%)',
+              boxShadow: `
+                0 0 120px rgba(255, 107, 53, 1.0),
+                0 0 200px rgba(255, 107, 53, 0.6),
+                inset -15px -15px 35px rgba(0, 0, 0, 0.5),
+                inset 8px 8px 20px rgba(255, 255, 255, 0.2)
+              `,
               scale: planetScale
             }}
+            animate={{
+              rotate: 360,
+            }}
+            transition={{
+              rotate: { duration: 60, repeat: Infinity, ease: "linear" }
+            }}
           >
-            {/* Planet surface with realistic details */}
-            <div className="absolute inset-0 rounded-full" 
+            {/* Enhanced Planet surface with realistic details */}
+            <div className="absolute inset-0 rounded-full border-4 border-orange-400/50" 
                  style={{ 
-                   background: 'radial-gradient(circle at 25% 25%, rgba(255, 140, 100, 0.5), transparent 60%)',
+                   background: 'radial-gradient(circle at 30% 30%, rgba(255, 140, 100, 0.7), transparent 70%)',
+                   animation: 'pulse 4s ease-in-out infinite'
                  }} />
-            {/* Continents and surface features - scaled for bigger planet */}
-            <div className="absolute top-8 left-10 w-8 h-10 bg-orange-700 rounded-full blur-sm opacity-80" />
-            <div className="absolute bottom-10 right-12 w-10 h-8 bg-red-800 rounded-full blur-sm opacity-70" />
-            <div className="absolute top-12 right-8 w-6 h-6 bg-yellow-600 rounded-full blur-sm opacity-60" />
-            <div className="absolute bottom-8 left-12 w-7 h-7 bg-orange-900 rounded-full blur-sm opacity-50" />
+            
+            {/* Enhanced surface features - bigger and more detailed for larger planet */}
+            <div className="absolute top-16 left-20 w-16 h-20 bg-orange-700 rounded-full blur-sm opacity-80" />
+            <div className="absolute bottom-20 right-24 w-20 h-16 bg-red-800 rounded-full blur-sm opacity-70" />
+            <div className="absolute top-24 right-16 w-12 h-12 bg-yellow-600 rounded-full blur-sm opacity-60" />
+            <div className="absolute bottom-16 left-24 w-14 h-14 bg-orange-900 rounded-full blur-sm opacity-50" />
+            <div className="absolute top-32 left-12 w-10 h-12 bg-red-900 rounded-full blur-sm opacity-60" />
+            <div className="absolute bottom-12 right-12 w-12 h-10 bg-orange-600 rounded-full blur-sm opacity-70" />
+            <div className="absolute top-8 right-32 w-8 h-10 bg-yellow-700 rounded-full blur-sm opacity-65" />
+            <div className="absolute bottom-32 left-8 w-10 h-8 bg-red-700 rounded-full blur-sm opacity-55" />
           </motion.div>
         </div>
       </div>
@@ -102,19 +118,26 @@ const CosmicBackground: React.FC = () => {
         ))}
       </div>
       
-      {/* Planet atmospheric glow following orbit */}
+      {/* Enhanced Planet with smooth atmospheric glow */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="relative w-full h-full">
+          {/* Larger atmospheric glow */}
           <motion.div
-            className="absolute w-56 h-56 rounded-full blur-3xl"
+            className="absolute w-80 h-80 rounded-full blur-3xl"
             style={{ 
-              top: '50%',
-              right: '30vw',
+              top: '40%',
+              right: '15%',
               transform: 'translate(50%, -50%)',
-              transformOrigin: '30vw 0',
-              rotate: planetRotation,
-              background: 'radial-gradient(circle, rgba(255, 107, 53, 0.4), rgba(255, 107, 53, 0.2), transparent)',
+              background: 'radial-gradient(circle, rgba(255, 107, 53, 0.6), rgba(255, 107, 53, 0.3), transparent)',
               scale: planetScale
+            }}
+            animate={{
+              rotate: 360,
+              opacity: [0.4, 0.8, 0.4]
+            }}
+            transition={{
+              rotate: { duration: 20, repeat: Infinity, ease: "linear" },
+              opacity: { duration: 4, repeat: Infinity, ease: "easeInOut" }
             }}
           />
         </div>
