@@ -19,32 +19,26 @@ export default function CinematicHero() {
   }, []);
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950">
-      {/* Minimal geometric background */}
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-black via-slate-900 to-black">
+      {/* Elegant floating orbs background */}
       <div className="absolute inset-0">
-        {/* Static CSS grid pattern */}
-        <div 
-          className="absolute inset-0 opacity-10"
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(59, 130, 246, 0.3) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(59, 130, 246, 0.3) 1px, transparent 1px)
-            `,
-            backgroundSize: '60px 60px',
-          }}
-        />
+        {/* Large ambient orbs */}
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
+        <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-purple-500/8 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '6s', animationDelay: '2s' }} />
+        <div className="absolute top-1/3 right-1/3 w-64 h-64 bg-cyan-500/6 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
         
-        {/* Diagonal accent lines */}
-        <div className="absolute inset-0">
-          <div className="absolute top-1/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-400/20 to-transparent transform -rotate-12" />
-          <div className="absolute bottom-1/3 left-0 w-full h-px bg-gradient-to-r from-transparent via-purple-400/15 to-transparent transform rotate-12" />
-        </div>
+        {/* Smaller accent orbs */}
+        <div className="absolute top-1/2 left-1/6 w-32 h-32 bg-indigo-500/12 rounded-full blur-2xl animate-pulse" style={{ animationDuration: '3s' }} />
+        <div className="absolute bottom-1/4 left-2/3 w-40 h-40 bg-violet-500/8 rounded-full blur-2xl animate-pulse" style={{ animationDuration: '7s', animationDelay: '3s' }} />
       </div>
 
-      {/* Subtle lighting without animations */}
+      {/* Radial gradient overlay for depth */}
+      <div className="absolute inset-0 bg-gradient-radial from-transparent via-black/20 to-black/60" />
+      
+      {/* Subtle vignette */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/10 via-transparent to-purple-900/10" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/30" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30" />
       </div>
 
       {/* Main content */}
@@ -56,12 +50,21 @@ export default function CinematicHero() {
             <div className="space-y-6 sm:space-y-8 mb-8 sm:mb-12">
               {/* Main title with dramatic entrance */}
               <h1 className="text-4xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold leading-tight px-4 sm:px-0">
-                <span className="block text-white mb-2 sm:mb-4 animate-slide-up" style={{ animationDelay: '0.2s' }}>
+                <span 
+                  className="block text-white mb-2 sm:mb-4 animate-slide-up"
+                  style={{ 
+                    animationDelay: '0.3s',
+                    textShadow: '0 4px 20px rgba(0, 0, 0, 0.7), 0 0 40px rgba(59, 130, 246, 0.2)'
+                  }}
+                >
                   Everything Science
                 </span>
                 <span 
-                  className="block bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent animate-slide-up"
-                  style={{ animationDelay: '0.4s' }}
+                  className="block bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent animate-slide-up animate-glow"
+                  style={{ 
+                    animationDelay: '0.6s',
+                    filter: 'drop-shadow(0 0 20px rgba(139, 92, 246, 0.3))'
+                  }}
                 >
                   for your future
                 </span>
@@ -70,7 +73,10 @@ export default function CinematicHero() {
               {/* Description with typewriter effect */}
               <p 
                 className="text-lg sm:text-xl lg:text-2xl text-slate-300 max-w-4xl mx-auto leading-relaxed px-4 sm:px-0 animate-slide-up"
-                style={{ animationDelay: '0.6s' }}
+                style={{ 
+                  animationDelay: '0.9s',
+                  textShadow: '0 2px 10px rgba(0, 0, 0, 0.5)'
+                }}
               >
                 Enter a world where quantum mysteries unfold, cosmic secrets reveal themselves, 
                 and the future of science begins with your journey.
@@ -80,28 +86,36 @@ export default function CinematicHero() {
             {/* CTA Buttons with cinematic entrance */}
             <div 
               className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center px-4 sm:px-0 animate-slide-up"
-              style={{ animationDelay: '0.8s' }}
+              style={{ animationDelay: '1.2s' }}
             >
               <Link href="/courses">
                 <Button 
                   size="lg" 
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold px-8 sm:px-12 py-4 sm:py-6 text-lg sm:text-xl group transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25 w-full sm:w-auto"
+                  className="relative bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold px-8 sm:px-12 py-4 sm:py-6 text-lg sm:text-xl group transition-all duration-500 hover:shadow-xl hover:shadow-blue-500/30 w-full sm:w-auto overflow-hidden hover:scale-105"
+                  style={{
+                    boxShadow: '0 4px 20px rgba(59, 130, 246, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+                  }}
                 >
-                  <span>Begin Your Journey</span>
-                  <ArrowRight className="ml-2 sm:ml-3 h-5 sm:h-6 w-5 sm:w-6 group-hover:translate-x-1 transition-transform duration-300" />
+                  <span className="relative z-10">Begin Your Journey</span>
+                  <ArrowRight className="ml-2 sm:ml-3 h-5 sm:h-6 w-5 sm:w-6 group-hover:translate-x-2 transition-transform duration-300 relative z-10" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                 </Button>
               </Link>
               
               <Button 
                 variant="outline" 
                 size="lg"
-                className="border-2 border-slate-400/50 text-white hover:bg-slate-800/50 px-8 sm:px-12 py-4 sm:py-6 text-lg sm:text-xl group transition-all duration-300 hover:border-blue-400/70 w-full sm:w-auto"
+                className="relative border-2 border-slate-400/60 text-white hover:bg-slate-800/40 backdrop-blur-sm px-8 sm:px-12 py-4 sm:py-6 text-lg sm:text-xl group transition-all duration-500 hover:border-blue-400/80 w-full sm:w-auto overflow-hidden hover:scale-105"
                 onClick={() => {
                   document.querySelector('#video-section')?.scrollIntoView({ behavior: 'smooth' });
                 }}
+                style={{
+                  boxShadow: '0 4px 20px rgba(255, 255, 255, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+                }}
               >
-                <Play className="mr-2 sm:mr-3 h-5 sm:h-6 w-5 sm:w-6 group-hover:scale-110 transition-transform duration-300" />
-                <span>Experience Preview</span>
+                <Play className="mr-2 sm:mr-3 h-5 sm:h-6 w-5 sm:w-6 group-hover:scale-125 transition-transform duration-300 relative z-10" />
+                <span className="relative z-10">Experience Preview</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
               </Button>
             </div>
           </div>
