@@ -38,6 +38,12 @@ const Home = () => {
     retry: false,
   });
 
+  // Fetch featured courses from database
+  const { data: courses } = useQuery({
+    queryKey: ["/api/courses"],
+    retry: false,
+  });
+
   useEffect(() => {
     if (specialMessageData && typeof specialMessageData === 'object' && 'message' in specialMessageData) {
       toast({
@@ -284,87 +290,82 @@ const Home = () => {
         <div className="container mx-auto px-4">
           <h2 className="text-4xl font-space font-bold text-center mb-12">Featured Courses</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card className="bg-space-800/50 border-space-700 hover:scale-105 transition-transform">
-              <div className="relative">
-                <img 
-                  src="https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400" 
-                  alt="Basic astronomy course with telescope observations" 
-                  className="w-full h-48 object-cover rounded-t-lg"
-                />
-                <div className="absolute top-4 right-4 bg-cosmic-blue px-3 py-1 rounded-full text-sm font-semibold">
-                  Popular
-                </div>
-              </div>
-              <CardContent className="p-6">
-                <div className="flex items-center mb-2">
-                  <Telescope className="w-5 h-5 text-cosmic-blue mr-2" />
-                  <h3 className="text-xl font-semibold">Basic Astronomy</h3>
-                </div>
-                <p className="text-space-300 mb-4">Comprehensive introduction to astronomy and space science</p>
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm text-cosmic-blue">₹1,200 per student</span>
-                  <span className="text-sm text-space-400">6 weeks program</span>
-                </div>
-                <Link href="/courses">
-                  <Button className="w-full bg-cosmic-blue hover:bg-blue-600">
-                    Learn More
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-space-800/50 border-space-700 hover:scale-105 transition-transform">
-              <div className="relative">
-                <img 
-                  src="https://images.unsplash.com/photo-1593508512255-86ab42a8e620?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400" 
-                  alt="Robotics and AI course with hands-on projects" 
-                  className="w-full h-48 object-cover rounded-t-lg"
-                />
-              </div>
-              <CardContent className="p-6">
-                <div className="flex items-center mb-2">
-                  <Headphones className="w-5 h-5 text-cosmic-purple mr-2" />
-                  <h3 className="text-xl font-semibold">Robotics & AI</h3>
-                </div>
-                <p className="text-space-300 mb-4">Build intelligent systems and explore artificial intelligence</p>
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm text-cosmic-purple">₹2,500 per student</span>
-                  <span className="text-sm text-space-400">8 weeks program</span>
-                </div>
-                <Link href="/courses">
-                  <Button className="w-full bg-cosmic-purple hover:bg-purple-600">
-                    Learn More
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-space-800/50 border-space-700 hover:scale-105 transition-transform">
-              <div className="relative">
-                <img 
-                  src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400" 
-                  alt="Quantum mechanics course with advanced physics" 
-                  className="w-full h-48 object-cover rounded-t-lg"
-                />
-              </div>
-              <CardContent className="p-6">
-                <div className="flex items-center mb-2">
-                  <Star className="w-5 h-5 text-cosmic-green mr-2" />
-                  <h3 className="text-xl font-semibold">Quantum Mechanics</h3>
-                </div>
-                <p className="text-space-300 mb-4">Explore the fundamental principles of quantum physics</p>
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm text-cosmic-green">₹3,000 per student</span>
-                  <span className="text-sm text-space-400">10 weeks program</span>
-                </div>
-                <Link href="/courses">
-                  <Button className="w-full bg-cosmic-green hover:bg-green-600">
-                    Learn More
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
+            {courses && Array.isArray(courses) && courses.slice(0, 3).map((course: any, index: number) => {
+              // Icons for different course fields
+              const getFieldIcon = (field: string) => {
+                switch (field?.toLowerCase()) {
+                  case 'astronomy':
+                    return <Telescope className="w-5 h-5 text-cosmic-blue mr-2" />;
+                  case 'robotics':
+                    return <Headphones className="w-5 h-5 text-cosmic-purple mr-2" />;
+                  case 'astrophysics':
+                    return <Atom className="w-5 h-5 text-cosmic-green mr-2" />;
+                  case 'space-technology':
+                    return <Rocket className="w-5 h-5 text-cosmic-orange mr-2" />;
+                  default:
+                    return <Star className="w-5 h-5 text-cosmic-blue mr-2" />;
+                }
+              };
+
+              // Color theme for each course
+              const getFieldColor = (field: string) => {
+                switch (field?.toLowerCase()) {
+                  case 'astronomy':
+                    return { color: 'cosmic-blue', bg: 'bg-cosmic-blue', hover: 'hover:bg-blue-600' };
+                  case 'robotics':
+                    return { color: 'cosmic-purple', bg: 'bg-cosmic-purple', hover: 'hover:bg-purple-600' };
+                  case 'astrophysics':
+                    return { color: 'cosmic-green', bg: 'bg-cosmic-green', hover: 'hover:bg-green-600' };
+                  case 'space-technology':
+                    return { color: 'cosmic-orange', bg: 'bg-cosmic-orange', hover: 'hover:bg-orange-600' };
+                  default:
+                    return { color: 'cosmic-blue', bg: 'bg-cosmic-blue', hover: 'hover:bg-blue-600' };
+                }
+              };
+
+              const fieldColor = getFieldColor(course.field);
+              const courseImages = [
+                'https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400',
+                'https://images.unsplash.com/photo-1593508512255-86ab42a8e620?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400',
+                'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400',
+                'https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400'
+              ];
+
+              return (
+                <Card key={course.id} className="bg-space-800/50 border-space-700 hover:scale-105 transition-transform">
+                  <div className="relative">
+                    <img 
+                      src={courseImages[index] || courseImages[0]} 
+                      alt={`${course.title} course`} 
+                      className="w-full h-48 object-cover rounded-t-lg"
+                    />
+                    {index === 0 && (
+                      <div className={`absolute top-4 right-4 bg-cosmic-blue px-3 py-1 rounded-full text-sm font-semibold`}>
+                        Popular
+                      </div>
+                    )}
+                  </div>
+                  <CardContent className="p-6">
+                    <div className="flex items-center mb-2">
+                      {getFieldIcon(course.field)}
+                      <h3 className="text-xl font-semibold">{course.title}</h3>
+                    </div>
+                    <p className="text-space-300 mb-4">{course.description}</p>
+                    <div className="flex items-center justify-between mb-4">
+                      <span className={`text-sm text-${fieldColor.color}`}>₹{course.price} per student</span>
+                      <span className="text-sm text-space-400">{course.duration}</span>
+                    </div>
+                    <Link href={`/courses/${course.id}`}>
+                      <Button className={`w-full ${fieldColor.bg} ${fieldColor.hover}`}>
+                        Learn More
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
+
         </div>
       </section>
       {/* CTA Section */}
