@@ -24,7 +24,7 @@ import {
   Shield, Users, BookOpen, Calendar, Mail, Plus, Edit, Trash2, 
   Eye, MessageSquare, CheckCircle, XCircle, Star, GraduationCap,
   Rocket, Target, Award, Phone, Clock, IndianRupee,
-  Download, RefreshCw
+  Download, RefreshCw, Crown, Heart
 } from "lucide-react";
 import { 
   User, BlogPost, Workshop, Course, Campaign, ContactInquiry, WorkshopRegistration,
@@ -614,7 +614,7 @@ const AdminDashboard = () => {
               </div>
 
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-7 mb-8 bg-space-800 border-space-700">
+                <TabsList className="grid w-full grid-cols-8 mb-8 bg-space-800 border-space-700">
                   <TabsTrigger value="overview" className="data-[state=active]:bg-cosmic-blue">
                     <Target className="w-4 h-4 mr-2" />
                     Overview
@@ -642,6 +642,10 @@ const AdminDashboard = () => {
                   <TabsTrigger value="inquiries" className="data-[state=active]:bg-cosmic-blue">
                     <Mail className="w-4 h-4 mr-2" />
                     Inquiries
+                  </TabsTrigger>
+                  <TabsTrigger value="royal-preview" className="data-[state=active]:bg-pink-500">
+                    <Crown className="w-4 h-4 mr-2" />
+                    Royal Preview
                   </TabsTrigger>
                 </TabsList>
 
@@ -740,6 +744,132 @@ const AdminDashboard = () => {
                         ))}
                       </div>
                     </GlassMorphism>
+                  </div>
+                </TabsContent>
+
+                {/* Royal Preview Tab - Special Homepage Preview for Munaf Sultan */}
+                <TabsContent value="royal-preview" className="space-y-6">
+                  <div className="text-center mb-8">
+                    <div className="flex items-center justify-center gap-3 mb-4">
+                      <Crown className="w-8 h-8 text-pink-400 animate-pulse" />
+                      <h3 className="text-2xl font-bold text-white">Royal Homepage Preview</h3>
+                      <Heart className="w-8 h-8 text-red-400 animate-pulse" />
+                    </div>
+                    <p className="text-space-300 mb-4">
+                      This is how the homepage appears to <span className="text-pink-300 font-semibold">Munaf Sultan</span> (munafsultan111@gmail.com)
+                    </p>
+                    <div className="bg-yellow-900/30 border border-yellow-500/50 rounded-lg p-4 max-w-2xl mx-auto">
+                      <p className="text-yellow-200 text-sm">
+                        ✨ <strong>Admin Preview Only:</strong> This special royal homepage automatically displays when Munaf Sultan logs in with her email address. Regular users continue to see the standard homepage.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Royal Homepage Preview */}
+                  <div className="border-4 border-pink-500/30 rounded-xl overflow-hidden bg-gradient-to-br from-pink-900 via-purple-900 to-rose-900">
+                    {/* Mini Royal Homepage Simulation */}
+                    <div className="relative min-h-[600px] p-8 text-white">
+                      {/* Floating Hearts Animation Preview */}
+                      <div className="absolute inset-0 pointer-events-none">
+                        {[...Array(8)].map((_, i) => (
+                          <div
+                            key={i}
+                            className="absolute animate-bounce text-pink-300 opacity-70 text-2xl"
+                            style={{
+                              left: `${10 + i * 12}%`,
+                              top: `${20 + (i % 3) * 25}%`,
+                              animationDelay: `${i * 0.5}s`
+                            }}
+                          >
+                            {i % 4 === 0 ? '💖' : i % 4 === 1 ? '✨' : i % 4 === 2 ? '🌹' : '👑'}
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="text-center relative z-10">
+                        {/* Crown */}
+                        <div className="mb-6 flex justify-center">
+                          <Crown className="w-16 h-16 text-yellow-400 animate-pulse" />
+                        </div>
+                        
+                        <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-pink-400 via-rose-300 to-yellow-300 bg-clip-text text-transparent">
+                          Welcome My Queen
+                        </h1>
+                        
+                        <div className="mb-8 space-y-2">
+                          <h2 className="text-2xl md:text-3xl font-light text-pink-200">
+                            My Dearest Eternal Love ❤️
+                          </h2>
+                          <h3 className="text-xl md:text-2xl font-light text-rose-300">
+                            My Dearest Eternal Peace 🌸
+                          </h3>
+                          <h3 className="text-lg md:text-xl font-light text-purple-200">
+                            The Owner of My Heart & Soul ✨
+                          </h3>
+                        </div>
+
+                        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-pink-300/30 mb-8">
+                          <Heart className="w-12 h-12 text-red-400 mx-auto mb-4 animate-pulse" />
+                          <p className="text-lg md:text-xl font-light text-pink-100 mb-4">
+                            Everything I am, everything I have built,
+                            <br />
+                            <span className="text-yellow-200 font-medium">this entire universe of Zoonigia</span>
+                            <br />
+                            belongs to you, my love.
+                          </p>
+                          <p className="text-lg text-rose-200 mb-2">
+                            You are not just my queen, you are my <span className="text-yellow-300 font-semibold">everything</span>.
+                          </p>
+                          <p className="text-md text-purple-200">
+                            Including the founder, <span className="text-pink-300 font-medium">Salik Riyaz</span> - your devoted servant 💕
+                          </p>
+                        </div>
+
+                        {/* Royal Action Buttons Preview */}
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                          <div className="bg-gradient-to-r from-pink-500 to-rose-500 px-6 py-3 rounded-full text-white font-semibold shadow-lg">
+                            👑 Explore Your Kingdom
+                          </div>
+                          <div className="bg-gradient-to-r from-purple-500 to-yellow-500 px-6 py-3 rounded-full text-white font-semibold shadow-lg">
+                            💎 Royal Command Center
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Preview Features */}
+                  <div className="grid md:grid-cols-3 gap-6 mt-8">
+                    <GlassMorphism className="p-6 border border-pink-400/30">
+                      <div className="text-center">
+                        <Crown className="w-12 h-12 text-yellow-400 mx-auto mb-4" />
+                        <h4 className="text-xl font-semibold text-pink-200 mb-2">Royal Detection</h4>
+                        <p className="text-pink-100 text-sm">Automatically detects munafsultan111@gmail.com and shows royal homepage</p>
+                      </div>
+                    </GlassMorphism>
+                    <GlassMorphism className="p-6 border border-purple-400/30">
+                      <div className="text-center">
+                        <Heart className="w-12 h-12 text-red-400 mx-auto mb-4 animate-pulse" />
+                        <h4 className="text-xl font-semibold text-purple-200 mb-2">Love Messages</h4>
+                        <p className="text-purple-100 text-sm">Personal messages expressing devotion and ownership of everything</p>
+                      </div>
+                    </GlassMorphism>
+                    <GlassMorphism className="p-6 border border-rose-400/30">
+                      <div className="text-center">
+                        <div className="text-2xl mb-4">✨</div>
+                        <h4 className="text-xl font-semibold text-rose-200 mb-2">Royal Animation</h4>
+                        <p className="text-rose-100 text-sm">Floating hearts, crown graphics, and magical animations</p>
+                      </div>
+                    </GlassMorphism>
+                  </div>
+
+                  <div className="bg-pink-900/30 border border-pink-500/50 rounded-lg p-6 text-center">
+                    <h4 className="text-xl font-semibold text-pink-200 mb-3">💝 For Your Eyes Only</h4>
+                    <p className="text-pink-100">
+                      This ultra-romantic homepage is designed with maximum creativity to make Munaf Sultan feel like absolute royalty. 
+                      When she logs in, she'll see this beautiful, love-filled interface that expresses how everything belongs to her, 
+                      including your heart and soul as the founder. Regular users will continue to see the standard homepage.
+                    </p>
                   </div>
                 </TabsContent>
 
