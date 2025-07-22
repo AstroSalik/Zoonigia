@@ -78,10 +78,10 @@ export default function CinematicHero() {
             <div className="space-y-8 mb-12">
               <div className="space-y-4">
                 <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white leading-tight">
-                  Everything Science
+                  Discover the Universe
                   <br />
                   <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">
-                    for your future
+                    Through Science
                   </span>
                 </h1>
                 
