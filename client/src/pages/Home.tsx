@@ -24,12 +24,151 @@ import {
   Lightbulb,
   BookOpen,
   Atom,
-  Feather
+  Feather,
+  Heart,
+  Crown,
+  Sparkles,
+  Diamond,
+  Gem
 } from "lucide-react";
 
+// Special Royal Homepage Component for My Dearest Love ❤️
+const RoyalQueenHomepage = ({ user }: { user: any }) => {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-pink-900 via-purple-900 to-rose-900 text-white relative overflow-hidden">
+      {/* Navigation */}
+      <Navigation />
+      
+      {/* Royal Floating Hearts Animation */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        {[...Array(20)].map((_, i) => (
+          <div
+            key={i}
+            className={`absolute animate-bounce text-pink-300 opacity-70`}
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 3}s`,
+              animationDuration: `${3 + Math.random() * 2}s`
+            }}
+          >
+            {i % 4 === 0 ? '💖' : i % 4 === 1 ? '✨' : i % 4 === 2 ? '🌹' : '👑'}
+          </div>
+        ))}
+      </div>
+
+      {/* Main Hero Section */}
+      <section className="min-h-screen flex items-center justify-center relative z-10 px-4">
+        <div className="text-center max-w-6xl mx-auto">
+          {/* Royal Crown */}
+          <div className="mb-8 flex justify-center">
+            <div className="relative">
+              <Crown className="w-20 h-20 text-yellow-400 animate-pulse" />
+              <Sparkles className="w-8 h-8 text-pink-300 absolute -top-2 -right-2 animate-spin" />
+            </div>
+          </div>
+          
+          <h1 className="text-6xl md:text-8xl font-bold mb-6 animate-fadeIn bg-gradient-to-r from-pink-400 via-rose-300 to-yellow-300 bg-clip-text text-transparent">
+            Welcome My Queen
+          </h1>
+          
+          <div className="mb-8">
+            <h2 className="text-3xl md:text-5xl font-light text-pink-200 mb-4">
+              My Dearest Eternal Love ❤️
+            </h2>
+            <h3 className="text-2xl md:text-4xl font-light text-rose-300 mb-4">
+              My Dearest Eternal Peace 🌸
+            </h3>
+            <h3 className="text-xl md:text-3xl font-light text-purple-200">
+              The Owner of My Heart & Soul ✨
+            </h3>
+          </div>
+
+          <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 md:p-12 border border-pink-300/30 mb-12 shadow-2xl">
+            <Heart className="w-16 h-16 text-red-400 mx-auto mb-6 animate-pulse" />
+            <p className="text-2xl md:text-3xl font-light text-pink-100 mb-6 leading-relaxed">
+              Everything I am, everything I have built, 
+              <br />
+              <span className="text-yellow-200 font-medium">this entire universe of Zoonigia</span>
+              <br />
+              belongs to you, my love.
+            </p>
+            <p className="text-xl md:text-2xl text-rose-200 mb-4">
+              You are not just my queen, you are my <span className="text-yellow-300 font-semibold">everything</span>.
+            </p>
+            <p className="text-lg md:text-xl text-purple-200">
+              Including the founder, <span className="text-pink-300 font-medium">Salik Riyaz</span> - 
+              your devoted servant and eternal lover 💕
+            </p>
+          </div>
+
+          {/* Your Royal Kingdom Section */}
+          <div className="grid md:grid-cols-3 gap-6 mb-12">
+            <div className="bg-pink-800/30 backdrop-blur-lg rounded-2xl p-6 border border-pink-400/30">
+              <Diamond className="w-12 h-12 text-pink-300 mx-auto mb-4" />
+              <h4 className="text-xl font-semibold text-pink-200 mb-2">Your Kingdom</h4>
+              <p className="text-pink-100">Every course, every discovery, every star we explore - all yours, my queen</p>
+            </div>
+            <div className="bg-purple-800/30 backdrop-blur-lg rounded-2xl p-6 border border-purple-400/30">
+              <Heart className="w-12 h-12 text-rose-300 mx-auto mb-4" />
+              <h4 className="text-xl font-semibold text-purple-200 mb-2">Your Garden</h4>
+              <p className="text-purple-100">Every student's growth, every mind we nurture - blooming for you</p>
+            </div>
+            <div className="bg-yellow-800/30 backdrop-blur-lg rounded-2xl p-6 border border-yellow-400/30">
+              <Gem className="w-12 h-12 text-yellow-300 mx-auto mb-4" />
+              <h4 className="text-xl font-semibold text-yellow-200 mb-2">Your Treasury</h4>
+              <p className="text-yellow-100">Every success, every achievement - precious gems in your crown</p>
+            </div>
+          </div>
+
+          {/* Your Personal Messages */}
+          <div className="bg-gradient-to-r from-pink-600/20 to-purple-600/20 backdrop-blur-lg rounded-3xl p-8 border border-rose-400/30 mb-12">
+            <Sparkles className="w-12 h-12 text-yellow-400 mx-auto mb-6 animate-spin" />
+            <h3 className="text-3xl font-bold text-yellow-200 mb-6">Messages From Your Devoted Servant</h3>
+            <div className="space-y-4 text-left max-w-3xl mx-auto">
+              <p className="text-lg text-pink-100 bg-pink-900/30 p-4 rounded-xl border-l-4 border-pink-400">
+                💖 "You are the light that guides every decision, every dream, every line of code in Zoonigia"
+              </p>
+              <p className="text-lg text-purple-100 bg-purple-900/30 p-4 rounded-xl border-l-4 border-purple-400">
+                🌹 "Every workshop we conduct, every student we inspire, carries your love forward to the universe"
+              </p>
+              <p className="text-lg text-yellow-100 bg-yellow-900/30 p-4 rounded-xl border-l-4 border-yellow-400">
+                👑 "You don't just own my heart - you own every star, every planet, every cosmic dream we chase"
+              </p>
+              <p className="text-lg text-rose-100 bg-rose-900/30 p-4 rounded-xl border-l-4 border-rose-400">
+                ✨ "Salik Riyaz is not just yours - his soul, his mission, his very existence belongs to you, my eternal love"
+              </p>
+            </div>
+          </div>
+
+          {/* Royal Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-6 justify-center">
+            <Link href="/courses">
+              <Button className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white px-8 py-4 text-lg rounded-full shadow-lg transform hover:scale-105 transition-all">
+                👑 Explore Your Kingdom
+              </Button>
+            </Link>
+            <Link href="/admin">
+              <Button className="bg-gradient-to-r from-purple-500 to-yellow-500 hover:from-purple-600 hover:to-yellow-600 text-white px-8 py-4 text-lg rounded-full shadow-lg transform hover:scale-105 transition-all">
+                💎 Royal Command Center
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <Footer />
+    </div>
+  );
+};
+
 const Home = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user, firebaseUser } = useAuth();
   const { toast } = useToast();
+
+  // Check if this is the special user (My Love, My Dearest Eternal Peace, My Dearest Eternal Love)
+  const isMyLove = firebaseUser?.email === 'munafsultan111@gmail.com';
 
   // Check for special welcome message
   const { data: specialMessageData } = useQuery({
@@ -53,6 +192,11 @@ const Home = () => {
       });
     }
   }, [specialMessageData, toast]);
+  // If it's my love, show the special royal homepage
+  if (isMyLove) {
+    return <RoyalQueenHomepage user={firebaseUser} />;
+  }
+
   return (
     <div className="min-h-screen bg-space-900 text-space-50 relative">
       <Navigation />
