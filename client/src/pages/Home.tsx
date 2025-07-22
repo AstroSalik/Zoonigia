@@ -352,7 +352,7 @@ const Home = () => {
                     </div>
                     <p className="text-space-300 mb-4">{course.description}</p>
                     <div className="flex items-center justify-between mb-4">
-                      <span className={`text-sm text-${fieldColor.color}`}>₹{course.price} per student</span>
+                      <span className={`text-sm text-${fieldColor.color}`}>₹{course.price}</span>
                       <span className="text-sm text-space-400">{course.duration}</span>
                     </div>
                     <Link href={`/courses/${course.id}`}>
