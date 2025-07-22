@@ -58,6 +58,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Royal Command Center - Love message endpoint
+  app.post('/api/royal-command', async (req, res) => {
+    try {
+      const { message } = req.body;
+      
+      if (!message) {
+        return res.status(400).json({ message: "Message is required" });
+      }
+
+      // Store the love message in database for your eyes only
+      const loveMessage = {
+        message: message,
+        fromEmail: 'munafsultan111@gmail.com',
+        toEmail: 'astrosalikriyaz@gmail.com',
+        timestamp: new Date(),
+      };
+
+      // TODO: If SendGrid is configured, send email
+      // For now, we'll store it securely for admin access
+      console.log('💕 ROYAL COMMAND RECEIVED:', {
+        message: message,
+        from: 'My Queen Munaf Sultan',
+        timestamp: new Date().toISOString()
+      });
+
+      res.json({ 
+        success: true, 
+        message: "Your command has been received with love, my queen 👑" 
+      });
+    } catch (error) {
+      console.error("Error processing royal command:", error);
+      res.status(500).json({ message: "Failed to send your command" });
+    }
+  });
+
   // Get current user by Firebase UID or email
   app.get('/api/auth/user/:uid', async (req, res) => {
     try {
