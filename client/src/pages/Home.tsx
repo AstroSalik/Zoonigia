@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import Hero3D from "@/components/Hero3D";
+import CinematicHero from "@/components/CinematicHero";
 import GlassMorphism from "@/components/GlassMorphism";
 import CosmicBackground from "@/components/OrbitalAnimation";
 import { useAuth } from "@/hooks/useAuth";
@@ -39,65 +39,23 @@ const Home = () => {
   });
 
   useEffect(() => {
-    if (specialMessageData?.message) {
+    if (specialMessageData && 'message' in specialMessageData) {
       toast({
         title: "Welcome! 🌸",
-        description: specialMessageData.message,
+        description: (specialMessageData as any).message,
         duration: 5000,
       });
     }
   }, [specialMessageData, toast]);
+  
   return (
     <div className="min-h-screen bg-space-900 text-space-50 relative">
-      <CosmicBackground />
       <div className="relative z-10">
         <Navigation />
-      {/* Hero Section */}
-      <section className="min-h-screen flex items-center justify-center relative overflow-hidden star-field">
-        <div className="absolute inset-0 bg-gradient-to-br from-space-900 via-space-800 to-space-900"></div>
-        <div className="absolute inset-0 opacity-30">
-          <img 
-            src="https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1920&h=1080" 
-            alt="Deep space with stars and nebula" 
-            className="w-full h-full object-cover"
-          />
-        </div>
-        
-        <Hero3D />
-        
-        <div className="relative z-10 text-center max-w-4xl mx-auto px-4">
-          <h1 className="text-5xl md:text-7xl font-space font-bold mb-6 animate-fadeIn">
-            <span className="bg-gradient-to-r from-cosmic-blue to-cosmic-purple bg-clip-text text-transparent">
-              To The Stars
-            </span>
-            <br />
-            <span className="text-space-50">And Beyond</span>
-          </h1>
-          <p className="text-xl md:text-2xl text-space-200 mb-8 animate-slideUp">
-            Empowering Future Innovators and Explorers through Immersive Frontier Sciences - an interdisciplinary exploration blending scientific discovery with literary wonder and philosophical inquiry
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slideUp">
-            <Link href="/workshops">
-              <Button className="cosmic-gradient hover:opacity-90 px-8 py-4 text-lg">
-                <Rocket className="w-5 h-5 mr-2" />
-                Explore Zoonigia
-              </Button>
-            </Link>
-            <Link href="/about">
-              <Button variant="outline" className="glass-morphism border-space-600 hover:bg-white/20 px-8 py-4 text-lg">
-                <Play className="w-5 h-5 mr-2" />
-                Learn More
-              </Button>
-            </Link>
-          </div>
-        </div>
-        
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-          <ChevronDown className="w-8 h-8 text-cosmic-blue" />
-        </div>
-      </section>
+        {/* Cinematic Hero Section */}
+        <CinematicHero />
       {/* Video Section */}
-      <section className="py-20 bg-space-800/30">
+      <section id="video-section" className="py-20 bg-space-800/30">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center mb-16">
             <h2 className="text-4xl font-space font-bold mb-6">
