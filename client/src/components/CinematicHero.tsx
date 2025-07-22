@@ -19,107 +19,101 @@ export default function CinematicHero() {
   }, []);
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-black">
-      {/* Large background image - SpaceX style */}
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-black">
+      {/* Dark space background with nebula effect */}
       <div className="absolute inset-0">
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='1920' height='1080' viewBox='0 0 1920 1080' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3CradialGradient id='space' cx='50%25' cy='30%25' r='60%25'%3E%3Cstop offset='0%25' style='stop-color:%23001122;stop-opacity:1' /%3E%3Cstop offset='40%25' style='stop-color:%23000815;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%23000000;stop-opacity:1' /%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23space)' /%3E%3C/svg%3E")`,
-          }}
-        />
-        
-        {/* Subtle star field */}
-        <div className="absolute inset-0">
-          {[...Array(50)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute bg-white rounded-full opacity-60"
-              style={{
-                width: `${1 + Math.random() * 2}px`,
-                height: `${1 + Math.random() * 2}px`,
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animation: `twinkle ${3 + Math.random() * 4}s ease-in-out infinite`,
-                animationDelay: `${Math.random() * 3}s`,
-              }}
-            />
-          ))}
-        </div>
+        <div className="absolute inset-0 bg-gradient-radial from-blue-900/20 via-slate-900/60 to-black" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40" />
       </div>
 
-      {/* Clean overlay for text readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60" />
+      {/* Dramatic vertical light beam - center focal point */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div 
+          className="w-2 h-full bg-gradient-to-b from-transparent via-blue-300 to-transparent opacity-80"
+          style={{
+            background: 'linear-gradient(to bottom, transparent 0%, rgba(147, 197, 253, 0.4) 20%, rgba(59, 130, 246, 0.8) 50%, rgba(147, 197, 253, 0.4) 80%, transparent 100%)',
+            filter: 'blur(1px)',
+            boxShadow: '0 0 40px rgba(59, 130, 246, 0.6), 0 0 80px rgba(59, 130, 246, 0.3)',
+          }}
+        />
+        <div 
+          className="absolute w-1 h-full bg-gradient-to-b from-transparent via-white to-transparent opacity-90"
+          style={{
+            background: 'linear-gradient(to bottom, transparent 0%, rgba(255, 255, 255, 0.3) 30%, rgba(255, 255, 255, 0.9) 50%, rgba(255, 255, 255, 0.3) 70%, transparent 100%)',
+            filter: 'blur(0.5px)',
+          }}
+        />
+      </div>
 
-      {/* Main content - SpaceX style layout */}
+      {/* Subtle atmospheric glow around the beam */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div 
+          className="w-32 h-full bg-gradient-to-b from-transparent via-blue-500/10 to-transparent"
+          style={{
+            filter: 'blur(20px)',
+          }}
+        />
+      </div>
+
+      {/* Main content - positioned on left like in image */}
       <div className="relative z-10 flex items-center min-h-screen">
-        <div className="container mx-auto px-6 lg:px-12">
-          <div className="max-w-3xl">
+        <div className="container mx-auto px-8 lg:px-16">
+          <div className="max-w-2xl">
             
-            {/* Clean, bold title - SpaceX style */}
-            <div className="space-y-8 mb-12">
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold leading-none text-white animate-slide-up">
-                <div className="mb-4" style={{ animationDelay: '0.2s' }}>
+            {/* Large bold title exactly like image */}
+            <div className="space-y-6 mb-10">
+              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight text-white animate-slide-up">
+                <div className="mb-2" style={{ animationDelay: '0.2s' }}>
                   Everything Science
                 </div>
                 <div 
-                  className="text-gray-300 animate-slide-up"
+                  className="animate-slide-up"
                   style={{ animationDelay: '0.4s' }}
                 >
                   for your future
                 </div>
               </h1>
               
-              {/* Clean description */}
+              {/* Description exactly like image */}
               <p 
-                className="text-xl lg:text-2xl text-gray-400 max-w-2xl leading-relaxed animate-slide-up"
+                className="text-lg text-gray-300 max-w-lg leading-relaxed animate-slide-up"
                 style={{ animationDelay: '0.6s' }}
               >
-                Enter a world where quantum mysteries unfold, cosmic secrets reveal themselves, 
-                and the future of science begins with your journey.
+                Zoonigia, an innovative platform, serves as an all-in-one 
+                gateway for frontier sciences discovery and exploration.
               </p>
             </div>
 
-            {/* Clean SpaceX-style button */}
+            {/* Rounded button exactly like image */}
             <div 
-              className="flex gap-6 animate-slide-up"
+              className="animate-slide-up"
               style={{ animationDelay: '0.8s' }}
             >
               <Link href="/courses">
                 <Button 
                   size="lg" 
-                  className="bg-white text-black font-semibold px-12 py-4 text-lg hover:bg-gray-100 transition-all duration-300 border-0 rounded-none"
+                  className="bg-gradient-to-r from-orange-500 to-red-500 text-white font-medium px-8 py-4 text-base rounded-full hover:from-orange-600 hover:to-red-600 transition-all duration-300 shadow-lg hover:shadow-xl"
                 >
-                  Begin Your Journey
-                  <ArrowRight className="ml-3 h-5 w-5" />
+                  TRY IT FREE
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
-              
-              <Button 
-                variant="ghost" 
-                size="lg"
-                className="text-white font-semibold px-8 py-4 text-lg hover:bg-white/10 transition-all duration-300 border-0 rounded-none"
-                onClick={() => {
-                  document.querySelector('#video-section')?.scrollIntoView({ behavior: 'smooth' });
-                }}
-              >
-                <Play className="mr-3 h-5 w-5" />
-                Watch Preview
-              </Button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Minimal scroll indicator - SpaceX style */}
+      {/* Simple scroll indicator */}
       <div 
-        className={`absolute bottom-12 left-6 lg:left-12 transition-opacity duration-500 ${
+        className={`absolute bottom-8 left-1/2 transform -translate-x-1/2 transition-opacity duration-500 ${
           scrollY > 100 ? 'opacity-0' : 'opacity-60'
         }`}
       >
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-px bg-white/60"></div>
-          <span className="text-white/60 text-sm font-light tracking-wider uppercase">Scroll</span>
+        <div className="flex flex-col items-center space-y-2">
+          <span className="text-white/60 text-sm">Scroll to explore</span>
+          <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
+            <div className="w-1 h-3 bg-white/60 rounded-full mt-2 animate-bounce"></div>
+          </div>
         </div>
       </div>
     </div>
