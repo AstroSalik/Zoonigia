@@ -6,6 +6,7 @@ import { Link } from 'wouter';
 export default function CinematicHero() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isLoaded, setIsLoaded] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -15,10 +16,18 @@ export default function CinematicHero() {
       });
     };
 
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+
     window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('scroll', handleScroll);
     setIsLoaded(true);
     
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
   return (
@@ -178,11 +187,12 @@ export default function CinematicHero() {
         }}
       />
 
-      {/* Scroll indicator */}
+      {/* Scroll indicator with fade on scroll */}
       <div 
-        className="fixed bottom-4 sm:bottom-8 left-0 right-0 z-10 flex justify-center"
+        className="fixed bottom-4 sm:bottom-8 left-0 right-0 z-10 flex justify-center transition-opacity duration-300"
         style={{
           animation: 'fadeInUp 1s ease-out 2.5s both',
+          opacity: Math.max(0, 1 - (scrollY / (window.innerHeight * 0.8))),
         }}
       >
         <div className="flex flex-col items-center space-y-2 sm:space-y-3 text-slate-400 animate-pulse">
