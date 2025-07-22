@@ -9,18 +9,15 @@ interface AdminRouteProps {
 }
 
 const AdminRoute = ({ children }: AdminRouteProps) => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user: currentUser, firebaseUser } = useAuth();
   const { toast } = useToast();
 
-  const { data: user, isLoading: userLoading } = useQuery<User>({
-    queryKey: ["/api/auth/user-by-email/astrosalikriyaz%40gmail.com"],
-    enabled: isAuthenticated,
-    retry: false,
-  });
+  // Check if current user is admin - use the user from useAuth which includes admin status
+  const isAdmin = currentUser?.isAdmin || false;
 
   useEffect(() => {
-    if (!isLoading && !userLoading && isAuthenticated && user !== undefined) {
-      if (!user?.isAdmin) {
+    if (!isLoading && isAuthenticated && currentUser !== null) {
+      if (!isAdmin) {
         toast({
           title: "Access Denied",
           description: "You don't have permission to access this page.",
@@ -31,10 +28,10 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
         }, 1000);
       }
     }
-  }, [isAuthenticated, isLoading, userLoading, user, toast]);
+  }, [isAuthenticated, isLoading, currentUser, isAdmin, toast]);
 
   // Show loading while auth is being determined
-  if (isLoading || userLoading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-space-900 flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-4 border-cosmic-blue border-t-transparent rounded-full" />
@@ -61,7 +58,7 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
   }
 
   // User data not loaded yet
-  if (user === undefined) {
+  if (currentUser === undefined) {
     return (
       <div className="min-h-screen bg-space-900 flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-4 border-cosmic-blue border-t-transparent rounded-full" />
@@ -70,7 +67,7 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
   }
 
   // Not admin
-  if (!user?.isAdmin) {
+  if (!isAdmin) {
     return (
       <div className="min-h-screen bg-space-900 flex items-center justify-center">
         <div className="text-center">

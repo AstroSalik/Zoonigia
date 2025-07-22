@@ -20,7 +20,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error("Missing required Stripe secret: STRIPE_SECRET_KEY");
 }
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2023-10-16",
+  apiVersion: "2024-12-18.acacia",
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -41,6 +41,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Add more admin emails as needed
       ];
       
+      const isAdminUser = adminEmails.includes(email.toLowerCase());
+      console.log(`Admin check for ${email}: ${isAdminUser}`);
+      
       const userData = {
         id: uid,
         email: email,
@@ -48,10 +51,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         lastName: displayName?.split(' ').slice(1).join(' ') || null,
         profileImageUrl: photoURL || null,
         userType: 'student' as const,
-        isAdmin: adminEmails.includes(email.toLowerCase())
+        isAdmin: isAdminUser
       };
 
       const user = await storage.upsertUser(userData);
+      console.log(`User synced: ${email}, isAdmin: ${user.isAdmin}`);
       res.json(user);
     } catch (error) {
       console.error("Error syncing user:", error);
