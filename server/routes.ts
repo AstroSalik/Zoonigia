@@ -20,7 +20,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error("Missing required Stripe secret: STRIPE_SECRET_KEY");
 }
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2025-06-30.basil",
+  apiVersion: "2023-10-16",
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -37,12 +37,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const adminEmails = [
         'astrosalikriyaz@gmail.com', // Primary admin email
         'salik.riyaz27@gmail.com', // Secondary admin email
-        'assadullahrather.zoonigia@gmail.com', // Admin access
         // Add more admin emails as needed
       ];
-      
-      const isAdminUser = adminEmails.includes(email.toLowerCase());
-      console.log(`Admin check for ${email}: ${isAdminUser}`);
       
       const userData = {
         id: uid,
@@ -51,50 +47,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         lastName: displayName?.split(' ').slice(1).join(' ') || null,
         profileImageUrl: photoURL || null,
         userType: 'student' as const,
-        isAdmin: isAdminUser
+        isAdmin: adminEmails.includes(email.toLowerCase())
       };
 
       const user = await storage.upsertUser(userData);
-      console.log(`User synced: ${email}, isAdmin: ${user.isAdmin}`);
       res.json(user);
     } catch (error) {
       console.error("Error syncing user:", error);
       res.status(500).json({ message: "Failed to sync user" });
-    }
-  });
-
-  // Royal Command Center - Love message endpoint
-  app.post('/api/royal-command', async (req, res) => {
-    try {
-      const { message } = req.body;
-      
-      if (!message) {
-        return res.status(400).json({ message: "Message is required" });
-      }
-
-      // Store the love message in database for your eyes only
-      const loveMessage = {
-        message: message,
-        fromEmail: 'munafsultan111@gmail.com',
-        toEmail: 'astrosalikriyaz@gmail.com',
-        timestamp: new Date(),
-      };
-
-      // TODO: If SendGrid is configured, send email
-      // For now, we'll store it securely for admin access
-      console.log('💕 ROYAL COMMAND RECEIVED:', {
-        message: message,
-        from: 'My Queen Munaf Sultan',
-        timestamp: new Date().toISOString()
-      });
-
-      res.json({ 
-        success: true, 
-        message: "Your command has been received with love, my queen 👑" 
-      });
-    } catch (error) {
-      console.error("Error processing royal command:", error);
-      res.status(500).json({ message: "Failed to send your command" });
     }
   });
 
