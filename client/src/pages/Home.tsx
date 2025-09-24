@@ -619,7 +619,7 @@ const Home = () => {
         <div className="container mx-auto px-4">
           <h2 className="text-4xl font-space font-bold text-center mb-12">Featured Courses</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {courses && Array.isArray(courses) && courses.slice(0, 3).map((course: any, index: number) => {
+            {courses && Array.isArray(courses) && courses.slice(0, 3).map((course: any, index: number): React.JSX.Element => {
               // Icons for different course fields
               const getFieldIcon = (field: string) => {
                 switch (field?.toLowerCase()) {
