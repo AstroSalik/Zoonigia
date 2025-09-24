@@ -59,6 +59,12 @@ const RoyalQueenHomepage = ({ user }: { user: any }) => {
 
   const sendLoveMessage = useMutation({
     mutationFn: async (data: z.infer<typeof loveMessageSchema>) => {
+      console.log("Sending love message with user:", user);
+      console.log("Headers being sent:", {
+        'x-user-id': user?.uid || '',
+        'x-user-email': user?.email || '',
+      });
+      
       const response = await apiRequest("/api/love-messages", {
         method: "POST",
         headers: {
@@ -81,12 +87,12 @@ const RoyalQueenHomepage = ({ user }: { user: any }) => {
       queryClient.invalidateQueries({ queryKey: ["/api/love-messages"] });
     },
     onError: (error) => {
+      console.error("Love message error details:", error);
       toast({
         title: "Failed to send message",
-        description: "Please try again",
+        description: `Error: ${error.message || 'Please try again'}`,
         variant: "destructive",
       });
-      console.error("Love message error:", error);
     },
   });
 
