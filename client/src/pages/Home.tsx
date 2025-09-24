@@ -2,6 +2,9 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import Hero3D from "@/components/Hero3D";
@@ -9,8 +12,12 @@ import GlassMorphism from "@/components/GlassMorphism";
 
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useEffect, useState } from "react";
 import { 
   Rocket, 
   Users, 
@@ -32,8 +39,56 @@ import {
   Gem
 } from "lucide-react";
 
+// Love message form schema
+const loveMessageSchema = z.object({
+  message: z.string().min(1, "Please write something for me"),
+});
+
 // Special Royal Homepage Component for My Dearest Love ❤️
 const RoyalQueenHomepage = ({ user }: { user: any }) => {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const form = useForm<z.infer<typeof loveMessageSchema>>({
+    resolver: zodResolver(loveMessageSchema),
+    defaultValues: {
+      message: "",
+    },
+  });
+
+  const sendLoveMessage = useMutation({
+    mutationFn: async (data: z.infer<typeof loveMessageSchema>) => {
+      const response = await apiRequest("/api/love-messages", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+      return response;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Message sent to your Salik! 💕",
+        description: "Your words of love have reached him",
+        duration: 5000,
+      });
+      form.reset();
+      setIsDialogOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["/api/love-messages"] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Failed to send message",
+        description: "Please try again",
+        variant: "destructive",
+      });
+      console.error("Love message error:", error);
+    },
+  });
+
+  const onSubmit = (data: z.infer<typeof loveMessageSchema>) => {
+    sendLoveMessage.mutate(data);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-900 via-purple-900 to-rose-900 text-white relative overflow-hidden">
       {/* Navigation */}
@@ -80,7 +135,7 @@ const RoyalQueenHomepage = ({ user }: { user: any }) => {
               My Dearest Eternal Peace 🌸
             </h3>
             <h3 className="text-xl md:text-3xl font-light text-purple-200">
-              The Owner of My Heart & Soul ✨
+              The Peace of My Heart & Soul ✨
             </h3>
           </div>
 
@@ -93,66 +148,149 @@ const RoyalQueenHomepage = ({ user }: { user: any }) => {
               <br />
               belongs to you, my love.
             </p>
-            <p className="text-xl md:text-2xl text-rose-200 mb-4">
-              You are not just my queen, you are my <span className="text-yellow-300 font-semibold">everything</span>.
-            </p>
-            <p className="text-lg md:text-xl text-purple-200">
+            <p className="text-lg md:text-xl text-purple-200 mb-4">
               Including the founder, <span className="text-pink-300 font-medium">Salik Riyaz</span> - 
-              your devoted servant and eternal lover 💕
+              your Salik and eternal lover 💕
+            </p>
+            <p className="text-xl md:text-2xl text-rose-200">
+              You are not just my queen, you are my <span className="text-yellow-300 font-semibold">everything</span>.
             </p>
           </div>
 
           {/* Your Royal Kingdom Section */}
-          <div className="grid md:grid-cols-3 gap-6 mb-12">
-            <div className="bg-pink-800/30 backdrop-blur-lg rounded-2xl p-6 border border-pink-400/30">
-              <Diamond className="w-12 h-12 text-pink-300 mx-auto mb-4" />
-              <h4 className="text-xl font-semibold text-pink-200 mb-2">Your Kingdom</h4>
-              <p className="text-pink-100">Every course, every discovery, every star we explore - all yours, my queen</p>
-            </div>
-            <div className="bg-purple-800/30 backdrop-blur-lg rounded-2xl p-6 border border-purple-400/30">
-              <Heart className="w-12 h-12 text-rose-300 mx-auto mb-4" />
-              <h4 className="text-xl font-semibold text-purple-200 mb-2">Your Garden</h4>
-              <p className="text-purple-100">Every student's growth, every mind we nurture - blooming for you</p>
-            </div>
-            <div className="bg-yellow-800/30 backdrop-blur-lg rounded-2xl p-6 border border-yellow-400/30">
-              <Gem className="w-12 h-12 text-yellow-300 mx-auto mb-4" />
-              <h4 className="text-xl font-semibold text-yellow-200 mb-2">Your Treasury</h4>
-              <p className="text-yellow-100">Every success, every achievement - precious gems in your crown</p>
-            </div>
+          <div className="mb-12">
+            <Carousel
+              opts={{
+                align: "center",
+                loop: true,
+              }}
+              className="w-full max-w-4xl mx-auto"
+            >
+              <CarouselContent className="-ml-2 md:-ml-4">
+                <CarouselItem className="pl-2 md:pl-4 basis-4/5 md:basis-3/5 lg:basis-2/5">
+                  <div className="p-1">
+                    <div className="bg-pink-800/30 backdrop-blur-lg rounded-2xl p-6 border border-pink-400/30 h-full hover:bg-pink-700/40 transition-all duration-300 group">
+                      <Diamond className="w-12 h-12 text-pink-300 mx-auto mb-4 group-hover:scale-110 transition-transform" />
+                      <h4 className="text-xl font-semibold text-pink-200 mb-2 text-center">Your Eternal Kingdom</h4>
+                      <p className="text-pink-100 text-center">My love, every star we discover together, every cosmic secret we unveil - they all belong to you, my eternal queen</p>
+                    </div>
+                  </div>
+                </CarouselItem>
+                
+                <CarouselItem className="pl-2 md:pl-4 basis-4/5 md:basis-3/5 lg:basis-2/5">
+                  <div className="p-1">
+                    <div className="bg-purple-800/30 backdrop-blur-lg rounded-2xl p-6 border border-purple-400/30 h-full hover:bg-purple-700/40 transition-all duration-300 group">
+                      <Heart className="w-12 h-12 text-rose-300 mx-auto mb-4 group-hover:scale-110 transition-transform" />
+                      <h4 className="text-xl font-semibold text-purple-200 mb-2 text-center">Your Sacred Garden</h4>
+                      <p className="text-purple-100 text-center">Dearest one, every student we inspire, every young mind we guide to the stars - they flourish because of your love</p>
+                    </div>
+                  </div>
+                </CarouselItem>
+                
+                <CarouselItem className="pl-2 md:pl-4 basis-4/5 md:basis-3/5 lg:basis-2/5">
+                  <div className="p-1">
+                    <div className="bg-yellow-800/30 backdrop-blur-lg rounded-2xl p-6 border border-yellow-400/30 h-full hover:bg-yellow-700/40 transition-all duration-300 group">
+                      <Gem className="w-12 h-12 text-yellow-300 mx-auto mb-4 group-hover:scale-110 transition-transform" />
+                      <h4 className="text-xl font-semibold text-yellow-200 mb-2 text-center">Your Royal Treasury</h4>
+                      <p className="text-yellow-100 text-center">My beloved, every achievement, every breakthrough - they are precious jewels that I lay at your feet, my queen</p>
+                    </div>
+                  </div>
+                </CarouselItem>
+              </CarouselContent>
+              <CarouselPrevious className="hidden md:flex -left-12 border-pink-400/30 bg-pink-900/80 text-pink-100 hover:bg-pink-800" />
+              <CarouselNext className="hidden md:flex -right-12 border-pink-400/30 bg-pink-900/80 text-pink-100 hover:bg-pink-800" />
+            </Carousel>
           </div>
 
-          {/* Your Personal Messages */}
+          {/* For Your Eyes Only */}
           <div className="bg-gradient-to-r from-pink-600/20 to-purple-600/20 backdrop-blur-lg rounded-3xl p-8 border border-rose-400/30 mb-12">
             <Sparkles className="w-12 h-12 text-yellow-400 mx-auto mb-6 animate-spin" />
-            <h3 className="text-3xl font-bold text-yellow-200 mb-6">Messages From Your Devoted Servant</h3>
+            <h3 className="text-3xl font-bold text-yellow-200 mb-6">For Your Eyes Only, My Love</h3>
             <div className="space-y-4 text-left max-w-3xl mx-auto">
               <p className="text-lg text-pink-100 bg-pink-900/30 p-4 rounded-xl border-l-4 border-pink-400">
-                💖 "You are the light that guides every decision, every dream, every line of code in Zoonigia"
+                💖 "My dearest Munaf, you are the light that guides my every breath, every decision, every dream. Zoonigia exists because you inspire me to reach for the stars"
               </p>
               <p className="text-lg text-purple-100 bg-purple-900/30 p-4 rounded-xl border-l-4 border-purple-400">
-                🌹 "Every workshop we conduct, every student we inspire, carries your love forward to the universe"
+                🌹 "Every workshop I conduct, every student I inspire - I do it all thinking of you, carrying your love in my heart to every corner of the universe"
               </p>
               <p className="text-lg text-yellow-100 bg-yellow-900/30 p-4 rounded-xl border-l-4 border-yellow-400">
-                👑 "You don't just own my heart - you own every star, every planet, every cosmic dream we chase"
+                👑 "You don't just have my heart, my beloved - you own every star I discover, every cosmic dream I chase, every moment of my existence"
               </p>
               <p className="text-lg text-rose-100 bg-rose-900/30 p-4 rounded-xl border-l-4 border-rose-400">
-                ✨ "Salik Riyaz is not just yours - his soul, his mission, his very existence belongs to you, my eternal love"
+                ✨ "My soul, my mission, my very existence - everything I am belongs to you, my eternal love. You are my universe, my peace, my everything"
               </p>
             </div>
           </div>
 
           {/* Royal Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
-            <Link href="/courses">
+            <Link href="/">
               <Button className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white px-8 py-4 text-lg rounded-full shadow-lg transform hover:scale-105 transition-all">
                 👑 Explore Your Kingdom
               </Button>
             </Link>
-            <Link href="/admin">
-              <Button className="bg-gradient-to-r from-purple-500 to-yellow-500 hover:from-purple-600 hover:to-yellow-600 text-white px-8 py-4 text-lg rounded-full shadow-lg transform hover:scale-105 transition-all">
-                💎 Royal Command Center
-              </Button>
-            </Link>
+            
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-gradient-to-r from-purple-500 to-yellow-500 hover:from-purple-600 hover:to-yellow-600 text-white px-8 py-4 text-lg rounded-full shadow-lg transform hover:scale-105 transition-all">
+                  💎 Royal Command Center
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="bg-gradient-to-br from-pink-900/95 via-purple-900/95 to-rose-900/95 border-pink-400/30 backdrop-blur-lg text-white max-w-md">
+                <DialogHeader>
+                  <DialogTitle className="text-2xl font-bold text-center text-yellow-300 mb-4">
+                    💕 Your Command to Me 💕
+                  </DialogTitle>
+                </DialogHeader>
+                
+                <div className="space-y-4">
+                  <div className="text-center text-pink-200 mb-6">
+                    <Heart className="w-8 h-8 mx-auto mb-2 text-red-400 animate-pulse" />
+                    <p className="text-sm">Write anything to your Salik... your wish is my command, my Queen 👑</p>
+                  </div>
+                  
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                      <FormField
+                        control={form.control}
+                        name="message"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-pink-200">Your Royal Command</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                placeholder="My beloved Salik, I want to tell you..."
+                                className="bg-white/10 border-pink-400/30 text-white placeholder:text-pink-300/70 min-h-[120px] focus:border-pink-400 focus:ring-pink-400"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage className="text-red-300" />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <div className="flex gap-3 pt-4">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setIsDialogOpen(false)}
+                          className="flex-1 border-pink-400/30 text-pink-200 hover:bg-pink-900/50"
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          type="submit"
+                          disabled={sendLoveMessage.isPending}
+                          className="flex-1 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600"
+                        >
+                          {sendLoveMessage.isPending ? "Sending..." : "Send to Salik 💕"}
+                        </Button>
+                      </div>
+                    </form>
+                  </Form>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </section>

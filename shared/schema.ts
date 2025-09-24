@@ -292,6 +292,16 @@ export const contactInquiries = pgTable("contact_inquiries", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Love messages table (for special user messages to admin)
+export const loveMessages = pgTable("love_messages", {
+  id: serial("id").primaryKey(),
+  fromUserId: varchar("from_user_id").references(() => users.id).notNull(),
+  fromUserEmail: varchar("from_user_email").notNull(),
+  message: text("message").notNull(),
+  isRead: boolean("is_read").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Type definitions
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -313,6 +323,9 @@ export type Achievement = typeof achievements.$inferSelect;
 
 export type InsertContactInquiry = typeof contactInquiries.$inferInsert;
 export type ContactInquiry = typeof contactInquiries.$inferSelect;
+
+export type InsertLoveMessage = typeof loveMessages.$inferInsert;
+export type LoveMessage = typeof loveMessages.$inferSelect;
 
 export type InsertWorkshopEnrollment = typeof workshopEnrollments.$inferInsert;
 export type WorkshopEnrollment = typeof workshopEnrollments.$inferSelect;
@@ -356,6 +369,7 @@ export const insertCampaignSchema = createInsertSchema(campaigns);
 export const insertBlogPostSchema = createInsertSchema(blogPosts);
 export const insertAchievementSchema = createInsertSchema(achievements);
 export const insertContactInquirySchema = createInsertSchema(contactInquiries);
+export const insertLoveMessageSchema = createInsertSchema(loveMessages);
 export const insertWorkshopEnrollmentSchema = createInsertSchema(workshopEnrollments);
 export const insertWorkshopRegistrationSchema = createInsertSchema(workshopRegistrations);
 export const insertCourseEnrollmentSchema = createInsertSchema(courseEnrollments);
