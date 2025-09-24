@@ -155,9 +155,9 @@ const RoyalQueenHomepage = ({ user }: { user: any }) => {
             </p>
             <p className="text-lg md:text-xl text-purple-200 mb-4">
               Including the founder, <span className="text-pink-300 font-medium">Salik Riyaz</span> - 
-              your Salik and eternal lover 💕
+              your Salik 💕
             </p>
-            <p className="text-xl md:text-2xl text-rose-200">
+            <p className="text-xl md:text-2xl text-rose-200 mb-4">
               You are not just my queen, you are my <span className="text-yellow-300 font-semibold">everything</span>.
             </p>
           </div>
@@ -219,7 +219,7 @@ const RoyalQueenHomepage = ({ user }: { user: any }) => {
                 🌹 "Every workshop I conduct, every student I inspire - I do it all thinking of you, carrying your love in my heart to every corner of the universe"
               </p>
               <p className="text-lg text-yellow-100 bg-yellow-900/30 p-4 rounded-xl border-l-4 border-yellow-400">
-                👑 "You don't just have my heart, my beloved - you own every star I discover, every cosmic dream I chase, every moment of my existence"
+                👑 "You don't just have my peace of heart, my beloved - you own every star I discover, every cosmic dream I chase, every moment of my existence"
               </p>
               <p className="text-lg text-rose-100 bg-rose-900/30 p-4 rounded-xl border-l-4 border-rose-400">
                 ✨ "My soul, my mission, my very existence - everything I am belongs to you, my eternal love. You are my universe, my peace, my everything"
