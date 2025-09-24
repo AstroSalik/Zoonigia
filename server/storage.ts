@@ -6,6 +6,7 @@ import {
   blogPosts,
   achievements,
   contactInquiries,
+  loveMessages,
   workshopEnrollments,
   courseEnrollments,
   campaignParticipants,
@@ -30,6 +31,8 @@ import {
   type InsertAchievement,
   type ContactInquiry,
   type InsertContactInquiry,
+  type LoveMessage,
+  type InsertLoveMessage,
   type WorkshopEnrollment,
   type InsertWorkshopEnrollment,
   type CourseEnrollment,
@@ -116,6 +119,11 @@ export interface IStorage {
   createContactInquiry(inquiry: InsertContactInquiry): Promise<ContactInquiry>;
   getContactInquiries(): Promise<ContactInquiry[]>;
   deleteContactInquiry(id: number): Promise<void>;
+  
+  // Love message operations
+  createLoveMessage(message: InsertLoveMessage): Promise<LoveMessage>;
+  getLoveMessages(): Promise<LoveMessage[]>;
+  markLoveMessageAsRead(id: number): Promise<LoveMessage>;
   
   // LMS operations
   // Course modules
@@ -454,6 +462,25 @@ export class DatabaseStorage implements IStorage {
 
   async deleteContactInquiry(id: number): Promise<void> {
     await db.delete(contactInquiries).where(eq(contactInquiries.id, id));
+  }
+
+  // Love message operations
+  async createLoveMessage(message: InsertLoveMessage): Promise<LoveMessage> {
+    const [newMessage] = await db.insert(loveMessages).values(message).returning();
+    return newMessage;
+  }
+
+  async getLoveMessages(): Promise<LoveMessage[]> {
+    return await db.select().from(loveMessages).orderBy(desc(loveMessages.createdAt));
+  }
+
+  async markLoveMessageAsRead(id: number): Promise<LoveMessage> {
+    const [updatedMessage] = await db
+      .update(loveMessages)
+      .set({ isRead: true })
+      .where(eq(loveMessages.id, id))
+      .returning();
+    return updatedMessage;
   }
 
   // LMS operations

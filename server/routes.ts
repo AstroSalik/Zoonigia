@@ -7,6 +7,7 @@ import {
   insertCourseEnrollmentSchema,
   insertCampaignParticipantSchema,
   insertContactInquirySchema,
+  insertLoveMessageSchema,
   insertUserSchema,
   insertBlogPostSchema,
   insertWorkshopSchema,
@@ -1288,6 +1289,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch achievements" });
     }
   });
+
+  // Love message routes (special user to admin messages)
+  app.post("/api/love-messages", async (req, res) => {
+    try {
+      const userId = req.headers['x-user-id']; // Firebase UID from frontend
+      const userEmail = req.headers['x-user-email']; // User email from frontend
+      
+      // Only allow the special user to send love messages
+      if (userEmail !== 'munafsultan111@gmail.com') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const messageData = insertLoveMessageSchema.parse({
+        ...req.body,
+        fromUserId: userId,
+        fromUserEmail: userEmail,
+      });
+      
+      const message = await storage.createLoveMessage(messageData);
+      res.json(message);
+    } catch (error) {
+      console.error("Error creating love message:", error);
+      res.status(500).json({ message: "Failed to send love message" });
+    }
+  });
+
+  app.get(
+    "/api/admin/love-messages",
+    isAdmin,
+    async (req: any, res) => {
+      try {
+        const messages = await storage.getLoveMessages();
+        res.json(messages);
+      } catch (error) {
+        console.error("Error fetching love messages:", error);
+        res.status(500).json({ message: "Failed to fetch love messages" });
+      }
+    },
+  );
+
+  app.patch(
+    "/api/admin/love-messages/:id/read",
+    isAdmin,
+    async (req: any, res) => {
+      try {
+        const { id } = req.params;
+        const message = await storage.markLoveMessageAsRead(parseInt(id));
+        res.json(message);
+      } catch (error) {
+        console.error("Error marking love message as read:", error);
+        res.status(500).json({ message: "Failed to mark message as read" });
+      }
+    },
+  );
 
   // Contact routes
   app.post("/api/contact", async (req, res) => {

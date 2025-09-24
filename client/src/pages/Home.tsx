@@ -61,6 +61,11 @@ const RoyalQueenHomepage = ({ user }: { user: any }) => {
     mutationFn: async (data: z.infer<typeof loveMessageSchema>) => {
       const response = await apiRequest("/api/love-messages", {
         method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-id': user?.uid || '',
+          'x-user-email': user?.email || '',
+        },
         body: JSON.stringify(data),
       });
       return response;
