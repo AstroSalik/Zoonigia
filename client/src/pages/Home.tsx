@@ -355,7 +355,11 @@ const Home = () => {
   }, [specialMessageData, toast]);
   // If it's my love or royal preview, show the special royal homepage
   if (isMyLove || isRoyalPreview) {
-    return <RoyalQueenHomepage user={firebaseUser || { email: 'munafsultan111@gmail.com', uid: 'preview' }} />;
+    // For royal preview, ensure we always use Munaf's email
+    const royalUser = isRoyalPreview 
+      ? { email: 'munafsultan111@gmail.com', uid: 'royal-preview-munaf' }
+      : firebaseUser;
+    return <RoyalQueenHomepage user={royalUser} />;
   }
 
   return (

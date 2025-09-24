@@ -1296,8 +1296,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.headers['x-user-id']; // Firebase UID from frontend
       const userEmail = req.headers['x-user-email']; // User email from frontend
       
+      console.log("Love message attempt - userId:", userId, "userEmail:", userEmail);
+      console.log("Expected email: munafsultan111@gmail.com");
+      
       // Only allow the special user to send love messages
       if (userEmail !== 'munafsultan111@gmail.com') {
+        console.log("Access denied - email mismatch. Got:", userEmail);
         return res.status(403).json({ message: "Access denied" });
       }
 
