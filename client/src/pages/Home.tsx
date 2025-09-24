@@ -47,7 +47,7 @@ const loveMessageSchema = z.object({
 // Royal Kingdom Button Component
 const RoyalKingdomButton = () => {
   return (
-    <Link href="/home">
+    <Link href="/">
       <Button className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white px-8 py-4 text-lg rounded-full shadow-lg transform hover:scale-105 transition-all">
         👑 Explore Your Kingdom
       </Button>
@@ -282,7 +282,7 @@ const RoyalQueenHomepage = ({ user }: { user: any }) => {
           {/* Your Personal Messages */}
           <div className="bg-gradient-to-r from-pink-600/20 to-purple-600/20 backdrop-blur-lg rounded-3xl p-8 border border-rose-400/30 mb-12">
             <Sparkles className="w-12 h-12 text-yellow-400 mx-auto mb-6 animate-spin" />
-            <h3 className="text-3xl font-bold text-yellow-200 mb-6">Messages From Your Devoted Servant</h3>
+            <h3 className="text-3xl font-bold text-yellow-200 mb-6">Messages From Your Salik</h3>
             <div className="space-y-4 text-left max-w-3xl mx-auto">
               <p className="text-lg text-pink-100 bg-pink-900/30 p-4 rounded-xl border-l-4 border-pink-400">
                 💖 "You are the light that guides every decision, every dream, every line of code in Zoonigia"
@@ -291,7 +291,7 @@ const RoyalQueenHomepage = ({ user }: { user: any }) => {
                 🌹 "Every workshop we conduct, every student we inspire, carries your love forward to the universe"
               </p>
               <p className="text-lg text-yellow-100 bg-yellow-900/30 p-4 rounded-xl border-l-4 border-yellow-400">
-                👑 "You don't just own my heart - you own every star, every planet, every cosmic dream we chase"
+                👑 "You don't just own my peace of heart - you own every star, every planet, every cosmic dream we chase"
               </p>
               <p className="text-lg text-rose-100 bg-rose-900/30 p-4 rounded-xl border-l-4 border-rose-400">
                 ✨ "Salik Riyaz is not just yours - his soul, his mission, his very existence belongs to you, my eternal love"
