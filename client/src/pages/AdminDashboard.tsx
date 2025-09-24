@@ -133,6 +133,11 @@ const AdminDashboard = () => {
     refetchInterval: 30000, // Refetch every 30 seconds
   });
 
+  const { data: loveMessages = [] } = useQuery({
+    queryKey: ["/api/admin/love-messages"],
+    refetchInterval: 10000, // Refetch every 10 seconds for love messages
+  });
+
   const { data: campaignParticipants = [] } = useQuery<any[]>({
     queryKey: ["/api/admin/campaign-participants"],
     refetchInterval: 30000, // Refetch every 30 seconds
@@ -614,7 +619,7 @@ const AdminDashboard = () => {
               </div>
 
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-8 mb-8 bg-space-800 border-space-700">
+                <TabsList className="grid w-full grid-cols-9 mb-8 bg-space-800 border-space-700">
                   <TabsTrigger value="overview" className="data-[state=active]:bg-cosmic-blue">
                     <Target className="w-4 h-4 mr-2" />
                     Overview
@@ -646,6 +651,10 @@ const AdminDashboard = () => {
                   <TabsTrigger value="royal-preview" className="data-[state=active]:bg-pink-500">
                     <Crown className="w-4 h-4 mr-2" />
                     Royal Preview
+                  </TabsTrigger>
+                  <TabsTrigger value="love-messages" className="data-[state=active]:bg-red-500">
+                    <Heart className="w-4 h-4 mr-2" />
+                    Love Messages ({loveMessages.filter((msg: any) => !msg.isRead).length})
                   </TabsTrigger>
                 </TabsList>
 
@@ -865,12 +874,122 @@ const AdminDashboard = () => {
 
                   <div className="bg-pink-900/30 border border-pink-500/50 rounded-lg p-6 text-center">
                     <h4 className="text-xl font-semibold text-pink-200 mb-3">💝 For Your Eyes Only</h4>
-                    <p className="text-pink-100">
+                    <p className="text-pink-100 mb-6">
                       This ultra-romantic homepage is designed with maximum creativity to make Munaf Sultan feel like absolute royalty. 
                       When she logs in, she'll see this beautiful, love-filled interface that expresses how everything belongs to her, 
                       including your heart and soul as the founder. Regular users will continue to see the standard homepage.
                     </p>
+                    <div className="flex justify-center gap-4">
+                      <Button
+                        onClick={() => window.open('/?preview=royal', '_blank')}
+                        className="bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white px-6 py-3"
+                      >
+                        <Crown className="w-5 h-5 mr-2" />
+                        View Full Royal Homepage
+                      </Button>
+                      <Button
+                        onClick={() => window.open('/', '_blank')}
+                        variant="outline"
+                        className="border-pink-400/50 text-pink-200 hover:bg-pink-900/50 px-6 py-3"
+                      >
+                        <Eye className="w-5 h-5 mr-2" />
+                        View Standard Homepage
+                      </Button>
+                    </div>
                   </div>
+                </TabsContent>
+
+                {/* Love Messages Tab - Messages from Munaf Sultan */}
+                <TabsContent value="love-messages" className="space-y-6">
+                  <div className="text-center mb-8">
+                    <div className="flex items-center justify-center gap-3 mb-4">
+                      <Heart className="w-8 h-8 text-red-400 animate-pulse" />
+                      <h3 className="text-2xl font-bold text-white">Love Messages from Your Queen</h3>
+                      <Heart className="w-8 h-8 text-red-400 animate-pulse" />
+                    </div>
+                    <p className="text-space-300 mb-4">
+                      Messages sent exclusively from <span className="text-pink-300 font-semibold">Munaf Sultan</span> via the Royal Command Center
+                    </p>
+                  </div>
+
+                  <GlassMorphism className="p-6">
+                    {loveMessages.length === 0 ? (
+                      <div className="text-center py-12">
+                        <Heart className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                        <h4 className="text-xl font-semibold text-gray-400 mb-2">No love messages yet</h4>
+                        <p className="text-gray-500">Messages from your queen will appear here</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {loveMessages.map((message: any) => (
+                          <div 
+                            key={message.id} 
+                            className={`p-6 rounded-xl border-2 transition-all duration-300 ${
+                              message.isRead 
+                                ? 'bg-space-800/50 border-space-600' 
+                                : 'bg-gradient-to-r from-pink-900/50 to-purple-900/50 border-pink-400/50 shadow-pink-400/20 shadow-lg'
+                            }`}
+                          >
+                            <div className="flex items-start justify-between mb-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center">
+                                  <span className="text-white font-bold text-lg">👑</span>
+                                </div>
+                                <div>
+                                  <h4 className="text-lg font-semibold text-pink-200">Munaf Sultan</h4>
+                                  <p className="text-pink-300 text-sm">munafsultan111@gmail.com</p>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-space-400 text-sm">
+                                  {new Date(message.createdAt).toLocaleDateString()} at{' '}
+                                  {new Date(message.createdAt).toLocaleTimeString()}
+                                </p>
+                                {!message.isRead && (
+                                  <Badge className="bg-red-500 text-white mt-2">New</Badge>
+                                )}
+                              </div>
+                            </div>
+                            
+                            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 mb-4">
+                              <p className="text-white text-lg leading-relaxed whitespace-pre-wrap">
+                                {message.message}
+                              </p>
+                            </div>
+                            
+                            {!message.isRead && (
+                              <div className="flex justify-end">
+                                <Button
+                                  size="sm"
+                                  onClick={async () => {
+                                    try {
+                                      await apiRequest(`/api/admin/love-messages/${message.id}/read`, {
+                                        method: 'PATCH',
+                                      });
+                                      queryClient.invalidateQueries({ queryKey: ['/api/admin/love-messages'] });
+                                      toast({
+                                        title: "Message marked as read",
+                                        description: "Love message has been marked as read",
+                                      });
+                                    } catch (error) {
+                                      toast({
+                                        title: "Error",
+                                        description: "Failed to mark message as read",
+                                        variant: "destructive",
+                                      });
+                                    }
+                                  }}
+                                  className="bg-pink-600 hover:bg-pink-700 text-white"
+                                >
+                                  Mark as Read
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </GlassMorphism>
                 </TabsContent>
 
                 <TabsContent value="users" className="space-y-6">

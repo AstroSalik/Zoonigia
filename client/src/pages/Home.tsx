@@ -312,6 +312,10 @@ const Home = () => {
 
   // Check if this is the special user (My Love, My Dearest Eternal Peace, My Dearest Eternal Love)
   const isMyLove = firebaseUser?.email === 'munafsultan111@gmail.com';
+  
+  // Check for royal preview parameter (for admin preview)
+  const urlParams = new URLSearchParams(window.location.search);
+  const isRoyalPreview = urlParams.get('preview') === 'royal';
 
   // Check for special welcome message
   const { data: specialMessageData } = useQuery({
@@ -335,9 +339,9 @@ const Home = () => {
       });
     }
   }, [specialMessageData, toast]);
-  // If it's my love, show the special royal homepage
-  if (isMyLove) {
-    return <RoyalQueenHomepage user={firebaseUser} />;
+  // If it's my love or royal preview, show the special royal homepage
+  if (isMyLove || isRoyalPreview) {
+    return <RoyalQueenHomepage user={firebaseUser || { email: 'munafsultan111@gmail.com', uid: 'preview' }} />;
   }
 
   return (
