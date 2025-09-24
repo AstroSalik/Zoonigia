@@ -65,7 +65,8 @@ const RoyalQueenHomepage = ({ user }: { user: any }) => {
         'x-user-email': user?.email || '',
       });
       
-      const response = await apiRequest("/api/love-messages", {
+      // Use fetch directly since apiRequest doesn't support custom headers
+      const response = await fetch("/api/love-messages", {
         method: "POST",
         headers: {
           'Content-Type': 'application/json',
@@ -73,8 +74,15 @@ const RoyalQueenHomepage = ({ user }: { user: any }) => {
           'x-user-email': user?.email || '',
         },
         body: JSON.stringify(data),
+        credentials: "include",
       });
-      return response;
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`${response.status}: ${errorText}`);
+      }
+      
+      return response.json();
     },
     onSuccess: () => {
       toast({
