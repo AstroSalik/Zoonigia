@@ -10,7 +10,7 @@ import { signInWithGoogle, signOutUser } from "@/lib/googleAuth";
 import { User } from "@shared/schema";
 
 const Navigation = () => {
-  const [location] = useLocation();
+  const [location, navigate] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const { user, isAuthenticated } = useAuth();
 
@@ -147,8 +147,13 @@ const Navigation = () => {
                         : "text-space-200 hover:text-cosmic-blue"
                     }`}
                     onClick={(e) => {
-                      // Close the sheet immediately for smooth UX
+                      // Force immediate sheet close before navigation
+                      e.preventDefault();
                       setIsOpen(false);
+                      // Use setTimeout to ensure state update completes, then navigate
+                      setTimeout(() => {
+                        navigate(item.href);
+                      }, 50); // Minimal delay to allow sheet to close
                     }}
                   >
                     {item.label}
