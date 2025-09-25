@@ -66,9 +66,12 @@ const courseFormSchema = z.object({
 const campaignFormSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
+  type: z.string().min(1, "Type is required"),
   field: z.string().min(1, "Field is required"),
   duration: z.string().min(1, "Duration is required"),
-  price: z.coerce.number().min(0, "Price must be 0 or higher"),
+  startDate: z.string().min(1, "Start date is required"),
+  endDate: z.string().min(1, "End date is required"),
+  price: z.string().min(0, "Price is required"),
   targetParticipants: z.coerce.number().min(1, "Target participants must be at least 1"),
   requirements: z.string().min(1, "Requirements are required"),
   timeline: z.string().min(1, "Timeline is required"),
