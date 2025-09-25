@@ -682,11 +682,13 @@ const Home = () => {
               Join thousands of students and educators who are already discovering the wonders of science with Zoonigia.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/register">
-                <Button className="cosmic-gradient hover:opacity-90 px-8 py-4 text-lg">
-                  Get Started Today
-                </Button>
-              </Link>
+              {!isAuthenticated && (
+                <Link href="/register">
+                  <Button className="cosmic-gradient hover:opacity-90 px-8 py-4 text-lg">
+                    Get Started Today
+                  </Button>
+                </Link>
+              )}
               <Link href="/workshops">
                 <Button variant="outline" className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900 px-8 py-4 text-lg">
                   View All Workshops

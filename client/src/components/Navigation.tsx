@@ -146,7 +146,10 @@ const Navigation = () => {
                         ? "text-cosmic-blue"
                         : "text-space-200 hover:text-cosmic-blue"
                     }`}
-                    onClick={() => setIsOpen(false)}
+                    onClick={(e) => {
+                      // Close the sheet immediately for smooth UX
+                      setIsOpen(false);
+                    }}
                   >
                     {item.label}
                   </Link>
