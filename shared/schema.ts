@@ -107,6 +107,8 @@ export const courses = pgTable("courses", {
   learningObjectives: text("learning_objectives").array(),
   prerequisites: text("prerequisites").array(),
   isActive: boolean("is_active").default(true),
+  isFeatured: boolean("is_featured").default(false),
+  featuredOrder: integer("featured_order").default(0),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -219,12 +221,12 @@ export const campaigns = pgTable("campaigns", {
   id: serial("id").primaryKey(),
   title: varchar("title").notNull(),
   description: text("description").notNull(),
-  type: varchar("type").notNull(), // asteroid_search, poetry, research
+  type: varchar("type").notNull(), // asteroid_search, poetry, research, ideathon
   field: varchar("field"),
   duration: varchar("duration"),
   startDate: date("start_date").notNull(),
   endDate: date("end_date").notNull(),
-  partner: varchar("partner"), // NASA, IASC, etc.
+  partner: varchar("partner"), // NASA, IASC, Think Startup, etc.
   status: varchar("status").default("upcoming"), // upcoming, active, closed, completed
   progress: integer("progress").default(0), // percentage
   maxParticipants: integer("max_participants"),
@@ -235,6 +237,8 @@ export const campaigns = pgTable("campaigns", {
   requirements: text("requirements"),
   timeline: text("timeline"),
   outcomes: text("outcomes"),
+  isFeatured: boolean("is_featured").default(false),
+  featuredOrder: integer("featured_order").default(0),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -248,6 +252,33 @@ export const campaignParticipants = pgTable("campaign_participants", {
   status: varchar("status").default("active"), // active, completed, withdrawn
   paymentStatus: varchar("payment_status").default("pending"), // pending, paid, failed
   paymentAmount: decimal("payment_amount", { precision: 10, scale: 2 }),
+});
+
+// Campaign team registrations (for team-based campaigns like ideathons)
+export const campaignTeamRegistrations = pgTable("campaign_team_registrations", {
+  id: serial("id").primaryKey(),
+  campaignId: integer("campaign_id").references(() => campaigns.id).notNull(),
+  schoolName: varchar("school_name").notNull(),
+  teamLeaderName: varchar("team_leader_name").notNull(),
+  teamLeaderEmail: varchar("team_leader_email").notNull(),
+  teamLeaderPhone: varchar("team_leader_phone").notNull(),
+  teamMember2Name: varchar("team_member_2_name").notNull(),
+  teamMember2Email: varchar("team_member_2_email").notNull(),
+  teamMember2Phone: varchar("team_member_2_phone").notNull(),
+  teamMember3Name: varchar("team_member_3_name").notNull(),
+  teamMember3Email: varchar("team_member_3_email").notNull(),
+  teamMember3Phone: varchar("team_member_3_phone").notNull(),
+  teamMember4Name: varchar("team_member_4_name"),
+  teamMember4Email: varchar("team_member_4_email"),
+  teamMember4Phone: varchar("team_member_4_phone"),
+  teamMember5Name: varchar("team_member_5_name"),
+  teamMember5Email: varchar("team_member_5_email"),
+  teamMember5Phone: varchar("team_member_5_phone"),
+  mentorName: varchar("mentor_name").notNull(),
+  mentorEmail: varchar("mentor_email").notNull(),
+  mentorPhone: varchar("mentor_phone").notNull(),
+  status: varchar("status").default("pending"), // pending, confirmed, rejected
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 // Blog posts table
@@ -339,6 +370,9 @@ export type CourseEnrollment = typeof courseEnrollments.$inferSelect;
 export type InsertCampaignParticipant = typeof campaignParticipants.$inferInsert;
 export type CampaignParticipant = typeof campaignParticipants.$inferSelect;
 
+export type InsertCampaignTeamRegistration = typeof campaignTeamRegistrations.$inferInsert;
+export type CampaignTeamRegistration = typeof campaignTeamRegistrations.$inferSelect;
+
 // LMS types
 export type InsertCourseModule = typeof courseModules.$inferInsert;
 export type CourseModule = typeof courseModules.$inferSelect;
@@ -374,6 +408,7 @@ export const insertWorkshopEnrollmentSchema = createInsertSchema(workshopEnrollm
 export const insertWorkshopRegistrationSchema = createInsertSchema(workshopRegistrations);
 export const insertCourseEnrollmentSchema = createInsertSchema(courseEnrollments);
 export const insertCampaignParticipantSchema = createInsertSchema(campaignParticipants);
+export const insertCampaignTeamRegistrationSchema = createInsertSchema(campaignTeamRegistrations).omit({ id: true, createdAt: true });
 
 // LMS Zod schemas
 export const insertCourseModuleSchema = createInsertSchema(courseModules);
