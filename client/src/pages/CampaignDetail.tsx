@@ -214,7 +214,7 @@ export default function CampaignDetail() {
     // Create payment intent first
     createPaymentMutation.mutate({
       campaignId: campaign.id,
-      paymentAmount: parseFloat(campaign.price)
+      paymentAmount: parseFloat(campaign.price || "0")
     });
   };
 
@@ -304,7 +304,7 @@ export default function CampaignDetail() {
                 <Users className="w-6 h-6 text-cosmic-purple mx-auto mb-2" />
                 <p className="text-sm text-gray-400">Participants</p>
                 <p className="font-semibold">
-                  {campaign.status === "upcoming" ? "TBD" : campaign.participantCount || 0}
+                  {campaign.status === "upcoming" ? "TBD" : campaign.currentParticipants || 0}
                 </p>
               </CardContent>
             </Card>
