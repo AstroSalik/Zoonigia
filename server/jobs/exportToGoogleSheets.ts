@@ -3,42 +3,28 @@ import { campaigns, campaignTeamRegistrations } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import { getUncachableGoogleSheetClient } from "../googleSheetClient";
 
-export async function exportYouthIdeathonToGoogleSheets() {
+export async function exportCampaignsToGoogleSheets() {
   try {
     console.log('[Google Sheets Export] Starting daily export job...');
     
-    // Get Youth Ideathon campaign
-    const youthIdeathon = await db
+    // Get all campaigns with status "Accepting Registrations"
+    const activeCampaigns = await db
       .select()
       .from(campaigns)
-      .where(eq(campaigns.title, 'Youth Ideathon 2025'))
-      .limit(1);
+      .where(eq(campaigns.status, 'Accepting Registrations'));
     
-    if (!youthIdeathon || youthIdeathon.length === 0) {
-      console.log('[Google Sheets Export] Youth Ideathon 2025 campaign not found');
+    if (!activeCampaigns || activeCampaigns.length === 0) {
+      console.log('[Google Sheets Export] No campaigns accepting registrations found');
       return;
     }
 
-    const campaignId = youthIdeathon[0].id;
-
-    // Get all registrations for Youth Ideathon
-    const registrations = await db
-      .select()
-      .from(campaignTeamRegistrations)
-      .where(eq(campaignTeamRegistrations.campaignId, campaignId));
-
-    if (registrations.length === 0) {
-      console.log('[Google Sheets Export] No registrations found for Youth Ideathon 2025');
-      return;
-    }
-
-    console.log(`[Google Sheets Export] Found ${registrations.length} registrations`);
+    console.log(`[Google Sheets Export] Found ${activeCampaigns.length} campaigns accepting registrations`);
 
     // Get Google Sheets client
     const sheets = await getUncachableGoogleSheetClient();
 
     // Check if spreadsheet exists in environment variable
-    let spreadsheetId = process.env.YOUTH_IDEATHON_SHEET_ID;
+    let spreadsheetId = process.env.CAMPAIGN_REGISTRATIONS_SHEET_ID;
 
     if (!spreadsheetId) {
       // Create a new spreadsheet
@@ -46,26 +32,70 @@ export async function exportYouthIdeathonToGoogleSheets() {
       const createResponse = await sheets.spreadsheets.create({
         requestBody: {
           properties: {
-            title: `Youth Ideathon 2025 - Registrations (${new Date().toLocaleDateString()})`,
+            title: `Campaign Registrations - ${new Date().toLocaleDateString('en-IN')}`,
           },
-          sheets: [
-            {
-              properties: {
-                title: 'Registrations',
-              },
-            },
-          ],
         },
       });
 
       spreadsheetId = createResponse.data.spreadsheetId!;
       console.log(`[Google Sheets Export] Created spreadsheet: ${spreadsheetId}`);
-      console.log(`[Google Sheets Export] IMPORTANT: Add this to your secrets: YOUTH_IDEATHON_SHEET_ID=${spreadsheetId}`);
+      console.log(`[Google Sheets Export] IMPORTANT: Add this to your secrets: CAMPAIGN_REGISTRATIONS_SHEET_ID=${spreadsheetId}`);
     }
 
-    // Prepare header row
-    const headers = [
-      'Registration ID',
+    let totalExported = 0;
+
+    // Process each campaign
+    for (const campaign of activeCampaigns) {
+      console.log(`[Google Sheets Export] Processing campaign: ${campaign.title}`);
+      
+      // Get all registrations for this campaign
+      const registrations = await db
+        .select()
+        .from(campaignTeamRegistrations)
+        .where(eq(campaignTeamRegistrations.campaignId, campaign.id));
+
+      if (registrations.length === 0) {
+        console.log(`[Google Sheets Export] No registrations found for ${campaign.title}`);
+        continue;
+      }
+
+      console.log(`[Google Sheets Export] Found ${registrations.length} registrations for ${campaign.title}`);
+      totalExported += registrations.length;
+
+      // Create a safe sheet name (Google Sheets has character limits and restrictions)
+      const sheetName = campaign.title.substring(0, 100).replace(/[\\/?*[\]]/g, '');
+      
+      // Check if sheet exists, if not create it
+      const spreadsheet = await sheets.spreadsheets.get({ spreadsheetId });
+      const existingSheet = spreadsheet.data.sheets?.find(
+        sheet => sheet.properties?.title === sheetName
+      );
+
+      let sheetId = existingSheet?.properties?.sheetId;
+
+      if (!existingSheet) {
+        // Create new sheet for this campaign
+        const addSheetResponse = await sheets.spreadsheets.batchUpdate({
+          spreadsheetId,
+          requestBody: {
+            requests: [
+              {
+                addSheet: {
+                  properties: {
+                    title: sheetName,
+                  },
+                },
+              },
+            ],
+          },
+        });
+        sheetId = addSheetResponse.data.replies?.[0]?.addSheet?.properties?.sheetId;
+        console.log(`[Google Sheets Export] Created new sheet: ${sheetName}`);
+      }
+
+      // Prepare header row
+      const headers = [
+        'Registration ID',
       'Registration Date',
       'Status',
       'School Name',
@@ -87,86 +117,91 @@ export async function exportYouthIdeathonToGoogleSheets() {
       'Mentor Name',
       'Mentor Email',
       'Mentor Phone',
-    ];
+      ];
 
-    // Prepare data rows
-    const rows = registrations.map((reg) => [
-      reg.id.toString(),
-      reg.createdAt ? new Date(reg.createdAt).toLocaleDateString('en-IN') : '',
-      reg.status || 'pending',
-      reg.schoolName || '',
-      reg.teamLeaderName || '',
-      reg.teamLeaderEmail || '',
-      reg.teamLeaderPhone || '',
-      reg.teamMember2Name || '',
-      reg.teamMember2Email || '',
-      reg.teamMember2Phone || '',
-      reg.teamMember3Name || '',
-      reg.teamMember3Email || '',
-      reg.teamMember3Phone || '',
-      reg.teamMember4Name || '',
-      reg.teamMember4Email || '',
-      reg.teamMember4Phone || '',
-      reg.teamMember5Name || '',
-      reg.teamMember5Email || '',
-      reg.teamMember5Phone || '',
-      reg.mentorName || '',
-      reg.mentorEmail || '',
-      reg.mentorPhone || '',
-    ]);
+      // Prepare data rows
+      const rows = registrations.map((reg) => [
+        reg.id.toString(),
+        reg.createdAt ? new Date(reg.createdAt).toLocaleDateString('en-IN') : '',
+        reg.status || 'pending',
+        reg.schoolName || '',
+        reg.teamLeaderName || '',
+        reg.teamLeaderEmail || '',
+        reg.teamLeaderPhone || '',
+        reg.teamMember2Name || '',
+        reg.teamMember2Email || '',
+        reg.teamMember2Phone || '',
+        reg.teamMember3Name || '',
+        reg.teamMember3Email || '',
+        reg.teamMember3Phone || '',
+        reg.teamMember4Name || '',
+        reg.teamMember4Email || '',
+        reg.teamMember4Phone || '',
+        reg.teamMember5Name || '',
+        reg.teamMember5Email || '',
+        reg.teamMember5Phone || '',
+        reg.mentorName || '',
+        reg.mentorEmail || '',
+        reg.mentorPhone || '',
+      ]);
 
-    // Clear existing data and write new data
-    await sheets.spreadsheets.values.clear({
-      spreadsheetId,
-      range: 'Registrations!A1:Z',
-    });
+      // Clear existing data and write new data
+      await sheets.spreadsheets.values.clear({
+        spreadsheetId,
+        range: `${sheetName}!A1:Z`,
+      });
 
-    await sheets.spreadsheets.values.update({
-      spreadsheetId,
-      range: 'Registrations!A1',
-      valueInputOption: 'RAW',
-      requestBody: {
-        values: [headers, ...rows],
-      },
-    });
+      await sheets.spreadsheets.values.update({
+        spreadsheetId,
+        range: `${sheetName}!A1`,
+        valueInputOption: 'RAW',
+        requestBody: {
+          values: [headers, ...rows],
+        },
+      });
 
-    // Format header row
-    await sheets.spreadsheets.batchUpdate({
-      spreadsheetId,
-      requestBody: {
-        requests: [
-          {
-            repeatCell: {
-              range: {
-                sheetId: 0,
-                startRowIndex: 0,
-                endRowIndex: 1,
-              },
-              cell: {
-                userEnteredFormat: {
-                  backgroundColor: {
-                    red: 0.2,
-                    green: 0.4,
-                    blue: 0.8,
+      // Format header row for this sheet
+      if (sheetId !== undefined) {
+        await sheets.spreadsheets.batchUpdate({
+          spreadsheetId,
+          requestBody: {
+            requests: [
+              {
+                repeatCell: {
+                  range: {
+                    sheetId: sheetId,
+                    startRowIndex: 0,
+                    endRowIndex: 1,
                   },
-                  textFormat: {
-                    bold: true,
-                    foregroundColor: {
-                      red: 1,
-                      green: 1,
-                      blue: 1,
+                  cell: {
+                    userEnteredFormat: {
+                      backgroundColor: {
+                        red: 0.2,
+                        green: 0.4,
+                        blue: 0.8,
+                      },
+                      textFormat: {
+                        bold: true,
+                        foregroundColor: {
+                          red: 1,
+                          green: 1,
+                          blue: 1,
+                        },
+                      },
                     },
                   },
+                  fields: 'userEnteredFormat(backgroundColor,textFormat)',
                 },
               },
-              fields: 'userEnteredFormat(backgroundColor,textFormat)',
-            },
+            ],
           },
-        ],
-      },
-    });
+        });
+      }
 
-    console.log(`[Google Sheets Export] Successfully exported ${registrations.length} registrations to Google Sheets`);
+      console.log(`[Google Sheets Export] Successfully exported ${registrations.length} registrations for ${campaign.title}`);
+    }
+
+    console.log(`[Google Sheets Export] Total exported: ${totalExported} registrations across ${activeCampaigns.length} campaigns`);
     console.log(`[Google Sheets Export] Spreadsheet ID: ${spreadsheetId}`);
     
     return spreadsheetId;
@@ -198,7 +233,7 @@ export function scheduleDailyExport() {
   console.log(`[Google Sheets Export] Next export scheduled for: ${scheduledTime.toLocaleString('en-IN')}`);
 
   setTimeout(() => {
-    exportYouthIdeathonToGoogleSheets()
+    exportCampaignsToGoogleSheets()
       .then(() => {
         console.log('[Google Sheets Export] Daily export completed successfully');
         // Schedule next export (24 hours later)

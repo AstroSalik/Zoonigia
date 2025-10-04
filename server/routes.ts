@@ -17,7 +17,7 @@ import {
 } from "@shared/schema";
 import { z } from "zod";
 import Stripe from "stripe";
-import { exportYouthIdeathonToGoogleSheets } from "./jobs/exportToGoogleSheets";
+import { exportCampaignsToGoogleSheets } from "./jobs/exportToGoogleSheets";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error("Missing required Stripe secret: STRIPE_SECRET_KEY");
@@ -151,9 +151,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     async (req: any, res) => {
       try {
         console.log('[API] Manual export triggered by admin');
-        const spreadsheetId = await exportYouthIdeathonToGoogleSheets();
+        const spreadsheetId = await exportCampaignsToGoogleSheets();
         res.json({ 
-          message: "Export completed successfully",
+          message: "Export completed successfully for all campaigns accepting registrations",
           spreadsheetId,
         });
       } catch (error) {
