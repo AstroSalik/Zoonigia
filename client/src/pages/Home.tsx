@@ -410,6 +410,60 @@ const Home = () => {
       {/* Featured Programs Carousel */}
       <FeaturedCarousel />
       
+      {/* Featured Opportunities */}
+      <section className="py-20 bg-space-800/30">
+        <div className="container mx-auto px-4">
+          <h2 className="text-4xl font-space font-bold text-center mb-12">Featured Opportunities</h2>
+          <div className="max-w-5xl mx-auto">
+            <Carousel
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+              className="w-full"
+            >
+              <CarouselContent className="-ml-2 md:-ml-4">
+                <CarouselItem className="pl-2 md:pl-4 basis-4/5 md:basis-1/2">
+                  <div className="p-1">
+                    <GlassMorphism className="p-8 hover:bg-white/20 transition-all duration-300 group h-full">
+                      <div className="text-center">
+                        <Users className="w-16 h-16 text-cosmic-blue mb-4 mx-auto group-hover:scale-110 transition-transform" />
+                        <h3 className="text-2xl font-semibold mb-3">Workshop Registration</h3>
+                        <p className="text-space-300 mb-6 text-lg">Join our immersive workshops exploring frontier sciences through hands-on discovery and interdisciplinary learning</p>
+                        <Link href="/workshops">
+                          <Button className="bg-cosmic-blue hover:bg-blue-600 px-6 py-3">
+                            Register Now
+                          </Button>
+                        </Link>
+                      </div>
+                    </GlassMorphism>
+                  </div>
+                </CarouselItem>
+                
+                <CarouselItem className="pl-2 md:pl-4 basis-4/5 md:basis-1/2">
+                  <div className="p-1">
+                    <GlassMorphism className="p-8 hover:bg-white/20 transition-all duration-300 group h-full">
+                      <div className="text-center">
+                        <School className="w-16 h-16 text-cosmic-purple mb-4 mx-auto group-hover:scale-110 transition-transform" />
+                        <h3 className="text-2xl font-semibold mb-3">School Educational Partnership</h3>
+                        <p className="text-space-300 mb-6 text-lg">Partner with us to bring frontier sciences education directly to your institution with customized programs</p>
+                        <Link href="/schools">
+                          <Button className="bg-cosmic-purple hover:bg-purple-600 px-6 py-3">
+                            Partner With Us
+                          </Button>
+                        </Link>
+                      </div>
+                    </GlassMorphism>
+                  </div>
+                </CarouselItem>
+              </CarouselContent>
+              <CarouselPrevious className="hidden md:flex -left-12 border-space-600 bg-space-800/80 text-space-50 hover:bg-space-700" />
+              <CarouselNext className="hidden md:flex -right-12 border-space-600 bg-space-800/80 text-space-50 hover:bg-space-700" />
+            </Carousel>
+          </div>
+        </div>
+      </section>
+      
       {/* Video Section */}
       <section className="py-20 bg-space-800/30">
         <div className="container mx-auto px-4">
