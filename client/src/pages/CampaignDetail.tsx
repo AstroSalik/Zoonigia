@@ -15,8 +15,9 @@ import { isUnauthorizedError } from "@/lib/authUtils";
 import { useEffect, useState } from "react";
 import { useStripe, useElements, Elements, PaymentElement } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
-import type { Campaign } from "@shared/types";
+import type { Campaign } from "@shared/schema";
 import Navigation from "@/components/Navigation";
+import TeamRegistrationForm from "@/components/TeamRegistrationForm";
 
 // Initialize Stripe
 if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
@@ -520,19 +521,39 @@ export default function CampaignDetail() {
 
                 <Separator className="bg-space-700" />
 
-                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                  <DialogTrigger asChild>
+                {campaign.type === 'ideathon' ? (
+                  <div className="space-y-3">
                     <Button 
-                      onClick={handleEnrollment}
                       disabled={campaign.status !== "active"}
                       className="w-full bg-gradient-to-r from-cosmic-blue to-cosmic-purple hover:from-cosmic-purple hover:to-cosmic-blue transition-all duration-300"
+                      onClick={() => {
+                        document.getElementById('team-registration-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }}
                     >
-                      <CreditCard className="w-4 h-4 mr-2" />
+                      <Users className="w-4 h-4 mr-2" />
                       {campaign.status === "upcoming" ? "Coming Soon" : 
-                       campaign.status === "active" ? "Register & Pay Now" : 
+                       campaign.status === "active" ? "Register Your Team" : 
                        "Registration Closed"}
                     </Button>
-                  </DialogTrigger>
+                    <p className="text-xs text-center text-space-400">
+                      Team-based registration required
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button 
+                        onClick={handleEnrollment}
+                        disabled={campaign.status !== "active"}
+                        className="w-full bg-gradient-to-r from-cosmic-blue to-cosmic-purple hover:from-cosmic-purple hover:to-cosmic-blue transition-all duration-300"
+                      >
+                        <CreditCard className="w-4 h-4 mr-2" />
+                        {campaign.status === "upcoming" ? "Coming Soon" : 
+                         campaign.status === "active" ? "Register & Pay Now" : 
+                         "Registration Closed"}
+                      </Button>
+                    </DialogTrigger>
                   <DialogContent className="bg-space-800 border-space-700 text-white max-w-md">
                     <DialogHeader>
                       <DialogTitle className="text-cosmic-blue">
@@ -630,15 +651,32 @@ export default function CampaignDetail() {
                   </DialogContent>
                 </Dialog>
 
-                <div className="text-center">
-                  <p className="text-xs text-gray-500">
-                    Secure payment processing • 30-day money-back guarantee
-                  </p>
-                </div>
+                    <div className="text-center">
+                      <p className="text-xs text-gray-500">
+                        Secure payment processing • 30-day money-back guarantee
+                      </p>
+                    </div>
+                  </>
+                )}
               </CardContent>
             </Card>
           </div>
         </div>
+
+        {/* Team Registration Form for Ideathon Campaigns */}
+        {campaign.type === 'ideathon' && campaign.status === 'active' && (
+          <div id="team-registration-form" className="container mx-auto px-4 mt-8 max-w-4xl">
+            <TeamRegistrationForm 
+              campaignId={campaign.id}
+              onSuccess={() => {
+                toast({
+                  title: "Success!",
+                  description: "Your team has been registered successfully.",
+                });
+              }}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
