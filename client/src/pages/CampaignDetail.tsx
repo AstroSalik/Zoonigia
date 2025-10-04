@@ -423,6 +423,88 @@ export default function CampaignDetail() {
                   </CardContent>
                 </Card>
 
+                {/* Mobile-only Join Campaign section */}
+                <Card className="bg-space-800/50 border-space-700 mb-8 lg:hidden">
+                  <CardHeader>
+                    <CardTitle className="text-xl">Join the Campaign</CardTitle>
+                    <CardDescription>
+                      Become part of real space science research
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {campaign.status === "upcoming" ? (
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-cosmic-yellow mb-2">Coming Soon</div>
+                        <p className="text-sm text-gray-400">Registration opens soon</p>
+                      </div>
+                    ) : campaign.price && parseFloat(campaign.price) > 0 ? (
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-cosmic-blue mb-2">₹{campaign.price}</div>
+                        <p className="text-sm text-gray-400">Full campaign access</p>
+                        <p className="text-xs text-gray-500 mt-1">Scholarships available</p>
+                      </div>
+                    ) : (
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-green-400 mb-2">FREE</div>
+                        <p className="text-sm text-gray-400">Free registration</p>
+                      </div>
+                    )}
+
+                    <Separator className="bg-space-700" />
+
+                    <div className="space-y-2">
+                      {campaign.status !== "upcoming" && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-400">Duration:</span>
+                          <span>{campaign.duration || "TBD"}</span>
+                        </div>
+                      )}
+                      {campaign.status !== "upcoming" && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-400">Field:</span>
+                          <span>{campaign.field || "TBD"}</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-400">Status:</span>
+                        <Badge variant="outline" className={
+                          campaign.status === 'upcoming' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500' :
+                          campaign.status === 'active' ? 'bg-green-500/20 text-green-400 border-green-500' :
+                          campaign.status === 'closed' ? 'bg-blue-500/20 text-blue-400 border-blue-500' :
+                          'bg-gray-500/20 text-gray-400 border-gray-500'
+                        }>
+                          {campaign.status}
+                        </Badge>
+                      </div>
+                      {campaign.status === "upcoming" && (
+                        <div className="text-center mt-4">
+                          <p className="text-sm text-cosmic-yellow">More details will be available soon</p>
+                        </div>
+                      )}
+                    </div>
+
+                    <Separator className="bg-space-700" />
+
+                    <div className="space-y-3">
+                      <Button 
+                        disabled={campaign.status !== "active"}
+                        className="w-full bg-gradient-to-r from-cosmic-blue to-cosmic-purple hover:from-cosmic-purple hover:to-cosmic-blue transition-all duration-300"
+                        onClick={() => {
+                          document.getElementById('team-registration-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }}
+                      >
+                        <Users className="w-4 h-4 mr-2" />
+                        {campaign.status === "upcoming" ? "Coming Soon" : 
+                         campaign.status === "active" ? "Register Your Team" : 
+                         "Registration Closed"}
+                      </Button>
+                      <p className="text-xs text-center text-space-400">
+                        Team-based registration required
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+
                 {/* Requirements */}
                 <Card className="bg-space-800/50 border-space-700 mb-8">
                   <CardHeader>
@@ -568,7 +650,7 @@ export default function CampaignDetail() {
           </div>
 
           {/* Sidebar */}
-          <div className="lg:col-span-1">
+          <div className="hidden lg:block lg:col-span-1">
             <Card className="bg-space-800/50 border-space-700 sticky top-8">
               <CardHeader>
                 <CardTitle className="text-xl">Join the Campaign</CardTitle>
