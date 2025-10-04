@@ -3,6 +3,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import compression from "compression";
 import path from "path";
+import { scheduleDailyExport } from "./jobs/exportToGoogleSheets";
 
 const app = express();
 
@@ -107,5 +108,9 @@ app.use((req, res, next) => {
     reusePort: true,
   }, () => {
     log(`serving on port ${port}`);
+    
+    // Start the daily Google Sheets export scheduler
+    scheduleDailyExport();
+    log('Google Sheets daily export scheduler started');
   });
 })();

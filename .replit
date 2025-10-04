@@ -19,7 +19,7 @@ localPort = 35867
 externalPort = 3000
 
 [[ports]]
-localPort = 38195
+localPort = 39519
 externalPort = 3001
 
 [env]
@@ -45,3 +45,6 @@ author = "agent"
 task = "shell.exec"
 args = "npm run dev"
 waitForPort = 5000
+
+[agent]
+integrations = ["google-sheet:1.0.0"]

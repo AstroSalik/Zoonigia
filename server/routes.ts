@@ -17,6 +17,7 @@ import {
 } from "@shared/schema";
 import { z } from "zod";
 import Stripe from "stripe";
+import { exportYouthIdeathonToGoogleSheets } from "./jobs/exportToGoogleSheets";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error("Missing required Stripe secret: STRIPE_SECRET_KEY");
@@ -142,6 +143,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
   };
 
   // Admin routes
+  
+  // Manual trigger for Google Sheets export (admin only)
+  app.post(
+    "/api/admin/export-to-sheets",
+    isAdmin,
+    async (req: any, res) => {
+      try {
+        console.log('[API] Manual export triggered by admin');
+        const spreadsheetId = await exportYouthIdeathonToGoogleSheets();
+        res.json({ 
+          message: "Export completed successfully",
+          spreadsheetId,
+        });
+      } catch (error) {
+        console.error("Error exporting to Google Sheets:", error);
+        res.status(500).json({ 
+          message: "Failed to export to Google Sheets",
+          error: error instanceof Error ? error.message : "Unknown error"
+        });
+      }
+    },
+  );
+  
   app.get(
     "/api/admin/users",
     isAdmin,
