@@ -104,31 +104,22 @@ const FeaturedCarousel = () => {
                         <p className="text-space-300 mb-4 line-clamp-2">{item.description}</p>
                         
                         <div className="space-y-2 mb-4">
-                          {isCampaign && (item as Campaign).partner && (
+                          {isCampaign && (
                             <div className="flex items-center text-sm text-space-400">
                               <MapPin className="w-4 h-4 mr-2" />
-                              <span>{(item as Campaign).partner}</span>
+                              <span>IIT Delhi</span>
                             </div>
                           )}
-                          {isCampaign && (item as Campaign).startDate && (
+                          {isCampaign && (item as Campaign).duration && (
                             <div className="flex items-center text-sm text-space-400">
                               <Calendar className="w-4 h-4 mr-2" />
-                              <span>
-                                {new Date((item as Campaign).startDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
-                                {(item as Campaign).endDate && ` - ${new Date((item as Campaign).endDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}`}
-                              </span>
+                              <span>{(item as Campaign).duration}</span>
                             </div>
                           )}
                           {!isCampaign && (item as Course).duration && (
                             <div className="flex items-center text-sm text-space-400">
                               <Calendar className="w-4 h-4 mr-2" />
                               <span>{(item as Course).duration}</span>
-                            </div>
-                          )}
-                          {isCampaign && (item as Campaign).targetParticipants && (
-                            <div className="flex items-center text-sm text-space-400">
-                              <Users className="w-4 h-4 mr-2" />
-                              <span>{(item as Campaign).targetParticipants} participants</span>
                             </div>
                           )}
                           {item.price && parseFloat(item.price) > 0 ? (
