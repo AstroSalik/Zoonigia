@@ -400,19 +400,19 @@ export default function CampaignDetail() {
                       <div className="space-y-3">
                         <div className="flex items-center gap-3">
                           <Clock className="w-5 h-5 text-cosmic-blue" />
-                          <span className="text-sm"><strong>Phase 1:</strong> Team registration and idea submission</span>
+                          <span className="text-sm"><strong>Phase 1:</strong> Registration</span>
                         </div>
                         <div className="flex items-center gap-3">
                           <Clock className="w-5 h-5 text-cosmic-purple" />
-                          <span className="text-sm"><strong>Phase 2:</strong> Initial screening and mentorship sessions</span>
+                          <span className="text-sm"><strong>Phase 2:</strong> Top 1500</span>
                         </div>
                         <div className="flex items-center gap-3">
                           <Clock className="w-5 h-5 text-cosmic-orange" />
-                          <span className="text-sm"><strong>Phase 3:</strong> Top 100 teams selected for IIT Delhi finale</span>
+                          <span className="text-sm"><strong>Phase 3:</strong> Top 500</span>
                         </div>
                         <div className="flex items-center gap-3">
                           <Clock className="w-5 h-5 text-cosmic-yellow" />
-                          <span className="text-sm"><strong>Phase 4:</strong> Grand finale presentation and winner announcement</span>
+                          <span className="text-sm"><strong>Phase 4:</strong> Top 100 (Grand Finale at IIT Delhi)</span>
                         </div>
                       </div>
                     </div>
