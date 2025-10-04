@@ -3,8 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { useQuery } from "@tanstack/react-query";
-import { Sparkles, Calendar, MapPin, Award, Users } from "lucide-react";
+import { Sparkles, Calendar, MapPin, Award, Users, School } from "lucide-react";
 import type { Course, Campaign } from "@shared/schema";
+import GlassMorphism from "@/components/GlassMorphism";
 
 interface FeaturedItemsResponse {
   courses: Course[];
@@ -149,6 +150,42 @@ const FeaturedCarousel = () => {
                 </CarouselItem>
               );
             })}
+            
+            {/* Workshop Registration */}
+            <CarouselItem className="md:basis-1/2 lg:basis-1/3">
+              <Card className="glass-morphism border-2 border-cosmic-blue/30 hover:border-cosmic-blue/50 transition-all h-full">
+                <CardContent className="p-6">
+                  <div className="flex flex-col items-center text-center h-full">
+                    <Users className="w-16 h-16 text-cosmic-blue mb-4" />
+                    <h3 className="text-xl font-bold mb-2">Workshop Registration</h3>
+                    <p className="text-space-300 mb-4 flex-grow">Join our immersive workshops exploring frontier sciences through hands-on discovery</p>
+                    <Link href="/workshops" className="w-full">
+                      <Button className="w-full bg-cosmic-blue hover:bg-blue-600">
+                        Register Now
+                      </Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            </CarouselItem>
+            
+            {/* School Educational Partnership */}
+            <CarouselItem className="md:basis-1/2 lg:basis-1/3">
+              <Card className="glass-morphism border-2 border-cosmic-purple/30 hover:border-cosmic-purple/50 transition-all h-full">
+                <CardContent className="p-6">
+                  <div className="flex flex-col items-center text-center h-full">
+                    <School className="w-16 h-16 text-cosmic-purple mb-4" />
+                    <h3 className="text-xl font-bold mb-2">School Educational Partnership</h3>
+                    <p className="text-space-300 mb-4 flex-grow">Partner with us to bring frontier sciences education to your institution</p>
+                    <Link href="/schools" className="w-full">
+                      <Button className="w-full bg-cosmic-purple hover:bg-purple-600">
+                        Partner With Us
+                      </Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            </CarouselItem>
           </CarouselContent>
           <CarouselPrevious className="hidden md:flex" data-testid="carousel-prev" />
           <CarouselNext className="hidden md:flex" data-testid="carousel-next" />
