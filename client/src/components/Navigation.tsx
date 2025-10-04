@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -12,6 +12,7 @@ import { User } from "@shared/schema";
 const Navigation = () => {
   const [location, navigate] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
+  const isNavigatingRef = useRef(false);
   const { user, isAuthenticated } = useAuth();
 
   const navItems = [
@@ -124,7 +125,11 @@ const Navigation = () => {
           </div>
 
           {/* Mobile Menu */}
-          <Sheet open={isOpen} onOpenChange={setIsOpen}>
+          <Sheet open={isOpen && !isNavigatingRef.current} onOpenChange={(open) => {
+            if (!isNavigatingRef.current) {
+              setIsOpen(open);
+            }
+          }}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="md:hidden">
                 <Menu className="w-6 h-6" />
@@ -147,13 +152,15 @@ const Navigation = () => {
                         : "text-space-200 hover:text-cosmic-blue"
                     }`}
                     onClick={(e) => {
-                      // Force immediate sheet close before navigation
                       e.preventDefault();
+                      isNavigatingRef.current = true;
                       setIsOpen(false);
-                      // Use setTimeout to ensure state update completes, then navigate
                       setTimeout(() => {
                         navigate(item.href);
-                      }, 50); // Minimal delay to allow sheet to close
+                        setTimeout(() => {
+                          isNavigatingRef.current = false;
+                        }, 300);
+                      }, 100);
                     }}
                   >
                     {item.label}
@@ -197,7 +204,17 @@ const Navigation = () => {
                       >
                         Sign In
                       </Button>
-                      <Link href="/register" onClick={() => setIsOpen(false)}>
+                      <Link href="/register" onClick={(e) => {
+                        e.preventDefault();
+                        isNavigatingRef.current = true;
+                        setIsOpen(false);
+                        setTimeout(() => {
+                          navigate("/register");
+                          setTimeout(() => {
+                            isNavigatingRef.current = false;
+                          }, 300);
+                        }, 100);
+                      }}>
                         <Button className="cosmic-gradient hover:opacity-90">
                           Register
                         </Button>
