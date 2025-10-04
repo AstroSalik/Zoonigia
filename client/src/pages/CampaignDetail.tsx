@@ -289,22 +289,13 @@ export default function CampaignDetail() {
           <p className="text-xl text-gray-300 mb-6">{campaign.description}</p>
           
           {/* Campaign Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <Card className="bg-space-800/50 border-space-700">
               <CardContent className="p-4 text-center">
                 <Calendar className="w-6 h-6 text-cosmic-blue mx-auto mb-2" />
                 <p className="text-sm text-gray-400">Duration</p>
                 <p className="font-semibold">
                   {campaign.status === "upcoming" ? "TBD" : campaign.duration || "TBD"}
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="bg-space-800/50 border-space-700">
-              <CardContent className="p-4 text-center">
-                <Users className="w-6 h-6 text-cosmic-purple mx-auto mb-2" />
-                <p className="text-sm text-gray-400">Participants</p>
-                <p className="font-semibold">
-                  {campaign.status === "upcoming" ? "TBD" : campaign.currentParticipants || 0}
                 </p>
               </CardContent>
             </Card>
