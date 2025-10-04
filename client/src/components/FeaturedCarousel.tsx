@@ -5,7 +5,8 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { useQuery } from "@tanstack/react-query";
 import { Sparkles, Calendar, MapPin, Award, Users, School } from "lucide-react";
 import type { Course, Campaign } from "@shared/schema";
-import GlassMorphism from "@/components/GlassMorphism";
+import workshopImage from "@assets/stock_images/students_workshop_ha_74353f01.jpg";
+import schoolImage from "@assets/stock_images/school_building_educ_019ba00e.jpg";
 
 interface FeaturedItemsResponse {
   courses: Course[];
@@ -154,11 +155,21 @@ const FeaturedCarousel = () => {
             {/* Workshop Registration */}
             <CarouselItem className="md:basis-1/2 lg:basis-1/3">
               <Card className="glass-morphism border-2 border-cosmic-blue/30 hover:border-cosmic-blue/50 transition-all h-full">
-                <CardContent className="p-6">
-                  <div className="flex flex-col items-center text-center h-full">
-                    <Users className="w-16 h-16 text-cosmic-blue mb-4" />
+                <CardContent className="p-0">
+                  <div className="relative h-48 overflow-hidden rounded-t-lg">
+                    <img
+                      src={workshopImage}
+                      alt="Workshop Registration"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-cosmic-blue/20 text-cosmic-blue backdrop-blur-sm text-sm font-medium flex items-center gap-1">
+                      <Users className="w-4 h-4" />
+                      Workshops
+                    </div>
+                  </div>
+                  <div className="p-6">
                     <h3 className="text-xl font-bold mb-2">Workshop Registration</h3>
-                    <p className="text-space-300 mb-4 flex-grow">Join our immersive workshops exploring frontier sciences through hands-on discovery</p>
+                    <p className="text-space-300 mb-4">Join our immersive workshops exploring frontier sciences through hands-on discovery</p>
                     <Link href="/workshops" className="w-full">
                       <Button className="w-full bg-cosmic-blue hover:bg-blue-600">
                         Register Now
@@ -172,11 +183,21 @@ const FeaturedCarousel = () => {
             {/* School Educational Partnership */}
             <CarouselItem className="md:basis-1/2 lg:basis-1/3">
               <Card className="glass-morphism border-2 border-cosmic-purple/30 hover:border-cosmic-purple/50 transition-all h-full">
-                <CardContent className="p-6">
-                  <div className="flex flex-col items-center text-center h-full">
-                    <School className="w-16 h-16 text-cosmic-purple mb-4" />
+                <CardContent className="p-0">
+                  <div className="relative h-48 overflow-hidden rounded-t-lg">
+                    <img
+                      src={schoolImage}
+                      alt="School Educational Partnership"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-cosmic-purple/20 text-cosmic-purple backdrop-blur-sm text-sm font-medium flex items-center gap-1">
+                      <School className="w-4 h-4" />
+                      Partnership
+                    </div>
+                  </div>
+                  <div className="p-6">
                     <h3 className="text-xl font-bold mb-2">School Educational Partnership</h3>
-                    <p className="text-space-300 mb-4 flex-grow">Partner with us to bring frontier sciences education to your institution</p>
+                    <p className="text-space-300 mb-4">Partner with us to bring frontier sciences education to your institution</p>
                     <Link href="/schools" className="w-full">
                       <Button className="w-full bg-cosmic-purple hover:bg-purple-600">
                         Partner With Us
