@@ -400,7 +400,9 @@ const Campaigns = () => {
                   
                   <div className="grid grid-cols-2 gap-4 mb-6">
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-cosmic-blue mb-1">₹{campaign.price}</div>
+                      <div className="text-2xl font-bold text-cosmic-blue mb-1">
+                        {campaign.price && parseFloat(campaign.price) > 0 ? `₹${campaign.price}` : 'FREE'}
+                      </div>
                       <div className="text-sm text-space-400">Registration Fee</div>
                     </div>
                     <div className="text-center">
@@ -425,7 +427,7 @@ const Campaigns = () => {
                       disabled={campaign.status !== "active"}
                     >
                       {campaign.status === "upcoming" ? "Registrations Open Soon" :
-                       campaign.status === "active" ? `Register Now - ₹${campaign.price}` : 
+                       campaign.status === "active" ? `Register Now - ${campaign.price && parseFloat(campaign.price) > 0 ? `₹${campaign.price}` : 'FREE'}` : 
                        "Registration Closed"}
                     </Button>
                   </Link>
