@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -14,6 +14,11 @@ const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const isNavigatingRef = useRef(false);
   const { user, isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    setIsOpen(false);
+    isNavigatingRef.current = false;
+  }, [location]);
 
   const navItems = [
     { href: "/", label: "Home" },

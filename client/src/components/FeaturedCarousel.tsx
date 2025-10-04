@@ -85,7 +85,7 @@ const FeaturedCarousel = () => {
               const linkHref = isCampaign ? `/campaigns/${item.id}` : `/courses/${item.id}`;
 
               return (
-                <CarouselItem key={`${item.itemType}-${item.id}`} className="md:basis-1/2 lg:basis-1/3" data-testid={`featured-item-${item.itemType}-${item.id}`}>
+                <CarouselItem key={`${item.itemType}-${item.id}`} className="basis-4/5 md:basis-1/2 lg:basis-1/3" data-testid={`featured-item-${item.itemType}-${item.id}`}>
                   <Card className={`glass-morphism border-2 ${colors.border} hover:border-cosmic-blue/50 transition-all h-full`}>
                     <CardContent className="p-0">
                       {item.imageUrl && (
@@ -153,7 +153,7 @@ const FeaturedCarousel = () => {
             })}
             
             {/* Workshop Registration */}
-            <CarouselItem className="md:basis-1/2 lg:basis-1/3">
+            <CarouselItem className="basis-4/5 md:basis-1/2 lg:basis-1/3">
               <Card className="glass-morphism border-2 border-cosmic-blue/30 hover:border-cosmic-blue/50 transition-all h-full">
                 <CardContent className="p-0">
                   <div className="relative h-48 overflow-hidden rounded-t-lg">
@@ -181,7 +181,7 @@ const FeaturedCarousel = () => {
             </CarouselItem>
             
             {/* School Educational Partnership */}
-            <CarouselItem className="md:basis-1/2 lg:basis-1/3">
+            <CarouselItem className="basis-4/5 md:basis-1/2 lg:basis-1/3">
               <Card className="glass-morphism border-2 border-cosmic-purple/30 hover:border-cosmic-purple/50 transition-all h-full">
                 <CardContent className="p-0">
                   <div className="relative h-48 overflow-hidden rounded-t-lg">
