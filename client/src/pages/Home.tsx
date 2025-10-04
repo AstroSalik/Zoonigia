@@ -9,6 +9,7 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import Hero3D from "@/components/Hero3D";
 import GlassMorphism from "@/components/GlassMorphism";
+import FeaturedCarousel from "@/components/FeaturedCarousel";
 
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -405,6 +406,10 @@ const Home = () => {
           <ChevronDown className="w-8 h-8 text-cosmic-blue" />
         </div>
       </section>
+      
+      {/* Featured Programs Carousel */}
+      <FeaturedCarousel />
+      
       {/* Video Section */}
       <section className="py-20 bg-space-800/30">
         <div className="container mx-auto px-4">
