@@ -139,7 +139,7 @@ const FeaturedCarousel = () => {
                           ) : (
                             <div className="flex items-center text-sm">
                               <Award className="w-4 h-4 mr-2 text-green-500" />
-                              <span className="text-green-400">Free</span>
+                              <span className="text-green-400">FREE</span>
                             </div>
                           )}
                         </div>

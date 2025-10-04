@@ -353,112 +353,221 @@ export default function CampaignDetail() {
             
             {campaign.status !== "upcoming" && (
               <>
+                {campaign.type === 'ideathon' ? (
+              <>
+                {/* Campaign Overview */}
+                <Card className="bg-space-800/50 border-space-700 mb-8">
+                  <CardHeader>
+                    <CardTitle className="text-2xl">Campaign Overview</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3 text-cosmic-blue">About Youth Ideathon 2025</h3>
+                      <p className="text-gray-300 mb-4">
+                        A national innovation championship organized by Think Startup in collaboration with Zoonigia, 
+                        hosted at the prestigious IIT Delhi campus. This is your opportunity to showcase innovative solutions 
+                        to real-world problems and compete for substantial prizes.
+                      </p>
+                      <ul className="space-y-2 text-gray-300">
+                        <li>• Team-based innovation competition (3-5 members per team)</li>
+                        <li>• Mentorship from industry experts and IIT Delhi faculty</li>
+                        <li>• Top 100 teams invited to grand finale at IIT Delhi</li>
+                        <li>• ₹100,000 prize money per winning team (10 winners)</li>
+                        <li>• Certificates and recognition for all participants</li>
+                        <li>• Networking opportunities with startups and investors</li>
+                      </ul>
+                    </div>
+
+                    <Separator className="bg-space-700" />
+
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3 text-cosmic-purple">Competition Highlights</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <h4 className="font-medium text-cosmic-orange mb-2">Think Startup & Zoonigia</h4>
+                          <p className="text-sm text-gray-400">National innovation championship organized by leading EdTech platforms</p>
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-cosmic-orange mb-2">IIT Delhi Venue</h4>
+                          <p className="text-sm text-gray-400">Grand finale hosted at IIT Delhi campus</p>
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-cosmic-orange mb-2">Prize Pool</h4>
+                          <p className="text-sm text-gray-400">₹10 Lakhs total - ₹1 Lakh per winning team (10 winners)</p>
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-cosmic-orange mb-2">Team Competition</h4>
+                          <p className="text-sm text-gray-400">3-5 member teams with mentor guidance</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <Separator className="bg-space-700" />
+
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3 text-cosmic-yellow">Timeline & Process</h3>
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-3">
+                          <Clock className="w-5 h-5 text-cosmic-blue" />
+                          <span className="text-sm"><strong>Phase 1:</strong> Team registration and idea submission</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <Clock className="w-5 h-5 text-cosmic-purple" />
+                          <span className="text-sm"><strong>Phase 2:</strong> Initial screening and mentorship sessions</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <Clock className="w-5 h-5 text-cosmic-orange" />
+                          <span className="text-sm"><strong>Phase 3:</strong> Top 100 teams selected for IIT Delhi finale</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <Clock className="w-5 h-5 text-cosmic-yellow" />
+                          <span className="text-sm"><strong>Phase 4:</strong> Grand finale presentation and winner announcement</span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Requirements */}
+                <Card className="bg-space-800/50 border-space-700 mb-8">
+                  <CardHeader>
+                    <CardTitle className="text-xl">Team Requirements</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <h4 className="font-medium text-cosmic-blue mb-3">Team Structure</h4>
+                        <ul className="space-y-2 text-sm text-gray-300">
+                          <li>• 3-5 team members (3 required, 2 optional)</li>
+                          <li>• 1 team leader to coordinate</li>
+                          <li>• 1 mentor from school/institution</li>
+                          <li>• All team members must be students</li>
+                        </ul>
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-cosmic-purple mb-3">What You'll Gain</h4>
+                        <ul className="space-y-2 text-sm text-gray-300">
+                          <li>• Free registration and participation</li>
+                          <li>• Expert mentorship from industry leaders</li>
+                          <li>• Chance to win ₹1 Lakh prize money</li>
+                          <li>• Certificates and recognition</li>
+                          <li>• Networking with startups and investors</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
+            ) : (
+              <>
                 {/* Campaign Image */}
-            <div className="mb-8">
-              <img 
-                src="https://zoonigia.wordpress.com/wp-content/uploads/2025/03/5astr-1.jpg" 
-                alt={campaign.title}
-                className="w-full h-64 object-cover rounded-lg bg-space-800"
-              />
-            </div>
-
-            {/* Campaign Overview */}
-            <Card className="bg-space-800/50 border-space-700 mb-8">
-              <CardHeader>
-                <CardTitle className="text-2xl">Campaign Overview</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-semibold mb-3 text-cosmic-blue">What You'll Discover</h3>
-                  <ul className="space-y-2 text-gray-300">
-                    <li>• Work with real astronomical datasets from Pan-STARRS telescope</li>
-                    <li>• Get trained in specialized astronomical software (license provided free)</li>
-                    <li>• Join the official International Asteroid Search Campaign</li>
-                    <li>• Discover and name your own asteroid (if found)</li>
-                    <li>• Receive prestigious certificate featuring NASA, IASC, Pan-STARRS, and Zoonigia</li>
-                    <li>• Contribute to actual astronomical research</li>
-                  </ul>
+                <div className="mb-8">
+                  <img 
+                    src="https://zoonigia.wordpress.com/wp-content/uploads/2025/03/5astr-1.jpg" 
+                    alt={campaign.title}
+                    className="w-full h-64 object-cover rounded-lg bg-space-800"
+                  />
                 </div>
 
-                <Separator className="bg-space-700" />
-
-                <div>
-                  <h3 className="text-lg font-semibold mb-3 text-cosmic-purple">Research Focus</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Campaign Overview */}
+                <Card className="bg-space-800/50 border-space-700 mb-8">
+                  <CardHeader>
+                    <CardTitle className="text-2xl">Campaign Overview</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
                     <div>
-                      <h4 className="font-medium text-cosmic-orange mb-2">NASA Collaboration</h4>
-                      <p className="text-sm text-gray-400">Direct collaboration with NASA Citizen Science program</p>
+                      <h3 className="text-lg font-semibold mb-3 text-cosmic-blue">What You'll Discover</h3>
+                      <ul className="space-y-2 text-gray-300">
+                        <li>• Work with real astronomical datasets from Pan-STARRS telescope</li>
+                        <li>• Get trained in specialized astronomical software (license provided free)</li>
+                        <li>• Join the official International Asteroid Search Campaign</li>
+                        <li>• Discover and name your own asteroid (if found)</li>
+                        <li>• Receive prestigious certificate featuring NASA, IASC, Pan-STARRS, and Zoonigia</li>
+                        <li>• Contribute to actual astronomical research</li>
+                      </ul>
                     </div>
-                    <div>
-                      <h4 className="font-medium text-cosmic-orange mb-2">IASC Partnership</h4>
-                      <p className="text-sm text-gray-400">Part of International Astronomical Search Collaboration</p>
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-cosmic-orange mb-2">Pan-STARRS Data</h4>
-                      <p className="text-sm text-gray-400">Access to real telescope data from University of Hawaii</p>
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-cosmic-orange mb-2">Official Recognition</h4>
-                      <p className="text-sm text-gray-400">Opportunity to officially name discovered asteroids</p>
-                    </div>
-                  </div>
-                </div>
 
-                <Separator className="bg-space-700" />
+                    <Separator className="bg-space-700" />
 
-                <div>
-                  <h3 className="text-lg font-semibold mb-3 text-cosmic-yellow">Timeline & Milestones</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <Clock className="w-5 h-5 text-cosmic-blue" />
-                      <span className="text-sm"><strong>Phase 1:</strong> Software training and astronomical data analysis basics</span>
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3 text-cosmic-purple">Research Focus</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <h4 className="font-medium text-cosmic-orange mb-2">NASA Collaboration</h4>
+                          <p className="text-sm text-gray-400">Direct collaboration with NASA Citizen Science program</p>
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-cosmic-orange mb-2">IASC Partnership</h4>
+                          <p className="text-sm text-gray-400">Part of International Astronomical Search Collaboration</p>
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-cosmic-orange mb-2">Pan-STARRS Data</h4>
+                          <p className="text-sm text-gray-400">Access to real telescope data from University of Hawaii</p>
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-cosmic-orange mb-2">Official Recognition</h4>
+                          <p className="text-sm text-gray-400">Opportunity to officially name discovered asteroids</p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <Clock className="w-5 h-5 text-cosmic-purple" />
-                      <span className="text-sm"><strong>Phase 2:</strong> Official participation in International Asteroid Search Campaign</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Clock className="w-5 h-5 text-cosmic-orange" />
-                      <span className="text-sm"><strong>Phase 3:</strong> Discovery verification and naming process</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Clock className="w-5 h-5 text-cosmic-yellow" />
-                      <span className="text-sm"><strong>Phase 4:</strong> Certification and recognition ceremony</span>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
 
-            {/* Requirements */}
-            <Card className="bg-space-800/50 border-space-700 mb-8">
-              <CardHeader>
-                <CardTitle className="text-xl">Requirements</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h4 className="font-medium text-cosmic-blue mb-3">Technical Requirements</h4>
-                    <ul className="space-y-2 text-sm text-gray-300">
-                      <li>• Computer with internet connection</li>
-                      <li>• No prior astronomy experience required</li>
-                      <li>• Open to all ages (mentorship provided)</li>
-                      <li>• Commitment to campaign duration</li>
-                    </ul>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-cosmic-purple mb-3">What's Included</h4>
-                    <ul className="space-y-2 text-sm text-gray-300">
-                      <li>• Free astronomical software license</li>
-                      <li>• Access to real Pan-STARRS telescope data</li>
-                      <li>• Expert mentorship and training</li>
-                      <li>• Official NASA/IASC certificate</li>
-                      <li>• Scholarship opportunities available</li>
-                    </ul>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                    <Separator className="bg-space-700" />
+
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3 text-cosmic-yellow">Timeline & Milestones</h3>
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-3">
+                          <Clock className="w-5 h-5 text-cosmic-blue" />
+                          <span className="text-sm"><strong>Phase 1:</strong> Software training and astronomical data analysis basics</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <Clock className="w-5 h-5 text-cosmic-purple" />
+                          <span className="text-sm"><strong>Phase 2:</strong> Official participation in International Asteroid Search Campaign</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <Clock className="w-5 h-5 text-cosmic-orange" />
+                          <span className="text-sm"><strong>Phase 3:</strong> Discovery verification and naming process</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <Clock className="w-5 h-5 text-cosmic-yellow" />
+                          <span className="text-sm"><strong>Phase 4:</strong> Certification and recognition ceremony</span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Requirements */}
+                <Card className="bg-space-800/50 border-space-700 mb-8">
+                  <CardHeader>
+                    <CardTitle className="text-xl">Requirements</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <h4 className="font-medium text-cosmic-blue mb-3">Technical Requirements</h4>
+                        <ul className="space-y-2 text-sm text-gray-300">
+                          <li>• Computer with internet connection</li>
+                          <li>• No prior astronomy experience required</li>
+                          <li>• Open to all ages (mentorship provided)</li>
+                          <li>• Commitment to campaign duration</li>
+                        </ul>
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-cosmic-purple mb-3">What's Included</h4>
+                        <ul className="space-y-2 text-sm text-gray-300">
+                          <li>• Free astronomical software license</li>
+                          <li>• Access to real Pan-STARRS telescope data</li>
+                          <li>• Expert mentorship and training</li>
+                          <li>• Official NASA/IASC certificate</li>
+                          <li>• Scholarship opportunities available</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
+            )}
               </>
             )}
           </div>
@@ -478,11 +587,16 @@ export default function CampaignDetail() {
                     <div className="text-3xl font-bold text-cosmic-yellow mb-2">Coming Soon</div>
                     <p className="text-sm text-gray-400">Registration opens soon</p>
                   </div>
-                ) : (
+                ) : campaign.price && parseFloat(campaign.price) > 0 ? (
                   <div className="text-center">
                     <div className="text-3xl font-bold text-cosmic-blue mb-2">₹{campaign.price}</div>
                     <p className="text-sm text-gray-400">Full campaign access</p>
-                    <p className="text-xs text-gray-500 mt-1">Only $3 USD • Scholarships available</p>
+                    <p className="text-xs text-gray-500 mt-1">Scholarships available</p>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-green-400 mb-2">FREE</div>
+                    <p className="text-sm text-gray-400">Free registration</p>
                   </div>
                 )}
 
