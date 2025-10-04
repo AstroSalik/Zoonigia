@@ -10,6 +10,7 @@ import {
   workshopEnrollments,
   courseEnrollments,
   campaignParticipants,
+  campaignTeamRegistrations,
   courseModules,
   courseLessons,
   courseQuizzes,
@@ -39,6 +40,8 @@ import {
   type InsertCourseEnrollment,
   type CampaignParticipant,
   type InsertCampaignParticipant,
+  type CampaignTeamRegistration,
+  type InsertCampaignTeamRegistration,
   type CourseModule,
   type InsertCourseModule,
   type CourseLesson,
@@ -166,6 +169,13 @@ export interface IStorage {
   // Course certificates
   getUserCertificates(userId: string): Promise<CourseCertificate[]>;
   createCourseCertificate(certificate: InsertCourseCertificate): Promise<CourseCertificate>;
+  
+  // Featured items operations
+  getFeaturedItems(): Promise<{ courses: Course[]; campaigns: Campaign[] }>;
+  
+  // Campaign team registration operations
+  createCampaignTeamRegistration(registration: InsertCampaignTeamRegistration): Promise<CampaignTeamRegistration>;
+  getCampaignTeamRegistrations(campaignId: number): Promise<CampaignTeamRegistration[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -338,22 +348,11 @@ export class DatabaseStorage implements IStorage {
 
   async getUserCourses(userId: string): Promise<Course[]> {
     return await db
-      .select({
-        id: courses.id,
-        title: courses.title,
-        description: courses.description,
-        field: courses.field,
-        level: courses.level,
-        duration: courses.duration,
-        price: courses.price,
-        imageUrl: courses.imageUrl,
-        isActive: courses.isActive,
-        createdAt: courses.createdAt,
-        updatedAt: courses.updatedAt,
-      })
+      .select()
       .from(courses)
       .innerJoin(courseEnrollments, eq(courses.id, courseEnrollments.courseId))
-      .where(eq(courseEnrollments.userId, userId));
+      .where(eq(courseEnrollments.userId, userId))
+      .then(results => results.map(r => r.courses));
   }
 
   // Campaign operations
@@ -391,25 +390,11 @@ export class DatabaseStorage implements IStorage {
 
   async getUserCampaigns(userId: string): Promise<Campaign[]> {
     return await db
-      .select({
-        id: campaigns.id,
-        title: campaigns.title,
-        description: campaigns.description,
-        type: campaigns.type,
-        startDate: campaigns.startDate,
-        endDate: campaigns.endDate,
-        partner: campaigns.partner,
-        status: campaigns.status,
-        progress: campaigns.progress,
-        maxParticipants: campaigns.maxParticipants,
-        currentParticipants: campaigns.currentParticipants,
-        imageUrl: campaigns.imageUrl,
-        createdAt: campaigns.createdAt,
-        updatedAt: campaigns.updatedAt,
-      })
+      .select()
       .from(campaigns)
       .innerJoin(campaignParticipants, eq(campaigns.id, campaignParticipants.campaignId))
-      .where(eq(campaignParticipants.userId, userId));
+      .where(eq(campaignParticipants.userId, userId))
+      .then(results => results.map(r => r.campaigns));
   }
 
   // Blog operations
@@ -651,6 +636,34 @@ export class DatabaseStorage implements IStorage {
   async createCourseCertificate(certificate: InsertCourseCertificate): Promise<CourseCertificate> {
     const [newCertificate] = await db.insert(courseCertificates).values(certificate).returning();
     return newCertificate;
+  }
+  
+  // Featured items operations
+  async getFeaturedItems(): Promise<{ courses: Course[]; campaigns: Campaign[] }> {
+    const featuredCourses = await db.select().from(courses)
+      .where(eq(courses.isFeatured, true))
+      .orderBy(courses.featuredOrder);
+    
+    const featuredCampaigns = await db.select().from(campaigns)
+      .where(eq(campaigns.isFeatured, true))
+      .orderBy(campaigns.featuredOrder);
+    
+    return {
+      courses: featuredCourses,
+      campaigns: featuredCampaigns
+    };
+  }
+  
+  // Campaign team registration operations
+  async createCampaignTeamRegistration(registration: InsertCampaignTeamRegistration): Promise<CampaignTeamRegistration> {
+    const [newRegistration] = await db.insert(campaignTeamRegistrations).values(registration).returning();
+    return newRegistration;
+  }
+  
+  async getCampaignTeamRegistrations(campaignId: number): Promise<CampaignTeamRegistration[]> {
+    return await db.select().from(campaignTeamRegistrations)
+      .where(eq(campaignTeamRegistrations.campaignId, campaignId))
+      .orderBy(desc(campaignTeamRegistrations.createdAt));
   }
 }
 
