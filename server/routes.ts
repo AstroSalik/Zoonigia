@@ -6,6 +6,7 @@ import {
   insertWorkshopEnrollmentSchema,
   insertCourseEnrollmentSchema,
   insertCampaignParticipantSchema,
+  insertCampaignTeamRegistrationSchema,
   insertContactInquirySchema,
   insertLoveMessageSchema,
   insertUserSchema,
@@ -21,7 +22,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error("Missing required Stripe secret: STRIPE_SECRET_KEY");
 }
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2023-10-16",
+  apiVersion: "2025-06-30.basil",
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -1237,6 +1238,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error enrolling in campaign:", error);
       res.status(500).json({ message: "Failed to enroll in campaign" });
+    }
+  });
+
+  // Featured items route
+  app.get("/api/featured", async (req, res) => {
+    try {
+      const featuredItems = await storage.getFeaturedItems();
+      res.json(featuredItems);
+    } catch (error) {
+      console.error("Error fetching featured items:", error);
+      res.status(500).json({ message: "Failed to fetch featured items" });
+    }
+  });
+
+  // Campaign team registration route
+  app.post("/api/campaigns/:id/team-register", async (req, res) => {
+    try {
+      const campaignId = parseInt(req.params.id);
+      const registrationData = insertCampaignTeamRegistrationSchema.parse({
+        ...req.body,
+        campaignId
+      });
+      
+      const registration = await storage.createCampaignTeamRegistration(registrationData);
+      res.json(registration);
+    } catch (error) {
+      console.error("Error registering team:", error);
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid registration data", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Failed to register team" });
+      }
     }
   });
 
