@@ -431,7 +431,7 @@ const Contact = () => {
                   className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900"
                   onClick={() => window.location.href = 'mailto:help@zoonigia.com'}
                 >
-                  View All FAQs
+                  Submit Your Inquiry
                 </Button>
               </div>
             </div>
@@ -447,10 +447,10 @@ const Contact = () => {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button 
                   className="bg-cosmic-green hover:bg-green-600 px-8"
-                  onClick={() => window.location.href = 'tel:+919876543210'}
+                  onClick={() => window.location.href = 'tel:+919596241169'}
                 >
                   <Phone className="w-5 h-5 mr-2" />
-                  Call Support: +91 98765 43210
+                  Call Support: +91 9596241169
                 </Button>
                 <Button 
                   variant="outline" 
