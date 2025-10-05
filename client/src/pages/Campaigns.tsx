@@ -484,7 +484,6 @@ const Campaigns = () => {
                   </div>
                   <div>
                     <h3 className="text-xl font-semibold text-space-50">Aayushmaan Gupta</h3>
-                    <p className="text-sm text-cosmic-blue">Admin, Astronomy Group | Scriptwriter, Content Creation Team</p>
                   </div>
                 </div>
                 <p className="text-space-200 leading-relaxed italic">
@@ -499,7 +498,6 @@ const Campaigns = () => {
                   </div>
                   <div>
                     <h3 className="text-xl font-semibold text-space-50">Maheera Fatima</h3>
-                    <p className="text-sm text-cosmic-green">ZASC Participant</p>
                   </div>
                 </div>
                 <p className="text-space-200 leading-relaxed italic">

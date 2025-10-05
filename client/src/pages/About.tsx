@@ -179,7 +179,6 @@ const About = () => {
                 </div>
                 <div>
                   <h3 className="text-xl font-semibold text-space-50">Aayushmaan Gupta</h3>
-                  <p className="text-sm text-cosmic-blue">Admin, Astronomy Group | Scriptwriter, Content Creation Team</p>
                 </div>
               </div>
               <p className="text-space-200 leading-relaxed italic">
@@ -194,7 +193,6 @@ const About = () => {
                 </div>
                 <div>
                   <h3 className="text-xl font-semibold text-space-50">Aleena Tariq</h3>
-                  <p className="text-sm text-cosmic-purple">Administrative Assistant | Core Team Member</p>
                 </div>
               </div>
               <p className="text-space-200 leading-relaxed italic">
