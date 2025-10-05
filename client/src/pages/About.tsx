@@ -167,6 +167,28 @@ const About = () => {
           </div>
         </div>
       </section>
+      {/* Testimonial */}
+      <section className="py-20 bg-space-800/30">
+        <div className="container mx-auto px-4">
+          <h2 className="text-4xl font-space font-bold text-center mb-12">Community Voice</h2>
+          <div className="max-w-4xl mx-auto">
+            <GlassMorphism className="p-8">
+              <div className="flex items-start mb-6">
+                <div className="w-16 h-16 rounded-full bg-cosmic-blue/20 flex items-center justify-center mr-4 flex-shrink-0">
+                  <span className="text-cosmic-blue font-bold text-2xl">AG</span>
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-space-50">Aayushmaan Gupta</h3>
+                  <p className="text-sm text-cosmic-blue">Admin, Astronomy Group | Scriptwriter, Content Creation Team</p>
+                </div>
+              </div>
+              <p className="text-space-200 leading-relaxed text-lg italic">
+                "Zoonigia's commitment to making science accessible, fostering a supportive work environment, and valuing its contributors' input across disciplines, as well as providing great chances for professional and personal development, makes it an outstanding platform. A major highlight was my successful participation in the Zoonigia Asteroid Search Campaign (ZASC), where I dealt with real data from NASA's International Asteroid Search Campaign (IASC) to make successful findings, learning about how real observational astronomers work, and gaining experience as well. This hands-on experience, facilitated by Zoonigia, was invaluable for me, as this was my first ever opportunity to work in my field of passion. Beyond the campaigns, my growth has been exponential. Being appointed as the admin of the Astronomy group has allowed me to learn extensively in my field, including other fields such as physics, literature, and philosophy, thanks to the diverse educational focus of the community. As a scriptwriter in the content creation team, I have genuinely enjoyed my work. The collaborative environment is excellent; my colleagues are incredibly helpful and supportive, making the work not just productive but a pleasure. My time at Zoonigia has been absolutely transformative, combining my passion for astronomy with a deep dive into content creation."
+              </p>
+            </GlassMorphism>
+          </div>
+        </div>
+      </section>
       <Footer />
     </div>
   );
