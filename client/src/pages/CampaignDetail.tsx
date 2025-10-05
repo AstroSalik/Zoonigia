@@ -390,10 +390,6 @@ export default function CampaignDetail() {
                           <h4 className="font-medium text-cosmic-orange mb-2">Team Competition</h4>
                           <p className="text-sm text-gray-400">3-5 member teams with mentor guidance</p>
                         </div>
-                        <div>
-                          <h4 className="font-medium text-cosmic-orange mb-2">Keynote Speaker Session</h4>
-                          <p className="text-sm text-gray-400">Special session by Salik Riyaz, Founder & CEO of Zoonigia Pvt Ltd</p>
-                        </div>
                       </div>
                     </div>
 
@@ -529,6 +525,7 @@ export default function CampaignDetail() {
                           <li>• Chance to win ₹1 Lakh prize money</li>
                           <li>• Certificates and recognition</li>
                           <li>• Networking with startups and investors</li>
+                          <li>• Keynote session by Salik Riyaz, Founder & CEO of Zoonigia Pvt Ltd</li>
                         </ul>
                       </div>
                     </div>
