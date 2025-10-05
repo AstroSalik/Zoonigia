@@ -28,13 +28,16 @@ const About = () => {
                 About Zoonigia
               </span>
             </h1>
-            <p className="text-xl text-space-200 mb-8">Empowering future innovators and explorers through immersive frontier sciences exploration</p>
-            <div className="flex justify-center">
-              <Link href="/register">
-                <Button className="cosmic-gradient hover:opacity-90 px-8 py-4 text-lg">
-                  Join Our Mission
-                </Button>
-              </Link>
+            <p className="text-xl text-space-200 mb-6">Empowering future innovators and explorers through immersive frontier sciences exploration</p>
+            <div className="max-w-3xl mx-auto">
+              <GlassMorphism className="p-6 text-center">
+                <p className="text-base text-space-100 leading-relaxed">
+                  As Kashmir's first registered space agency, ranked among the top 1% nationally at IIT-Delhi, 
+                  we've established global research collaborations with NASA Citizen Science, IASC, Pan-STARRS, 
+                  and the Institute for Astronomy at the University of Hawaii—creating opportunities for 
+                  learners worldwide to engage with cutting-edge frontier sciences.
+                </p>
+              </GlassMorphism>
             </div>
           </div>
         </div>
@@ -163,29 +166,6 @@ const About = () => {
               <p className="text-space-300">
                 Real learning happens through experimentation, exploration, and creative problem-solving.
               </p>
-            </div>
-          </div>
-        </div>
-      </section>
-      {/* CTA Section */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="text-center max-w-3xl mx-auto">
-            <h2 className="text-4xl font-space font-bold mb-6">Ready to Join Our Mission?</h2>
-            <p className="text-xl text-space-200 mb-8">
-              Be part of a community that's pushing the boundaries of science education and inspiring the next generation.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/register">
-                <Button className="cosmic-gradient hover:opacity-90 px-8 py-4 text-lg">
-                  Get Started Today
-                </Button>
-              </Link>
-              <Link href="/contact">
-                <Button variant="outline" className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900 px-8 py-4 text-lg">
-                  Contact Us
-                </Button>
-              </Link>
             </div>
           </div>
         </div>
