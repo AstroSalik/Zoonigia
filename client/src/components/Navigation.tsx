@@ -130,13 +130,22 @@ const Navigation = () => {
           </div>
 
           {/* Mobile Menu */}
-          <Sheet open={isOpen && !isNavigatingRef.current} onOpenChange={(open) => {
+          <Sheet open={isOpen} onOpenChange={(open) => {
             if (!isNavigatingRef.current) {
               setIsOpen(open);
             }
           }}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="md:hidden"
+                onClick={() => {
+                  if (!isNavigatingRef.current) {
+                    setIsOpen(true);
+                  }
+                }}
+              >
                 <Menu className="w-6 h-6" />
               </Button>
             </SheetTrigger>
@@ -156,16 +165,9 @@ const Navigation = () => {
                         ? "text-cosmic-blue"
                         : "text-space-200 hover:text-cosmic-blue"
                     }`}
-                    onClick={(e) => {
-                      e.preventDefault();
+                    onClick={() => {
                       isNavigatingRef.current = true;
                       setIsOpen(false);
-                      setTimeout(() => {
-                        navigate(item.href);
-                        setTimeout(() => {
-                          isNavigatingRef.current = false;
-                        }, 300);
-                      }, 100);
                     }}
                   >
                     {item.label}
@@ -209,18 +211,14 @@ const Navigation = () => {
                       >
                         Sign In
                       </Button>
-                      <Link href="/register" onClick={(e) => {
-                        e.preventDefault();
-                        isNavigatingRef.current = true;
-                        setIsOpen(false);
-                        setTimeout(() => {
-                          navigate("/register");
-                          setTimeout(() => {
-                            isNavigatingRef.current = false;
-                          }, 300);
-                        }, 100);
-                      }}>
-                        <Button className="cosmic-gradient hover:opacity-90">
+                      <Link 
+                        href="/register" 
+                        onClick={() => {
+                          isNavigatingRef.current = true;
+                          setIsOpen(false);
+                        }}
+                      >
+                        <Button className="cosmic-gradient hover:opacity-90 w-full">
                           Register
                         </Button>
                       </Link>
