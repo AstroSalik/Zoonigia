@@ -473,61 +473,22 @@ const Campaigns = () => {
             </div>
           </div>
 
-          {/* Success Stories */}
+          {/* Community Voice */}
           <div className="mb-16">
-            <h2 className="text-3xl font-space font-bold text-center mb-8">Success Stories</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              <GlassMorphism className="p-6">
-                <div className="flex items-center mb-4">
-                  <img 
-                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=100&h=100" 
-                    alt="Student achiever" 
-                    className="w-12 h-12 rounded-full object-cover mr-4"
-                  />
+            <h2 className="text-3xl font-space font-bold text-center mb-8">Community Voice</h2>
+            <div className="max-w-4xl mx-auto">
+              <GlassMorphism className="p-8">
+                <div className="flex items-start mb-6">
+                  <div className="w-16 h-16 rounded-full bg-cosmic-blue/20 flex items-center justify-center mr-4 flex-shrink-0">
+                    <span className="text-cosmic-blue font-bold text-2xl">AG</span>
+                  </div>
                   <div>
-                    <h4 className="font-semibold">Priya Patel</h4>
-                    <p className="text-sm text-space-400">St. Xavier's School, Mumbai</p>
+                    <h3 className="text-xl font-semibold text-space-50">Aayushmaan Gupta</h3>
+                    <p className="text-sm text-cosmic-blue">Admin, Astronomy Group | Scriptwriter, Content Creation Team</p>
                   </div>
                 </div>
-                <Badge className="bg-cosmic-blue text-space-900 mb-3">Asteroid Discovery</Badge>
-                <p className="text-space-300">
-                  "I discovered asteroid 2024ZG15 through the campaign! It's incredible to have contributed to real space science."
-                </p>
-              </GlassMorphism>
-              
-              <GlassMorphism className="p-6">
-                <div className="flex items-center mb-4">
-                  <img 
-                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=100&h=100" 
-                    alt="Student achiever" 
-                    className="w-12 h-12 rounded-full object-cover mr-4"
-                  />
-                  <div>
-                    <h4 className="font-semibold">Arjun Krishnan</h4>
-                    <p className="text-sm text-space-400">DPS School, Delhi</p>
-                  </div>
-                </div>
-                <Badge className="bg-cosmic-green text-space-900 mb-3">Research Publication</Badge>
-                <p className="text-space-300">
-                  "Published my first research paper on renewable energy optimization with Zoonigia's mentorship program."
-                </p>
-              </GlassMorphism>
-              
-              <GlassMorphism className="p-6">
-                <div className="flex items-center mb-4">
-                  <img 
-                    src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=100&h=100" 
-                    alt="Student achiever" 
-                    className="w-12 h-12 rounded-full object-cover mr-4"
-                  />
-                  <div>
-                    <h4 className="font-semibold">Sneha Reddy</h4>
-                    <p className="text-sm text-space-400">Hyderabad Public School</p>
-                  </div>
-                </div>
-                <Badge className="bg-cosmic-purple text-space-900 mb-3">Poetry Publication</Badge>
-                <p className="text-space-300">
-                  "My poem 'Dancing with the Stars' was selected for The Cosmic Voyage anthology. A dream come true!"
+                <p className="text-space-200 leading-relaxed text-lg italic">
+                  "Zoonigia's commitment to making science accessible, fostering a supportive work environment, and valuing its contributors' input across disciplines, as well as providing great chances for professional and personal development, makes it an outstanding platform. A major highlight was my successful participation in the Zoonigia Asteroid Search Campaign (ZASC), where I dealt with real data from NASA's International Asteroid Search Campaign (IASC) to make successful findings, learning about how real observational astronomers work, and gaining experience as well. This hands-on experience, facilitated by Zoonigia, was invaluable for me, as this was my first ever opportunity to work in my field of passion. Beyond the campaigns, my growth has been exponential. Being appointed as the admin of the Astronomy group has allowed me to learn extensively in my field, including other fields such as physics, literature, and philosophy, thanks to the diverse educational focus of the community. As a scriptwriter in the content creation team, I have genuinely enjoyed my work. The collaborative environment is excellent; my colleagues are incredibly helpful and supportive, making the work not just productive but a pleasure. My time at Zoonigia has been absolutely transformative, combining my passion for astronomy with a deep dive into content creation."
                 </p>
               </GlassMorphism>
             </div>
