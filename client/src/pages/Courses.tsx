@@ -261,36 +261,44 @@ const Courses = () => {
             </div>
           )}
 
-          {/* Featured Courses */}
+          {/* Course Learning Benefits */}
           <div className="mt-16">
-            <h2 className="text-3xl font-space font-bold text-center mb-8">Featured Courses</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <GlassMorphism className="p-6 text-center">
-                <Star className="w-12 h-12 text-cosmic-blue mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Basic Astronomy</h3>
-                <p className="text-space-300 text-sm mb-4">Perfect for beginners</p>
-                <Badge className="bg-cosmic-green text-space-900">8 weeks</Badge>
+            <h2 className="text-3xl font-space font-bold text-center mb-8">Learning Experience</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <GlassMorphism className="p-8">
+                <div className="flex flex-col items-center text-center">
+                  <div className="w-20 h-20 rounded-full cosmic-gradient flex items-center justify-center mb-6">
+                    <BookOpen className="w-10 h-10 text-space-900" />
+                  </div>
+                  <h3 className="text-2xl font-semibold mb-4">Structured Curriculum</h3>
+                  <p className="text-space-300 leading-relaxed">
+                    Comprehensive modules designed by experts, progressing from fundamentals to advanced applications in frontier sciences
+                  </p>
+                </div>
               </GlassMorphism>
               
-              <GlassMorphism className="p-6 text-center">
-                <Bot className="w-12 h-12 text-cosmic-purple mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Robotics & AI</h3>
-                <p className="text-space-300 text-sm mb-4">Hands-on programming</p>
-                <Badge className="bg-cosmic-blue text-space-900">10 weeks</Badge>
+              <GlassMorphism className="p-8">
+                <div className="flex flex-col items-center text-center">
+                  <div className="w-20 h-20 rounded-full cosmic-gradient flex items-center justify-center mb-6">
+                    <Satellite className="w-10 h-10 text-space-900" />
+                  </div>
+                  <h3 className="text-2xl font-semibold mb-4">Hands-On Projects</h3>
+                  <p className="text-space-300 leading-relaxed">
+                    Apply concepts through real-world projects and simulations, working with actual data from NASA and global research partners
+                  </p>
+                </div>
               </GlassMorphism>
               
-              <GlassMorphism className="p-6 text-center">
-                <Satellite className="w-12 h-12 text-cosmic-green mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Astronomy & AI</h3>
-                <p className="text-space-300 text-sm mb-4">Advanced applications</p>
-                <Badge className="bg-cosmic-orange text-space-900">12 weeks</Badge>
-              </GlassMorphism>
-              
-              <GlassMorphism className="p-6 text-center">
-                <Atom className="w-12 h-12 text-cosmic-orange mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Quantum Mechanics</h3>
-                <p className="text-space-300 text-sm mb-4">Mind-bending physics</p>
-                <Badge className="bg-cosmic-purple text-space-900">10 weeks</Badge>
+              <GlassMorphism className="p-8">
+                <div className="flex flex-col items-center text-center">
+                  <div className="w-20 h-20 rounded-full cosmic-gradient flex items-center justify-center mb-6">
+                    <TrendingUp className="w-10 h-10 text-space-900" />
+                  </div>
+                  <h3 className="text-2xl font-semibold mb-4">Certification & Recognition</h3>
+                  <p className="text-space-300 leading-relaxed">
+                    Earn certificates recognized by leading institutions, showcasing your expertise in cutting-edge scientific domains
+                  </p>
+                </div>
               </GlassMorphism>
             </div>
           </div>
