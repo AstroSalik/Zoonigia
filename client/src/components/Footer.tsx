@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Rocket, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
+import { Rocket, Instagram, Linkedin } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -15,17 +15,11 @@ const Footer = () => {
               Empowering future innovators and explorers through immersive science education.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-cosmic-blue hover:text-blue-400 transition-colors">
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a href="#" className="text-cosmic-blue hover:text-blue-400 transition-colors">
-                <Twitter className="w-5 h-5" />
-              </a>
-              <a href="#" className="text-cosmic-blue hover:text-blue-400 transition-colors">
-                <Instagram className="w-5 h-5" />
-              </a>
-              <a href="#" className="text-cosmic-blue hover:text-blue-400 transition-colors">
+              <a href="https://www.linkedin.com/company/zoonigia/" target="_blank" rel="noopener noreferrer" className="text-cosmic-blue hover:text-blue-400 transition-colors" data-testid="link-linkedin">
                 <Linkedin className="w-5 h-5" />
+              </a>
+              <a href="https://www.instagram.com/zoonigia?igsh=MWZ2c3p6d3RsZWNpbQ==" target="_blank" rel="noopener noreferrer" className="text-cosmic-blue hover:text-blue-400 transition-colors" data-testid="link-instagram">
+                <Instagram className="w-5 h-5" />
               </a>
             </div>
           </div>
@@ -64,7 +58,7 @@ const Footer = () => {
         </div>
         
         <div className="border-t border-space-600 mt-8 pt-8 text-center text-space-400">
-          <p>&copy; 2025 Zoonigia. All rights reserved. To the stars and beyond!</p>
+          <p>&copy; 2025 Zoonigia Pvt Ltd. All rights reserved. To the stars and beyond!</p>
         </div>
       </div>
     </footer>
