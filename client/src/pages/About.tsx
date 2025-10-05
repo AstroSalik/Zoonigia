@@ -32,10 +32,7 @@ const About = () => {
             <div className="max-w-3xl mx-auto">
               <GlassMorphism className="p-6 text-center">
                 <p className="text-base text-space-100 leading-relaxed">
-                  As Kashmir's first registered space agency, ranked among the top 1% nationally at IIT-Delhi, 
-                  we've established global research collaborations with NASA Citizen Science, IASC, Pan-STARRS, 
-                  and the Institute for Astronomy at the University of Hawaii—creating opportunities for 
-                  learners worldwide to engage with cutting-edge frontier sciences.
+                  Nationally recognized and ranked among the top 1% at IIT-Delhi, Zoonigia is Kashmir's first and very own registered space agency. We have forged global collaborations, bringing cutting-edge opportunities to individuals across the world.
                 </p>
               </GlassMorphism>
             </div>
