@@ -174,20 +174,6 @@ const About = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
             <GlassMorphism className="p-8">
               <div className="flex items-start mb-6">
-                <div className="w-16 h-16 rounded-full bg-cosmic-blue/20 flex items-center justify-center mr-4 flex-shrink-0">
-                  <span className="text-cosmic-blue font-bold text-2xl">AG</span>
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-space-50">Aayushmaan Gupta</h3>
-                </div>
-              </div>
-              <p className="text-space-200 leading-relaxed italic">
-                "Zoonigia's commitment to making science accessible, fostering a supportive work environment, and valuing its contributors' input across disciplines, as well as providing great chances for professional and personal development, makes it an outstanding platform. A major highlight was my successful participation in the Zoonigia Asteroid Search Campaign (ZASC), where I dealt with real data from NASA's International Asteroid Search Campaign (IASC) to make successful findings, learning about how real observational astronomers work, and gaining experience as well. This hands-on experience, facilitated by Zoonigia, was invaluable for me, as this was my first ever opportunity to work in my field of passion. Beyond the campaigns, my growth has been exponential. Being appointed as the admin of the Astronomy group has allowed me to learn extensively in my field, including other fields such as physics, literature, and philosophy, thanks to the diverse educational focus of the community. As a scriptwriter in the content creation team, I have genuinely enjoyed my work. The collaborative environment is excellent; my colleagues are incredibly helpful and supportive, making the work not just productive but a pleasure. My time at Zoonigia has been absolutely transformative, combining my passion for astronomy with a deep dive into content creation."
-              </p>
-            </GlassMorphism>
-            
-            <GlassMorphism className="p-8">
-              <div className="flex items-start mb-6">
                 <div className="w-16 h-16 rounded-full bg-cosmic-purple/20 flex items-center justify-center mr-4 flex-shrink-0">
                   <span className="text-cosmic-purple font-bold text-2xl">AT</span>
                 </div>
@@ -205,6 +191,20 @@ The path wasn't always smooth — some days tested my patience, others tested my
 A heartfelt thank you to our CEO, Salik Riyaz, whose trust and guidance have shaped so much of who I've become professionally. Your belief in me has always been the quiet force behind my consistency.
 
 Here's to one year of growth, learning, and countless memories—and to many more milestones ahead with Zoonigia, where passion meets purpose every single day."
+              </p>
+            </GlassMorphism>
+            
+            <GlassMorphism className="p-8">
+              <div className="flex items-start mb-6">
+                <div className="w-16 h-16 rounded-full bg-cosmic-blue/20 flex items-center justify-center mr-4 flex-shrink-0">
+                  <span className="text-cosmic-blue font-bold text-2xl">AG</span>
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-space-50">Aayushmaan Gupta</h3>
+                </div>
+              </div>
+              <p className="text-space-200 leading-relaxed italic">
+                "Zoonigia's commitment to making science accessible, fostering a supportive work environment, and valuing its contributors' input across disciplines, as well as providing great chances for professional and personal development, makes it an outstanding platform. A major highlight was my successful participation in the Zoonigia Asteroid Search Campaign (ZASC), where I dealt with real data from NASA's International Asteroid Search Campaign (IASC) to make successful findings, learning about how real observational astronomers work, and gaining experience as well. This hands-on experience, facilitated by Zoonigia, was invaluable for me, as this was my first ever opportunity to work in my field of passion. Beyond the campaigns, my growth has been exponential. Being appointed as the admin of the Astronomy group has allowed me to learn extensively in my field, including other fields such as physics, literature, and philosophy, thanks to the diverse educational focus of the community. As a scriptwriter in the content creation team, I have genuinely enjoyed my work. The collaborative environment is excellent; my colleagues are incredibly helpful and supportive, making the work not just productive but a pleasure. My time at Zoonigia has been absolutely transformative, combining my passion for astronomy with a deep dive into content creation."
               </p>
             </GlassMorphism>
           </div>
