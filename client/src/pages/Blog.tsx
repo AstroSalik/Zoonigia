@@ -15,13 +15,12 @@ import {
   ArrowRight, 
   Search, 
   Award,
-  Star,
   Telescope,
   PenTool,
   Microscope,
   BookOpen
 } from "lucide-react";
-import { BlogPost } from "@shared/types";
+import { BlogPost } from "@shared/schema";
 
 const Blog = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -403,7 +402,7 @@ const Blog = () => {
           {/* Featured Content */}
           <div className="mt-16">
             <h2 className="text-3xl font-space font-bold text-center mb-8">Featured Content</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
               <GlassMorphism className="p-6 text-center">
                 <BookOpen className="w-12 h-12 text-cosmic-blue mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-3">Student Research</h3>
@@ -412,17 +411,6 @@ const Blog = () => {
                 </p>
                 <Button variant="outline" className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900">
                   Read Research Papers
-                </Button>
-              </GlassMorphism>
-              
-              <GlassMorphism className="p-6 text-center">
-                <Star className="w-12 h-12 text-cosmic-purple mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-3">Success Stories</h3>
-                <p className="text-space-300 mb-4">
-                  Inspiring journeys of students who achieved remarkable milestones with Zoonigia
-                </p>
-                <Button variant="outline" className="border-cosmic-purple text-cosmic-purple hover:bg-cosmic-purple hover:text-space-900">
-                  View All Stories
                 </Button>
               </GlassMorphism>
               
