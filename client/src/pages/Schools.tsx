@@ -140,6 +140,15 @@ const Schools = () => {
                 <Calendar className="w-5 h-5 mr-2" />
                 Schedule Partnership Meeting
               </Button>
+              <Button 
+                variant="outline" 
+                className="border-cosmic-green text-cosmic-green hover:bg-cosmic-green hover:text-space-900 px-8 py-3"
+                onClick={() => document.getElementById('contact-form')?.scrollIntoView({ behavior: 'smooth' })}
+                data-testid="button-request-partnership"
+              >
+                <Handshake className="w-5 h-5 mr-2" />
+                Request Partnership
+              </Button>
             </div>
           </div>
 
@@ -594,59 +603,11 @@ const Schools = () => {
             </div>
           </div>
 
-          {/* Success Stories */}
-          <div className="mb-16">
-            <h2 className="text-3xl font-space font-bold text-center mb-8">Success Stories</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <GlassMorphism className="p-6">
-                <div className="text-center mb-4">
-                  <Award className="w-12 h-12 text-cosmic-blue mx-auto mb-3" />
-                  <h3 className="text-xl font-semibold">St. Xavier's School</h3>
-                  <p className="text-space-400">Mumbai, India</p>
-                </div>
-                <p className="text-space-300 text-sm">
-                  "Zoonigia's workshops transformed our science curriculum. Our students discovered 3 asteroids in the NASA campaign!"
-                </p>
-                <div className="mt-4 text-center">
-                  <span className="text-cosmic-blue font-semibold">500+ students engaged</span>
-                </div>
-              </GlassMorphism>
-
-              <GlassMorphism className="p-6">
-                <div className="text-center mb-4">
-                  <Target className="w-12 h-12 text-cosmic-green mx-auto mb-3" />
-                  <h3 className="text-xl font-semibold">Delhi Public School</h3>
-                  <p className="text-space-400">Delhi, India</p>
-                </div>
-                <p className="text-space-300 text-sm">
-                  "The VR experiences brought space exploration to our classrooms. Student engagement increased by 200%!"
-                </p>
-                <div className="mt-4 text-center">
-                  <span className="text-cosmic-green font-semibold">300+ students enrolled</span>
-                </div>
-              </GlassMorphism>
-
-              <GlassMorphism className="p-6">
-                <div className="text-center mb-4">
-                  <BookOpen className="w-12 h-12 text-cosmic-purple mx-auto mb-3" />
-                  <h3 className="text-xl font-semibold">Hyderabad Public School</h3>
-                  <p className="text-space-400">Hyderabad, India</p>
-                </div>
-                <p className="text-space-300 text-sm">
-                  "Our students published 5 research papers with Zoonigia's mentorship. Exceptional academic growth!"
-                </p>
-                <div className="mt-4 text-center">
-                  <span className="text-cosmic-purple font-semibold">150+ students mentored</span>
-                </div>
-              </GlassMorphism>
-            </div>
-          </div>
-
           {/* Statistics */}
           <div className="mb-16">
             <GlassMorphism className="p-8">
               <h2 className="text-3xl font-space font-bold text-center mb-8">Partnership Impact</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div className="text-center">
                   <div className="text-4xl font-bold text-cosmic-blue mb-2">150+</div>
                   <div className="text-space-300">Partner Schools</div>
@@ -658,10 +619,6 @@ const Schools = () => {
                 <div className="text-center">
                   <div className="text-4xl font-bold text-cosmic-purple mb-2">85%</div>
                   <div className="text-space-300">Improved Engagement</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-cosmic-orange mb-2">50+</div>
-                  <div className="text-space-300">Research Publications</div>
                 </div>
               </div>
             </GlassMorphism>
@@ -701,22 +658,13 @@ const Schools = () => {
               <p className="text-space-300 mb-6">
                 Join the revolution in science education and give your students access to real-world research opportunities.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button 
-                  className="cosmic-gradient hover:opacity-90 px-8"
-                  onClick={() => window.location.href = 'mailto:outreach@zoonigia.com?subject=Schedule Demo Request'}
-                >
-                  <Calendar className="w-5 h-5 mr-2" />
-                  Schedule a Demo
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900 px-8"
-                  onClick={() => window.location.href = 'mailto:outreach@zoonigia.com?subject=Brochure Request'}
-                >
-                  Download Brochure
-                </Button>
-              </div>
+              <Button 
+                className="cosmic-gradient hover:opacity-90 px-8"
+                onClick={() => window.location.href = 'mailto:outreach@zoonigia.com?subject=Schedule Demo Request'}
+              >
+                <Calendar className="w-5 h-5 mr-2" />
+                Schedule a Demo
+              </Button>
             </GlassMorphism>
           </div>
         </div>
