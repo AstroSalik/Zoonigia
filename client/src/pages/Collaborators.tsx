@@ -216,20 +216,20 @@ const Collaborators = () => {
             <GlassMorphism className="p-8">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-cosmic-blue mb-2">NASA</div>
+                  <div className="text-2xl font-bold text-cosmic-blue mb-2">NASA Citizen Science</div>
                   <div className="text-sm text-space-400">Research Partner</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-cosmic-blue mb-2">IASC</div>
-                  <div className="text-sm text-space-400">Collaboration Partner</div>
+                  <div className="text-sm text-space-400">Research Partner</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-cosmic-blue mb-2">University of Hawaii</div>
-                  <div className="text-sm text-space-400">Academic Partner</div>
+                  <div className="text-sm text-space-400">Collaboration Partner</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-cosmic-blue mb-2">Think Startup</div>
-                  <div className="text-sm text-space-400">Collaborator</div>
+                  <div className="text-sm text-space-400">R&D Partner</div>
                 </div>
               </div>
             </GlassMorphism>
@@ -379,19 +379,19 @@ const Collaborators = () => {
             <GlassMorphism className="p-8">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
                 <div>
-                  <div className="text-4xl font-bold text-cosmic-blue mb-2">50+</div>
+                  <div className="text-4xl font-bold text-cosmic-blue mb-2">10+</div>
                   <div className="text-space-300">Global Partners</div>
                 </div>
                 <div>
-                  <div className="text-4xl font-bold text-cosmic-purple mb-2">10K+</div>
+                  <div className="text-4xl font-bold text-cosmic-purple mb-2">2.5K+</div>
                   <div className="text-space-300">Students Reached</div>
                 </div>
                 <div>
-                  <div className="text-4xl font-bold text-cosmic-green mb-2">25+</div>
+                  <div className="text-4xl font-bold text-cosmic-green mb-2">5+</div>
                   <div className="text-space-300">Countries</div>
                 </div>
                 <div>
-                  <div className="text-4xl font-bold text-cosmic-orange mb-2">100+</div>
+                  <div className="text-4xl font-bold text-cosmic-orange mb-2">30+</div>
                   <div className="text-space-300">Educational Programs</div>
                 </div>
               </div>
