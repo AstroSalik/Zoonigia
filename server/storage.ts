@@ -176,6 +176,7 @@ export interface IStorage {
   // Campaign team registration operations
   createCampaignTeamRegistration(registration: InsertCampaignTeamRegistration): Promise<CampaignTeamRegistration>;
   getCampaignTeamRegistrations(campaignId: number): Promise<CampaignTeamRegistration[]>;
+  getAllCampaignTeamRegistrations(): Promise<CampaignTeamRegistration[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -663,6 +664,11 @@ export class DatabaseStorage implements IStorage {
   async getCampaignTeamRegistrations(campaignId: number): Promise<CampaignTeamRegistration[]> {
     return await db.select().from(campaignTeamRegistrations)
       .where(eq(campaignTeamRegistrations.campaignId, campaignId))
+      .orderBy(desc(campaignTeamRegistrations.createdAt));
+  }
+  
+  async getAllCampaignTeamRegistrations(): Promise<CampaignTeamRegistration[]> {
+    return await db.select().from(campaignTeamRegistrations)
       .orderBy(desc(campaignTeamRegistrations.createdAt));
   }
 }

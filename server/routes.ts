@@ -239,6 +239,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     },
   );
 
+  app.get(
+    "/api/admin/campaign-participants",
+    isAdmin,
+    async (req: any, res) => {
+      try {
+        const registrations = await storage.getAllCampaignTeamRegistrations();
+        res.json(registrations);
+      } catch (error) {
+        console.error("Error fetching campaign team registrations:", error);
+        res.status(500).json({ message: "Failed to fetch campaign team registrations" });
+      }
+    },
+  );
+
   // Admin POST routes for content creation
   app.post(
     "/api/admin/blog-posts",
@@ -1286,6 +1300,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       const registration = await storage.createCampaignTeamRegistration(registrationData);
+      
+      // Trigger immediate Google Sheets export
+      exportCampaignsToGoogleSheets().catch(error => {
+        console.error("[Team Registration] Failed to export to Google Sheets:", error);
+      });
+      
       res.json(registration);
     } catch (error) {
       console.error("Error registering team:", error);
