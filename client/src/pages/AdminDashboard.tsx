@@ -2419,9 +2419,9 @@ const AdminDashboard = () => {
                           <CheckCircle className="w-5 h-5 text-green-400" />
                         </div>
                         <div>
-                          <p className="text-sm text-gray-400">Active Campaigns</p>
+                          <p className="text-sm text-gray-400">Accepting Registrations</p>
                           <p className="text-2xl font-bold text-white">
-                            {campaigns.filter(c => c.status === 'active').length}
+                            {campaigns.filter(c => c.status === 'accepting_registrations').length}
                           </p>
                         </div>
                       </div>

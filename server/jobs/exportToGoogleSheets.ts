@@ -7,11 +7,11 @@ export async function exportCampaignsToGoogleSheets() {
   try {
     console.log('[Google Sheets Export] Starting daily export job...');
     
-    // Get all campaigns with status "Accepting Registrations"
+    // Get all campaigns with status "accepting_registrations"
     const activeCampaigns = await db
       .select()
       .from(campaigns)
-      .where(eq(campaigns.status, 'Accepting Registrations'));
+      .where(eq(campaigns.status, 'accepting_registrations'));
     
     if (!activeCampaigns || activeCampaigns.length === 0) {
       console.log('[Google Sheets Export] No campaigns accepting registrations found');

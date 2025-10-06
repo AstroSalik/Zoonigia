@@ -1163,7 +1163,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           startDate: "2025-08-17",
           endDate: "2025-11-23",
           partner: "NASA • IASC • University of Hawaii",
-          status: "active",
+          status: "accepting_registrations",
           progress: 20,
           price: "300.00",
         });
