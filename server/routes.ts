@@ -974,6 +974,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/courses/:courseId/enrollment/:userId", async (req, res) => {
+    try {
+      const courseId = parseInt(req.params.courseId);
+      const userId = req.params.userId;
+      const enrollment = await storage.getCourseEnrollment(userId, courseId);
+      res.json(enrollment || null);
+    } catch (error) {
+      console.error("Error checking course enrollment:", error);
+      res.status(500).json({ message: "Failed to check enrollment" });
+    }
+  });
+
   // LMS API routes
   // Course modules
   app.get("/api/courses/:courseId/modules", async (req, res) => {
@@ -1216,6 +1228,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error joining campaign:", error);
       res.status(500).json({ message: "Failed to join campaign" });
+    }
+  });
+
+  app.get("/api/campaigns/:campaignId/participant/:userId", async (req, res) => {
+    try {
+      const campaignId = parseInt(req.params.campaignId);
+      const userId = req.params.userId;
+      const participant = await storage.getCampaignParticipant(userId, campaignId);
+      res.json(participant || null);
+    } catch (error) {
+      console.error("Error checking campaign participation:", error);
+      res.status(500).json({ message: "Failed to check participation" });
     }
   });
 
