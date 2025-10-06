@@ -282,7 +282,7 @@ const Campaigns = () => {
     // Create Razorpay order first
     createPaymentMutation.mutate({
       campaignId: selectedCampaign.id,
-      paymentAmount: parseFloat(selectedCampaign.price)
+      paymentAmount: parseFloat(selectedCampaign.price || "0")
     });
   };
 
@@ -684,14 +684,14 @@ const Campaigns = () => {
           ) : (
             // Payment Form
             <div className="space-y-4">
-              {!clientSecret ? (
+              {!orderData ? (
                 <div className="flex items-center justify-center p-8">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cosmic-blue"></div>
                   <span className="ml-2 text-space-300">Setting up payment...</span>
                 </div>
               ) : (
                 <PaymentForm
-                  selectedCampaign={selectedCampaign}
+                  selectedCampaign={selectedCampaign!}
                   registrationData={registrationData}
                   onSuccess={handlePaymentSuccess}
                   onCancel={handlePaymentCancel}
