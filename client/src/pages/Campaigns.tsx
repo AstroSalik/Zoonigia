@@ -405,10 +405,10 @@ const Campaigns = () => {
               <Card key={campaign.id} className="bg-space-800/50 border-space-700">
                 <CardHeader>
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center text-cosmic-blue">
+                    <Link href={`/campaigns/${campaign.id}`} className="flex items-center text-cosmic-blue hover:text-blue-400 transition-colors cursor-pointer flex-1">
                       {getCampaignIcon(campaign.type)}
                       <CardTitle className="text-2xl ml-3">{campaign.title}</CardTitle>
-                    </div>
+                    </Link>
                     <Badge className={
                       campaign.status === "upcoming" ? "bg-cosmic-yellow text-space-900" :
                       campaign.status === "accepting_registrations" ? "bg-cosmic-green text-space-900" : 
