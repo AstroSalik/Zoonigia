@@ -368,10 +368,12 @@ const Campaigns = () => {
                     <Badge className={
                       campaign.status === "upcoming" ? "bg-cosmic-yellow text-space-900" :
                       campaign.status === "accepting_registrations" ? "bg-cosmic-green text-space-900" : 
+                      campaign.status === "active" ? "bg-cosmic-blue text-white" :
                       "bg-cosmic-orange text-space-900"
                     }>
                       {campaign.status === "upcoming" ? "Coming Soon" :
                        campaign.status === "accepting_registrations" ? "Registration Open" : 
+                       campaign.status === "active" ? "Active" :
                        "Registration Closed"}
                     </Badge>
                   </div>
@@ -388,10 +390,12 @@ const Campaigns = () => {
                       <span className={`text-sm ${
                         campaign.status === "upcoming" ? "text-cosmic-yellow" :
                         campaign.status === "accepting_registrations" ? "text-cosmic-green" :
+                        campaign.status === "active" ? "text-cosmic-blue" :
                         "text-cosmic-orange"
                       }`}>
                         {campaign.status === "upcoming" ? "Upcoming" :
                          campaign.status === "accepting_registrations" ? "Ongoing Registrations" :
+                         campaign.status === "active" ? "Active Campaign" :
                          "Registration Closed"}
                       </span>
                     </div>
@@ -424,10 +428,11 @@ const Campaigns = () => {
                   <Link href={`/campaigns/${campaign.id}`}>
                     <Button 
                       className="w-full bg-cosmic-blue hover:bg-blue-600"
-                      disabled={campaign.status !== "accepting_registrations"}
+                      disabled={campaign.status === "upcoming" || campaign.status === "closed" || campaign.status === "completed"}
                     >
                       {campaign.status === "upcoming" ? "Registrations Open Soon" :
                        campaign.status === "accepting_registrations" ? `Register Now - ${campaign.price && parseFloat(campaign.price) > 0 ? `₹${campaign.price}` : 'FREE'}` : 
+                       campaign.status === "active" ? "View Active Campaign" :
                        "Registration Closed"}
                     </Button>
                   </Link>
