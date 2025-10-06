@@ -329,7 +329,7 @@ const CampaignDetail = () => {
           {/* Header */}
           <div className="mb-8">
             <Badge className="mb-4 bg-cosmic-blue/20 text-cosmic-blue border-cosmic-blue/30">
-              {campaign.category}
+              {campaign.type || 'Campaign'}
             </Badge>
             <h1 className="text-4xl font-space font-bold mb-4">{campaign.title}</h1>
             <p className="text-xl text-space-200 max-w-3xl">{campaign.description}</p>
@@ -357,7 +357,7 @@ const CampaignDetail = () => {
                   <div className="flex flex-col items-center text-center p-4 bg-space-700/50 rounded-lg">
                     <Users className="w-6 h-6 text-cosmic-green mb-2" />
                     <span className="text-sm text-space-400">Participants</span>
-                    <span className="font-semibold">{campaign.participantCount || 0}</span>
+                    <span className="font-semibold">{(campaign as any).participantCount || 0}</span>
                   </div>
                   <div className="flex flex-col items-center text-center p-4 bg-space-700/50 rounded-lg">
                     <Award className="w-6 h-6 text-cosmic-orange mb-2" />
@@ -368,7 +368,7 @@ const CampaignDetail = () => {
               </Card>
 
               {/* Full Description */}
-              {campaign.fullDescription && (
+              {(campaign as any).fullDescription && (
                 <Card className="bg-space-800/50 border-space-700">
                   <CardHeader>
                     <CardTitle>About This Campaign</CardTitle>
@@ -376,7 +376,7 @@ const CampaignDetail = () => {
                   <CardContent>
                     <div className="prose prose-invert max-w-none">
                       <p className="text-space-200 leading-relaxed whitespace-pre-wrap">
-                        {campaign.fullDescription}
+                        {(campaign as any).fullDescription}
                       </p>
                     </div>
                   </CardContent>
@@ -384,14 +384,14 @@ const CampaignDetail = () => {
               )}
 
               {/* Highlights */}
-              {campaign.highlights && campaign.highlights.length > 0 && (
+              {(campaign as any).highlights && (campaign as any).highlights.length > 0 && (
                 <Card className="bg-space-800/50 border-space-700">
                   <CardHeader>
                     <CardTitle>Highlights</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-3">
-                      {campaign.highlights.map((highlight, index) => (
+                      {(campaign as any).highlights.map((highlight: string, index: number) => (
                         <li key={index} className="flex items-start">
                           <Target className="w-5 h-5 text-cosmic-blue mr-3 mt-0.5 flex-shrink-0" />
                           <span className="text-space-200">{highlight}</span>
@@ -410,9 +410,9 @@ const CampaignDetail = () => {
                 <CardHeader>
                   <CardTitle className="text-2xl">
                     ₹{campaign.price}
-                    {campaign.priceDetails && (
+                    {(campaign as any).priceDetails && (
                       <span className="text-sm font-normal text-space-400 block mt-1">
-                        {campaign.priceDetails}
+                        {(campaign as any).priceDetails}
                       </span>
                     )}
                   </CardTitle>

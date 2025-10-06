@@ -1316,11 +1316,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Create campaign enrollment with confirmed payment
+      const paymentAmountInPaise = Number(payment.amount) || 0;
       const enrollment = await storage.joinCampaign({
         campaignId,
         userId,
         paymentStatus: "paid",
-        paymentAmount: (payment.amount / 100).toString(),
+        paymentAmount: (paymentAmountInPaise / 100).toString(),
       });
 
       res.json({
