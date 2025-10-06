@@ -8,6 +8,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { useStripe, useElements, Elements, PaymentElement } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
 import { 
   Telescope, 
   PenTool, 
@@ -25,23 +27,16 @@ import Footer from "@/components/Footer";
 import GlassMorphism from "@/components/GlassMorphism";
 import { Campaign } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-// Razorpay Response Type
-interface RazorpayResponse {
-  razorpay_order_id: string;
-  razorpay_payment_id: string;
-  razorpay_signature: string;
+// Initialize Stripe
+if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
+  throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
 }
+console.log('Stripe public key found:', import.meta.env.VITE_STRIPE_PUBLIC_KEY?.substring(0, 20) + '...');
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
-// Declare Razorpay on window
-declare global {
-  interface Window {
-    Razorpay: any;
-  }
-}
-
-// Payment Form Component for Razorpay
+// Payment Form Component
 const PaymentForm = ({ 
   selectedCampaign, 
   registrationData, 
@@ -50,145 +45,86 @@ const PaymentForm = ({
 }: {
   selectedCampaign: Campaign;
   registrationData: any;
-  onSuccess: (paymentData: RazorpayResponse) => void;
+  onSuccess: () => void;
   onCancel: () => void;
 }) => {
+  const stripe = useStripe();
+  const elements = useElements();
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Load Razorpay script
-  const loadRazorpayScript = (): Promise<boolean> => {
-    return new Promise((resolve) => {
-      if (window.Razorpay) {
-        resolve(true);
-        return;
-      }
+  useEffect(() => {
+    console.log("Stripe setup:", { stripe: !!stripe, elements: !!elements });
+    if (stripe && elements) {
+      setIsLoading(false);
+    }
+  }, [stripe, elements]);
 
-      const script = document.createElement('script');
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);
-      document.body.appendChild(script);
-    });
-  };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  // Create order mutation
-  const createOrderMutation = useMutation({
-    mutationFn: async (data: any) => {
-      const response = await apiRequest("POST", "/api/campaigns/create-order", data);
-      return await response.json();
-    },
-    onSuccess: async (orderData) => {
-      if (!orderData.success) {
-        throw new Error(orderData.message || 'Failed to create order');
-      }
+    if (!stripe || !elements) {
+      return;
+    }
 
-      // Load Razorpay script
-      const scriptLoaded = await loadRazorpayScript();
-      if (!scriptLoaded) {
+    setIsProcessing(true);
+
+    try {
+      const { error } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/campaigns?success=true`,
+        },
+        redirect: 'if_required'
+      });
+
+      if (error) {
         toast({
-          title: "Payment Error",
-          description: "Razorpay SDK failed to load. Please check your internet connection.",
+          title: "Payment Failed",
+          description: error.message,
           variant: "destructive",
         });
-        setIsProcessing(false);
-        return;
+      } else {
+        onSuccess();
       }
-
-      // Configure Razorpay Checkout
-      const options = {
-        key: orderData.keyId,
-        amount: orderData.amount,
-        currency: orderData.currency,
-        name: 'Zoonigia',
-        description: selectedCampaign.title,
-        order_id: orderData.orderId,
-        handler: async (response: RazorpayResponse) => {
-          // Payment successful - verify on backend
-          try {
-            const verifyRes = await apiRequest("POST", "/api/campaigns/verify-payment", {
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-            });
-
-            const verifyData = await verifyRes.json();
-
-            if (verifyData.success) {
-              onSuccess(response);
-            } else {
-              toast({
-                title: "Payment Verification Failed",
-                description: verifyData.message || "Payment could not be verified",
-                variant: "destructive",
-              });
-              setIsProcessing(false);
-            }
-          } catch (error) {
-            console.error('Verification error:', error);
-            toast({
-              title: "Verification Error",
-              description: "Error verifying payment. Please contact support.",
-              variant: "destructive",
-            });
-            setIsProcessing(false);
-          }
-        },
-        prefill: {
-          name: registrationData.name || '',
-          email: registrationData.email || '',
-          contact: registrationData.phone || '',
-        },
-        theme: {
-          color: '#3B82F6',
-        },
-        modal: {
-          ondismiss: () => {
-            console.log('Payment modal closed');
-            setIsProcessing(false);
-            onCancel();
-          },
-        },
-      };
-
-      // Open Razorpay Checkout
-      const razorpay = new window.Razorpay(options);
-      razorpay.open();
-      setIsProcessing(false);
-    },
-    onError: (error: any) => {
-      console.error('Order creation error:', error);
+    } catch (err) {
       toast({
-        title: "Order Creation Failed",
-        description: error.message || "Failed to create payment order",
+        title: "Payment Error",
+        description: "An unexpected error occurred during payment processing.",
         variant: "destructive",
       });
+    } finally {
       setIsProcessing(false);
-    },
-  });
-
-  const handlePayment = async () => {
-    setIsProcessing(true);
-    createOrderMutation.mutate({
-      campaignId: selectedCampaign.id,
-      paymentAmount: parseFloat(selectedCampaign.price || "0")
-    });
+    }
   };
 
   return (
-    <div className="space-y-4">
-      <div className="bg-space-800 p-4 rounded-lg mb-4">
-        <h4 className="font-medium text-cosmic-blue mb-2">Campaign Registration</h4>
-        <p className="text-sm text-gray-300">{selectedCampaign.title}</p>
-        <p className="text-lg font-bold text-cosmic-orange mt-2">₹{selectedCampaign.price}</p>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="bg-space-700 p-4 rounded-lg">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm text-space-400">Campaign Registration</span>
+          <span className="text-lg font-bold text-cosmic-green">₹{selectedCampaign.price}</span>
+        </div>
+        <div className="text-sm text-space-300">
+          {selectedCampaign.title}
+        </div>
       </div>
 
-      <div className="bg-space-800 p-6 rounded-lg text-center">
-        <CreditCard className="w-12 h-12 text-cosmic-blue mx-auto mb-4" />
-        <h4 className="font-medium text-space-50 mb-2">Secure Payment</h4>
-        <p className="text-sm text-space-300 mb-4">
-          Click below to proceed with secure Razorpay payment
-        </p>
+      <div className="bg-space-700 p-4 rounded-lg">
+        <div className="text-sm text-space-300 mb-4">Payment Details</div>
+        {isLoading ? (
+          <div className="flex items-center justify-center p-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cosmic-blue"></div>
+            <span className="ml-2 text-space-300">Loading payment form...</span>
+          </div>
+        ) : (
+          <PaymentElement 
+            options={{
+              layout: "tabs"
+            }}
+          />
+        )}
       </div>
 
       <div className="flex justify-between gap-4 pt-4">
@@ -198,21 +134,18 @@ const PaymentForm = ({
           onClick={onCancel}
           disabled={isProcessing}
           className="border-space-600 text-space-300 hover:bg-space-700"
-          data-testid="button-cancel-payment"
         >
           Cancel
         </Button>
         <Button 
-          type="button"
-          onClick={handlePayment}
-          disabled={isProcessing}
+          type="submit"
+          disabled={!stripe || isProcessing || isLoading}
           className="bg-cosmic-blue hover:bg-blue-600 text-white"
-          data-testid="button-pay"
         >
-          {isProcessing ? "Processing..." : `Pay ₹${selectedCampaign.price}`}
+          {isProcessing ? "Processing..." : isLoading ? "Loading..." : `Pay ₹${selectedCampaign.price}`}
         </Button>
       </div>
-    </div>
+    </form>
   );
 };
 
@@ -245,11 +178,43 @@ const Campaigns = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
   const [showPayment, setShowPayment] = useState(false);
+  const [clientSecret, setClientSecret] = useState("");
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
-  // Enrollment mutation
+  // Create payment intent mutation
+  const createPaymentMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await apiRequest("POST", "/api/campaigns/create-payment-intent", data);
+      return await response.json();
+    },
+    onSuccess: (data) => {
+      console.log('Payment intent created successfully:', data);
+      setClientSecret(data.clientSecret);
+      setShowPayment(true);
+    },
+    onError: (error: any) => {
+      console.error("Payment intent creation error:", error);
+      if (error.message?.includes("401") || error.message?.includes("Unauthorized")) {
+        toast({
+          title: "Authentication Required",
+          description: "Please log in to register for campaigns.",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 1000);
+        return;
+      }
+      toast({
+        title: "Payment Setup Failed",
+        description: "Unable to set up payment. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+  
   const enrollMutation = useMutation({
     mutationFn: async (data: any) => {
       const response = await apiRequest("POST", "/api/campaigns/enroll", data);
@@ -257,12 +222,12 @@ const Campaigns = () => {
     },
     onSuccess: () => {
       toast({
-        title: "Enrollment Successful!",
-        description: "You have been successfully enrolled in the campaign.",
+        title: "Registration Successful!",
+        description: "You have successfully enrolled in the campaign.",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/campaigns"] });
       setIsDialogOpen(false);
       setShowPayment(false);
+      setClientSecret("");
       setRegistrationData({
         name: "",
         email: "",
@@ -270,28 +235,37 @@ const Campaigns = () => {
         school: "",
         grade: ""
       });
+      queryClient.invalidateQueries({ queryKey: ["/api/campaigns"] });
     },
     onError: (error: any) => {
+      console.error("Campaign enrollment error:", error);
       toast({
         title: "Registration Failed",
         description: error.message || "There was an error processing your registration. Please try again.",
         variant: "destructive",
       });
-    },
+    }
   });
-
+  
   const handleEnrollment = (campaign: Campaign) => {
     setSelectedCampaign(campaign);
     setIsDialogOpen(true);
     setShowPayment(false);
+    setClientSecret("");
   };
   
-  const handleProceedToPayment = () => {
+  const handleSubmitEnrollment = async () => {
     if (!selectedCampaign) return;
-    setShowPayment(true);
+    
+    console.log('Creating payment intent for campaign:', selectedCampaign.id, 'Amount:', selectedCampaign.price);
+    // Create payment intent first
+    createPaymentMutation.mutate({
+      campaignId: selectedCampaign.id,
+      paymentAmount: parseFloat(selectedCampaign.price)
+    });
   };
 
-  const handlePaymentSuccess = (paymentData: RazorpayResponse) => {
+  const handlePaymentSuccess = () => {
     toast({
       title: "Payment Successful!",
       description: "Your payment has been processed successfully.",
@@ -300,19 +274,14 @@ const Campaigns = () => {
     // Complete the enrollment
     enrollMutation.mutate({
       campaignId: selectedCampaign?.id,
-      paymentId: paymentData.razorpay_payment_id,
-      orderId: paymentData.razorpay_order_id,
-      paymentAmount: parseFloat(selectedCampaign?.price || "0"),
+      paymentIntentId: clientSecret?.split('_secret_')[0],
       registrationData
     });
   };
 
   const handlePaymentCancel = () => {
     setShowPayment(false);
-    toast({
-      title: "Payment Cancelled",
-      description: "You can try again when you're ready.",
-    });
+    setClientSecret("");
   };
 
   const getCampaignIcon = (type: string) => {
@@ -611,7 +580,7 @@ const Campaigns = () => {
                 </div>
                 <div className="flex items-center">
                   <CreditCard className="w-4 h-4 mr-2 text-cosmic-blue" />
-                  <span className="text-sm text-space-300">Secure payment processing with Razorpay</span>
+                  <span className="text-sm text-space-300">Secure payment processing with Stripe</span>
                 </div>
               </div>
               
@@ -678,28 +647,37 @@ const Campaigns = () => {
                   variant="outline" 
                   onClick={() => setIsDialogOpen(false)}
                   className="border-space-600 text-space-300 hover:bg-space-700"
-                  data-testid="button-cancel-registration"
                 >
                   Cancel
                 </Button>
                 <Button 
-                  onClick={handleProceedToPayment}
-                  disabled={!registrationData.name || !registrationData.email}
+                  onClick={handleSubmitEnrollment}
+                  disabled={createPaymentMutation.isPending || !registrationData.name || !registrationData.email}
                   className="bg-cosmic-blue hover:bg-blue-600 text-white"
-                  data-testid="button-proceed-to-payment"
                 >
-                  Proceed to Payment
+                  {createPaymentMutation.isPending ? "Setting up payment..." : "Proceed to Payment"}
                 </Button>
               </div>
             </div>
           ) : (
             // Payment Form
-            <PaymentForm
-              selectedCampaign={selectedCampaign!}
-              registrationData={registrationData}
-              onSuccess={handlePaymentSuccess}
-              onCancel={handlePaymentCancel}
-            />
+            <div className="space-y-4">
+              {!clientSecret ? (
+                <div className="flex items-center justify-center p-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cosmic-blue"></div>
+                  <span className="ml-2 text-space-300">Setting up payment...</span>
+                </div>
+              ) : (
+                <Elements stripe={stripePromise} options={{ clientSecret }}>
+                  <PaymentForm
+                    selectedCampaign={selectedCampaign}
+                    registrationData={registrationData}
+                    onSuccess={handlePaymentSuccess}
+                    onCancel={handlePaymentCancel}
+                  />
+                </Elements>
+              )}
+            </div>
           )}
         </DialogContent>
       </Dialog>
