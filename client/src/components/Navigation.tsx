@@ -106,26 +106,19 @@ const Navigation = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <>
-                <Button 
-                  variant="outline" 
-                  className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900"
-                  onClick={async () => {
-                    try {
-                      await signInWithGoogle();
-                    } catch (error) {
-                      // Sign in failed - user will see Firebase error modal
-                    }
-                  }}
-                >
-                  Sign In
-                </Button>
-                <Link href="/register">
-                  <Button className="cosmic-gradient hover:opacity-90">
-                    Register
-                  </Button>
-                </Link>
-              </>
+              <Button 
+                variant="outline" 
+                className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900"
+                onClick={async () => {
+                  try {
+                    await signInWithGoogle();
+                  } catch (error) {
+                    // Sign in failed - user will see Firebase error modal
+                  }
+                }}
+              >
+                Sign In
+              </Button>
             )}
           </div>
 
@@ -203,26 +196,20 @@ const Navigation = () => {
                       </Button>
                     </>
                   ) : (
-                    <>
-                      <Button 
-                        variant="outline" 
-                        className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900"
-                        onClick={() => window.location.href = '/api/login'}
-                      >
-                        Sign In
-                      </Button>
-                      <Link 
-                        href="/register" 
-                        onClick={() => {
-                          isNavigatingRef.current = true;
+                    <Button 
+                      variant="outline" 
+                      className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900"
+                      onClick={async () => {
+                        try {
+                          await signInWithGoogle();
                           setIsOpen(false);
-                        }}
-                      >
-                        <Button className="cosmic-gradient hover:opacity-90 w-full">
-                          Register
-                        </Button>
-                      </Link>
-                    </>
+                        } catch (error) {
+                          // Sign in failed - user will see Firebase error modal
+                        }
+                      }}
+                    >
+                      Sign In
+                    </Button>
                   )}
                 </div>
               </div>
