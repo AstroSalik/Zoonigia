@@ -398,11 +398,11 @@ const Campaigns = () => {
                     </div>
                     <Badge className={
                       campaign.status === "upcoming" ? "bg-cosmic-yellow text-space-900" :
-                      campaign.status === "active" || campaign.status === "Accepting Registrations" ? "bg-cosmic-green text-space-900" : 
+                      campaign.status === "active" ? "bg-cosmic-green text-space-900" : 
                       "bg-cosmic-orange text-space-900"
                     }>
                       {campaign.status === "upcoming" ? "Coming Soon" :
-                       campaign.status === "active" || campaign.status === "Accepting Registrations" ? "Registration Open" : 
+                       campaign.status === "active" ? "Registration Open" : 
                        "Registration Closed"}
                     </Badge>
                   </div>
@@ -418,11 +418,11 @@ const Campaigns = () => {
                       <span className="text-sm text-space-400">Campaign Progress</span>
                       <span className={`text-sm ${
                         campaign.status === "upcoming" ? "text-cosmic-yellow" :
-                        campaign.status === "active" || campaign.status === "Accepting Registrations" ? "text-cosmic-green" :
+                        campaign.status === "active" ? "text-cosmic-green" :
                         "text-cosmic-orange"
                       }`}>
                         {campaign.status === "upcoming" ? "Upcoming" :
-                         campaign.status === "active" || campaign.status === "Accepting Registrations" ? "Ongoing Registrations" :
+                         campaign.status === "active" ? "Ongoing Registrations" :
                          "Registration Closed"}
                       </span>
                     </div>
@@ -455,10 +455,10 @@ const Campaigns = () => {
                   <Link href={`/campaigns/${campaign.id}`}>
                     <Button 
                       className="w-full bg-cosmic-blue hover:bg-blue-600"
-                      disabled={campaign.status !== "active" && campaign.status !== "Accepting Registrations"}
+                      disabled={campaign.status !== "active"}
                     >
                       {campaign.status === "upcoming" ? "Registrations Open Soon" :
-                       campaign.status === "active" || campaign.status === "Accepting Registrations" ? `Register Now - ${campaign.price && parseFloat(campaign.price) > 0 ? `₹${campaign.price}` : 'FREE'}` : 
+                       campaign.status === "active" ? `Register Now - ${campaign.price && parseFloat(campaign.price) > 0 ? `₹${campaign.price}` : 'FREE'}` : 
                        "Registration Closed"}
                     </Button>
                   </Link>
