@@ -10,7 +10,7 @@ const app = express();
 // Production optimizations
 if (process.env.NODE_ENV === 'production') {
   app.use(compression({
-    filter: (req, res) => {
+    filter: (req: Request, res: Response) => {
       if (req.headers['x-no-compression']) {
         return false;
       }
