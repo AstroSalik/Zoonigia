@@ -18,7 +18,8 @@ import {
   ExternalLink,
   CreditCard,
   Mail,
-  Phone
+  Phone,
+  CheckCircle
 } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
@@ -204,9 +205,33 @@ const Campaigns = () => {
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
   const [showPayment, setShowPayment] = useState(false);
   const [orderData, setOrderData] = useState<any>(null);
+  const [enrolledCampaigns, setEnrolledCampaigns] = useState<Set<number>>(new Set());
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Check enrollment status for all campaigns
+  useEffect(() => {
+    const checkEnrollments = async () => {
+      if (!user || !campaigns) return;
+
+      const enrolled = new Set<number>();
+      for (const campaign of campaigns) {
+        try {
+          const response = await fetch(`/api/campaigns/${campaign.id}/participant/${user.id}`);
+          const participant = await response.json();
+          if (participant) {
+            enrolled.add(campaign.id);
+          }
+        } catch (error) {
+          console.error("Error checking enrollment:", error);
+        }
+      }
+      setEnrolledCampaigns(enrolled);
+    };
+
+    checkEnrollments();
+  }, [user, campaigns]);
   
   // Create Razorpay order mutation
   const createPaymentMutation = useMutation({
@@ -243,7 +268,7 @@ const Campaigns = () => {
       const response = await apiRequest("POST", "/api/campaigns/enroll", data);
       return await response.json();
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       toast({
         title: "Registration Successful!",
         description: "You have successfully enrolled in the campaign.",
@@ -258,6 +283,8 @@ const Campaigns = () => {
         school: "",
         grade: ""
       });
+      // Update enrolled campaigns state immediately
+      setEnrolledCampaigns(prev => new Set(prev).add(variables.campaignId));
       queryClient.invalidateQueries({ queryKey: ["/api/campaigns"] });
     },
     onError: (error: any) => {
@@ -442,17 +469,24 @@ const Campaigns = () => {
                     </div>
                   </div>
                   
-                  <Link href={`/campaigns/${campaign.id}`}>
-                    <Button 
-                      className="w-full bg-cosmic-blue hover:bg-blue-600"
-                      disabled={campaign.status === "upcoming" || campaign.status === "closed" || campaign.status === "completed"}
-                    >
-                      {campaign.status === "upcoming" ? "Registrations Open Soon" :
-                       campaign.status === "accepting_registrations" ? `Register Now - ${campaign.price && parseFloat(campaign.price) > 0 ? `₹${campaign.price}` : 'FREE'}` : 
-                       campaign.status === "active" ? "View Active Campaign" :
-                       "Registration Closed"}
-                    </Button>
-                  </Link>
+                  {enrolledCampaigns.has(campaign.id) ? (
+                    <div className="w-full bg-cosmic-green/20 border border-cosmic-green rounded-lg p-3 flex items-center justify-center gap-2">
+                      <CheckCircle className="w-5 h-5 text-cosmic-green" />
+                      <span className="text-cosmic-green font-semibold">Already Registered</span>
+                    </div>
+                  ) : (
+                    <Link href={`/campaigns/${campaign.id}`}>
+                      <Button 
+                        className="w-full bg-cosmic-blue hover:bg-blue-600"
+                        disabled={campaign.status === "upcoming" || campaign.status === "closed" || campaign.status === "completed"}
+                      >
+                        {campaign.status === "upcoming" ? "Registrations Open Soon" :
+                         campaign.status === "accepting_registrations" ? `Register Now - ${campaign.price && parseFloat(campaign.price) > 0 ? `₹${campaign.price}` : 'FREE'}` : 
+                         campaign.status === "active" ? "View Active Campaign" :
+                         "Registration Closed"}
+                      </Button>
+                    </Link>
+                  )}
                 </CardContent>
               </Card>
             ))}
