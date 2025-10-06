@@ -60,12 +60,6 @@ const RoyalQueenHomepage = ({ user }: { user: any }) => {
 
   const sendLoveMessage = useMutation({
     mutationFn: async (data: z.infer<typeof loveMessageSchema>) => {
-      console.log("Sending love message with user:", user);
-      console.log("Headers being sent:", {
-        'x-user-id': user?.uid || '',
-        'x-user-email': user?.email || '',
-      });
-      
       // Use fetch directly since apiRequest doesn't support custom headers
       const response = await fetch("/api/love-messages", {
         method: "POST",

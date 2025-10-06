@@ -96,7 +96,6 @@ const Schools = () => {
   });
 
   const onSubmit = (data: SchoolInquiryData) => {
-    console.log("Form submitted with data:", data);
     inquiryMutation.mutate(data);
   };
 
