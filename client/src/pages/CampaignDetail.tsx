@@ -367,52 +367,157 @@ const CampaignDetail = () => {
                 </CardContent>
               </Card>
 
-              {/* Requirements */}
-              {campaign.requirements && (
-                <Card className="bg-space-800/50 border-space-700">
-                  <CardHeader>
-                    <CardTitle>Requirements</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="prose prose-invert max-w-none">
-                      <p className="text-space-200 leading-relaxed whitespace-pre-wrap">
-                        {campaign.requirements}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
+              {/* Special UI for Ideathon campaigns */}
+              {campaign.type === 'ideathon' ? (
+                <>
+                  {/* Campaign Overview */}
+                  <Card className="bg-space-800/50 border-space-700">
+                    <CardHeader>
+                      <CardTitle className="text-2xl">Campaign Overview</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <div>
+                        <h3 className="text-lg font-semibold mb-3 text-cosmic-blue">About Youth Ideathon 2025</h3>
+                        <p className="text-space-200 mb-4 leading-relaxed">
+                          A national innovation championship organized by Think Startup in collaboration with Zoonigia, 
+                          hosted at the prestigious IIT Delhi campus. This is your opportunity to showcase innovative solutions 
+                          to real-world problems and compete for substantial prizes.
+                        </p>
+                        <ul className="space-y-2 text-space-200">
+                          <li className="flex items-start"><span className="text-cosmic-blue mr-2">•</span><span>Team-based innovation competition (3-5 members per team)</span></li>
+                          <li className="flex items-start"><span className="text-cosmic-blue mr-2">•</span><span>Mentorship from industry experts and IIT Delhi faculty</span></li>
+                          <li className="flex items-start"><span className="text-cosmic-blue mr-2">•</span><span>Top 100 teams invited to grand finale at IIT Delhi</span></li>
+                          <li className="flex items-start"><span className="text-cosmic-blue mr-2">•</span><span>₹100,000 prize money per winning team (10 winners)</span></li>
+                          <li className="flex items-start"><span className="text-cosmic-blue mr-2">•</span><span>Certificates and recognition for all participants</span></li>
+                          <li className="flex items-start"><span className="text-cosmic-blue mr-2">•</span><span>Keynote session by Salik Riyaz, Founder & CEO of Zoonigia Pvt Ltd</span></li>
+                        </ul>
+                      </div>
 
-              {/* Timeline */}
-              {campaign.timeline && (
-                <Card className="bg-space-800/50 border-space-700">
-                  <CardHeader>
-                    <CardTitle>Timeline</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="prose prose-invert max-w-none">
-                      <p className="text-space-200 leading-relaxed whitespace-pre-wrap">
-                        {campaign.timeline}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
+                      <Separator className="bg-space-700" />
 
-              {/* Outcomes */}
-              {campaign.outcomes && (
-                <Card className="bg-space-800/50 border-space-700">
-                  <CardHeader>
-                    <CardTitle>Expected Outcomes</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="prose prose-invert max-w-none">
-                      <p className="text-space-200 leading-relaxed whitespace-pre-wrap">
-                        {campaign.outcomes}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
+                      <div>
+                        <h3 className="text-lg font-semibold mb-4 text-cosmic-purple">Competition Highlights</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="p-4 bg-gradient-to-br from-cosmic-blue/20 to-transparent border border-cosmic-blue/30 rounded-lg">
+                            <h4 className="font-medium text-cosmic-orange mb-2">Think Startup & Zoonigia</h4>
+                            <p className="text-sm text-space-300">National innovation championship organized by leading EdTech platforms</p>
+                          </div>
+                          <div className="p-4 bg-gradient-to-br from-cosmic-purple/20 to-transparent border border-cosmic-purple/30 rounded-lg">
+                            <h4 className="font-medium text-cosmic-orange mb-2">IIT Delhi Venue</h4>
+                            <p className="text-sm text-space-300">Grand finale hosted at IIT Delhi campus</p>
+                          </div>
+                          <div className="p-4 bg-gradient-to-br from-cosmic-green/20 to-transparent border border-cosmic-green/30 rounded-lg">
+                            <h4 className="font-medium text-cosmic-orange mb-2">Prize Pool</h4>
+                            <p className="text-sm text-space-300">₹10 Lakhs total - ₹1 Lakh per winning team (10 winners)</p>
+                          </div>
+                          <div className="p-4 bg-gradient-to-br from-cosmic-orange/20 to-transparent border border-cosmic-orange/30 rounded-lg">
+                            <h4 className="font-medium text-cosmic-orange mb-2">Team Competition</h4>
+                            <p className="text-sm text-space-300">Form your squad of 3-5 innovative minds</p>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Requirements */}
+                  {campaign.requirements && (
+                    <Card className="bg-space-800/50 border-space-700">
+                      <CardHeader>
+                        <CardTitle>Requirements</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="prose prose-invert max-w-none">
+                          <p className="text-space-200 leading-relaxed whitespace-pre-wrap">
+                            {campaign.requirements}
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Timeline */}
+                  {campaign.timeline && (
+                    <Card className="bg-space-800/50 border-space-700">
+                      <CardHeader>
+                        <CardTitle>Timeline</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="prose prose-invert max-w-none">
+                          <p className="text-space-200 leading-relaxed whitespace-pre-wrap">
+                            {campaign.timeline}
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Outcomes */}
+                  {campaign.outcomes && (
+                    <Card className="bg-space-800/50 border-space-700">
+                      <CardHeader>
+                        <CardTitle>Expected Outcomes</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="prose prose-invert max-w-none">
+                          <p className="text-space-200 leading-relaxed whitespace-pre-wrap">
+                            {campaign.outcomes}
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                </>
+              ) : (
+                <>
+                  {/* Standard campaign sections */}
+                  {/* Requirements */}
+                  {campaign.requirements && (
+                    <Card className="bg-space-800/50 border-space-700">
+                      <CardHeader>
+                        <CardTitle>Requirements</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="prose prose-invert max-w-none">
+                          <p className="text-space-200 leading-relaxed whitespace-pre-wrap">
+                            {campaign.requirements}
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Timeline */}
+                  {campaign.timeline && (
+                    <Card className="bg-space-800/50 border-space-700">
+                      <CardHeader>
+                        <CardTitle>Timeline</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="prose prose-invert max-w-none">
+                          <p className="text-space-200 leading-relaxed whitespace-pre-wrap">
+                            {campaign.timeline}
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Outcomes */}
+                  {campaign.outcomes && (
+                    <Card className="bg-space-800/50 border-space-700">
+                      <CardHeader>
+                        <CardTitle>Expected Outcomes</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="prose prose-invert max-w-none">
+                          <p className="text-space-200 leading-relaxed whitespace-pre-wrap">
+                            {campaign.outcomes}
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                </>
               )}
             </div>
 
