@@ -195,10 +195,10 @@ const Courses = () => {
               <Card key={course.id} className="bg-space-800/50 border-space-700 hover:scale-105 transition-transform">
                 <CardHeader>
                   <div className="flex items-center justify-between">
-                    <div className={`flex items-center ${getCourseColor(course.field)}`}>
+                    <Link href={`/courses/${course.id}`} className={`flex items-center ${getCourseColor(course.field)} hover:opacity-70 transition-opacity cursor-pointer flex-1`}>
                       {getCourseIcon(course.field)}
                       <CardTitle className="text-2xl font-semibold ml-3">{course.title}</CardTitle>
-                    </div>
+                    </Link>
                     <Badge className={`${getLevelColor(course.level)} text-space-900`}>
                       {course.level}
                     </Badge>
