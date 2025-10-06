@@ -367,11 +367,11 @@ const Campaigns = () => {
                     </div>
                     <Badge className={
                       campaign.status === "upcoming" ? "bg-cosmic-yellow text-space-900" :
-                      campaign.status === "active" ? "bg-cosmic-green text-space-900" : 
+                      campaign.status === "accepting_registrations" ? "bg-cosmic-green text-space-900" : 
                       "bg-cosmic-orange text-space-900"
                     }>
                       {campaign.status === "upcoming" ? "Coming Soon" :
-                       campaign.status === "active" ? "Registration Open" : 
+                       campaign.status === "accepting_registrations" ? "Registration Open" : 
                        "Registration Closed"}
                     </Badge>
                   </div>
@@ -387,11 +387,11 @@ const Campaigns = () => {
                       <span className="text-sm text-space-400">Campaign Progress</span>
                       <span className={`text-sm ${
                         campaign.status === "upcoming" ? "text-cosmic-yellow" :
-                        campaign.status === "active" ? "text-cosmic-green" :
+                        campaign.status === "accepting_registrations" ? "text-cosmic-green" :
                         "text-cosmic-orange"
                       }`}>
                         {campaign.status === "upcoming" ? "Upcoming" :
-                         campaign.status === "active" ? "Ongoing Registrations" :
+                         campaign.status === "accepting_registrations" ? "Ongoing Registrations" :
                          "Registration Closed"}
                       </span>
                     </div>
@@ -424,10 +424,10 @@ const Campaigns = () => {
                   <Link href={`/campaigns/${campaign.id}`}>
                     <Button 
                       className="w-full bg-cosmic-blue hover:bg-blue-600"
-                      disabled={campaign.status !== "active"}
+                      disabled={campaign.status !== "accepting_registrations"}
                     >
                       {campaign.status === "upcoming" ? "Registrations Open Soon" :
-                       campaign.status === "active" ? `Register Now - ${campaign.price && parseFloat(campaign.price) > 0 ? `₹${campaign.price}` : 'FREE'}` : 
+                       campaign.status === "accepting_registrations" ? `Register Now - ${campaign.price && parseFloat(campaign.price) > 0 ? `₹${campaign.price}` : 'FREE'}` : 
                        "Registration Closed"}
                     </Button>
                   </Link>
