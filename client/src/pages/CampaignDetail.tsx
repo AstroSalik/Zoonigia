@@ -357,7 +357,7 @@ const CampaignDetail = () => {
                   <div className="flex flex-col items-center text-center p-4 bg-space-700/50 rounded-lg">
                     <Users className="w-6 h-6 text-cosmic-green mb-2" />
                     <span className="text-sm text-space-400">Participants</span>
-                    <span className="font-semibold">{(campaign as any).participantCount || 0}</span>
+                    <span className="font-semibold">{campaign.currentParticipants || 0}</span>
                   </div>
                   <div className="flex flex-col items-center text-center p-4 bg-space-700/50 rounded-lg">
                     <Award className="w-6 h-6 text-cosmic-orange mb-2" />
@@ -367,37 +367,50 @@ const CampaignDetail = () => {
                 </CardContent>
               </Card>
 
-              {/* Full Description */}
-              {(campaign as any).fullDescription && (
+              {/* Requirements */}
+              {campaign.requirements && (
                 <Card className="bg-space-800/50 border-space-700">
                   <CardHeader>
-                    <CardTitle>About This Campaign</CardTitle>
+                    <CardTitle>Requirements</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="prose prose-invert max-w-none">
                       <p className="text-space-200 leading-relaxed whitespace-pre-wrap">
-                        {(campaign as any).fullDescription}
+                        {campaign.requirements}
                       </p>
                     </div>
                   </CardContent>
                 </Card>
               )}
 
-              {/* Highlights */}
-              {(campaign as any).highlights && (campaign as any).highlights.length > 0 && (
+              {/* Timeline */}
+              {campaign.timeline && (
                 <Card className="bg-space-800/50 border-space-700">
                   <CardHeader>
-                    <CardTitle>Highlights</CardTitle>
+                    <CardTitle>Timeline</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <ul className="space-y-3">
-                      {(campaign as any).highlights.map((highlight: string, index: number) => (
-                        <li key={index} className="flex items-start">
-                          <Target className="w-5 h-5 text-cosmic-blue mr-3 mt-0.5 flex-shrink-0" />
-                          <span className="text-space-200">{highlight}</span>
-                        </li>
-                      ))}
-                    </ul>
+                    <div className="prose prose-invert max-w-none">
+                      <p className="text-space-200 leading-relaxed whitespace-pre-wrap">
+                        {campaign.timeline}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Outcomes */}
+              {campaign.outcomes && (
+                <Card className="bg-space-800/50 border-space-700">
+                  <CardHeader>
+                    <CardTitle>Expected Outcomes</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="prose prose-invert max-w-none">
+                      <p className="text-space-200 leading-relaxed whitespace-pre-wrap">
+                        {campaign.outcomes}
+                      </p>
+                    </div>
                   </CardContent>
                 </Card>
               )}
@@ -410,11 +423,6 @@ const CampaignDetail = () => {
                 <CardHeader>
                   <CardTitle className="text-2xl">
                     ₹{campaign.price}
-                    {(campaign as any).priceDetails && (
-                      <span className="text-sm font-normal text-space-400 block mt-1">
-                        {(campaign as any).priceDetails}
-                      </span>
-                    )}
                   </CardTitle>
                   <CardDescription className="text-space-300">
                     Secure your spot in this campaign
