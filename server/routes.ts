@@ -16,14 +16,16 @@ import {
   insertCampaignSchema,
 } from "@shared/schema";
 import { z } from "zod";
-import Stripe from "stripe";
+import Razorpay from "razorpay";
+import crypto from "crypto";
 import { exportCampaignsToGoogleSheets } from "./jobs/exportToGoogleSheets";
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error("Missing required Stripe secret: STRIPE_SECRET_KEY");
+if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+  throw new Error("Missing required Razorpay secrets: RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET");
 }
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2025-06-30.basil",
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -1203,47 +1205,114 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create payment intent for campaign enrollment
-  app.post(
-    "/api/campaigns/create-payment-intent",
-    
-    async (req: any, res) => {
-      try {
-        const { campaignId, paymentAmount } = req.body;
-        const userId = req.user.claims.sub;
+  // Create Razorpay order for campaign enrollment
+  app.post("/api/campaigns/create-order", async (req: any, res) => {
+    try {
+      const { campaignId, paymentAmount } = req.body;
+      const userId = req.user?.claims?.sub || req.body.userId;
 
-        // Create payment intent
-        const paymentIntent = await stripe.paymentIntents.create({
-          amount: Math.round(paymentAmount * 100), // Convert to cents
-          currency: "inr",
-          metadata: {
-            campaignId: campaignId.toString(),
-            userId: userId,
-          },
+      if (!paymentAmount) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Payment amount is required" 
         });
-
-        res.json({
-          clientSecret: paymentIntent.client_secret,
-          paymentIntentId: paymentIntent.id,
-        });
-      } catch (error) {
-        console.error("Error creating payment intent:", error);
-        res.status(500).json({ message: "Failed to create payment intent" });
       }
-    },
-  );
+
+      const options = {
+        amount: Math.round(paymentAmount * 100), // Amount in paise (₹500 = 50000 paise)
+        currency: "INR",
+        receipt: `campaign_${campaignId}_${Date.now()}`,
+        payment_capture: 1,
+        notes: {
+          campaignId: campaignId.toString(),
+          userId: userId || 'guest',
+        },
+      };
+
+      const order = await razorpay.orders.create(options);
+
+      res.json({
+        success: true,
+        orderId: order.id,
+        amount: order.amount,
+        currency: order.currency,
+        keyId: process.env.RAZORPAY_KEY_ID,
+      });
+    } catch (error: any) {
+      console.error("Error creating Razorpay order:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Failed to create order",
+        error: error.message 
+      });
+    }
+  });
+
+  // Verify Razorpay payment signature
+  app.post("/api/campaigns/verify-payment", async (req: any, res) => {
+    try {
+      const { 
+        razorpay_order_id, 
+        razorpay_payment_id, 
+        razorpay_signature 
+      } = req.body;
+
+      if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+        return res.status(400).json({
+          success: false,
+          message: "Missing payment verification data"
+        });
+      }
+
+      // Generate signature for verification
+      const generatedSignature = crypto
+        .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET!)
+        .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+        .digest('hex');
+
+      if (generatedSignature === razorpay_signature) {
+        res.json({
+          success: true,
+          message: 'Payment verified successfully',
+          paymentId: razorpay_payment_id,
+          orderId: razorpay_order_id,
+        });
+      } else {
+        res.status(400).json({
+          success: false,
+          message: 'Invalid signature. Payment verification failed.',
+        });
+      }
+    } catch (error: any) {
+      console.error('Payment verification failed:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Payment verification error',
+        error: error.message 
+      });
+    }
+  });
 
   app.post("/api/campaigns/enroll", async (req: any, res) => {
     try {
-      const { campaignId, paymentIntentId, registrationData } = req.body;
-      const userId = req.user.claims.sub;
+      const { campaignId, paymentId, orderId, paymentAmount, registrationData } = req.body;
+      const userId = req.user?.claims?.sub || req.body.userId;
 
-      // Verify payment was successful
-      const paymentIntent =
-        await stripe.paymentIntents.retrieve(paymentIntentId);
+      if (!paymentId || !orderId) {
+        return res.status(400).json({ 
+          success: false,
+          message: "Payment verification data required" 
+        });
+      }
 
-      if (paymentIntent.status !== "succeeded") {
-        return res.status(400).json({ message: "Payment not completed" });
+      // Fetch payment details from Razorpay to verify status
+      const payment = await razorpay.payments.fetch(paymentId);
+
+      if (payment.status !== "captured" && payment.status !== "authorized") {
+        return res.status(400).json({ 
+          success: false,
+          message: "Payment not completed" 
+        });
       }
 
       // Create campaign enrollment with confirmed payment
@@ -1251,7 +1320,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         campaignId,
         userId,
         paymentStatus: "paid",
-        paymentAmount: (paymentIntent.amount / 100).toString(),
+        paymentAmount: (payment.amount / 100).toString(),
       });
 
       res.json({
@@ -1259,9 +1328,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         enrollment,
         message: "Successfully enrolled in campaign",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error enrolling in campaign:", error);
-      res.status(500).json({ message: "Failed to enroll in campaign" });
+      res.status(500).json({ 
+        success: false,
+        message: "Failed to enroll in campaign",
+        error: error.message 
+      });
     }
   });
 
