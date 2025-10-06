@@ -97,6 +97,7 @@ export interface IStorage {
   deleteCourse(id: number): Promise<void>;
   enrollInCourse(enrollment: InsertCourseEnrollment): Promise<CourseEnrollment>;
   getUserCourses(userId: string): Promise<Course[]>;
+  getCourseEnrollment(userId: string, courseId: number): Promise<CourseEnrollment | undefined>;
   
   // Campaign operations
   getCampaigns(): Promise<Campaign[]>;
@@ -106,6 +107,7 @@ export interface IStorage {
   deleteCampaign(id: number): Promise<void>;
   joinCampaign(participant: InsertCampaignParticipant): Promise<CampaignParticipant>;
   getUserCampaigns(userId: string): Promise<Campaign[]>;
+  getCampaignParticipant(userId: string, campaignId: number): Promise<CampaignParticipant | undefined>;
   
   // Blog operations
   getBlogPosts(): Promise<BlogPost[]>;
@@ -356,6 +358,15 @@ export class DatabaseStorage implements IStorage {
       .then(results => results.map(r => r.courses));
   }
 
+  async getCourseEnrollment(userId: string, courseId: number): Promise<CourseEnrollment | undefined> {
+    const [enrollment] = await db
+      .select()
+      .from(courseEnrollments)
+      .where(and(eq(courseEnrollments.userId, userId), eq(courseEnrollments.courseId, courseId)))
+      .limit(1);
+    return enrollment;
+  }
+
   // Campaign operations
   async getCampaigns(): Promise<Campaign[]> {
     return await db.select().from(campaigns).orderBy(desc(campaigns.createdAt));
@@ -396,6 +407,15 @@ export class DatabaseStorage implements IStorage {
       .innerJoin(campaignParticipants, eq(campaigns.id, campaignParticipants.campaignId))
       .where(eq(campaignParticipants.userId, userId))
       .then(results => results.map(r => r.campaigns));
+  }
+
+  async getCampaignParticipant(userId: string, campaignId: number): Promise<CampaignParticipant | undefined> {
+    const [participant] = await db
+      .select()
+      .from(campaignParticipants)
+      .where(and(eq(campaignParticipants.userId, userId), eq(campaignParticipants.campaignId, campaignId)))
+      .limit(1);
+    return participant;
   }
 
   // Blog operations
