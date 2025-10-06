@@ -465,8 +465,9 @@ export default function CampaignDetail() {
                         <span className="text-gray-400">Status:</span>
                         <Badge variant="outline" className={
                           campaign.status === 'upcoming' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500' :
-                          campaign.status === 'active' ? 'bg-green-500/20 text-green-400 border-green-500' :
-                          campaign.status === 'closed' ? 'bg-blue-500/20 text-blue-400 border-blue-500' :
+                          campaign.status === 'accepting_registrations' ? 'bg-green-500/20 text-green-400 border-green-500' :
+                          campaign.status === 'active' ? 'bg-blue-500/20 text-blue-400 border-blue-500' :
+                          campaign.status === 'closed' ? 'bg-red-500/20 text-red-400 border-red-500' :
                           'bg-gray-500/20 text-gray-400 border-gray-500'
                         }>
                           {campaign.status}
@@ -483,7 +484,7 @@ export default function CampaignDetail() {
 
                     <div className="space-y-3">
                       <Button 
-                        disabled={campaign.status !== "active"}
+                        disabled={campaign.status !== "accepting_registrations"}
                         className="w-full bg-gradient-to-r from-cosmic-blue to-cosmic-purple hover:from-cosmic-purple hover:to-cosmic-blue transition-all duration-300"
                         onClick={() => {
                           document.getElementById('team-registration-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -491,7 +492,7 @@ export default function CampaignDetail() {
                       >
                         <Users className="w-4 h-4 mr-2" />
                         {campaign.status === "upcoming" ? "Coming Soon" : 
-                         campaign.status === "active" ? "Register Your Team" : 
+                         campaign.status === "accepting_registrations" ? "Register Your Team" : 
                          "Registration Closed"}
                       </Button>
                       <p className="text-xs text-center text-space-400">
@@ -693,8 +694,9 @@ export default function CampaignDetail() {
                     <span className="text-gray-400">Status:</span>
                     <Badge variant="outline" className={
                       campaign.status === 'upcoming' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500' :
-                      campaign.status === 'active' ? 'bg-green-500/20 text-green-400 border-green-500' :
-                      campaign.status === 'closed' ? 'bg-blue-500/20 text-blue-400 border-blue-500' :
+                      campaign.status === 'accepting_registrations' ? 'bg-green-500/20 text-green-400 border-green-500' :
+                      campaign.status === 'active' ? 'bg-blue-500/20 text-blue-400 border-blue-500' :
+                      campaign.status === 'closed' ? 'bg-red-500/20 text-red-400 border-red-500' :
                       'bg-gray-500/20 text-gray-400 border-gray-500'
                     }>
                       {campaign.status}
@@ -712,7 +714,7 @@ export default function CampaignDetail() {
                 {campaign.type === 'ideathon' ? (
                   <div className="space-y-3">
                     <Button 
-                      disabled={campaign.status !== "active"}
+                      disabled={campaign.status !== "accepting_registrations"}
                       className="w-full bg-gradient-to-r from-cosmic-blue to-cosmic-purple hover:from-cosmic-purple hover:to-cosmic-blue transition-all duration-300"
                       onClick={() => {
                         document.getElementById('team-registration-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -720,7 +722,7 @@ export default function CampaignDetail() {
                     >
                       <Users className="w-4 h-4 mr-2" />
                       {campaign.status === "upcoming" ? "Coming Soon" : 
-                       campaign.status === "active" ? "Register Your Team" : 
+                       campaign.status === "accepting_registrations" ? "Register Your Team" : 
                        "Registration Closed"}
                     </Button>
                     <p className="text-xs text-center text-space-400">
@@ -733,12 +735,12 @@ export default function CampaignDetail() {
                     <DialogTrigger asChild>
                       <Button 
                         onClick={handleEnrollment}
-                        disabled={campaign.status !== "active"}
+                        disabled={campaign.status !== "accepting_registrations"}
                         className="w-full bg-gradient-to-r from-cosmic-blue to-cosmic-purple hover:from-cosmic-purple hover:to-cosmic-blue transition-all duration-300"
                       >
                         <CreditCard className="w-4 h-4 mr-2" />
                         {campaign.status === "upcoming" ? "Coming Soon" : 
-                         campaign.status === "active" ? "Register & Pay Now" : 
+                         campaign.status === "accepting_registrations" ? "Register & Pay Now" : 
                          "Registration Closed"}
                       </Button>
                     </DialogTrigger>
@@ -852,7 +854,7 @@ export default function CampaignDetail() {
         </div>
 
         {/* Team Registration Form for Ideathon Campaigns */}
-        {campaign.type === 'ideathon' && campaign.status === 'active' && (
+        {campaign.type === 'ideathon' && campaign.status === 'accepting_registrations' && (
           <div id="team-registration-form" className="container mx-auto px-4 mt-8 max-w-4xl">
             <TeamRegistrationForm 
               campaignId={campaign.id}

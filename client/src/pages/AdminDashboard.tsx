@@ -77,7 +77,7 @@ const campaignFormSchema = z.object({
   timeline: z.string().min(1, "Timeline is required"),
   outcomes: z.string().min(1, "Outcomes are required"),
   imageUrl: z.string().optional(),
-  status: z.enum(["upcoming", "active", "closed", "completed"]).default("upcoming"),
+  status: z.enum(["upcoming", "accepting_registrations", "active", "closed", "completed"]).default("upcoming"),
 });
 
 const AdminDashboard = () => {
@@ -85,7 +85,7 @@ const AdminDashboard = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [selectedInquiry, setSelectedInquiry] = useState<ContactInquiry | null>(null);
   const [showBlogDialog, setShowBlogDialog] = useState(false);
-  const [showWorkshopDialog] = useState(false);
+  const [showWorkshopDialog, setShowWorkshopDialog] = useState(false);
   const [showCourseDialog, setShowCourseDialog] = useState(false);
   const [showCampaignDialog, setShowCampaignDialog] = useState(false);
   const [showLessonDialog, setShowLessonDialog] = useState(false);
@@ -2160,6 +2160,7 @@ const AdminDashboard = () => {
                                       </FormControl>
                                       <SelectContent className="bg-space-700 border-space-600">
                                         <SelectItem value="upcoming">Upcoming</SelectItem>
+                                        <SelectItem value="accepting_registrations">Accepting Registrations</SelectItem>
                                         <SelectItem value="active">Active</SelectItem>
                                         <SelectItem value="closed">Closed</SelectItem>
                                         <SelectItem value="completed">Completed</SelectItem>
