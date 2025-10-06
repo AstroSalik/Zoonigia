@@ -16,14 +16,16 @@ import {
   insertCampaignSchema,
 } from "@shared/schema";
 import { z } from "zod";
-import Stripe from "stripe";
+import Razorpay from "razorpay";
+import crypto from "crypto";
 import { exportCampaignsToGoogleSheets } from "./jobs/exportToGoogleSheets";
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error("Missing required Stripe secret: STRIPE_SECRET_KEY");
+if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+  throw new Error("Missing required Razorpay secrets: RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET");
 }
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2025-06-30.basil",
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -1217,47 +1219,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create payment intent for campaign enrollment
+  // Create Razorpay order for campaign enrollment
   app.post(
-    "/api/campaigns/create-payment-intent",
+    "/api/campaigns/create-payment-order",
     
     async (req: any, res) => {
       try {
         const { campaignId, paymentAmount } = req.body;
-        const userId = req.user.claims.sub;
 
-        // Create payment intent
-        const paymentIntent = await stripe.paymentIntents.create({
-          amount: Math.round(paymentAmount * 100), // Convert to cents
-          currency: "inr",
-          metadata: {
+        // Create Razorpay order
+        const order = await razorpay.orders.create({
+          amount: Math.round(paymentAmount * 100), // Convert to paise (smallest unit)
+          currency: "INR",
+          receipt: `campaign_${campaignId}_${Date.now()}`,
+          notes: {
             campaignId: campaignId.toString(),
-            userId: userId,
           },
         });
 
         res.json({
-          clientSecret: paymentIntent.client_secret,
-          paymentIntentId: paymentIntent.id,
+          orderId: order.id,
+          amount: order.amount,
+          currency: order.currency,
+          keyId: process.env.RAZORPAY_KEY_ID,
         });
       } catch (error) {
-        console.error("Error creating payment intent:", error);
-        res.status(500).json({ message: "Failed to create payment intent" });
+        console.error("Error creating Razorpay order:", error);
+        res.status(500).json({ message: "Failed to create payment order" });
       }
     },
   );
 
   app.post("/api/campaigns/enroll", async (req: any, res) => {
     try {
-      const { campaignId, paymentIntentId, registrationData } = req.body;
-      const userId = req.user.claims.sub;
+      const { campaignId, razorpay_order_id, razorpay_payment_id, razorpay_signature, paymentAmount, userId } = req.body;
 
-      // Verify payment was successful
-      const paymentIntent =
-        await stripe.paymentIntents.retrieve(paymentIntentId);
+      // Verify Razorpay payment signature
+      const generated_signature = crypto
+        .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET!)
+        .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+        .digest('hex');
 
-      if (paymentIntent.status !== "succeeded") {
-        return res.status(400).json({ message: "Payment not completed" });
+      if (generated_signature !== razorpay_signature) {
+        return res.status(400).json({ message: "Payment verification failed - invalid signature" });
       }
 
       // Create campaign enrollment with confirmed payment
@@ -1265,7 +1269,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         campaignId,
         userId,
         paymentStatus: "paid",
-        paymentAmount: (paymentIntent.amount / 100).toString(),
+        paymentAmount: paymentAmount,
       });
 
       res.json({
