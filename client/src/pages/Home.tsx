@@ -688,11 +688,19 @@ const Home = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               {!isAuthenticated && (
-                <Link href="/register">
-                  <Button className="cosmic-gradient hover:opacity-90 px-8 py-4 text-lg">
-                    Get Started Today
-                  </Button>
-                </Link>
+                <Button 
+                  className="cosmic-gradient hover:opacity-90 px-8 py-4 text-lg"
+                  onClick={async () => {
+                    try {
+                      const { signInWithGoogle } = await import("@/lib/googleAuth");
+                      await signInWithGoogle();
+                    } catch (error) {
+                      // Sign in failed - user will see Firebase error modal
+                    }
+                  }}
+                >
+                  Get Started Today
+                </Button>
               )}
               <Link href="/workshops">
                 <Button variant="outline" className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900 px-8 py-4 text-lg">
