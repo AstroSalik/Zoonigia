@@ -2559,6 +2559,113 @@ const AdminDashboard = () => {
                       </Table>
                     </div>
                   </GlassMorphism>
+
+                  <GlassMorphism className="p-6">
+                    <div className="flex items-center justify-between mb-6">
+                      <h4 className="text-lg font-semibold text-white">Campaign Team Registrations</h4>
+                      <Badge variant="secondary" className="bg-cosmic-blue/20 text-cosmic-blue">
+                        Total: {campaignParticipants.length}
+                      </Badge>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="border-space-700">
+                            <TableHead className="text-space-300">Campaign</TableHead>
+                            <TableHead className="text-space-300">School</TableHead>
+                            <TableHead className="text-space-300">Team Leader</TableHead>
+                            <TableHead className="text-space-300">Team Members</TableHead>
+                            <TableHead className="text-space-300">Mentor</TableHead>
+                            <TableHead className="text-space-300">Status</TableHead>
+                            <TableHead className="text-space-300">Date</TableHead>
+                            <TableHead className="text-space-300">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {campaignParticipants.map((registration: any) => {
+                            const campaign = campaigns.find(c => c.id === registration.campaignId);
+                            return (
+                              <TableRow key={registration.id} className="border-space-700">
+                                <TableCell className="text-white font-medium">
+                                  {campaign?.title || 'Unknown Campaign'}
+                                </TableCell>
+                                <TableCell className="text-space-300">{registration.schoolName}</TableCell>
+                                <TableCell>
+                                  <div className="text-space-300 text-sm">
+                                    <div className="font-medium text-white">{registration.teamLeaderName}</div>
+                                    <div>{registration.teamLeaderEmail}</div>
+                                    {registration.teamLeaderPhone && <div>{registration.teamLeaderPhone}</div>}
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <div className="text-space-300 text-sm space-y-1">
+                                    {registration.teamMember2Name && (
+                                      <div>• {registration.teamMember2Name}</div>
+                                    )}
+                                    {registration.teamMember3Name && (
+                                      <div>• {registration.teamMember3Name}</div>
+                                    )}
+                                    {registration.teamMember4Name && (
+                                      <div>• {registration.teamMember4Name}</div>
+                                    )}
+                                    {registration.teamMember5Name && (
+                                      <div>• {registration.teamMember5Name}</div>
+                                    )}
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <div className="text-space-300 text-sm">
+                                    {registration.mentorName && (
+                                      <>
+                                        <div className="font-medium">{registration.mentorName}</div>
+                                        <div>{registration.mentorEmail}</div>
+                                      </>
+                                    )}
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <Badge variant="outline" className={
+                                    registration.status === 'confirmed' 
+                                      ? "text-green-400 border-green-400" 
+                                      : registration.status === 'pending'
+                                      ? "text-yellow-400 border-yellow-400"
+                                      : "text-gray-400 border-gray-400"
+                                  }>
+                                    {registration.status || 'pending'}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell className="text-space-300">
+                                  {registration.createdAt ? new Date(registration.createdAt).toLocaleDateString() : 'N/A'}
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex items-center gap-2">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => window.open(`mailto:${registration.teamLeaderEmail}?subject=Campaign Registration Follow-up`, '_blank')}
+                                      className="text-cosmic-blue hover:bg-cosmic-blue/10"
+                                    >
+                                      <Mail className="w-4 h-4" />
+                                    </Button>
+                                    {registration.teamLeaderPhone && (
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => window.open(`tel:${registration.teamLeaderPhone}`, '_blank')}
+                                        className="text-green-400 hover:bg-green-400/10"
+                                      >
+                                        <Phone className="w-4 h-4" />
+                                      </Button>
+                                    )}
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </GlassMorphism>
                 </TabsContent>
 
                 <TabsContent value="inquiries" className="space-y-6">
