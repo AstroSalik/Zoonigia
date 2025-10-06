@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Calendar, Users, Award, Clock, Target, CreditCard } from "lucide-react";
+import { Calendar, Users, Award, Clock, Target, CreditCard, CheckCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -165,6 +165,7 @@ export default function CampaignDetail() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
   const [orderData, setOrderData] = useState<any>(null);
+  const [isEnrolled, setIsEnrolled] = useState(false);
   const [registrationData, setRegistrationData] = useState({
     name: "",
     email: "",
@@ -177,6 +178,23 @@ export default function CampaignDetail() {
     queryKey: ["/api/campaigns", id],
     enabled: !!id,
   });
+
+  // Check enrollment status
+  useEffect(() => {
+    const checkEnrollment = async () => {
+      if (!user || !id) return;
+
+      try {
+        const response = await fetch(`/api/campaigns/${id}/participant/${user.id}`);
+        const participant = await response.json();
+        setIsEnrolled(!!participant);
+      } catch (error) {
+        console.error("Error checking enrollment:", error);
+      }
+    };
+
+    checkEnrollment();
+  }, [user, id]);
 
   // Create Razorpay order mutation
   const createPaymentMutation = useMutation({
@@ -221,6 +239,7 @@ export default function CampaignDetail() {
       setIsDialogOpen(false);
       setShowPayment(false);
       setOrderData(null);
+      setIsEnrolled(true);
       queryClient.invalidateQueries({ queryKey: ["/api/campaigns"] });
     },
     onError: (error: any) => {
@@ -738,7 +757,12 @@ export default function CampaignDetail() {
 
                 <Separator className="bg-space-700" />
 
-                {campaign.type === 'ideathon' ? (
+                {isEnrolled ? (
+                  <div className="w-full bg-cosmic-green/20 border border-cosmic-green rounded-lg p-3 flex items-center justify-center gap-2">
+                    <CheckCircle className="w-5 h-5 text-cosmic-green" />
+                    <span className="text-cosmic-green font-semibold">Already Registered</span>
+                  </div>
+                ) : campaign.type === 'ideathon' ? (
                   <div className="space-y-3">
                     <Button 
                       disabled={campaign.status !== "accepting_registrations"}
