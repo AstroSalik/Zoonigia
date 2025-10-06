@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,22 +16,49 @@ import {
   TrendingUp,
   Search,
   Filter,
-  ArrowRight
+  ArrowRight,
+  CheckCircle
 } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import GlassMorphism from "@/components/GlassMorphism";
 import { Course } from "@shared/schema";
+import { useAuth } from "@/hooks/useAuth";
 
 const Courses = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedField, setSelectedField] = useState("all");
   const [selectedLevel, setSelectedLevel] = useState("all");
   const [, setLocation] = useLocation();
+  const [enrolledCourses, setEnrolledCourses] = useState<Set<number>>(new Set());
+  const { user } = useAuth();
 
   const { data: courses, isLoading } = useQuery<Course[]>({
     queryKey: ["/api/courses"],
   });
+
+  // Check enrollment status for all courses
+  useEffect(() => {
+    const checkEnrollments = async () => {
+      if (!user || !courses) return;
+
+      const enrolled = new Set<number>();
+      for (const course of courses) {
+        try {
+          const response = await fetch(`/api/courses/${course.id}/enrollment/${user.id}`);
+          const enrollment = await response.json();
+          if (enrollment) {
+            enrolled.add(course.id);
+          }
+        } catch (error) {
+          console.error("Error checking enrollment:", error);
+        }
+      }
+      setEnrolledCourses(enrolled);
+    };
+
+    checkEnrollments();
+  }, [user, courses]);
 
   const filteredCourses = courses?.filter((course) => {
     const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -217,7 +244,12 @@ const Courses = () => {
                           <ArrowRight className="w-4 h-4 ml-2" />
                         </Button>
                       </Link>
-                      {course.status === 'upcoming' ? (
+                      {enrolledCourses.has(course.id) ? (
+                        <div className="bg-cosmic-green/20 border border-cosmic-green rounded-lg px-6 py-2 flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-cosmic-green" />
+                          <span className="text-cosmic-green font-semibold">Enrolled</span>
+                        </div>
+                      ) : course.status === 'upcoming' ? (
                         <Button 
                           disabled
                           className="bg-gray-600 text-gray-400 cursor-not-allowed px-6"
