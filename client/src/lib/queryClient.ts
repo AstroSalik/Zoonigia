@@ -12,25 +12,23 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
-  // Get Firebase user for admin requests
   let headers: Record<string, string> = {};
   
   if (data) {
     headers["Content-Type"] = "application/json";
   }
   
-  // Add Firebase UID for admin routes
-  if (url.includes('/admin/')) {
-    try {
-      const { waitForAuth } = await import('@/lib/adminClient');
-      const user = await waitForAuth();
+  // Add Firebase ID token for authenticated requests
+  try {
+    const { auth } = await import('@/lib/firebase');
+      const user = auth.currentUser;
       if (user) {
-        headers["X-User-ID"] = user.uid;
+        const idToken = await user.getIdToken();
+        headers["Authorization"] = `Bearer ${idToken}`;
       }
     } catch (error) {
-      console.error('Failed to get Firebase user for admin request:', error);
-      // Don't throw here, let the server handle the missing auth
-    }
+      console.error('Failed to get Firebase ID token:', error);
+    // Don't throw here, let the server handle the missing auth
   }
 
   const res = await fetch(url, {
@@ -52,8 +50,21 @@ export const getQueryFn: <T>(options: {
   async ({ queryKey }) => {
     const url = queryKey.join("/") as string;
     
-    // Add Firebase UID for admin routes
+    // Add Firebase ID token for authenticated requests
     let headers: Record<string, string> = {};
+    
+    try {
+      const { auth } = await import('@/lib/firebase');
+      const user = auth.currentUser;
+      if (user) {
+        const idToken = await user.getIdToken();
+        headers["Authorization"] = `Bearer ${idToken}`;
+      }
+    } catch (error) {
+      console.error('Failed to get Firebase ID token for query:', error);
+    }
+    
+    // Add Firebase UID for admin routes
     if (url.includes('/admin/')) {
       try {
         const { waitForAuth } = await import('@/lib/adminClient');
@@ -62,7 +73,7 @@ export const getQueryFn: <T>(options: {
           headers["X-User-ID"] = user.uid;
         }
       } catch (error) {
-        // Don't throw here, let the server handle the missing auth
+        console.error('Admin request - Auth failed:', error);
       }
     }
     

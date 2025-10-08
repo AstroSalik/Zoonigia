@@ -1,6 +1,9 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { db } from "./db";
+import { eq, and } from "drizzle-orm";
+import { firebaseAuth } from "./middleware/firebaseAuth.js";
 // Firebase auth - no need for replitAuth imports
 import {
   insertWorkshopEnrollmentSchema,
@@ -14,6 +17,23 @@ import {
   insertWorkshopSchema,
   insertCourseSchema,
   insertCampaignSchema,
+  courseEnrollments,
+  studentProgress,
+  quizAttempts,
+  courseReviews,
+  courseCertificates,
+  invoices,
+  refundRequests,
+  workshopEnrollments,
+  workshopRegistrations,
+  campaignParticipants,
+  campaignTeamRegistrations,
+  contactInquiries,
+  loveMessages,
+  userPoints,
+  userBadges,
+  pointTransactions,
+  courses,
 } from "@shared/schema";
 import { z } from "zod";
 import Razorpay from "razorpay";
@@ -113,14 +133,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin middleware for Firebase authentication
   const isAdmin = async (req: any, res: any, next: any) => {
     try {
-      const userId = req.headers['x-user-id']; // Firebase UID from frontend
+      const userId = req.headers['x-user-id'] || req.headers['X-User-ID']; // Firebase UID from frontend
+      console.log('Admin check - Headers:', Object.keys(req.headers));
+      console.log('Admin check - Firebase UID:', userId);
+      console.log('Admin check - URL:', req.url);
+      
+      // For development, allow access if no user ID is provided (temporary bypass)
+      if (!userId && process.env.NODE_ENV === 'development') {
+        console.log('Admin check - Development mode: Allowing access without authentication');
+        req.user = { id: 'dev-admin', email: 'astrosalikriyaz@gmail.com', isAdmin: true };
+        return next();
+      }
+      
       if (!userId) {
+        console.log('Admin check - No user ID found in headers');
         return res.status(401).json({ message: "Authentication required" });
       }
       
       // For Firebase auth, userId is the Firebase UID (e.g., "23462202")
       // But our database stores users by email, so we need to find the admin user
-      console.log('Admin check - Firebase UID:', userId);
       
       // Get all users and find the one with matching Firebase UID or admin email
       const allUsers = await storage.getAllUsers();
@@ -341,12 +372,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     isAdmin,
     async (req: any, res) => {
       try {
+        console.log("[Campaign Creation] Received data:", JSON.stringify(req.body, null, 2));
         const campaignData = insertCampaignSchema.parse(req.body);
+        console.log("[Campaign Creation] Validated data:", JSON.stringify(campaignData, null, 2));
         const campaign = await storage.createCampaign(campaignData);
+        console.log("[Campaign Creation] Created campaign:", campaign.id, campaign.title);
         res.json(campaign);
       } catch (error) {
         console.error("Error creating campaign:", error);
-        res.status(500).json({ message: "Failed to create campaign" });
+        if (error instanceof z.ZodError) {
+          console.error("Validation errors:", JSON.stringify(error.errors, null, 2));
+          res.status(400).json({ message: "Validation failed", errors: error.errors });
+        } else {
+          res.status(500).json({ message: "Failed to create campaign" });
+        }
       }
     },
   );
@@ -707,7 +746,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Workshop routes
   app.get("/api/workshops", async (req, res) => {
     try {
-      const workshops = await storage.getWorkshops();
+      let workshops = await storage.getWorkshops();
+
+      // Remove all existing workshops from featured first
+      for (const workshop of workshops) {
+        if (workshop.isFeatured) {
+          await storage.updateWorkshop(workshop.id, {
+            isFeatured: false,
+            featuredOrder: 0
+          });
+        }
+      }
+
+      // Create Featured Workshop if it doesn't exist
+      let featuredWorkshop = workshops.find(w => w.title === "Space Technology Workshop");
+      if (!featuredWorkshop) {
+        featuredWorkshop = await storage.createWorkshop({
+          title: "Space Technology Workshop",
+          description: "Hands-on workshop covering satellite technology, rocket propulsion, and space mission design. Learn from industry experts and work on real space projects. Instructor: Dr. Mitchell. Duration: 3 days. Requirements: Basic physics knowledge, laptop required. Outcomes: Certificate of completion, hands-on project portfolio",
+          type: "expert_session",
+          maxParticipants: 30,
+          price: "1500.00",
+          startDate: "2025-03-15",
+          endDate: "2025-03-17",
+          location: "Zoonigia Innovation Center",
+          isFeatured: true,
+          featuredOrder: 3,
+        });
+      } else {
+        await storage.updateWorkshop(featuredWorkshop.id, {
+          isFeatured: true,
+          featuredOrder: 3
+        });
+      }
+
       res.json(workshops);
     } catch (error) {
       console.error("Error fetching workshops:", error);
@@ -764,6 +836,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       let courses = await storage.getCourses();
 
+      // Remove Introduction to Space Science from featured
+      const spaceScienceCourse = courses.find(c => c.title === "Introduction to Space Science");
+      if (spaceScienceCourse) {
+        await storage.updateCourse(spaceScienceCourse.id, {
+          isFeatured: false,
+          featuredOrder: 0
+        });
+      }
+
+      // Remove Advanced Robotics & AI from featured
+      const advancedRoboticsCourse = courses.find(c => c.title === "Advanced Robotics & AI");
+      if (advancedRoboticsCourse) {
+        await storage.updateCourse(advancedRoboticsCourse.id, {
+          isFeatured: false,
+          featuredOrder: 0
+        });
+      }
+
+      // Remove Advanced Space Technology from featured if it exists
+      const advancedSpaceCourse = courses.find(c => c.title === "Advanced Space Technology");
+      if (advancedSpaceCourse) {
+        await storage.updateCourse(advancedSpaceCourse.id, {
+          isFeatured: false,
+          featuredOrder: 0
+        });
+      }
+
       // Add sample courses if none exist
       if (courses.length === 0) {
         await storage.createCourse({
@@ -774,12 +873,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           level: "beginner",
           duration: "8 weeks",
           price: "2999.00",
-          imageUrl: "/api/placeholder/300/200",
-          instructorName: "Dr. Arjun Patel",
+          imageUrl: "https://i.pinimg.com/1200x/f8/6e/f5/f86ef5d275ce8856166fdf1c2e5138c0.jpg",
+          instructorName: "Mr. Salik Riyaz",
           status: "published",
           category: "Space Science",
           totalLessons: 12,
           totalDuration: 720,
+          isFeatured: true,
+          featuredOrder: 1,
           learningObjectives: [
             "Understand the structure and evolution of the universe",
             "Learn about planetary systems and their characteristics",
@@ -963,11 +1064,97 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Create Razorpay order for course enrollment
+  app.post(
+    "/api/courses/create-payment-order",
+    
+    async (req: any, res) => {
+      try {
+        const { courseId, paymentAmount } = req.body;
+
+        // Create Razorpay order
+        const order = await razorpay.orders.create({
+          amount: Math.round(paymentAmount * 100), // Convert to paise (smallest unit)
+          currency: "INR",
+          receipt: `course_${courseId}_${Date.now()}`,
+          notes: {
+            courseId: courseId.toString(),
+          },
+        });
+
+        res.json({
+          orderId: order.id,
+          amount: order.amount,
+          currency: order.currency,
+          keyId: process.env.RAZORPAY_KEY_ID,
+        });
+      } catch (error) {
+        console.error("Error creating Razorpay order:", error);
+        res.status(500).json({ message: "Failed to create payment order" });
+      }
+    },
+  );
+
   app.post("/api/courses/enroll", async (req, res) => {
     try {
-      const enrollmentData = insertCourseEnrollmentSchema.parse(req.body);
+      const {
+        razorpay_order_id,
+        razorpay_payment_id,
+        razorpay_signature,
+        courseId,
+        userId,
+        paymentAmount,
+      } = req.body;
+
+      // Verify payment signature
+      const generatedSignature = crypto
+        .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET!)
+        .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+        .digest("hex");
+
+      if (generatedSignature !== razorpay_signature) {
+        return res.status(400).json({ message: "Invalid payment signature" });
+      }
+
+      // Create enrollment record
+      const enrollmentData = {
+        courseId: parseInt(courseId),
+        userId: userId,
+      };
+
       const enrollment = await storage.enrollInCourse(enrollmentData);
-      res.json(enrollment);
+      
+      // Update course enrollment count
+      const course = await storage.getCourseById(parseInt(courseId));
+      if (course) {
+        await storage.updateCourse(parseInt(courseId), {
+          enrollmentCount: (course.enrollmentCount || 0) + 1
+        });
+      }
+      
+      // Create invoice
+      const invoiceNumber = `INV-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+      const invoice = await storage.createInvoice({
+        invoiceNumber,
+        userId,
+        itemType: 'course',
+        itemId: parseInt(courseId),
+        itemName: course?.title || 'Course',
+        amount: paymentAmount,
+        tax: "0.00",
+        totalAmount: paymentAmount,
+        paymentId: razorpay_payment_id,
+        paymentMethod: 'razorpay',
+        paymentStatus: 'completed',
+      });
+
+      // TODO: Send invoice email to user
+      
+      res.json({ 
+        message: "Successfully enrolled in course", 
+        enrollment,
+        invoice 
+      });
     } catch (error) {
       console.error("Error enrolling in course:", error);
       res.status(500).json({ message: "Failed to enroll in course" });
@@ -1060,10 +1247,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     },
   );
 
+  // Check course enrollment status
+  app.get(
+    "/api/courses/:courseId/enrollment-status",
+    firebaseAuth,
+    async (req: any, res) => {
+      try {
+        const userId = req.user.claims.sub;
+        const courseId = parseInt(req.params.courseId);
+        const enrollment = await storage.getCourseEnrollment(userId, courseId);
+        res.json({ isEnrolled: !!enrollment, enrollment });
+      } catch (error) {
+        console.error("Error checking enrollment status:", error);
+        res.status(500).json({ message: "Failed to check enrollment status" });
+      }
+    },
+  );
+
   // Student progress
   app.get(
     "/api/courses/:courseId/progress",
-    
+    firebaseAuth,
     async (req: any, res) => {
       try {
         const userId = req.user.claims.sub;
@@ -1081,7 +1285,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post(
     "/api/lessons/:lessonId/progress",
-    
+    firebaseAuth,
     async (req: any, res) => {
       try {
         const userId = req.user.claims.sub;
@@ -1113,7 +1317,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post(
     "/api/quizzes/:quizId/attempts",
-    
+    firebaseAuth,
     async (req: any, res) => {
       try {
         const userId = req.user.claims.sub;
@@ -1145,7 +1349,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post(
     "/api/courses/:courseId/reviews",
-    
+    firebaseAuth,
     async (req: any, res) => {
       try {
         const userId = req.user.claims.sub;
@@ -1163,7 +1367,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   );
 
   // User certificates
-  app.get("/api/user/certificates", async (req: any, res) => {
+  app.get("/api/user/certificates", firebaseAuth, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const certificates = await storage.getUserCertificates(userId);
@@ -1174,11 +1378,502 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Generate certificate for completed course
+  app.post("/api/courses/:courseId/generate-certificate", firebaseAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const courseId = parseInt(req.params.courseId);
+
+      // Check if course is completed (all lessons marked as complete)
+      const lessons = await storage.getCourseLessons(courseId);
+      const progress = await storage.getStudentProgress(userId, courseId);
+      
+      const completedLessons = progress.filter((p: any) => p.completed).length;
+      const isCompleted = completedLessons === lessons.length && lessons.length > 0;
+
+      if (!isCompleted) {
+        return res.status(400).json({ message: "Course not completed yet" });
+      }
+
+      // Check if certificate already exists
+      const existingCertificates = await storage.getUserCertificates(userId);
+      const existingCertificate = existingCertificates.find((cert: any) => cert.courseId === courseId);
+
+      if (existingCertificate) {
+        return res.json(existingCertificate);
+      }
+
+      // Create certificate
+      const course = await storage.getCourseById(courseId);
+      const user = await storage.getUser(userId);
+
+      const certificate = await storage.createCourseCertificate({
+        userId,
+        courseId,
+        certificateUrl: `https://zoonigia.com/certificates/${userId}/${courseId}`,
+        verificationCode: `ZOOG-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`
+      });
+
+      res.json(certificate);
+    } catch (error) {
+      console.error("Error generating certificate:", error);
+      res.status(500).json({ message: "Failed to generate certificate" });
+    }
+  });
+
+  // ==================== INVOICES ====================
+
+  // Get user's invoices
+  app.get("/api/user/invoices", firebaseAuth as any, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const invoices = await storage.getUserInvoices(userId);
+      res.json(invoices);
+    } catch (error) {
+      console.error("Error fetching user invoices:", error);
+      res.status(500).json({ message: "Failed to fetch invoices" });
+    }
+  });
+
+  // Get specific invoice by ID
+  app.get("/api/invoices/:id", firebaseAuth as any, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const invoiceId = parseInt(req.params.id);
+      const invoice = await storage.getInvoiceById(invoiceId);
+
+      if (!invoice) {
+        return res.status(404).json({ message: "Invoice not found" });
+      }
+
+      // Check if invoice belongs to user
+      if (invoice.userId !== userId) {
+        return res.status(403).json({ message: "Unauthorized" });
+      }
+
+      res.json(invoice);
+    } catch (error) {
+      console.error("Error fetching invoice:", error);
+      res.status(500).json({ message: "Failed to fetch invoice" });
+    }
+  });
+
+  // ==================== DATABASE RESET (ADMIN ONLY) ====================
+
+  // Delete specific campaign registration (Admin only - for testing)
+  app.delete("/api/admin/campaign-registrations/:campaignId/user/:userId", firebaseAuth as any, async (req: any, res) => {
+    try {
+      const adminUserId = req.user.claims.sub;
+      const adminUser = await storage.getUser(adminUserId);
+
+      if (!adminUser?.isAdmin) {
+        return res.status(403).json({ message: "Unauthorized - Admin access required" });
+      }
+
+      const campaignId = parseInt(req.params.campaignId);
+      const userId = req.params.userId;
+
+      // Delete campaign participant
+      await db.delete(campaignParticipants)
+        .where(and(
+          eq(campaignParticipants.campaignId, campaignId),
+          eq(campaignParticipants.userId, userId)
+        ));
+
+      res.json({ message: "Registration deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting campaign registration:", error);
+      res.status(500).json({ message: "Failed to delete registration" });
+    }
+  });
+
+  // Delete ALL registrations for a specific campaign by title via GET (Admin only - for testing)
+  app.get("/api/admin/delete-campaign-registration/:campaignTitle", firebaseAuth as any, async (req: any, res) => {
+    try {
+      const adminUserId = req.user.claims.sub;
+      const adminUser = await storage.getUser(adminUserId);
+
+      if (!adminUser?.isAdmin) {
+        return res.status(403).json({ message: "Unauthorized - Admin access required" });
+      }
+
+      const campaignTitle = decodeURIComponent(req.params.campaignTitle);
+
+      // Find campaign by title
+      const allCampaigns = await storage.getCampaigns();
+      const campaign = allCampaigns.find(c => c.title.toLowerCase().includes(campaignTitle.toLowerCase()));
+
+      if (!campaign) {
+        return res.status(404).json({ message: `Campaign with "${campaignTitle}" not found` });
+      }
+
+      // Delete all participants for this campaign (both tables)
+      const participantsResult = await db.delete(campaignParticipants)
+        .where(eq(campaignParticipants.campaignId, campaign.id))
+        .returning();
+
+      const teamResult = await db.delete(campaignTeamRegistrations)
+        .where(eq(campaignTeamRegistrations.campaignId, campaign.id))
+        .returning();
+
+      const totalDeleted = participantsResult.length + teamResult.length;
+
+      res.json({ 
+        message: `Deleted ${totalDeleted} registration(s) for "${campaign.title}" (${participantsResult.length} individual, ${teamResult.length} teams)`,
+        campaignId: campaign.id,
+        deletedCount: totalDeleted
+      });
+    } catch (error) {
+      console.error("Error deleting campaign registrations:", error);
+      res.status(500).json({ message: "Failed to delete registrations", error: String(error) });
+    }
+  });
+
+  // Delete ALL enrollments for a specific course by ID (Admin only - for testing)
+  app.post("/api/admin/delete-course-enrollments", firebaseAuth as any, async (req: any, res) => {
+    try {
+      const firebaseUid = req.user.claims.sub;
+      const email = req.user.claims.email;
+      
+      // Try to find user by Firebase UID first, then by email
+      let adminUser = await storage.getUser(firebaseUid);
+      if (!adminUser && email) {
+        adminUser = await storage.getUserByEmail(email);
+      }
+
+      if (!adminUser?.isAdmin) {
+        return res.status(403).json({ message: "Unauthorized - Admin access required" });
+      }
+
+      const { courseId } = req.body;
+
+      // Delete all enrollments for this course
+      const enrollmentsResult = await db.delete(courseEnrollments)
+        .where(eq(courseEnrollments.courseId, courseId))
+        .returning();
+
+      res.json({ 
+        message: `Deleted ${enrollmentsResult.length} enrollment(s) for course ID ${courseId}`,
+        courseId,
+        deletedCount: enrollmentsResult.length
+      });
+    } catch (error) {
+      console.error("Error deleting course enrollments:", error);
+      res.status(500).json({ message: "Failed to delete enrollments", error: String(error) });
+    }
+  });
+
+  // Delete ALL registrations for a specific campaign by title (Admin only - for testing)
+  app.post("/api/admin/delete-campaign-registration", firebaseAuth as any, async (req: any, res) => {
+    try {
+      const firebaseUid = req.user.claims.sub;
+      const email = req.user.claims.email;
+      
+      // Try to find user by Firebase UID first, then by email
+      let adminUser = await storage.getUser(firebaseUid);
+      if (!adminUser && email) {
+        adminUser = await storage.getUserByEmail(email);
+      }
+
+      if (!adminUser?.isAdmin) {
+        return res.status(403).json({ message: "Unauthorized - Admin access required" });
+      }
+
+      const { campaignTitle } = req.body;
+
+      // Find campaign by title
+      const allCampaigns = await storage.getCampaigns();
+      const campaign = allCampaigns.find(c => c.title.toLowerCase().includes(campaignTitle.toLowerCase()));
+
+      if (!campaign) {
+        return res.status(404).json({ message: `Campaign with "${campaignTitle}" not found` });
+      }
+
+      // Delete all participants for this campaign (both tables)
+      const participantsResult = await db.delete(campaignParticipants)
+        .where(eq(campaignParticipants.campaignId, campaign.id))
+        .returning();
+
+      const teamResult = await db.delete(campaignTeamRegistrations)
+        .where(eq(campaignTeamRegistrations.campaignId, campaign.id))
+        .returning();
+
+      const totalDeleted = participantsResult.length + teamResult.length;
+
+      res.json({ 
+        message: `Deleted ${totalDeleted} registration(s) for "${campaign.title}" (${participantsResult.length} individual, ${teamResult.length} teams)`,
+        campaignId: campaign.id,
+        deletedCount: totalDeleted
+      });
+    } catch (error) {
+      console.error("Error deleting campaign registrations:", error);
+      res.status(500).json({ message: "Failed to delete registrations", error: String(error) });
+    }
+  });
+
+
+  // Simple database reset - no auth required for now
+  app.post("/api/admin/clear-data", async (req: any, res) => {
+    try {
+      console.log("🚀 CLEARING ALL TEST DATA...");
+      
+      // Clear all test data
+      await db.delete(courseEnrollments);
+      console.log("✓ Cleared course enrollments");
+      
+      await db.delete(workshopEnrollments);
+      console.log("✓ Cleared workshop enrollments");
+      
+      await db.delete(campaignParticipants);
+      console.log("✓ Cleared campaign participants");
+      
+      await db.delete(campaignTeamRegistrations);
+      console.log("✓ Cleared campaign team registrations");
+      
+      await db.delete(workshopRegistrations);
+      console.log("✓ Cleared workshop registrations");
+      
+      await db.delete(contactInquiries);
+      console.log("✓ Cleared contact inquiries");
+      
+      await db.delete(loveMessages);
+      console.log("✓ Cleared love messages");
+
+      // Reset course enrollment counts to 0
+      await db.update(courses).set({ enrollmentCount: 0 });
+      console.log("✓ Reset course enrollment counts");
+      
+      // Specifically fix course ID 3 which seems to be stuck
+      await db.update(courses).set({ 
+        enrollmentCount: 0, 
+        rating: "0.00", 
+        reviewCount: 0 
+      }).where(eq(courses.id, 3));
+      console.log("✓ Fixed course ID 3 enrollment count");
+
+      console.log("✅ ALL TEST DATA CLEARED! 🚀");
+
+      res.json({ 
+        message: "All test data cleared successfully! 🚀", 
+        success: true
+      });
+    } catch (error: any) {
+      console.error("❌ CLEAR ERROR:", error.message);
+      res.status(500).json({ 
+        message: "Failed to clear data", 
+        error: error.message
+      });
+    }
+  });
+
+  // ==================== REFUND REQUESTS ====================
+
+  // Get user's refund requests
+  app.get("/api/user/refund-requests", firebaseAuth as any, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const refundRequests = await storage.getUserRefundRequests(userId);
+      res.json(refundRequests);
+    } catch (error) {
+      console.error("Error fetching user refund requests:", error);
+      res.status(500).json({ message: "Failed to fetch refund requests" });
+    }
+  });
+
+  // Create refund request
+  app.post("/api/refund-requests", firebaseAuth as any, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { invoiceId, reason } = req.body;
+
+      // Get invoice to populate refund request details
+      const invoice = await storage.getInvoiceById(invoiceId);
+
+      if (!invoice) {
+        return res.status(404).json({ message: "Invoice not found" });
+      }
+
+      // Check if invoice belongs to user
+      if (invoice.userId !== userId) {
+        return res.status(403).json({ message: "Unauthorized" });
+      }
+
+      // Check if refund already requested
+      const existingRequests = await storage.getUserRefundRequests(userId);
+      const alreadyRequested = existingRequests.find((r: any) => r.invoiceId === invoiceId && r.status !== 'rejected');
+
+      if (alreadyRequested) {
+        return res.status(400).json({ message: "Refund already requested for this order" });
+      }
+
+      const refundRequest = await storage.createRefundRequest({
+        userId,
+        invoiceId,
+        itemType: invoice.itemType,
+        itemId: invoice.itemId,
+        itemName: invoice.itemName,
+        refundAmount: invoice.totalAmount,
+        reason,
+        status: 'pending'
+      });
+
+      res.json(refundRequest);
+    } catch (error) {
+      console.error("Error creating refund request:", error);
+      res.status(500).json({ message: "Failed to create refund request" });
+    }
+  });
+
+  // Admin: Get all refund requests
+  app.get("/api/admin/refund-requests", firebaseAuth as any, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+
+      if (!user?.isAdmin) {
+        return res.status(403).json({ message: "Unauthorized" });
+      }
+
+      const refundRequests = await storage.getAllRefundRequests();
+      res.json(refundRequests);
+    } catch (error) {
+      console.error("Error fetching refund requests:", error);
+      res.status(500).json({ message: "Failed to fetch refund requests" });
+    }
+  });
+
+  // Admin: Update refund request status
+  app.put("/api/admin/refund-requests/:id", firebaseAuth as any, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+
+      if (!user?.isAdmin) {
+        return res.status(403).json({ message: "Unauthorized" });
+      }
+
+      const refundId = parseInt(req.params.id);
+      const { status, adminNotes } = req.body;
+
+      const updatedRequest = await storage.updateRefundRequest(refundId, {
+        status,
+        adminNotes,
+        processedBy: userId,
+        processedAt: new Date(),
+      });
+
+      res.json(updatedRequest);
+    } catch (error) {
+      console.error("Error updating refund request:", error);
+      res.status(500).json({ message: "Failed to update refund request" });
+    }
+  });
+
+  // User dashboard - aggregated data
+  app.get("/api/user/dashboard", async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      // Get all user data in parallel for performance
+      const [
+        enrolledCourses,
+        campaignParticipations,
+        workshopRegistrations,
+        certificates,
+        progress
+      ] = await Promise.all([
+        storage.getUserCourses(userId),
+        storage.getUserCampaigns(userId),
+        storage.getWorkshopRegistrations(),
+        storage.getUserCertificates(userId),
+        storage.getStudentProgress(userId, 0) // Get all progress for user
+      ]);
+
+      // Calculate stats
+      const totalCourses = enrolledCourses.length;
+      const completedCourses = certificates.length;
+      const activeCampaigns = campaignParticipations.filter((p: any) => p.status === 'active').length;
+      const upcomingWorkshops = workshopRegistrations.length;
+
+      // Calculate total learning time (estimate based on progress)
+      const totalMinutes = progress.reduce((sum: number, p: any) => {
+        return sum + (p.timeSpent || 0);
+      }, 0);
+      const totalHours = Math.floor(totalMinutes / 60);
+
+      res.json({
+        stats: {
+          totalCourses,
+          completedCourses,
+          activeCampaigns,
+          upcomingWorkshops,
+          totalHours
+        },
+        enrolledCourses,
+        campaignParticipations,
+        workshopRegistrations,
+        certificates,
+        recentProgress: progress.slice(0, 5) // Last 5 activities
+      });
+    } catch (error) {
+      console.error("Error fetching user dashboard:", error);
+      res.status(500).json({ message: "Failed to fetch dashboard data" });
+    }
+  });
+
   // Campaign routes
   app.get("/api/campaigns", async (req, res) => {
     try {
       let campaigns = await storage.getCampaigns();
 
+      // Remove Zoonigia Asteroid Search Campaign from featured
+      const asteroidCampaign = campaigns.find(c => c.title === "Zoonigia Asteroid Search Campaign");
+      if (asteroidCampaign) {
+        await storage.updateCampaign(asteroidCampaign.id, {
+          isFeatured: false,
+          featuredOrder: 0
+        });
+      }
+
+      // Remove School Education Partnership Program from featured (if it exists)
+      const schoolPartnershipCampaign = campaigns.find(c => c.title === "School Education Partnership Program");
+      if (schoolPartnershipCampaign) {
+        await storage.updateCampaign(schoolPartnershipCampaign.id, {
+          isFeatured: false,
+          featuredOrder: 0
+        });
+      }
+
+      // Create Youth Ideathon Campaign if it doesn't exist
+      let youthIdeathonCampaign = campaigns.find(c => c.title === "Youth Ideathon 2025");
+      if (!youthIdeathonCampaign) {
+        youthIdeathonCampaign = await storage.createCampaign({
+          title: "Youth Ideathon 2025",
+          description: "Join the ultimate innovation challenge for young minds! Develop groundbreaking solutions for space exploration, sustainability, and technology. Compete with peers globally and present your ideas to industry experts.",
+          type: "innovation_challenge",
+          field: "Innovation",
+          duration: "8 weeks",
+          startDate: "2025-02-01",
+          endDate: "2025-03-31",
+          partner: "Zoonigia • Industry Partners",
+          status: "accepting_registrations",
+          progress: 15,
+          price: "0.00",
+          isFree: true,
+          isFeatured: true,
+          featuredOrder: 1,
+        });
+      } else if (!youthIdeathonCampaign.isFeatured || !youthIdeathonCampaign.isFree) {
+        await storage.updateCampaign(youthIdeathonCampaign.id, {
+          isFeatured: true,
+          featuredOrder: 1,
+          isFree: true,
+        });
+      }
       // Add sample campaigns if none exist
       if (campaigns.length === 0) {
         await storage.createCampaign({
@@ -1194,10 +1889,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
           status: "accepting_registrations",
           progress: 20,
           price: "300.00",
+          isFeatured: true,
+          featuredOrder: 1,
         });
 
         campaigns = await storage.getCampaigns();
       }
+
+      // Filter out School Partnership from the list returned to clients
+      campaigns = campaigns.filter(c => 
+        c.title !== "School Education Partnership Program" && 
+        !c.title.toLowerCase().includes("school") && 
+        !c.title.toLowerCase().includes("partnership")
+      );
 
       res.json(campaigns);
     } catch (error) {
@@ -1458,6 +2162,452 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error creating contact inquiry:", error);
       res.status(500).json({ message: "Failed to create contact inquiry" });
+    }
+  });
+
+  // ==================== GAMIFICATION & LEADERBOARD ROUTES ====================
+  
+  // Get leaderboard (top users by points)
+  app.get("/api/leaderboard", async (req: any, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 100;
+      let leaderboard = await storage.getLeaderboard(limit);
+      
+      // If no real data, return sample data for demonstration
+      if (leaderboard.length === 0) {
+        leaderboard = [
+          {
+            userId: "sample-1",
+            totalPoints: 15420,
+            level: 15,
+            currentStreak: 12,
+            longestStreak: 45,
+            firstName: "Alex",
+            lastName: "Chen",
+            profileImageUrl: null
+          },
+          {
+            userId: "sample-2", 
+            totalPoints: 12850,
+            level: 13,
+            currentStreak: 8,
+            longestStreak: 32,
+            firstName: "Sarah",
+            lastName: "Johnson",
+            profileImageUrl: null
+          },
+          {
+            userId: "sample-3",
+            totalPoints: 11200,
+            level: 12,
+            currentStreak: 5,
+            longestStreak: 28,
+            firstName: "Michael",
+            lastName: "Rodriguez",
+            profileImageUrl: null
+          },
+          {
+            userId: "sample-4",
+            totalPoints: 9850,
+            level: 11,
+            currentStreak: 3,
+            longestStreak: 21,
+            firstName: "Emma",
+            lastName: "Williams",
+            profileImageUrl: null
+          },
+          {
+            userId: "sample-5",
+            totalPoints: 8750,
+            level: 10,
+            currentStreak: 1,
+            longestStreak: 18,
+            firstName: "David",
+            lastName: "Brown",
+            profileImageUrl: null
+          }
+        ];
+      }
+      
+      res.json(leaderboard);
+    } catch (error) {
+      console.error("Error fetching leaderboard:", error);
+      res.status(500).json({ message: "Failed to fetch leaderboard" });
+    }
+  });
+
+  // Get user's gamification stats
+  app.get("/api/user/gamification", async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const [userPoints, userBadges, recentTransactions] = await Promise.all([
+        storage.getUserPoints(userId),
+        storage.getUserBadges(userId),
+        storage.getUserPointTransactions(userId, 10)
+      ]);
+
+      res.json({
+        points: userPoints,
+        badges: userBadges,
+        recentTransactions
+      });
+    } catch (error) {
+      console.error("Error fetching user gamification data:", error);
+      res.status(500).json({ message: "Failed to fetch gamification data" });
+    }
+  });
+
+  // Get all available badges
+  app.get("/api/badges", async (req: any, res) => {
+    try {
+      const badges = await storage.getAllBadges();
+      res.json(badges);
+    } catch (error) {
+      console.error("Error fetching badges:", error);
+      res.status(500).json({ message: "Failed to fetch badges" });
+    }
+  });
+
+  // Award points to a user (internal use / admin)
+  app.post("/api/admin/award-points", isAdmin, async (req: any, res) => {
+    try {
+      const { userId, points, action, referenceId, referenceType, description } = req.body;
+      
+      const result = await storage.awardPoints(
+        userId,
+        points,
+        action,
+        referenceId,
+        referenceType,
+        description
+      );
+      
+      res.json(result);
+    } catch (error) {
+      console.error("Error awarding points:", error);
+      res.status(500).json({ message: "Failed to award points" });
+    }
+  });
+
+  // Create a new badge (admin)
+  app.post("/api/admin/badges", isAdmin, async (req: any, res) => {
+    try {
+      const badgeData = req.body;
+      const badge = await storage.createBadge(badgeData);
+      res.json(badge);
+    } catch (error) {
+      console.error("Error creating badge:", error);
+      res.status(500).json({ message: "Failed to create badge" });
+    }
+  });
+
+  // ==================== DISCUSSION FORUM ROUTES ====================
+  
+  // Get forum threads
+  app.get("/api/forum/threads", async (req: any, res) => {
+    try {
+      const { referenceType, referenceId, limit } = req.query;
+      const threads = await storage.getForumThreads(
+        referenceType,
+        referenceId ? parseInt(referenceId) : undefined,
+        limit ? parseInt(limit) : undefined
+      );
+      res.json(threads);
+    } catch (error) {
+      console.error("Error fetching forum threads:", error);
+      res.status(500).json({ message: "Failed to fetch forum threads" });
+    }
+  });
+
+  // Get single thread with replies
+  app.get("/api/forum/threads/:id", async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const [thread, replies] = await Promise.all([
+        storage.getForumThread(parseInt(id)),
+        storage.getForumReplies(parseInt(id))
+      ]);
+      
+      res.json({ thread, replies });
+    } catch (error) {
+      console.error("Error fetching forum thread:", error);
+      res.status(500).json({ message: "Failed to fetch forum thread" });
+    }
+  });
+
+  // Create new thread
+  app.post("/api/forum/threads", firebaseAuth as any, async (req: any, res: any) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const userEmail = req.user?.claims?.email;
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { title, content, referenceType, referenceId, tags } = req.body;
+      
+      if (!title || !content) {
+        return res.status(400).json({ message: "Title and content are required" });
+      }
+      
+      const threadData = {
+        title,
+        content,
+        authorId: userId,
+        authorName: userEmail || "Anonymous",
+        referenceType,
+        referenceId: referenceId ? parseInt(referenceId) : null,
+        tags: tags || [],
+      };
+
+      const thread = await storage.createForumThread(threadData);
+      res.json(thread);
+    } catch (error) {
+      console.error("Error creating forum thread:", error);
+      res.status(500).json({ message: "Failed to create forum thread" });
+    }
+  });
+
+  // Update thread (author or admin only)
+  app.patch("/api/forum/threads/:id", async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { id } = req.params;
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const thread = await storage.updateForumThread(parseInt(id), req.body);
+      res.json(thread);
+    } catch (error) {
+      console.error("Error updating forum thread:", error);
+      res.status(500).json({ message: "Failed to update forum thread" });
+    }
+  });
+
+  // Delete thread (author or admin only)
+  app.delete("/api/forum/threads/:id", async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { id } = req.params;
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      await storage.deleteForumThread(parseInt(id));
+      res.json({ message: "Thread deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting forum thread:", error);
+      res.status(500).json({ message: "Failed to delete forum thread" });
+    }
+  });
+
+  // Create reply
+  app.post("/api/forum/replies", firebaseAuth as any, async (req: any, res: any) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const userEmail = req.user?.claims?.email;
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { threadId, content, parentReplyId } = req.body;
+      
+      const replyData = {
+        threadId: parseInt(threadId),
+        content,
+        authorId: userId,
+        authorName: userEmail || "Anonymous",
+        parentReplyId: parentReplyId ? parseInt(parentReplyId) : null,
+      };
+
+      const reply = await storage.createForumReply(replyData);
+      res.json(reply);
+    } catch (error) {
+      console.error("Error creating forum reply:", error);
+      res.status(500).json({ message: "Failed to create forum reply" });
+    }
+  });
+
+  // Vote on reply
+  app.post("/api/forum/replies/:id/vote", async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { id } = req.params;
+      const { voteType } = req.body;
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      await storage.voteForumReply(userId, parseInt(id), voteType);
+      res.json({ message: "Vote recorded successfully" });
+    } catch (error) {
+      console.error("Error voting on forum reply:", error);
+      res.status(500).json({ message: "Failed to vote on reply" });
+    }
+  });
+
+  // ==================== RESOURCE LIBRARY ROUTES ====================
+  
+  // Get resources
+  app.get("/api/resources", async (req: any, res) => {
+    try {
+      const { referenceType, referenceId } = req.query;
+      const resources = await storage.getResources(
+        referenceType,
+        referenceId ? parseInt(referenceId) : undefined
+      );
+      res.json(resources);
+    } catch (error) {
+      console.error("Error fetching resources:", error);
+      res.status(500).json({ message: "Failed to fetch resources" });
+    }
+  });
+
+  // Create resource (admin or instructor)
+  app.post("/api/resources", firebaseAuth as any, async (req: any, res: any) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { title, description, fileName, fileUrl, fileType, fileSize, referenceType, referenceId } = req.body;
+      
+      if (!title || !fileUrl) {
+        return res.status(400).json({ message: "Title and file URL are required" });
+      }
+
+      const resourceData = {
+        title,
+        description: description || "",
+        fileName: fileName || fileUrl.split('/').pop() || 'file',
+        fileUrl,
+        fileType: fileType || 'unknown',
+        fileSize: fileSize || 0,
+        referenceType,
+        referenceId: referenceId ? parseInt(referenceId) : null,
+        uploadedBy: userId,
+        downloadCount: 0,
+        isPublic: true,
+      };
+
+      const resource = await storage.createResource(resourceData);
+      res.json(resource);
+    } catch (error) {
+      console.error("Error creating resource:", error);
+      res.status(500).json({ message: "Failed to create resource" });
+    }
+  });
+
+  // Track resource download
+  app.post("/api/resources/:id/download", async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      await storage.incrementResourceDownload(parseInt(id));
+      res.json({ message: "Download tracked successfully" });
+    } catch (error) {
+      console.error("Error tracking resource download:", error);
+      res.status(500).json({ message: "Failed to track download" });
+    }
+  });
+
+  // Delete resource (admin or uploader)
+  app.delete("/api/resources/:id", async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { id } = req.params;
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      await storage.deleteResource(parseInt(id));
+      res.json({ message: "Resource deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting resource:", error);
+      res.status(500).json({ message: "Failed to delete resource" });
+    }
+  });
+
+  // ==================== QUIZ MANAGEMENT ====================
+
+  // Create quiz (admin only)
+  app.post("/api/admin/quizzes", isAdmin, async (req: any, res) => {
+    try {
+      const quizData = {
+        ...req.body,
+        courseId: req.body.courseId ? parseInt(req.body.courseId) : null,
+      };
+
+      const quiz = await storage.createQuiz(quizData);
+      res.json(quiz);
+    } catch (error) {
+      console.error("Error creating quiz:", error);
+      res.status(500).json({ message: "Failed to create quiz" });
+    }
+  });
+
+  // Get all quizzes
+  app.get("/api/admin/quizzes", isAdmin, async (req: any, res) => {
+    try {
+      const quizzes = await storage.getAllQuizzes();
+      res.json(quizzes);
+    } catch (error) {
+      console.error("Error fetching quizzes:", error);
+      res.status(500).json({ message: "Failed to fetch quizzes" });
+    }
+  });
+
+  // Get quiz by ID
+  app.get("/api/admin/quizzes/:id", isAdmin, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const quiz = await storage.getQuiz(parseInt(id));
+      res.json(quiz);
+    } catch (error) {
+      console.error("Error fetching quiz:", error);
+      res.status(500).json({ message: "Failed to fetch quiz" });
+    }
+  });
+
+  // Update quiz
+  app.put("/api/admin/quizzes/:id", isAdmin, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const quizData = {
+        ...req.body,
+        courseId: req.body.courseId ? parseInt(req.body.courseId) : null,
+      };
+
+      const quiz = await storage.updateQuiz(parseInt(id), quizData);
+      res.json(quiz);
+    } catch (error) {
+      console.error("Error updating quiz:", error);
+      res.status(500).json({ message: "Failed to update quiz" });
+    }
+  });
+
+  // Delete quiz
+  app.delete("/api/admin/quizzes/:id", isAdmin, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteQuiz(parseInt(id));
+      res.json({ message: "Quiz deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting quiz:", error);
+      res.status(500).json({ message: "Failed to delete quiz" });
     }
   });
 

@@ -31,30 +31,79 @@ const Courses = () => {
   const [selectedLevel, setSelectedLevel] = useState("all");
   const [, setLocation] = useLocation();
   const [enrolledCourses, setEnrolledCourses] = useState<Set<number>>(new Set());
+  const [courseProgress, setCourseProgress] = useState<Map<number, number>>(new Map());
+  const [isCheckingEnrollment, setIsCheckingEnrollment] = useState(false);
   const { user } = useAuth();
 
   const { data: courses, isLoading } = useQuery<Course[]>({
     queryKey: ["/api/courses"],
   });
 
-  // Check enrollment status for all courses
+  // Check enrollment status and progress for all courses
   useEffect(() => {
     const checkEnrollments = async () => {
       if (!user || !courses) return;
 
+      setIsCheckingEnrollment(true);
       const enrolled = new Set<number>();
-      for (const course of courses) {
-        try {
-          const response = await fetch(`/api/courses/${course.id}/enrollment/${user.id}`);
-          const enrollment = await response.json();
-          if (enrollment) {
-            enrolled.add(course.id);
-          }
-        } catch (error) {
-          console.error("Error checking enrollment:", error);
+      const progressMap = new Map<number, number>();
+      
+      // Import Firebase auth to get token
+      try {
+        const { auth } = await import('@/lib/firebase');
+        const currentUser = auth.currentUser;
+        
+        if (!currentUser) {
+          setIsCheckingEnrollment(false);
+          return;
         }
+        
+        const idToken = await currentUser.getIdToken();
+        const headers = { 'Authorization': `Bearer ${idToken}` };
+        
+        // Check all courses in parallel
+        const checks = courses.map(async (course) => {
+          try {
+            // Check enrollment status
+            const enrollResponse = await fetch(`/api/courses/${course.id}/enrollment-status`, { headers });
+            const enrollData = await enrollResponse.json();
+            
+            if (enrollData.isEnrolled) {
+              enrolled.add(course.id);
+              
+              // Get progress
+              try {
+                const [progressResponse, lessonsResponse] = await Promise.all([
+                  fetch(`/api/courses/${course.id}/progress`, { headers }),
+                  fetch(`/api/courses/${course.id}/lessons`)
+                ]);
+                
+                const progressData = await progressResponse.json();
+                const lessons = await lessonsResponse.json();
+                
+                if (lessons.length > 0) {
+                  const completed = progressData.filter((p: any) => p.completed).length;
+                  const percentage = Math.round((completed / lessons.length) * 100);
+                  progressMap.set(course.id, percentage);
+                }
+              } catch (error) {
+                console.error("Error fetching progress:", error);
+              }
+            }
+          } catch (error) {
+            console.error("Error checking enrollment:", error);
+          }
+        });
+        
+        await Promise.all(checks);
+        
+        setEnrolledCourses(enrolled);
+        setCourseProgress(progressMap);
+      } catch (error) {
+        console.error("Error in enrollment check:", error);
+      } finally {
+        setIsCheckingEnrollment(false);
       }
-      setEnrolledCourses(enrolled);
     };
 
     checkEnrollments();
@@ -244,10 +293,30 @@ const Courses = () => {
                           <ArrowRight className="w-4 h-4 ml-2" />
                         </Button>
                       </Link>
-                      {enrolledCourses.has(course.id) ? (
-                        <div className="bg-cosmic-green/20 border border-cosmic-green rounded-lg px-6 py-2 flex items-center gap-2">
-                          <CheckCircle className="w-4 h-4 text-cosmic-green" />
-                          <span className="text-cosmic-green font-semibold">Enrolled</span>
+                      {isCheckingEnrollment ? (
+                        <div className="flex items-center gap-2 px-6 py-2 bg-gray-200/50 rounded-lg animate-pulse">
+                          <div className="w-20 h-4 bg-gray-300 rounded" />
+                        </div>
+                      ) : enrolledCourses.has(course.id) ? (
+                        <div className="flex flex-col gap-2 min-w-[150px]">
+                          <div className="bg-cosmic-green/20 border border-cosmic-green rounded-lg px-4 py-2 flex items-center gap-2">
+                            <CheckCircle className="w-4 h-4 text-cosmic-green" />
+                            <span className="text-cosmic-green font-semibold">Enrolled</span>
+                          </div>
+                          {courseProgress.has(course.id) && courseProgress.get(course.id)! > 0 && (
+                            <div className="px-2">
+                              <div className="flex justify-between text-xs text-space-300 mb-1">
+                                <span>Progress</span>
+                                <span>{courseProgress.get(course.id)}%</span>
+                              </div>
+                              <div className="h-1.5 bg-space-700 rounded-full overflow-hidden">
+                                <div 
+                                  className="h-full bg-gradient-to-r from-cosmic-blue to-cosmic-purple transition-all duration-300"
+                                  style={{ width: `${courseProgress.get(course.id)}%` }}
+                                />
+                              </div>
+                            </div>
+                          )}
                         </div>
                       ) : course.status === 'upcoming' ? (
                         <Button 

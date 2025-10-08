@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Rocket, Instagram, Linkedin } from "lucide-react";
+import { Instagram, Linkedin } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -7,9 +7,12 @@ const Footer = () => {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <div className="flex items-center space-x-2 mb-4">
-              <Rocket className="w-6 h-6 text-cosmic-blue" />
-              <h3 className="text-xl font-space font-bold text-space-50">Zoonigia</h3>
+            <div className="flex items-center mb-4">
+              <img 
+                src="/zoonigia-logo.svg" 
+                alt="Zoonigia Logo" 
+                className="h-8 w-auto brightness-110 contrast-110 drop-shadow-[0_0_8px_rgba(59,130,246,0.4)]"
+              />
             </div>
             <p className="text-space-300 mb-4">
               Empowering future innovators and explorers through immersive science education.
@@ -57,8 +60,47 @@ const Footer = () => {
           </div>
         </div>
         
-        <div className="border-t border-space-600 mt-8 pt-8 text-center text-space-400">
-          <p>&copy; 2025 Zoonigia Pvt Ltd. All rights reserved. To the stars and beyond!</p>
+        <div className="border-t border-space-600 mt-8 pt-6">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+            <div>
+              <h5 className="text-sm font-semibold mb-3 text-space-100">Legal</h5>
+              <ul className="space-y-2 text-sm text-space-400">
+                <li><Link href="/terms-and-conditions" className="hover:text-cosmic-blue transition-colors">Terms & Conditions</Link></li>
+                <li><Link href="/privacy-policy" className="hover:text-cosmic-blue transition-colors">Privacy Policy</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h5 className="text-sm font-semibold mb-3 text-space-100">Policies</h5>
+              <ul className="space-y-2 text-sm text-space-400">
+                <li><Link href="/shipping-policy" className="hover:text-cosmic-blue transition-colors">Shipping & Delivery</Link></li>
+                <li><Link href="/refund-policy" className="hover:text-cosmic-blue transition-colors">Cancellation & Refunds</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h5 className="text-sm font-semibold mb-3 text-space-100">Resources</h5>
+              <ul className="space-y-2 text-sm text-space-400">
+                <li><Link href="/about" className="hover:text-cosmic-blue transition-colors">About Us</Link></li>
+                <li><Link href="/blog" className="hover:text-cosmic-blue transition-colors">Blog</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h5 className="text-sm font-semibold mb-3 text-space-100">Community</h5>
+              <ul className="space-y-2 text-sm text-space-400">
+                <li><Link href="/leaderboard" className="hover:text-cosmic-blue transition-colors">Leaderboard</Link></li>
+                <li><Link href="/collaborators" className="hover:text-cosmic-blue transition-colors">Collaborators</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h5 className="text-sm font-semibold mb-3 text-space-100">Support</h5>
+              <ul className="space-y-2 text-sm text-space-400">
+                <li><Link href="/contact" className="hover:text-cosmic-blue transition-colors">Contact Us</Link></li>
+                <li><a href="mailto:support@zoonigia.com" className="hover:text-cosmic-blue transition-colors">Help Center</a></li>
+              </ul>
+            </div>
+          </div>
+          <div className="text-center text-space-400 pt-6 border-t border-space-600">
+            <p>&copy; 2025 Zoonigia Pvt Ltd. All rights reserved. To the stars and beyond!</p>
+          </div>
         </div>
       </div>
     </footer>

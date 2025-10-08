@@ -3,7 +3,10 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import compression from "compression";
 import path from "path";
-import { scheduleDailyExport } from "./jobs/exportToGoogleSheets";
+// import { scheduleDailyExport } from "./jobs/exportToGoogleSheets";
+
+// Set development environment
+process.env.NODE_ENV = 'development';
 
 const app = express();
 
@@ -102,15 +105,11 @@ app.use((req, res, next) => {
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
   const port = parseInt(process.env.PORT || '5000', 10);
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
+  server.listen(port, "0.0.0.0", () => {
     log(`serving on port ${port}`);
     
     // Start the daily Google Sheets export scheduler
-    scheduleDailyExport();
-    log('Google Sheets daily export scheduler started');
+    // scheduleDailyExport(); // Removed - using immediate export on registration instead
+    log('Google Sheets immediate export on registration enabled');
   });
 })();

@@ -54,6 +54,8 @@ export const workshops = pgTable("workshops", {
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
   imageUrl: varchar("image_url"),
   isActive: boolean("is_active").default(true),
+  isFeatured: boolean("is_featured").default(false),
+  featuredOrder: integer("featured_order").default(0),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -94,6 +96,7 @@ export const courses = pgTable("courses", {
   level: varchar("level").notNull(), // beginner, intermediate, advanced
   duration: varchar("duration"),
   price: decimal("price", { precision: 10, scale: 2 }),
+  isFree: boolean("is_free").default(false),
   imageUrl: varchar("image_url"),
   instructorId: varchar("instructor_id").references(() => users.id),
   instructorName: varchar("instructor_name"),
@@ -216,6 +219,43 @@ export const courseCertificates = pgTable("course_certificates", {
   verificationCode: varchar("verification_code").notNull(),
 });
 
+// Invoices table
+export const invoices = pgTable("invoices", {
+  id: serial("id").primaryKey(),
+  invoiceNumber: varchar("invoice_number").unique().notNull(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  itemType: varchar("item_type").notNull(), // course, workshop, campaign
+  itemId: integer("item_id").notNull(),
+  itemName: varchar("item_name").notNull(),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  tax: decimal("tax", { precision: 10, scale: 2 }).default("0.00"),
+  totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
+  paymentId: varchar("payment_id"), // Razorpay payment ID
+  paymentMethod: varchar("payment_method"), // card, upi, netbanking, etc.
+  paymentStatus: varchar("payment_status").default("completed"), // completed, pending, failed, refunded
+  invoiceUrl: varchar("invoice_url"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Refund requests table
+export const refundRequests = pgTable("refund_requests", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  invoiceId: integer("invoice_id").references(() => invoices.id).notNull(),
+  itemType: varchar("item_type").notNull(), // course, workshop, campaign
+  itemId: integer("item_id").notNull(),
+  itemName: varchar("item_name").notNull(),
+  refundAmount: decimal("refund_amount", { precision: 10, scale: 2 }).notNull(),
+  reason: text("reason").notNull(),
+  status: varchar("status").default("pending"), // pending, approved, rejected, processed
+  adminNotes: text("admin_notes"),
+  processedBy: varchar("processed_by").references(() => users.id),
+  processedAt: timestamp("processed_at"),
+  refundTransactionId: varchar("refund_transaction_id"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Campaigns table
 export const campaigns = pgTable("campaigns", {
   id: serial("id").primaryKey(),
@@ -233,6 +273,7 @@ export const campaigns = pgTable("campaigns", {
   currentParticipants: integer("current_participants").default(0),
   targetParticipants: integer("target_participants").default(100),
   price: decimal("price", { precision: 10, scale: 2 }).default("0.00"),
+  isFree: boolean("is_free").default(false),
   imageUrl: varchar("image_url"),
   requirements: text("requirements"),
   timeline: text("timeline"),
@@ -309,6 +350,120 @@ export const achievements = pgTable("achievements", {
   imageUrl: varchar("image_url"),
   achievedAt: timestamp("achieved_at").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
+});
+
+// User points and gamification
+export const userPoints = pgTable("user_points", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id).notNull().unique(),
+  totalPoints: integer("total_points").default(0).notNull(),
+  level: integer("level").default(1).notNull(),
+  currentStreak: integer("current_streak").default(0).notNull(),
+  longestStreak: integer("longest_streak").default(0).notNull(),
+  lastActivityDate: timestamp("last_activity_date").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Badge definitions
+export const badges = pgTable("badges", {
+  id: serial("id").primaryKey(),
+  name: varchar("name").notNull(),
+  description: text("description").notNull(),
+  imageUrl: varchar("image_url"),
+  category: varchar("category").notNull(), // course, campaign, workshop, engagement, special
+  requirement: integer("requirement").notNull(), // number needed to earn
+  requirementType: varchar("requirement_type").notNull(), // courses_completed, campaigns_joined, points_earned, etc.
+  points: integer("points").default(0).notNull(), // points awarded when earning this badge
+  tier: varchar("tier").default("bronze"), // bronze, silver, gold, platinum
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// User badges (earned badges)
+export const userBadges = pgTable("user_badges", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  badgeId: integer("badge_id").references(() => badges.id).notNull(),
+  earnedAt: timestamp("earned_at").defaultNow(),
+  progress: integer("progress").default(0), // current progress towards next tier
+});
+
+// Point transactions log
+export const pointTransactions = pgTable("point_transactions", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  points: integer("points").notNull(), // can be positive or negative
+  action: varchar("action").notNull(), // course_completed, lesson_completed, badge_earned, etc.
+  referenceId: integer("reference_id"), // id of course, lesson, etc.
+  referenceType: varchar("reference_type"), // course, lesson, campaign, workshop, etc.
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// ==================== DISCUSSION FORUMS ====================
+
+// Forum threads (discussions)
+export const forumThreads = pgTable("forum_threads", {
+  id: serial("id").primaryKey(),
+  title: varchar("title").notNull(),
+  content: text("content").notNull(),
+  authorId: varchar("author_id").references(() => users.id).notNull(),
+  authorName: varchar("author_name").notNull(),
+  referenceType: varchar("reference_type").notNull(), // course, campaign, workshop, general
+  referenceId: integer("reference_id"), // id of course, campaign, etc.
+  isPinned: boolean("is_pinned").default(false),
+  isLocked: boolean("is_locked").default(false),
+  viewCount: integer("view_count").default(0),
+  replyCount: integer("reply_count").default(0),
+  lastReplyAt: timestamp("last_reply_at"),
+  lastReplyBy: varchar("last_reply_by"),
+  tags: text("tags").array(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Forum replies
+export const forumReplies = pgTable("forum_replies", {
+  id: serial("id").primaryKey(),
+  threadId: integer("thread_id").references(() => forumThreads.id).notNull(),
+  content: text("content").notNull(),
+  authorId: varchar("author_id").references(() => users.id).notNull(),
+  authorName: varchar("author_name").notNull(),
+  parentReplyId: integer("parent_reply_id"), // for nested replies
+  upvotes: integer("upvotes").default(0),
+  downvotes: integer("downvotes").default(0),
+  isAccepted: boolean("is_accepted").default(false), // for marking best answer
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Forum votes (upvotes/downvotes)
+export const forumVotes = pgTable("forum_votes", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  replyId: integer("reply_id").references(() => forumReplies.id).notNull(),
+  voteType: varchar("vote_type").notNull(), // upvote, downvote
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// ==================== RESOURCE LIBRARY ====================
+
+// Course/campaign resources (files, documents)
+export const resources = pgTable("resources", {
+  id: serial("id").primaryKey(),
+  title: varchar("title").notNull(),
+  description: text("description"),
+  fileName: varchar("file_name").notNull(),
+  fileUrl: varchar("file_url").notNull(),
+  fileType: varchar("file_type").notNull(), // pdf, doc, ppt, zip, etc.
+  fileSize: integer("file_size"), // in bytes
+  referenceType: varchar("reference_type").notNull(), // course, campaign, workshop, lesson
+  referenceId: integer("reference_id").notNull(),
+  uploadedBy: varchar("uploaded_by").references(() => users.id).notNull(),
+  downloadCount: integer("download_count").default(0),
+  isPublic: boolean("is_public").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Contact inquiries
@@ -395,11 +550,30 @@ export type CourseReview = typeof courseReviews.$inferSelect;
 export type InsertCourseCertificate = typeof courseCertificates.$inferInsert;
 export type CourseCertificate = typeof courseCertificates.$inferSelect;
 
+export type InsertInvoice = typeof invoices.$inferInsert;
+export type Invoice = typeof invoices.$inferSelect;
+
+export type InsertRefundRequest = typeof refundRequests.$inferInsert;
+export type RefundRequest = typeof refundRequests.$inferSelect;
+
 // Zod schemas
 export const insertUserSchema = createInsertSchema(users);
 export const insertWorkshopSchema = createInsertSchema(workshops);
 export const insertCourseSchema = createInsertSchema(courses);
-export const insertCampaignSchema = createInsertSchema(campaigns);
+export const insertCampaignSchema = createInsertSchema(campaigns).extend({
+  startDate: z.union([z.string(), z.date()]).transform(val => typeof val === 'string' ? val : val.toISOString().split('T')[0]),
+  endDate: z.union([z.string(), z.date()]).transform(val => typeof val === 'string' ? val : val.toISOString().split('T')[0]),
+  price: z.union([z.string(), z.number()]).transform(val => String(val)),
+  maxParticipants: z.union([z.number(), z.string(), z.null(), z.undefined()]).transform(val => val ? Number(val) : null).optional(),
+  targetParticipants: z.union([z.number(), z.string(), z.null(), z.undefined()]).transform(val => val ? Number(val) : 100).optional(),
+  field: z.string().optional().nullable(),
+  duration: z.string().optional().nullable(),
+  partner: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
+  requirements: z.string().optional().nullable(),
+  timeline: z.string().optional().nullable(),
+  outcomes: z.string().optional().nullable(),
+});
 export const insertBlogPostSchema = createInsertSchema(blogPosts);
 export const insertAchievementSchema = createInsertSchema(achievements);
 export const insertContactInquirySchema = createInsertSchema(contactInquiries);
@@ -418,6 +592,24 @@ export const insertStudentProgressSchema = createInsertSchema(studentProgress);
 export const insertQuizAttemptSchema = createInsertSchema(quizAttempts);
 export const insertCourseReviewSchema = createInsertSchema(courseReviews);
 export const insertCourseCertificateSchema = createInsertSchema(courseCertificates);
+
+// Gamification Zod schemas
+export const insertUserPointsSchema = createInsertSchema(userPoints);
+export const insertBadgeSchema = createInsertSchema(badges);
+export const insertUserBadgeSchema = createInsertSchema(userBadges);
+export const insertPointTransactionSchema = createInsertSchema(pointTransactions);
+
+// Discussion Forum Zod schemas
+export const insertForumThreadSchema = createInsertSchema(forumThreads);
+export const insertForumReplySchema = createInsertSchema(forumReplies);
+export const insertForumVoteSchema = createInsertSchema(forumVotes);
+
+// Resource Library Zod schemas
+export const insertResourceSchema = createInsertSchema(resources);
+
+// Invoice and Refund Zod schemas
+export const insertInvoiceSchema = createInsertSchema(invoices);
+export const insertRefundRequestSchema = createInsertSchema(refundRequests);
 
 // Admin form schemas
 export const lessonFormSchema = z.object({

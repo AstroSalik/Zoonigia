@@ -43,6 +43,7 @@ type InquiryData = z.infer<typeof inquirySchema>;
 const Collaborators = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<"collaborators" | "sponsors" | "investors">("collaborators");
+  const [showForm, setShowForm] = useState(false);
 
   const form = useForm<InquiryData>({
     resolver: zodResolver(inquirySchema),
@@ -83,6 +84,21 @@ const Collaborators = () => {
 
   const onSubmit = (data: InquiryData) => {
     inquiryMutation.mutate(data);
+  };
+
+  const handleCardClick = (cardType: "collaborators" | "sponsors" | "investors") => {
+    setActiveTab(cardType);
+    const inquiryType = cardType === "collaborators" ? "collaboration" : 
+                       cardType === "sponsors" ? "sponsorship" : "investment";
+    form.setValue("inquiryType", inquiryType);
+    setShowForm(true);
+    // Scroll to form
+    setTimeout(() => {
+      const formElement = document.getElementById('contact-form');
+      if (formElement) {
+        formElement.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
   };
 
   const tabContent = {
@@ -196,13 +212,10 @@ const Collaborators = () => {
                       key === "sponsors" ? "bg-cosmic-purple hover:bg-purple-600" :
                       "bg-cosmic-green hover:bg-green-600"
                     }`}
-                    onClick={() => {
-                      setActiveTab(key as any);
-                      form.setValue("inquiryType", key === "collaborators" ? "collaboration" : key === "sponsors" ? "sponsorship" : "investment");
-                    }}
+                    onClick={() => handleCardClick(key as any)}
                   >
                     {key === "collaborators" ? "Apply for Collaboration" :
-                     key === "sponsors" ? "Download Prospectus" :
+                     key === "sponsors" ? "Become a Sponsor" :
                      "Investment Opportunities"}
                   </Button>
                 </CardContent>
@@ -236,7 +249,7 @@ const Collaborators = () => {
           </div>
 
           {/* Contact Form */}
-          <div className="mb-16">
+          <div className="mb-16" id="contact-form">
             <h2 className="text-3xl font-space font-bold text-center mb-8">Get In Touch</h2>
             <div className="max-w-2xl mx-auto">
               <GlassMorphism className="p-8">

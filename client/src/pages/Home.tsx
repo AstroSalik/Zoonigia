@@ -238,11 +238,16 @@ const RoyalQueenHomepage = ({ user }: { user: any }) => {
 
           {/* Royal Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
-            <Link href="/">
-              <Button className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white px-8 py-4 text-lg rounded-full shadow-lg transform hover:scale-105 transition-all">
-                👑 Explore Your Kingdom
-              </Button>
-            </Link>
+            <Button 
+              className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white px-8 py-4 text-lg rounded-full shadow-lg transform hover:scale-105 transition-all"
+              onClick={() => {
+                // Navigate to the main homepage for logged-in users
+                window.location.href = '/';
+              }}
+            >
+              👑 Explore Your Kingdom
+              <span className="ml-2 text-sm opacity-80">→ Go to Main Homepage</span>
+            </Button>
             
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
@@ -361,8 +366,8 @@ const Home = () => {
         <div className="absolute inset-0 bg-gradient-to-br from-space-900 via-space-800 to-space-900"></div>
         <div className="absolute inset-0 opacity-30">
           <img 
-            src="https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1920&h=1080" 
-            alt="Deep space with stars and nebula" 
+            src="/attached_assets/download (5).jpeg" 
+            alt="Space Science and Astronomy" 
             className="w-full h-full object-cover"
           />
         </div>

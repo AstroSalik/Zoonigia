@@ -18,6 +18,14 @@ import {
   quizAttempts,
   courseReviews,
   courseCertificates,
+  userPoints,
+  badges,
+  userBadges,
+  pointTransactions,
+  forumThreads,
+  forumReplies,
+  forumVotes,
+  resources,
   type User,
   type UpsertUser,
   type Workshop,
@@ -59,6 +67,12 @@ import {
   workshopRegistrations,
   type WorkshopRegistration,
   type InsertWorkshopRegistration,
+  invoices,
+  type Invoice,
+  type InsertInvoice,
+  refundRequests,
+  type RefundRequest,
+  type InsertRefundRequest,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and } from "drizzle-orm";
@@ -171,6 +185,18 @@ export interface IStorage {
   // Course certificates
   getUserCertificates(userId: string): Promise<CourseCertificate[]>;
   createCourseCertificate(certificate: InsertCourseCertificate): Promise<CourseCertificate>;
+  
+  // Invoices
+  getUserInvoices(userId: string): Promise<Invoice[]>;
+  getInvoiceById(id: number): Promise<Invoice | undefined>;
+  createInvoice(invoice: InsertInvoice): Promise<Invoice>;
+  
+  // Refund requests
+  getUserRefundRequests(userId: string): Promise<RefundRequest[]>;
+  getAllRefundRequests(): Promise<RefundRequest[]>;
+  getRefundRequestById(id: number): Promise<RefundRequest | undefined>;
+  createRefundRequest(request: InsertRefundRequest): Promise<RefundRequest>;
+  updateRefundRequest(id: number, updates: Partial<InsertRefundRequest>): Promise<RefundRequest>;
   
   // Featured items operations
   getFeaturedItems(): Promise<{ courses: Course[]; campaigns: Campaign[] }>;
@@ -659,6 +685,53 @@ export class DatabaseStorage implements IStorage {
     return newCertificate;
   }
   
+  // Invoices
+  async getUserInvoices(userId: string): Promise<Invoice[]> {
+    return await db.select().from(invoices)
+      .where(eq(invoices.userId, userId))
+      .orderBy(desc(invoices.createdAt));
+  }
+
+  async getInvoiceById(id: number): Promise<Invoice | undefined> {
+    const [invoice] = await db.select().from(invoices).where(eq(invoices.id, id));
+    return invoice;
+  }
+
+  async createInvoice(invoice: InsertInvoice): Promise<Invoice> {
+    const [newInvoice] = await db.insert(invoices).values(invoice).returning();
+    return newInvoice;
+  }
+  
+  // Refund requests
+  async getUserRefundRequests(userId: string): Promise<RefundRequest[]> {
+    return await db.select().from(refundRequests)
+      .where(eq(refundRequests.userId, userId))
+      .orderBy(desc(refundRequests.createdAt));
+  }
+
+  async getAllRefundRequests(): Promise<RefundRequest[]> {
+    return await db.select().from(refundRequests)
+      .orderBy(desc(refundRequests.createdAt));
+  }
+
+  async getRefundRequestById(id: number): Promise<RefundRequest | undefined> {
+    const [request] = await db.select().from(refundRequests).where(eq(refundRequests.id, id));
+    return request;
+  }
+
+  async createRefundRequest(request: InsertRefundRequest): Promise<RefundRequest> {
+    const [newRequest] = await db.insert(refundRequests).values(request).returning();
+    return newRequest;
+  }
+
+  async updateRefundRequest(id: number, updates: Partial<InsertRefundRequest>): Promise<RefundRequest> {
+    const [updatedRequest] = await db.update(refundRequests)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(refundRequests.id, id))
+      .returning();
+    return updatedRequest;
+  }
+  
   // Featured items operations
   async getFeaturedItems(): Promise<{ courses: Course[]; campaigns: Campaign[] }> {
     const featuredCourses = await db.select().from(courses)
@@ -690,6 +763,404 @@ export class DatabaseStorage implements IStorage {
   async getAllCampaignTeamRegistrations(): Promise<CampaignTeamRegistration[]> {
     return await db.select().from(campaignTeamRegistrations)
       .orderBy(desc(campaignTeamRegistrations.createdAt));
+  }
+
+  // ==================== GAMIFICATION & LEADERBOARD OPERATIONS ====================
+  
+  async getUserPoints(userId: string) {
+    let [userPointsRecord] = await db.select().from(userPoints)
+      .where(eq(userPoints.userId, userId));
+    
+    // Create initial points record if doesn't exist
+    if (!userPointsRecord) {
+      [userPointsRecord] = await db.insert(userPoints)
+        .values({ userId, totalPoints: 0, level: 1 })
+        .returning();
+    }
+    
+    return userPointsRecord;
+  }
+
+  async getLeaderboard(limit: number = 100) {
+    const leaderboardData = await db.select({
+      userId: userPoints.userId,
+      totalPoints: userPoints.totalPoints,
+      level: userPoints.level,
+      currentStreak: userPoints.currentStreak,
+      longestStreak: userPoints.longestStreak,
+      firstName: users.firstName,
+      lastName: users.lastName,
+      profileImageUrl: users.profileImageUrl,
+    })
+    .from(userPoints)
+    .leftJoin(users, eq(userPoints.userId, users.id))
+    .orderBy(desc(userPoints.totalPoints))
+    .limit(limit);
+
+    return leaderboardData;
+  }
+
+  async getUserBadges(userId: string) {
+    const earnedBadges = await db.select({
+      id: userBadges.id,
+      earnedAt: userBadges.earnedAt,
+      progress: userBadges.progress,
+      badgeId: badges.id,
+      badgeName: badges.name,
+      badgeDescription: badges.description,
+      badgeImageUrl: badges.imageUrl,
+      badgeCategory: badges.category,
+      badgeTier: badges.tier,
+      badgePoints: badges.points,
+    })
+    .from(userBadges)
+    .leftJoin(badges, eq(userBadges.badgeId, badges.id))
+    .where(eq(userBadges.userId, userId))
+    .orderBy(desc(userBadges.earnedAt));
+
+    return earnedBadges;
+  }
+
+  async getUserPointTransactions(userId: string, limit: number = 20) {
+    return await db.select().from(pointTransactions)
+      .where(eq(pointTransactions.userId, userId))
+      .orderBy(desc(pointTransactions.createdAt))
+      .limit(limit);
+  }
+
+  async getAllBadges() {
+    return await db.select().from(badges)
+      .where(eq(badges.isActive, true))
+      .orderBy(badges.category, badges.tier);
+  }
+
+  async awardPoints(
+    userId: string,
+    points: number,
+    action: string,
+    referenceId?: number,
+    referenceType?: string,
+    description?: string
+  ) {
+    // Create transaction record
+    const [transaction] = await db.insert(pointTransactions)
+      .values({
+        userId,
+        points,
+        action,
+        referenceId,
+        referenceType,
+        description,
+      })
+      .returning();
+
+    // Update user's total points
+    let [userPointsRecord] = await db.select().from(userPoints)
+      .where(eq(userPoints.userId, userId));
+
+    if (!userPointsRecord) {
+      // Create initial record if it doesn't exist
+      [userPointsRecord] = await db.insert(userPoints)
+        .values({
+          userId,
+          totalPoints: points,
+          level: 1,
+        })
+        .returning();
+    } else {
+      const newTotal = userPointsRecord.totalPoints + points;
+      const newLevel = Math.floor(newTotal / 1000) + 1; // Level up every 1000 points
+
+      [userPointsRecord] = await db.update(userPoints)
+        .set({
+          totalPoints: newTotal,
+          level: newLevel,
+          updatedAt: new Date(),
+        })
+        .where(eq(userPoints.userId, userId))
+        .returning();
+    }
+
+    // Check if user earned any new badges
+    await this.checkAndAwardBadges(userId);
+
+    return {
+      transaction,
+      userPoints: userPointsRecord,
+    };
+  }
+
+  async checkAndAwardBadges(userId: string) {
+    const userPointsRecord = await this.getUserPoints(userId);
+    const availableBadges = await this.getAllBadges();
+    const earnedBadges = await this.getUserBadges(userId);
+    const earnedBadgeIds = earnedBadges.map((b: any) => b.badgeId);
+
+    for (const badge of availableBadges) {
+      if (earnedBadgeIds.includes(badge.id)) continue;
+
+      let shouldAward = false;
+
+      // Check different requirement types
+      switch (badge.requirementType) {
+        case 'points_earned':
+          shouldAward = userPointsRecord.totalPoints >= badge.requirement;
+          break;
+        case 'level_reached':
+          shouldAward = userPointsRecord.level >= badge.requirement;
+          break;
+        case 'streak_days':
+          shouldAward = userPointsRecord.currentStreak >= badge.requirement;
+          break;
+        // Add more requirement types as needed
+      }
+
+      if (shouldAward) {
+        await db.insert(userBadges)
+          .values({
+            userId,
+            badgeId: badge.id,
+            progress: badge.requirement,
+          });
+
+        // Award bonus points for earning the badge
+        if (badge.points > 0) {
+          await this.awardPoints(
+            userId,
+            badge.points,
+            'badge_earned',
+            badge.id,
+            'badge',
+            `Earned badge: ${badge.name}`
+          );
+        }
+      }
+    }
+  }
+
+  async createBadge(badgeData: any) {
+    const [badge] = await db.insert(badges)
+      .values(badgeData)
+      .returning();
+    return badge;
+  }
+
+  // ==================== DISCUSSION FORUM OPERATIONS ====================
+  
+  async getForumThreads(referenceType?: string, referenceId?: number, limit: number = 50) {
+    let query = db.select({
+      thread: forumThreads,
+      authorFirstName: users.firstName,
+      authorLastName: users.lastName,
+      authorProfileImageUrl: users.profileImageUrl,
+    })
+    .from(forumThreads)
+    .leftJoin(users, eq(forumThreads.authorId, users.id))
+    .orderBy(desc(forumThreads.isPinned), desc(forumThreads.lastReplyAt))
+    .limit(limit);
+
+    if (referenceType && referenceId) {
+      return await query.where(
+        and(
+          eq(forumThreads.referenceType, referenceType),
+          eq(forumThreads.referenceId, referenceId)
+        )
+      );
+    }
+
+    return await query;
+  }
+
+  async getForumThread(threadId: number) {
+    const [thread] = await db.select({
+      thread: forumThreads,
+      authorFirstName: users.firstName,
+      authorLastName: users.lastName,
+      authorProfileImageUrl: users.profileImageUrl,
+    })
+    .from(forumThreads)
+    .leftJoin(users, eq(forumThreads.authorId, users.id))
+    .where(eq(forumThreads.id, threadId));
+
+    // Increment view count
+    if (thread) {
+      await db.update(forumThreads)
+        .set({ viewCount: thread.thread.viewCount + 1 })
+        .where(eq(forumThreads.id, threadId));
+    }
+
+    return thread;
+  }
+
+  async createForumThread(threadData: any) {
+    const [thread] = await db.insert(forumThreads)
+      .values(threadData)
+      .returning();
+    return thread;
+  }
+
+  async updateForumThread(threadId: number, updateData: any) {
+    const [thread] = await db.update(forumThreads)
+      .set({ ...updateData, updatedAt: new Date() })
+      .where(eq(forumThreads.id, threadId))
+      .returning();
+    return thread;
+  }
+
+  async deleteForumThread(threadId: number) {
+    // Delete all replies first
+    await db.delete(forumReplies).where(eq(forumReplies.threadId, threadId));
+    // Delete thread
+    await db.delete(forumThreads).where(eq(forumThreads.id, threadId));
+  }
+
+  async getForumReplies(threadId: number) {
+    return await db.select({
+      reply: forumReplies,
+      authorFirstName: users.firstName,
+      authorLastName: users.lastName,
+      authorProfileImageUrl: users.profileImageUrl,
+    })
+    .from(forumReplies)
+    .leftJoin(users, eq(forumReplies.authorId, users.id))
+    .where(eq(forumReplies.threadId, threadId))
+    .orderBy(forumReplies.createdAt);
+  }
+
+  async createForumReply(replyData: any) {
+    const [reply] = await db.insert(forumReplies)
+      .values(replyData)
+      .returning();
+
+    // Update thread reply count and last reply info
+    await db.update(forumThreads)
+      .set({
+        replyCount: sql`${forumThreads.replyCount} + 1`,
+        lastReplyAt: new Date(),
+        lastReplyBy: replyData.authorName,
+      })
+      .where(eq(forumThreads.id, replyData.threadId));
+
+    return reply;
+  }
+
+  async updateForumReply(replyId: number, updateData: any) {
+    const [reply] = await db.update(forumReplies)
+      .set({ ...updateData, updatedAt: new Date() })
+      .where(eq(forumReplies.id, replyId))
+      .returning();
+    return reply;
+  }
+
+  async deleteForumReply(replyId: number, threadId: number) {
+    await db.delete(forumReplies).where(eq(forumReplies.id, replyId));
+    
+    // Update thread reply count
+    await db.update(forumThreads)
+      .set({ replyCount: sql`${forumThreads.replyCount} - 1` })
+      .where(eq(forumThreads.id, threadId));
+  }
+
+  async voteForumReply(userId: string, replyId: number, voteType: 'upvote' | 'downvote') {
+    // Check if user already voted
+    const existingVote = await db.select()
+      .from(forumVotes)
+      .where(and(
+        eq(forumVotes.userId, userId),
+        eq(forumVotes.replyId, replyId)
+      ))
+      .limit(1);
+
+    if (existingVote.length > 0) {
+      // Update existing vote
+      await db.update(forumVotes)
+        .set({ voteType })
+        .where(and(
+          eq(forumVotes.userId, userId),
+          eq(forumVotes.replyId, replyId)
+        ));
+    } else {
+      // Create new vote
+      await db.insert(forumVotes).values({
+        userId,
+        replyId,
+        voteType,
+      });
+    }
+
+    // Update reply vote counts
+    const votes = await db.select()
+      .from(forumVotes)
+      .where(eq(forumVotes.replyId, replyId));
+
+    const upvotes = votes.filter(v => v.voteType === 'upvote').length;
+    const downvotes = votes.filter(v => v.voteType === 'downvote').length;
+
+    await db.update(forumReplies)
+      .set({ upvotes, downvotes })
+      .where(eq(forumReplies.id, replyId));
+  }
+
+  // ==================== RESOURCE LIBRARY OPERATIONS ====================
+  
+  async getResources(referenceType?: string, referenceId?: number) {
+    let query = db.select().from(resources);
+
+    if (referenceType && referenceId) {
+      return await query.where(
+        and(
+          eq(resources.referenceType, referenceType),
+          eq(resources.referenceId, referenceId),
+          eq(resources.isPublic, true)
+        )
+      );
+    }
+
+    return await query.where(eq(resources.isPublic, true));
+  }
+
+  async createResource(resourceData: any) {
+    const [resource] = await db.insert(resources)
+      .values(resourceData)
+      .returning();
+    return resource;
+  }
+
+  async incrementResourceDownload(resourceId: number) {
+    await db.update(resources)
+      .set({ downloadCount: sql`${resources.downloadCount} + 1` })
+      .where(eq(resources.id, resourceId));
+  }
+
+  async deleteResource(resourceId: number) {
+    await db.delete(resources).where(eq(resources.id, resourceId));
+  }
+
+  // Quiz management methods
+  async createQuiz(quizData: any) {
+    const [quiz] = await db.insert(courseQuizzes).values(quizData).returning();
+    return quiz;
+  }
+
+  async getAllQuizzes() {
+    return await db.select().from(courseQuizzes).orderBy(desc(courseQuizzes.createdAt));
+  }
+
+  async getQuiz(quizId: number) {
+    const [quiz] = await db.select().from(courseQuizzes).where(eq(courseQuizzes.id, quizId));
+    return quiz;
+  }
+
+  async updateQuiz(quizId: number, updateData: any) {
+    const [quiz] = await db.update(courseQuizzes)
+      .set({ ...updateData, updatedAt: new Date() })
+      .where(eq(courseQuizzes.id, quizId))
+      .returning();
+    return quiz;
+  }
+
+  async deleteQuiz(quizId: number) {
+    await db.delete(courseQuizzes).where(eq(courseQuizzes.id, quizId));
   }
 }
 

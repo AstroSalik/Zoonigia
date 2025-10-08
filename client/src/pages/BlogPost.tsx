@@ -13,6 +13,7 @@ import {
   Tag
 } from "lucide-react";
 import { BlogPost } from "@shared/types";
+import SocialShare from "@/components/SocialShare";
 
 const BlogPostView = () => {
   const { id } = useParams<{ id: string }>();
@@ -122,9 +123,17 @@ const BlogPostView = () => {
             {/* Blog Post Header */}
             <GlassMorphism className="p-8 mb-8">
               <div className="mb-6">
-                <h1 className="text-4xl font-space font-bold mb-4 leading-tight text-white">
-                  {post.title}
-                </h1>
+                <div className="flex items-start justify-between mb-4">
+                  <h1 className="text-4xl font-space font-bold leading-tight text-white flex-1">
+                    {post.title}
+                  </h1>
+                  <SocialShare 
+                    url={`/blog/${post.id}`}
+                    title={post.title}
+                    description={post.content.substring(0, 150)}
+                    hashtags={['Zoonigia', 'SpaceScience', 'Astronomy']}
+                  />
+                </div>
                 
                 {/* Author Info */}
                 <div className="flex items-center mb-4">

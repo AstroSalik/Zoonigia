@@ -1,12 +1,10 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { useQuery } from "@tanstack/react-query";
-import { Sparkles, Calendar, MapPin, Award, Users, School } from "lucide-react";
+import { Sparkles, Calendar, MapPin, Award, Users, School, ChevronLeft, ChevronRight } from "lucide-react";
 import type { Course, Campaign } from "@shared/schema";
-import workshopImage from "@assets/stock_images/students_workshop_ha_74353f01.jpg";
-import schoolImage from "@assets/stock_images/school_building_educ_019ba00e.jpg";
+import { useRef } from "react";
 
 interface FeaturedItemsResponse {
   courses: Course[];
@@ -14,9 +12,20 @@ interface FeaturedItemsResponse {
 }
 
 const FeaturedCarousel = () => {
+  const scrollRef = useRef<HTMLDivElement>(null);
   const { data, isLoading } = useQuery<FeaturedItemsResponse>({
     queryKey: ["/api/featured"],
   });
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollRef.current) {
+      const scrollAmount = scrollRef.current.offsetWidth * 0.8;
+      scrollRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -59,7 +68,7 @@ const FeaturedCarousel = () => {
   };
 
   return (
-    <div className="relative py-16">
+    <div className="relative py-16 overflow-hidden">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-center mb-8">
           <Sparkles className="w-8 h-8 text-cosmic-blue mr-3" />
@@ -71,21 +80,40 @@ const FeaturedCarousel = () => {
           Discover our handpicked selection of exceptional learning experiences and innovation challenges
         </p>
 
-        <Carousel
-          opts={{
-            align: "start",
-            loop: true,
-          }}
-          className="w-full max-w-6xl mx-auto"
-        >
-          <CarouselContent>
+        <div className="relative w-full max-w-6xl mx-auto">
+          {/* Navigation Buttons */}
+          <button
+            onClick={() => scroll('left')}
+            className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 z-10 w-10 h-10 items-center justify-center rounded-full bg-space-800/80 border border-space-600 hover:bg-space-700 hover:border-cosmic-blue transition-all shadow-lg backdrop-blur-sm"
+            aria-label="Previous"
+          >
+            <ChevronLeft className="w-5 h-5 text-cosmic-blue" />
+          </button>
+          <button
+            onClick={() => scroll('right')}
+            className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 z-10 w-10 h-10 items-center justify-center rounded-full bg-space-800/80 border border-space-600 hover:bg-space-700 hover:border-cosmic-blue transition-all shadow-lg backdrop-blur-sm"
+            aria-label="Next"
+          >
+            <ChevronRight className="w-5 h-5 text-cosmic-blue" />
+          </button>
+
+          {/* Scrollable Container */}
+          <div 
+            ref={scrollRef}
+            className="flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4 scrollbar-hide"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
             {allFeaturedItems.map((item) => {
               const colors = getItemColor(item);
               const isCampaign = item.itemType === 'campaign';
               const linkHref = isCampaign ? `/campaigns/${item.id}` : `/courses/${item.id}`;
 
               return (
-                <CarouselItem key={`${item.itemType}-${item.id}`} className="basis-4/5 md:basis-1/2 lg:basis-1/3" data-testid={`featured-item-${item.itemType}-${item.id}`}>
+                <div 
+                  key={`${item.itemType}-${item.id}`} 
+                  className="flex-none w-full md:w-[calc(50%-8px)] lg:w-[calc(33.333%-11px)] snap-start"
+                  data-testid={`featured-item-${item.itemType}-${item.id}`}
+                >
                   <Card className={`glass-morphism border-2 ${colors.border} hover:border-cosmic-blue/50 transition-all h-full`}>
                     <CardContent className="p-0">
                       {item.imageUrl && (
@@ -106,10 +134,10 @@ const FeaturedCarousel = () => {
                         <p className="text-space-300 mb-4 line-clamp-2">{item.description}</p>
                         
                         <div className="space-y-2 mb-4">
-                          {isCampaign && (
+                          {isCampaign && (item as any).location && (
                             <div className="flex items-center text-sm text-space-400">
                               <MapPin className="w-4 h-4 mr-2" />
-                              <span>IIT Delhi</span>
+                              <span>{(item as any).location}</span>
                             </div>
                           )}
                           {isCampaign && (item as Campaign).duration && (
@@ -148,19 +176,20 @@ const FeaturedCarousel = () => {
                       </div>
                     </CardContent>
                   </Card>
-                </CarouselItem>
+                </div>
               );
             })}
             
             {/* Workshop Registration */}
-            <CarouselItem className="basis-4/5 md:basis-1/2 lg:basis-1/3">
+            <div className="flex-none w-full md:w-[calc(50%-8px)] lg:w-[calc(33.333%-11px)] snap-start">
               <Card className="glass-morphism border-2 border-cosmic-blue/30 hover:border-cosmic-blue/50 transition-all h-full">
                 <CardContent className="p-0">
-                  <div className="relative h-48 overflow-hidden rounded-t-lg">
+                  <div className="relative h-48 overflow-hidden rounded-t-lg bg-space-800">
                     <img
-                      src={workshopImage}
+                      src="/stock_images/students_workshop_ha_74353f01.jpg"
                       alt="Workshop Registration"
                       className="w-full h-full object-cover"
+                      loading="lazy"
                     />
                     <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-cosmic-blue/20 text-cosmic-blue backdrop-blur-sm text-sm font-medium flex items-center gap-1">
                       <Users className="w-4 h-4" />
@@ -178,39 +207,9 @@ const FeaturedCarousel = () => {
                   </div>
                 </CardContent>
               </Card>
-            </CarouselItem>
-            
-            {/* School Educational Partnership */}
-            <CarouselItem className="basis-4/5 md:basis-1/2 lg:basis-1/3">
-              <Card className="glass-morphism border-2 border-cosmic-purple/30 hover:border-cosmic-purple/50 transition-all h-full">
-                <CardContent className="p-0">
-                  <div className="relative h-48 overflow-hidden rounded-t-lg">
-                    <img
-                      src={schoolImage}
-                      alt="School Educational Partnership"
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-cosmic-purple/20 text-cosmic-purple backdrop-blur-sm text-sm font-medium flex items-center gap-1">
-                      <School className="w-4 h-4" />
-                      Partnership
-                    </div>
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold mb-2">School Educational Partnership</h3>
-                    <p className="text-space-300 mb-4">Partner with us to bring frontier sciences education to your institution</p>
-                    <Link href="/schools" className="w-full">
-                      <Button className="w-full bg-cosmic-purple hover:bg-purple-600">
-                        Partner With Us
-                      </Button>
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            </CarouselItem>
-          </CarouselContent>
-          <CarouselPrevious className="hidden md:flex" data-testid="carousel-prev" />
-          <CarouselNext className="hidden md:flex" data-testid="carousel-next" />
-        </Carousel>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

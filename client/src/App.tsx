@@ -24,7 +24,13 @@ const BlogPost = lazy(() => import("@/pages/BlogPost"));
 const Contact = lazy(() => import("@/pages/Contact"));
 const Collaborators = lazy(() => import("@/pages/Collaborators"));
 const AdminDashboard = lazy(() => import("@/pages/AdminDashboard"));
+const UserDashboard = lazy(() => import("@/pages/UserDashboard"));
+const Leaderboard = lazy(() => import("@/pages/Leaderboard"));
 const Landing = lazy(() => import("@/pages/Landing"));
+const TermsAndConditions = lazy(() => import("@/pages/TermsAndConditions"));
+const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
+const ShippingPolicy = lazy(() => import("@/pages/ShippingPolicy"));
+const RefundPolicy = lazy(() => import("@/pages/RefundPolicy"));
 
 function AppRouter() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -57,11 +63,19 @@ function AppRouter() {
         <Route path="/blog/:id" component={BlogPost} />
         <Route path="/contact" component={Contact} />
         <Route path="/collaborators" component={Collaborators} />
+        <Route path="/leaderboard" component={Leaderboard} />
         
-        {/* Admin route - only accessible to authenticated users */}
-        {isAuthenticated && (
-          <Route path="/admin" component={AdminDashboard} />
-        )}
+        {/* Legal and Policy pages */}
+        <Route path="/terms-and-conditions" component={TermsAndConditions} />
+        <Route path="/privacy-policy" component={PrivacyPolicy} />
+        <Route path="/shipping-policy" component={ShippingPolicy} />
+        <Route path="/refund-policy" component={RefundPolicy} />
+        
+        {/* User dashboard - accessible to all, handles auth internally */}
+        <Route path="/dashboard" component={UserDashboard} />
+        
+        {/* Admin route - accessible to all, handles auth internally */}
+        <Route path="/admin" component={AdminDashboard} />
         
         <Route component={NotFound} />
       </Switch>

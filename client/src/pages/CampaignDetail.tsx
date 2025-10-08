@@ -16,6 +16,11 @@ import { useEffect, useState } from "react";
 import type { Campaign } from "@shared/schema";
 import Navigation from "@/components/Navigation";
 import TeamRegistrationForm from "@/components/TeamRegistrationForm";
+import SocialShare from "@/components/SocialShare";
+import VideoPlayer from "@/components/VideoPlayer";
+import DiscussionForum from "@/components/DiscussionForum";
+import ResourceLibrary from "@/components/ResourceLibrary";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Load Razorpay script dynamically
 const loadRazorpayScript = () => {
@@ -323,13 +328,21 @@ export default function CampaignDetail() {
       <div className="container mx-auto px-4 py-8 pt-24">
         {/* Campaign Header */}
         <div className="mb-8">
-          <div className="flex items-center gap-2 mb-4">
-            <Badge variant="outline" className="bg-cosmic-blue/20 text-cosmic-blue border-cosmic-blue">
-              Research Campaign
-            </Badge>
-            <Badge variant="outline" className="bg-green-500/20 text-green-400 border-green-500">
-              {campaign.status}
-            </Badge>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="bg-cosmic-blue/20 text-cosmic-blue border-cosmic-blue">
+                Research Campaign
+              </Badge>
+              <Badge variant="outline" className="bg-green-500/20 text-green-400 border-green-500">
+                {campaign.status}
+              </Badge>
+            </div>
+            <SocialShare 
+              url={`/campaigns/${campaign.id}`}
+              title={campaign.title}
+              description={campaign.description}
+              hashtags={['Zoonigia', 'SpaceScience', campaign.field || 'Science']}
+            />
           </div>
           <h1 className="text-4xl font-bold mb-4">{campaign.title}</h1>
           <p className="text-xl text-gray-300 mb-6">{campaign.description}</p>
@@ -582,13 +595,18 @@ export default function CampaignDetail() {
             ) : (
               <>
                 {/* Campaign Image */}
-                <div className="mb-8">
-                  <img 
-                    src="https://zoonigia.wordpress.com/wp-content/uploads/2025/03/5astr-1.jpg" 
-                    alt={campaign.title}
-                    className="w-full h-64 object-cover rounded-lg bg-space-800"
-                  />
-                </div>
+                {campaign.imageUrl && (
+                  <div className="mb-8">
+                    <img 
+                      src={campaign.imageUrl} 
+                      alt={campaign.title}
+                      className="w-full h-64 object-cover rounded-lg bg-space-800"
+                      onError={(e) => {
+                        e.currentTarget.src = "https://zoonigia.wordpress.com/wp-content/uploads/2025/03/5astr-1.jpg";
+                      }}
+                    />
+                  </div>
+                )}
 
                 {/* Campaign Overview */}
                 <Card className="bg-space-800/50 border-space-700 mb-8">
@@ -596,100 +614,78 @@ export default function CampaignDetail() {
                     <CardTitle className="text-2xl">Campaign Overview</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    <div>
-                      <h3 className="text-lg font-semibold mb-3 text-cosmic-blue">What You'll Discover</h3>
-                      <ul className="space-y-2 text-gray-300">
-                        <li>• Work with real astronomical datasets from Pan-STARRS telescope</li>
-                        <li>• Get trained in specialized astronomical software (license provided free)</li>
-                        <li>• Join the official International Asteroid Search Campaign</li>
-                        <li>• Discover and name your own asteroid (if found)</li>
-                        <li>• Receive prestigious certificate featuring NASA, IASC, Pan-STARRS, and Zoonigia</li>
-                        <li>• Contribute to actual astronomical research</li>
-                      </ul>
-                    </div>
-
-                    <Separator className="bg-space-700" />
-
-                    <div>
-                      <h3 className="text-lg font-semibold mb-3 text-cosmic-purple">Research Focus</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <h4 className="font-medium text-cosmic-orange mb-2">NASA Collaboration</h4>
-                          <p className="text-sm text-gray-400">Direct collaboration with NASA Citizen Science program</p>
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-cosmic-orange mb-2">IASC Partnership</h4>
-                          <p className="text-sm text-gray-400">Part of International Astronomical Search Collaboration</p>
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-cosmic-orange mb-2">Pan-STARRS Data</h4>
-                          <p className="text-sm text-gray-400">Access to real telescope data from University of Hawaii</p>
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-cosmic-orange mb-2">Official Recognition</h4>
-                          <p className="text-sm text-gray-400">Opportunity to officially name discovered asteroids</p>
-                        </div>
+                    {campaign.outcomes && (
+                      <div>
+                        <h3 className="text-lg font-semibold mb-3 text-cosmic-blue">Expected Outcomes</h3>
+                        <div className="text-gray-300 whitespace-pre-wrap">{campaign.outcomes}</div>
                       </div>
-                    </div>
+                    )}
 
-                    <Separator className="bg-space-700" />
+                    {campaign.timeline && (
+                      <>
+                        <Separator className="bg-space-700" />
+                        <div>
+                          <h3 className="text-lg font-semibold mb-3 text-cosmic-yellow">Timeline</h3>
+                          <div className="text-gray-300 whitespace-pre-wrap">{campaign.timeline}</div>
+                        </div>
+                      </>
+                    )}
 
-                    <div>
-                      <h3 className="text-lg font-semibold mb-3 text-cosmic-yellow">Timeline & Milestones</h3>
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-3">
-                          <Clock className="w-5 h-5 text-cosmic-blue" />
-                          <span className="text-sm"><strong>Phase 1:</strong> Software training and astronomical data analysis basics</span>
+                    {campaign.partner && (
+                      <>
+                        <Separator className="bg-space-700" />
+                        <div>
+                          <h3 className="text-lg font-semibold mb-3 text-cosmic-purple">Partners</h3>
+                          <p className="text-gray-300">{campaign.partner}</p>
                         </div>
-                        <div className="flex items-center gap-3">
-                          <Clock className="w-5 h-5 text-cosmic-purple" />
-                          <span className="text-sm"><strong>Phase 2:</strong> Official participation in International Asteroid Search Campaign</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <Clock className="w-5 h-5 text-cosmic-orange" />
-                          <span className="text-sm"><strong>Phase 3:</strong> Discovery verification and naming process</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <Clock className="w-5 h-5 text-cosmic-yellow" />
-                          <span className="text-sm"><strong>Phase 4:</strong> Certification and recognition ceremony</span>
-                        </div>
-                      </div>
-                    </div>
+                      </>
+                    )}
                   </CardContent>
                 </Card>
 
                 {/* Requirements */}
-                <Card className="bg-space-800/50 border-space-700 mb-8">
-                  <CardHeader>
-                    <CardTitle className="text-xl">Requirements</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <h4 className="font-medium text-cosmic-blue mb-3">Technical Requirements</h4>
-                        <ul className="space-y-2 text-sm text-gray-300">
-                          <li>• Computer with internet connection</li>
-                          <li>• No prior astronomy experience required</li>
-                          <li>• Open to all ages (mentorship provided)</li>
-                          <li>• Commitment to campaign duration</li>
-                        </ul>
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-cosmic-purple mb-3">What's Included</h4>
-                        <ul className="space-y-2 text-sm text-gray-300">
-                          <li>• Free astronomical software license</li>
-                          <li>• Access to real Pan-STARRS telescope data</li>
-                          <li>• Expert mentorship and training</li>
-                          <li>• Official NASA/IASC certificate</li>
-                          <li>• Scholarship opportunities available</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                {campaign.requirements && (
+                  <Card className="bg-space-800/50 border-space-700 mb-8">
+                    <CardHeader>
+                      <CardTitle className="text-xl">Requirements</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-gray-300 whitespace-pre-wrap">{campaign.requirements}</div>
+                    </CardContent>
+                  </Card>
+                )}
               </>
             )}
               </>
+            )}
+
+            {/* Additional Campaign Content with Tabs */}
+            {campaign.status !== "upcoming" && (
+              <div className="mt-8">
+                <Tabs defaultValue="resources" className="space-y-6">
+                  <TabsList className="grid w-full grid-cols-2 bg-space-800/50">
+                    <TabsTrigger value="resources">Resources</TabsTrigger>
+                    <TabsTrigger value="discussions">Discussions</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="resources">
+                    <ResourceLibrary
+                      referenceType="campaign"
+                      referenceId={campaign.id}
+                      title="Campaign Resources & Materials"
+                      allowUpload={user?.isAdmin}
+                    />
+                  </TabsContent>
+
+                  <TabsContent value="discussions">
+                    <DiscussionForum
+                      referenceType="campaign"
+                      referenceId={campaign.id}
+                      title="Campaign Discussions"
+                    />
+                  </TabsContent>
+                </Tabs>
+              </div>
             )}
           </div>
 

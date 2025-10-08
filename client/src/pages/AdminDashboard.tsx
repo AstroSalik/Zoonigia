@@ -24,8 +24,13 @@ import {
   Shield, Users, BookOpen, Calendar, Mail, Plus, Edit, Trash2, 
   Eye, MessageSquare, CheckCircle, XCircle, Star, GraduationCap,
   Rocket, Target, Award, Phone, Clock, IndianRupee,
-  Download, RefreshCw, Crown, Heart
+  Download, RefreshCw, Crown, Heart, Loader2, AlertTriangle
 } from "lucide-react";
+import { AnalyticsDashboard } from "@/components/admin/AnalyticsDashboard";
+import { AdvancedDataTable } from "@/components/admin/AdvancedDataTable";
+import { DashboardSkeleton, ErrorState, EmptyState } from "@/components/admin/LoadingSkeleton";
+import RefundManagement from "@/components/admin/RefundManagement";
+import { exportUsers, exportCourses, exportInquiries, exportWorkshops, exportCampaigns } from "@/lib/exportUtils";
 import { 
   User, BlogPost, Workshop, Course, Campaign, ContactInquiry, WorkshopRegistration,
   InsertBlogPost, InsertWorkshop, InsertCourse, InsertCampaign, lessonFormSchema
@@ -35,53 +40,76 @@ import {
 const blogPostFormSchema = z.object({
   title: z.string().min(1, "Title is required"),
   content: z.string().min(1, "Content is required"),
-  excerpt: z.string().min(1, "Excerpt is required"),
-  authorName: z.string().min(1, "Author is required"),
-  slug: z.string().min(1, "Slug is required"),
-  published: z.boolean().default(false),
+  authorName: z.string().min(1, "Author name is required"),
+  authorTitle: z.string().optional(),
+  imageUrl: z.string().optional(),
+  isPublished: z.boolean().default(false),
 });
 
 const workshopFormSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
-  duration: z.string().min(1, "Duration is required"),
-  price: z.coerce.number().min(0, "Price must be 0 or higher"),
-  maxParticipants: z.coerce.number().min(1, "Max participants must be at least 1"),
-  location: z.string().min(1, "Location is required"),
+  type: z.string().min(1, "Type is required"),
+  startDate: z.string().min(1, "Start date is required"),
+  endDate: z.string().min(1, "End date is required"),
+  location: z.string().optional(),
+  isVirtual: z.boolean().default(false),
+  maxParticipants: z.coerce.number().optional(),
+  price: z.string().min(0, "Price is required"),
   imageUrl: z.string().optional(),
 });
 
 const courseFormSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
-  instructorName: z.string().min(1, "Instructor name is required"),
-  duration: z.string().min(1, "Duration is required"),
-  level: z.enum(["beginner", "intermediate", "advanced"]),
-  price: z.coerce.number().min(0, "Price must be 0 or higher"),
+  about: z.string().optional(),
   field: z.enum(["quantum_mechanics", "tech_ai", "astrophysics", "space_technology", "robotics", "biotechnology", "nanotechnology", "renewable_energy"]),
+  level: z.enum(["beginner", "intermediate", "advanced"]),
+  duration: z.string().optional(),
+  price: z.string().optional(),
+  isFree: z.boolean().default(false),
+  instructorName: z.string().optional(),
   imageUrl: z.string().optional(),
   status: z.enum(["upcoming", "accepting_registrations", "live"]).default("upcoming"),
+  category: z.string().optional(),
+  capacity: z.number().optional(),
+  requirements: z.string().optional(),
+  outcomes: z.string().optional(),
 });
 
 const campaignFormSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
   type: z.string().min(1, "Type is required"),
-  field: z.string().min(1, "Field is required"),
-  duration: z.string().min(1, "Duration is required"),
+  field: z.string().optional(),
+  duration: z.string().optional(),
   startDate: z.string().min(1, "Start date is required"),
   endDate: z.string().min(1, "End date is required"),
+  partner: z.string().optional(),
   price: z.string().min(0, "Price is required"),
-  targetParticipants: z.coerce.number().min(1, "Target participants must be at least 1"),
-  requirements: z.string().min(1, "Requirements are required"),
-  timeline: z.string().min(1, "Timeline is required"),
-  outcomes: z.string().min(1, "Outcomes are required"),
+  isFree: z.boolean().default(false),
+  maxParticipants: z.coerce.number().optional(),
+  targetParticipants: z.coerce.number().optional(),
+  requirements: z.string().optional(),
+  timeline: z.string().optional(),
+  outcomes: z.string().optional(),
   imageUrl: z.string().optional(),
   status: z.enum(["upcoming", "accepting_registrations", "active", "closed", "completed"]).default("upcoming"),
 });
 
+const quizFormSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().optional(),
+  courseId: z.string().optional(),
+  timeLimit: z.number().min(0).default(0),
+  passingScore: z.number().min(0).max(100).default(70),
+  maxAttempts: z.number().min(1).default(3),
+  questions: z.array(z.any()).default([]),
+});
+
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
+  const [authStatus, setAuthStatus] = useState<'checking' | 'authenticated' | 'not_authenticated'>('checking');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [selectedInquiry, setSelectedInquiry] = useState<ContactInquiry | null>(null);
   const [showBlogDialog, setShowBlogDialog] = useState(false);
@@ -89,6 +117,7 @@ const AdminDashboard = () => {
   const [showCourseDialog, setShowCourseDialog] = useState(false);
   const [showCampaignDialog, setShowCampaignDialog] = useState(false);
   const [showLessonDialog, setShowLessonDialog] = useState(false);
+  const [showQuizDialog, setShowQuizDialog] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [editMode, setEditMode] = useState<{
     type: 'blog' | 'workshop' | 'course' | 'campaign' | null;
@@ -105,24 +134,45 @@ const AdminDashboard = () => {
   }>({ open: false, type: '', item: null });
   const { toast } = useToast();
 
-  // Data queries
-  const { data: users = [] } = useQuery<User[]>({
+  // Check authentication status
+  React.useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { waitForAuth } = await import('@/lib/adminClient');
+        await waitForAuth();
+        setAuthStatus('authenticated');
+      } catch (error) {
+        console.error('Admin Dashboard - Authentication failed:', error);
+        setAuthStatus('not_authenticated');
+        toast({
+          title: "Authentication Required",
+          description: "Please sign in with Google to access the admin dashboard.",
+          variant: "destructive",
+        });
+      }
+    };
+    
+    checkAuth();
+  }, [toast]);
+
+  // Data queries with loading and error states
+  const { data: users = [], isLoading: usersLoading, error: usersError } = useQuery<User[]>({
     queryKey: ["/api/admin/users"],
   });
 
-  const { data: blogPosts = [] } = useQuery<BlogPost[]>({
+  const { data: blogPosts = [], isLoading: blogPostsLoading } = useQuery<BlogPost[]>({
     queryKey: ["/api/admin/blog-posts"],
   });
 
-  const { data: workshops = [] } = useQuery<Workshop[]>({
+  const { data: workshops = [], isLoading: workshopsLoading } = useQuery<Workshop[]>({
     queryKey: ["/api/admin/workshops"],
   });
 
-  const { data: courses = [] } = useQuery<Course[]>({
+  const { data: courses = [], isLoading: coursesLoading } = useQuery<Course[]>({
     queryKey: ["/api/admin/courses"],
   });
 
-  const { data: campaigns = [] } = useQuery<Campaign[]>({
+  const { data: campaigns = [], isLoading: campaignsLoading } = useQuery<Campaign[]>({
     queryKey: ["/api/admin/campaigns"],
   });
 
@@ -145,6 +195,9 @@ const AdminDashboard = () => {
     queryKey: ["/api/admin/campaign-participants"],
     refetchInterval: 30000, // Refetch every 30 seconds
   });
+
+  // Combined loading state for overview
+  const isOverviewLoading = usersLoading || blogPostsLoading || workshopsLoading || coursesLoading || campaignsLoading;
 
   // Notification system - check for new registrations
   const prevRegistrationsCount = React.useRef<number | null>(null);
@@ -212,11 +265,10 @@ const AdminDashboard = () => {
     defaultValues: {
       title: "",
       content: "",
-      excerpt: "",
-      author: "",
-      category: "",
+      authorName: "",
+      authorTitle: "",
       imageUrl: "",
-      tags: "",
+      isPublished: false,
     },
   });
 
@@ -225,13 +277,14 @@ const AdminDashboard = () => {
     defaultValues: {
       title: "",
       description: "",
-      duration: "",
+      type: "",
+      startDate: "",
+      endDate: "",
+      location: "",
+      isVirtual: false,
+      maxParticipants: undefined,
       price: "0.00",
-      capacity: 1,
-      level: "beginner",
-      category: "",
-      requirements: "",
-      outcomes: "",
+      imageUrl: "",
     },
   });
 
@@ -241,13 +294,15 @@ const AdminDashboard = () => {
       title: "",
       description: "",
       about: "",
+      field: "astrophysics",
+      level: "beginner",
       duration: "",
       price: "",
-      capacity: undefined,
-      level: "beginner",
-      field: "",
       instructorName: "",
+      imageUrl: "",
       status: "upcoming",
+      category: "",
+      capacity: undefined,
       requirements: "",
       outcomes: "",
     },
@@ -267,8 +322,8 @@ const AdminDashboard = () => {
       startDate: "",
       endDate: "",
       price: "0.00",
-      maxParticipants: 1,
-      targetParticipants: 1,
+      maxParticipants: undefined,
+      targetParticipants: undefined,
       status: "upcoming",
       partner: "",
       imageUrl: "",
@@ -293,17 +348,29 @@ const AdminDashboard = () => {
     },
   });
 
+  const quizForm = useForm<z.infer<typeof quizFormSchema>>({
+    resolver: zodResolver(quizFormSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      courseId: "",
+      timeLimit: 0,
+      passingScore: 70,
+      maxAttempts: 3,
+      questions: [],
+    },
+  });
+
   // Edit handlers
   const handleEditBlog = (blog: BlogPost) => {
     setEditMode({ type: 'blog', item: blog });
     blogForm.reset({
       title: blog.title,
       content: blog.content,
-      excerpt: blog.excerpt,
-      author: blog.author,
-      category: blog.category,
+      authorName: blog.authorName,
+      authorTitle: blog.authorTitle || "",
       imageUrl: blog.imageUrl || "",
-      tags: blog.tags || "",
+      isPublished: blog.isPublished ?? false,
     });
     setShowBlogDialog(true);
   };
@@ -313,13 +380,14 @@ const AdminDashboard = () => {
     workshopForm.reset({
       title: workshop.title,
       description: workshop.description,
-      duration: workshop.duration,
+      type: workshop.type,
+      startDate: workshop.startDate,
+      endDate: workshop.endDate,
+      location: workshop.location || "",
+      isVirtual: workshop.isVirtual || false,
+      maxParticipants: workshop.maxParticipants || undefined,
       price: workshop.price || "0.00",
-      capacity: workshop.capacity,
-      level: workshop.level,
-      category: workshop.category,
-      requirements: workshop.requirements || "",
-      outcomes: workshop.outcomes || "",
+      imageUrl: workshop.imageUrl || "",
     });
     setShowWorkshopDialog(true);
   };
@@ -330,15 +398,17 @@ const AdminDashboard = () => {
       title: course.title,
       description: course.description,
       about: course.about || "",
-      duration: course.duration,
+      field: course.field as any,
+      level: course.level as any,
+      duration: course.duration || "",
       price: course.price || "",
-      capacity: course.capacity || undefined,
-      level: course.level,
-      field: course.field,
       instructorName: course.instructorName || "",
-      status: course.status || "upcoming",
-      requirements: course.requirements || "",
-      outcomes: course.outcomes || "",
+      imageUrl: course.imageUrl || "",
+      status: course.status as any || "upcoming",
+      category: course.category || "",
+      capacity: (course as any).capacity || undefined,
+      requirements: (course as any).requirements || "",
+      outcomes: (course as any).outcomes || "",
     });
     setShowCourseDialog(true);
   };
@@ -354,9 +424,9 @@ const AdminDashboard = () => {
       startDate: campaign.startDate,
       endDate: campaign.endDate,
       price: campaign.price || "0.00",
-      maxParticipants: campaign.maxParticipants,
-      targetParticipants: campaign.targetParticipants,
-      status: campaign.status,
+      maxParticipants: campaign.maxParticipants ?? undefined,
+      targetParticipants: campaign.targetParticipants ?? undefined,
+      status: campaign.status as any,
       partner: campaign.partner || "",
       imageUrl: campaign.imageUrl || "",
       requirements: campaign.requirements || "",
@@ -446,17 +516,42 @@ const AdminDashboard = () => {
       const method = editMode.type === 'campaign' ? 'PUT' : 'POST';
       const url = editMode.type === 'campaign' ? `/api/admin/campaigns/${editMode.item.id}` : '/api/admin/campaigns';
       const response = await apiRequest(method, url, data);
-      return response.json();
+      const result = await response.json();
+      return result;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/campaigns"] });
       queryClient.invalidateQueries({ queryKey: ["/api/campaigns"] });
       toast({ title: editMode.type === 'campaign' ? "Campaign updated successfully!" : "Campaign created successfully!" });
       campaignForm.reset();
       closeDialogs();
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      console.error("[Frontend] Campaign creation error:", error);
       toast({ title: editMode.type === 'campaign' ? "Error updating campaign" : "Error creating campaign", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const createQuiz = useMutation({
+    mutationFn: async (data: z.infer<typeof quizFormSchema>) => {
+      const quizData = {
+        ...data,
+        courseId: data.courseId === "standalone" ? null : data.courseId
+      };
+      const response = await apiRequest('POST', '/api/admin/quizzes', quizData);
+      const result = await response.json();
+      return result;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/quizzes"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/courses"] });
+      toast({ title: "Quiz created successfully!" });
+      quizForm.reset();
+      setShowQuizDialog(false);
+    },
+    onError: (error: any) => {
+      console.error("[Frontend] Quiz creation error:", error);
+      toast({ title: "Error creating quiz", description: error.message, variant: "destructive" });
     },
   });
 
@@ -603,6 +698,44 @@ const AdminDashboard = () => {
     }
   };
 
+  // Show loading or authentication required message
+  if (authStatus === 'checking') {
+    return (
+      <div className="min-h-screen bg-space-900 text-space-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin w-8 h-8 border-4 border-cosmic-blue border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-space-300">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (authStatus === 'not_authenticated') {
+    return (
+      <div className="min-h-screen bg-space-900 text-space-50 flex items-center justify-center">
+        <div className="text-center">
+          <Shield className="w-16 h-16 text-cosmic-blue mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-white mb-2">Authentication Required</h2>
+          <p className="text-space-300 mb-6">Please sign in with Google to access the admin dashboard.</p>
+          <Button 
+            onClick={async () => {
+              try {
+                const { signInWithGoogle } = await import("@/lib/googleAuth");
+                await signInWithGoogle();
+                window.location.reload();
+              } catch (error) {
+                console.error('Sign in failed:', error);
+              }
+            }}
+            className="bg-cosmic-blue hover:bg-cosmic-blue/90"
+          >
+            Sign In with Google
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <AdminRoute>
       <div className="min-h-screen bg-space-900 text-space-50">
@@ -622,137 +755,76 @@ const AdminDashboard = () => {
               </div>
 
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-8 mb-8 bg-space-800 border-space-700">
-                  <TabsTrigger value="overview" className="data-[state=active]:bg-cosmic-blue">
-                    <Target className="w-4 h-4 mr-2" />
-                    Overview
+                <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-10 gap-1 mb-8 bg-space-800 border-space-700 h-auto p-2">
+                  <TabsTrigger value="overview" className="data-[state=active]:bg-cosmic-blue text-xs sm:text-sm">
+                    <Target className="w-4 h-4 mr-1 sm:mr-2" />
+                    <span className="hidden sm:inline">Overview</span>
+                    <span className="sm:hidden">Ovr</span>
                   </TabsTrigger>
-                  <TabsTrigger value="users" className="data-[state=active]:bg-cosmic-blue">
-                    <Users className="w-4 h-4 mr-2" />
+                  <TabsTrigger value="users" className="data-[state=active]:bg-cosmic-blue text-xs sm:text-sm">
+                    <Users className="w-4 h-4 mr-1 sm:mr-2" />
                     Users
                   </TabsTrigger>
-                  <TabsTrigger value="content" className="data-[state=active]:bg-cosmic-blue">
-                    <BookOpen className="w-4 h-4 mr-2" />
-                    Content
+                  <TabsTrigger value="content" className="data-[state=active]:bg-cosmic-blue text-xs sm:text-sm">
+                    <BookOpen className="w-4 h-4 mr-1 sm:mr-2" />
+                    <span className="hidden sm:inline">Content</span>
+                    <span className="sm:hidden">Blog</span>
                   </TabsTrigger>
-                  <TabsTrigger value="workshops" className="data-[state=active]:bg-cosmic-blue">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    Workshops
+                  <TabsTrigger value="workshops" className="data-[state=active]:bg-cosmic-blue text-xs sm:text-sm">
+                    <Calendar className="w-4 h-4 mr-1 sm:mr-2" />
+                    <span className="hidden sm:inline">Workshops</span>
+                    <span className="sm:hidden">Work</span>
                   </TabsTrigger>
-                  <TabsTrigger value="courses" className="data-[state=active]:bg-cosmic-blue">
-                    <GraduationCap className="w-4 h-4 mr-2" />
+                  <TabsTrigger value="courses" className="data-[state=active]:bg-cosmic-blue text-xs sm:text-sm">
+                    <GraduationCap className="w-4 h-4 mr-1 sm:mr-2" />
                     Courses
                   </TabsTrigger>
-                  <TabsTrigger value="campaigns" className="data-[state=active]:bg-cosmic-blue">
-                    <Rocket className="w-4 h-4 mr-2" />
-                    Campaigns
+                  <TabsTrigger value="quizzes" className="data-[state=active]:bg-cosmic-blue text-xs sm:text-sm">
+                    <Award className="w-4 h-4 mr-1 sm:mr-2" />
+                    Quizzes
                   </TabsTrigger>
-                  <TabsTrigger value="inquiries" className="data-[state=active]:bg-cosmic-blue">
-                    <Mail className="w-4 h-4 mr-2" />
-                    Inquiries
+                  <TabsTrigger value="campaigns" className="data-[state=active]:bg-cosmic-blue text-xs sm:text-sm">
+                    <Rocket className="w-4 h-4 mr-1 sm:mr-2" />
+                    <span className="hidden sm:inline">Campaigns</span>
+                    <span className="sm:hidden">Camp</span>
                   </TabsTrigger>
-                  <TabsTrigger value="special-communications" className="data-[state=active]:bg-purple-500">
-                    <MessageSquare className="w-4 h-4 mr-2" />
-                    Special Communications ({loveMessages.filter((msg: any) => !msg.isRead).length})
+                  <TabsTrigger value="inquiries" className="data-[state=active]:bg-cosmic-blue text-xs sm:text-sm">
+                    <Mail className="w-4 h-4 mr-1 sm:mr-2" />
+                    <span className="hidden sm:inline">Inquiries</span>
+                    <span className="sm:hidden">Inq</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="special-communications" className="data-[state=active]:bg-purple-500 text-xs sm:text-sm">
+                    <MessageSquare className="w-4 h-4 mr-1 sm:mr-2" />
+                    <span className="hidden lg:inline">Special ({(loveMessages as any[]).filter((msg: any) => !msg.isRead).length})</span>
+                    <span className="lg:hidden">Spcl ({(loveMessages as any[]).filter((msg: any) => !msg.isRead).length})</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="refunds" className="data-[state=active]:bg-cosmic-blue text-xs sm:text-sm">
+                    <RefreshCw className="w-4 h-4 mr-1 sm:mr-2" />
+                    Refunds
                   </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="overview" className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <GlassMorphism className="p-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-space-400 text-sm font-medium">Total Users</p>
-                          <p className="text-2xl font-bold text-white">{users.length}</p>
-                        </div>
-                        <div className="p-3 rounded-lg bg-blue-500/10">
-                          <Users className="w-6 h-6 text-blue-400" />
-                        </div>
-                      </div>
-                    </GlassMorphism>
+                  {/* Database Reset Section */}
 
-                    <GlassMorphism className="p-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-space-400 text-sm font-medium">Blog Posts</p>
-                          <p className="text-2xl font-bold text-white">{blogPosts.length}</p>
-                        </div>
-                        <div className="p-3 rounded-lg bg-green-500/10">
-                          <BookOpen className="w-6 h-6 text-green-400" />
-                        </div>
-                      </div>
-                    </GlassMorphism>
-
-                    <GlassMorphism className="p-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-space-400 text-sm font-medium">Workshops</p>
-                          <p className="text-2xl font-bold text-white">{workshops.length}</p>
-                        </div>
-                        <div className="p-3 rounded-lg bg-purple-500/10">
-                          <Calendar className="w-6 h-6 text-purple-400" />
-                        </div>
-                      </div>
-                    </GlassMorphism>
-
-                    <GlassMorphism className="p-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-space-400 text-sm font-medium">Inquiries</p>
-                          <p className="text-2xl font-bold text-white">{inquiries.length}</p>
-                        </div>
-                        <div className="p-3 rounded-lg bg-orange-500/10">
-                          <Mail className="w-6 h-6 text-orange-400" />
-                        </div>
-                      </div>
-                    </GlassMorphism>
-                  </div>
-
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <GlassMorphism className="p-6">
-                      <h3 className="text-xl font-semibold text-white mb-4">Recent Users</h3>
-                      <div className="space-y-3">
-                        {users.slice(0, 5).map((user) => (
-                          <div key={user.id} className="flex items-center justify-between p-3 rounded-lg bg-space-800/50">
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-full bg-cosmic-blue/20 flex items-center justify-center">
-                                <span className="text-cosmic-blue font-semibold text-sm">
-                                  {user.firstName?.[0] || user.email[0].toUpperCase()}
-                                </span>
-                              </div>
-                              <div>
-                                <p className="text-white font-medium">{user.firstName || user.email}</p>
-                                <p className="text-space-400 text-sm">{user.email}</p>
-                              </div>
-                            </div>
-                            {user.isAdmin && (
-                              <Badge variant="secondary" className="bg-cosmic-blue/20 text-cosmic-blue">
-                                Admin
-                              </Badge>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </GlassMorphism>
-
-                    <GlassMorphism className="p-6">
-                      <h3 className="text-xl font-semibold text-white mb-4">Recent Inquiries</h3>
-                      <div className="space-y-3">
-                        {inquiries.slice(0, 5).map((inquiry) => (
-                          <div key={inquiry.id} className="flex items-center justify-between p-3 rounded-lg bg-space-800/50">
-                            <div>
-                              <p className="text-white font-medium">{inquiry.name}</p>
-                              <p className="text-space-400 text-sm">{inquiry.email}</p>
-                              <p className="text-space-300 text-sm mt-1">{inquiry.message.substring(0, 50)}...</p>
-                            </div>
-                            <Badge variant="outline" className="text-yellow-400 border-yellow-400">
-                              {inquiry.type}
-                            </Badge>
-                          </div>
-                        ))}
-                      </div>
-                    </GlassMorphism>
-                  </div>
+                  {isOverviewLoading ? (
+                    <DashboardSkeleton />
+                  ) : usersError ? (
+                    <ErrorState 
+                      title="Failed to Load Data"
+                      message="We couldn't load the admin dashboard data. Please check your connection and try again."
+                      onRetry={() => window.location.reload()}
+                    />
+                  ) : (
+                    <AnalyticsDashboard
+                      users={users}
+                      courses={courses}
+                      workshops={workshops}
+                      campaigns={campaigns}
+                      blogPosts={blogPosts}
+                      inquiries={inquiries}
+                    />
+                  )}
                 </TabsContent>
 
 
@@ -779,7 +851,7 @@ const AdminDashboard = () => {
                   </div>
 
                   <GlassMorphism className="p-6">
-                    {loveMessages.length === 0 ? (
+                    {(loveMessages as any[]).length === 0 ? (
                       <div className="text-center py-12">
                         <Heart className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                         <h4 className="text-xl font-semibold text-gray-400 mb-2">No love messages yet</h4>
@@ -787,7 +859,7 @@ const AdminDashboard = () => {
                       </div>
                     ) : (
                       <div className="space-y-4">
-                        {loveMessages.map((message: any) => (
+                        {(loveMessages as any[]).map((message: any) => (
                           <div 
                             key={message.id} 
                             className={`p-6 rounded-xl border-2 transition-all duration-300 ${
@@ -829,9 +901,7 @@ const AdminDashboard = () => {
                                   size="sm"
                                   onClick={async () => {
                                     try {
-                                      await apiRequest(`/api/admin/love-messages/${message.id}/read`, {
-                                        method: 'PATCH',
-                                      });
+                                      await apiRequest('PATCH', `/api/admin/love-messages/${message.id}/read`);
                                       queryClient.invalidateQueries({ queryKey: ['/api/admin/love-messages'] });
                                       toast({
                                         title: "Message marked as read",
@@ -861,8 +931,20 @@ const AdminDashboard = () => {
                 <TabsContent value="users" className="space-y-6">
                   <GlassMorphism className="p-6">
                     <div className="flex items-center justify-between mb-6">
-                      <h3 className="text-xl font-semibold text-white">User Management</h3>
+                      <h3 className="text-xl font-semibold text-white flex items-center gap-2">
+                        <Users className="w-6 h-6 text-blue-400" />
+                        User Management
+                      </h3>
                       <div className="flex items-center gap-2">
+                        <Button
+                          onClick={() => exportUsers(users)}
+                          variant="outline"
+                          size="sm"
+                          className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue/10"
+                        >
+                          <Download className="w-4 h-4 mr-2" />
+                          Export CSV
+                        </Button>
                         <Badge variant="secondary" className="bg-cosmic-blue/20 text-cosmic-blue">
                           Total: {users.length}
                         </Badge>
@@ -872,82 +954,101 @@ const AdminDashboard = () => {
                       </div>
                     </div>
 
-                    <div className="overflow-x-auto">
-                      <Table>
-                        <TableHeader>
-                          <TableRow className="border-space-700">
-                            <TableHead className="text-space-300">User</TableHead>
-                            <TableHead className="text-space-300">Email</TableHead>
-                            <TableHead className="text-space-300">Role</TableHead>
-                            <TableHead className="text-space-300">Joined</TableHead>
-                            <TableHead className="text-space-300">Actions</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {users.map((user) => (
-                            <TableRow key={user.id} className="border-space-700">
-                              <TableCell>
-                                <div className="flex items-center gap-3">
-                                  <div className="w-8 h-8 rounded-full bg-cosmic-blue/20 flex items-center justify-center">
-                                    <span className="text-cosmic-blue font-semibold text-sm">
-                                      {user.firstName?.[0] || user.email[0].toUpperCase()}
-                                    </span>
-                                  </div>
-                                  <div>
-                                    <p className="text-white font-medium">
-                                      {user.firstName ? `${user.firstName} ${user.lastName || ''}` : user.email}
-                                    </p>
-                                  </div>
-                                </div>
-                              </TableCell>
-                              <TableCell className="text-space-300">{user.email}</TableCell>
-                              <TableCell>
-                                {user.isAdmin ? (
-                                  <Badge variant="secondary" className="bg-cosmic-blue/20 text-cosmic-blue">
-                                    Admin
-                                  </Badge>
-                                ) : (
-                                  <Badge variant="outline" className="text-space-400 border-space-600">
-                                    User
-                                  </Badge>
-                                )}
-                              </TableCell>
-                              <TableCell className="text-space-300">
-                                {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
-                              </TableCell>
-                              <TableCell>
-                                <div className="flex items-center gap-2">
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => setSelectedUser(user)}
-                                    className="text-cosmic-blue hover:bg-cosmic-blue/10"
-                                  >
-                                    <Eye className="w-4 h-4" />
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => handleUserAction(user, user.isAdmin ? 'removeAdmin' : 'makeAdmin')}
-                                    className="text-yellow-400 hover:bg-yellow-400/10"
-                                  >
-                                    {user.isAdmin ? <XCircle className="w-4 h-4" /> : <Star className="w-4 h-4" />}
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => handleUserAction(user, 'delete')}
-                                    className="text-red-400 hover:bg-red-400/10"
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </Button>
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
+                    <AdvancedDataTable
+                      data={users}
+                      columns={[
+                        {
+                          key: 'displayName',
+                          label: 'User',
+                          sortable: true,
+                          render: (_, user: User) => (
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full bg-cosmic-blue/20 flex items-center justify-center">
+                                <span className="text-cosmic-blue font-semibold text-sm">
+                                  {user.firstName?.[0] || user.email?.[0]?.toUpperCase() || 'U'}
+                                </span>
+                              </div>
+                              <div>
+                                <p className="text-white font-medium">
+                                  {user.firstName ? `${user.firstName} ${user.lastName || ''}` : user.email}
+                                </p>
+                              </div>
+                            </div>
+                          )
+                        },
+                        {
+                          key: 'email',
+                          label: 'Email',
+                          sortable: true,
+                        },
+                        {
+                          key: 'isAdmin',
+                          label: 'Role',
+                          sortable: true,
+                          filterable: true,
+                          render: (isAdmin: boolean) => 
+                            isAdmin ? (
+                              <Badge variant="secondary" className="bg-cosmic-blue/20 text-cosmic-blue">
+                                Admin
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="text-space-400 border-space-600">
+                                User
+                              </Badge>
+                            )
+                        },
+                        {
+                          key: 'createdAt',
+                          label: 'Joined',
+                          sortable: true,
+                          render: (date: string) => 
+                            date ? new Date(date).toLocaleDateString() : 'N/A'
+                        },
+                      ]}
+                      searchKeys={['firstName', 'lastName', 'email']}
+                      onRowClick={(user) => setSelectedUser(user)}
+                      rowActions={(user: User) => (
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedUser(user);
+                            }}
+                            className="text-cosmic-blue hover:bg-cosmic-blue/10"
+                            title="View Details"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleUserAction(user, user.isAdmin ? 'removeAdmin' : 'makeAdmin');
+                            }}
+                            className="text-yellow-400 hover:bg-yellow-400/10"
+                            title={user.isAdmin ? 'Remove Admin' : 'Make Admin'}
+                          >
+                            {user.isAdmin ? <XCircle className="w-4 h-4" /> : <Star className="w-4 h-4" />}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleUserAction(user, 'delete');
+                            }}
+                            className="text-red-400 hover:bg-red-400/10"
+                            title="Delete User"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      )}
+                      emptyMessage="No users found"
+                    />
                   </GlassMorphism>
 
                   {/* User Detail Dialog */}
@@ -1045,10 +1146,10 @@ const AdminDashboard = () => {
                             <div className="grid grid-cols-2 gap-4">
                               <FormField
                                 control={blogForm.control}
-                                name="author"
+                                name="authorName"
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel className="text-space-300">Author</FormLabel>
+                                    <FormLabel className="text-space-300">Author Name</FormLabel>
                                     <FormControl>
                                       <Input {...field} className="bg-space-700 border-space-600 text-white" />
                                     </FormControl>
@@ -1058,43 +1159,18 @@ const AdminDashboard = () => {
                               />
                               <FormField
                                 control={blogForm.control}
-                                name="category"
+                                name="authorTitle"
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel className="text-space-300">Category</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                      <FormControl>
-                                        <SelectTrigger className="bg-space-700 border-space-600 text-white">
-                                          <SelectValue placeholder="Select category" />
-                                        </SelectTrigger>
-                                      </FormControl>
-                                      <SelectContent className="bg-space-700 border-space-600">
-                                        <SelectItem value="frontier-sciences">Frontier Sciences</SelectItem>
-                                        <SelectItem value="astronomy">Astronomy</SelectItem>
-                                        <SelectItem value="physics">Physics</SelectItem>
-                                        <SelectItem value="technology">Technology</SelectItem>
-                                        <SelectItem value="education">Education</SelectItem>
-                                        <SelectItem value="research">Research</SelectItem>
-                                      </SelectContent>
-                                    </Select>
+                                    <FormLabel className="text-space-300">Author Title (Optional)</FormLabel>
+                                    <FormControl>
+                                      <Input {...field} placeholder="Astrophysicist, Researcher, etc." className="bg-space-700 border-space-600 text-white" />
+                                    </FormControl>
                                     <FormMessage />
                                   </FormItem>
                                 )}
                               />
                             </div>
-                            <FormField
-                              control={blogForm.control}
-                              name="excerpt"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel className="text-space-300">Excerpt</FormLabel>
-                                  <FormControl>
-                                    <Textarea {...field} className="bg-space-700 border-space-600 text-white" />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
                             <FormField
                               control={blogForm.control}
                               name="content"
@@ -1108,34 +1184,39 @@ const AdminDashboard = () => {
                                 </FormItem>
                               )}
                             />
-                            <div className="grid grid-cols-2 gap-4">
-                              <FormField
-                                control={blogForm.control}
-                                name="imageUrl"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel className="text-space-300">Image URL (Optional)</FormLabel>
-                                    <FormControl>
-                                      <Input {...field} className="bg-space-700 border-space-600 text-white" />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={blogForm.control}
-                                name="tags"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel className="text-space-300">Tags (Optional)</FormLabel>
-                                    <FormControl>
-                                      <Input {...field} placeholder="Comma-separated tags" className="bg-space-700 border-space-600 text-white" />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
+                            <FormField
+                              control={blogForm.control}
+                              name="imageUrl"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-space-300">Image URL (Optional)</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} placeholder="https://example.com/image.jpg" className="bg-space-700 border-space-600 text-white" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={blogForm.control}
+                              name="isPublished"
+                              render={({ field }) => (
+                                <FormItem className="flex flex-row items-center justify-between rounded-lg border border-space-600 p-4 bg-space-700/50">
+                                  <div className="space-y-0.5">
+                                    <FormLabel className="text-space-300">Publish Post</FormLabel>
+                                    <FormDescription className="text-space-400 text-sm">
+                                      Make this blog post visible to users
+                                    </FormDescription>
+                                  </div>
+                                  <FormControl>
+                                    <Switch
+                                      checked={field.value}
+                                      onCheckedChange={field.onChange}
+                                    />
+                                  </FormControl>
+                                </FormItem>
+                              )}
+                            />
                             <div className="flex justify-end gap-2 pt-4">
                               <Button 
                                 type="button" 
@@ -1174,10 +1255,10 @@ const AdminDashboard = () => {
                           {blogPosts.map((post) => (
                             <TableRow key={post.id} className="border-space-700">
                               <TableCell className="text-white font-medium">{post.title}</TableCell>
-                              <TableCell className="text-space-300">{post.author}</TableCell>
+                              <TableCell className="text-space-300">{post.authorName}</TableCell>
                               <TableCell>
                                 <Badge variant="outline" className="text-cosmic-blue border-cosmic-blue">
-                                  {post.category}
+                                  General
                                 </Badge>
                               </TableCell>
                               <TableCell className="text-space-300">
@@ -1507,7 +1588,7 @@ const AdminDashboard = () => {
 
                   {/* Course Creation Dialog */}
                   <Dialog open={showCourseDialog} onOpenChange={setShowCourseDialog}>
-                    <DialogContent className="bg-space-800 border-space-700 text-white max-w-2xl">
+                    <DialogContent className="bg-space-800 border-space-700 text-white max-w-4xl max-h-[90vh] overflow-y-auto">
                         <DialogHeader>
                           <DialogTitle className="text-white">
                             {editMode.type === 'course' ? 'Edit Course' : 'Create New Course'}
@@ -1705,9 +1786,30 @@ const AdminDashboard = () => {
                                         step="0.01"
                                         onChange={(e) => field.onChange(e.target.value)}
                                         className="bg-space-700 border-space-600 text-white"
+                                        disabled={courseForm.watch("isFree")}
                                       />
                                     </FormControl>
                                     <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={courseForm.control}
+                                name="isFree"
+                                render={({ field }) => (
+                                  <FormItem className="flex flex-row items-center justify-between rounded-lg border border-space-600 p-4">
+                                    <div className="space-y-0.5">
+                                      <FormLabel className="text-space-300">Free Course</FormLabel>
+                                      <FormDescription className="text-space-400">
+                                        Mark this course as free (will display "Free" instead of price)
+                                      </FormDescription>
+                                    </div>
+                                    <FormControl>
+                                      <Switch
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                      />
+                                    </FormControl>
                                   </FormItem>
                                 )}
                               />
@@ -1760,6 +1862,34 @@ const AdminDashboard = () => {
                                     <FormLabel className="text-space-300">Learning Outcomes (Optional)</FormLabel>
                                     <FormControl>
                                       <Textarea {...field} className="bg-space-700 border-space-600 text-white" />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                              <FormField
+                                control={courseForm.control}
+                                name="imageUrl"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-space-300">Image URL (Optional)</FormLabel>
+                                    <FormControl>
+                                      <Input {...field} placeholder="https://example.com/image.jpg" className="bg-space-700 border-space-600 text-white" />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={courseForm.control}
+                                name="category"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-space-300">Category (Optional)</FormLabel>
+                                    <FormControl>
+                                      <Input {...field} placeholder="e.g., Space Science" className="bg-space-700 border-space-600 text-white" />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -1854,14 +1984,44 @@ const AdminDashboard = () => {
                                     size="sm"
                                     className="text-cosmic-blue hover:bg-cosmic-blue/10"
                                     onClick={() => handleEditCourse(course)}
+                                    title="Edit Course"
                                   >
                                     <Edit className="w-4 h-4" />
                                   </Button>
                                   <Button
                                     variant="ghost"
                                     size="sm"
+                                    className="text-yellow-400 hover:bg-yellow-400/10"
+                                    onClick={async () => {
+                                      if (!confirm(`Reset all enrollments for "${course.title}"?`)) return;
+                                      try {
+                                        const response = await apiRequest("POST", '/api/admin/delete-course-enrollments', {
+                                          courseId: course.id
+                                        });
+                                        const data = await response.json();
+                                        toast({
+                                          title: "Enrollments Reset",
+                                          description: data.message,
+                                        });
+                                        queryClient.invalidateQueries({ queryKey: ['/api/courses'] });
+                                      } catch (error: any) {
+                                        toast({
+                                          title: "Reset Failed",
+                                          description: error.message || "Failed to reset enrollments",
+                                          variant: "destructive",
+                                        });
+                                      }
+                                    }}
+                                    title="Reset Enrollments"
+                                  >
+                                    <RefreshCw className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
                                     onClick={() => handleManageStatistics("Course", course)}
                                     className="text-green-400 hover:bg-green-400/10"
+                                    title="View Statistics"
                                   >
                                     <Target className="w-4 h-4" />
                                   </Button>
@@ -1874,6 +2034,7 @@ const AdminDashboard = () => {
                                       }
                                     }}
                                     className="text-red-400 hover:bg-red-400/10"
+                                    title="Delete Course"
                                   >
                                     <Trash2 className="w-4 h-4" />
                                   </Button>
@@ -2084,6 +2245,180 @@ const AdminDashboard = () => {
                   </Dialog>
                 </TabsContent>
 
+                <TabsContent value="quizzes" className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xl font-semibold text-white">Quiz Management</h3>
+                    <Button 
+                      onClick={() => setShowQuizDialog(true)}
+                      className="bg-cosmic-blue hover:bg-cosmic-blue/90"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create Quiz
+                    </Button>
+                  </div>
+
+                  {/* Quiz Creation Dialog */}
+                  <Dialog open={showQuizDialog} onOpenChange={setShowQuizDialog}>
+                    <DialogContent className="bg-space-800 border-space-700 text-white max-w-4xl">
+                      <DialogHeader>
+                        <DialogTitle className="text-white">
+                          Create New Quiz
+                        </DialogTitle>
+                        <DialogDescription className="text-space-300">
+                          Create a new quiz for courses or standalone assessment
+                        </DialogDescription>
+                      </DialogHeader>
+                      <Form {...quizForm}>
+                        <form onSubmit={quizForm.handleSubmit((data) => createQuiz.mutate(data))} className="space-y-4">
+                          <div className="grid grid-cols-2 gap-4">
+                            <FormField
+                              control={quizForm.control}
+                              name="title"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-space-300">Quiz Title</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} className="bg-space-700 border-space-600 text-white" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={quizForm.control}
+                              name="courseId"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-space-300">Course (Optional)</FormLabel>
+                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                      <SelectTrigger className="bg-space-700 border-space-600 text-white">
+                                        <SelectValue placeholder="Select course" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent className="bg-space-700 border-space-600">
+                                      <SelectItem value="standalone">Standalone Quiz</SelectItem>
+                                      {courses.map((course: any) => (
+                                        <SelectItem key={course.id} value={course.id.toString()}>
+                                          {course.title}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                          
+                          <FormField
+                            control={quizForm.control}
+                            name="description"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-space-300">Description</FormLabel>
+                                <FormControl>
+                                  <Textarea {...field} className="bg-space-700 border-space-600 text-white" rows={3} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <div className="grid grid-cols-3 gap-4">
+                            <FormField
+                              control={quizForm.control}
+                              name="timeLimit"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-space-300">Time Limit (minutes)</FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      type="number" 
+                                      {...field} 
+                                      onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                                      className="bg-space-700 border-space-600 text-white" 
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={quizForm.control}
+                              name="passingScore"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-space-300">Passing Score (%)</FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      type="number" 
+                                      {...field} 
+                                      onChange={(e) => field.onChange(parseInt(e.target.value) || 70)}
+                                      className="bg-space-700 border-space-600 text-white" 
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={quizForm.control}
+                              name="maxAttempts"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-space-300">Max Attempts</FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      type="number" 
+                                      {...field} 
+                                      onChange={(e) => field.onChange(parseInt(e.target.value) || 3)}
+                                      className="bg-space-700 border-space-600 text-white" 
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+
+                          <div className="space-y-4">
+                            <h4 className="text-lg font-semibold text-white">Quiz Questions</h4>
+                            <div className="text-space-300 text-center py-8">
+                              Question management interface will be implemented here
+                            </div>
+                          </div>
+
+                          <div className="flex justify-end space-x-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => setShowQuizDialog(false)}
+                              className="border-space-600 text-space-300"
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              type="submit"
+                              className="bg-cosmic-blue hover:bg-cosmic-blue/90"
+                              disabled={createQuiz.isPending}
+                            >
+                              {createQuiz.isPending ? 'Creating...' : 'Create Quiz'}
+                            </Button>
+                          </div>
+                        </form>
+                      </Form>
+                    </DialogContent>
+                  </Dialog>
+
+                  {/* Quiz List */}
+                  <div className="space-y-4">
+                    <div className="text-space-300 text-center py-8">
+                      Quiz list and management interface will be implemented here
+                    </div>
+                  </div>
+                </TabsContent>
+
                 <TabsContent value="campaigns" className="space-y-6">
                   <div className="flex items-center justify-between">
                     <h3 className="text-xl font-semibold text-white">Campaign Management</h3>
@@ -2140,6 +2475,7 @@ const AdminDashboard = () => {
                                         <SelectItem value="asteroid_search">Asteroid Search</SelectItem>
                                         <SelectItem value="poetry">Poetry</SelectItem>
                                         <SelectItem value="research">Research</SelectItem>
+                                        <SelectItem value="innovation">Innovation/Entrepreneurship</SelectItem>
                                       </SelectContent>
                                     </Select>
                                     <FormMessage />
@@ -2265,12 +2601,35 @@ const AdminDashboard = () => {
                                         step="0.01"
                                         onChange={(e) => field.onChange(e.target.value)}
                                         className="bg-space-700 border-space-600 text-white"
+                                        disabled={campaignForm.watch("isFree")}
                                       />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
                                 )}
                               />
+                              <FormField
+                                control={campaignForm.control}
+                                name="isFree"
+                                render={({ field }) => (
+                                  <FormItem className="flex flex-row items-center justify-between rounded-lg border border-space-600 p-4">
+                                    <div className="space-y-0.5">
+                                      <FormLabel className="text-space-300">Free Campaign</FormLabel>
+                                      <FormDescription className="text-space-400">
+                                        Mark this campaign as free (will display "Free" instead of price)
+                                      </FormDescription>
+                                    </div>
+                                    <FormControl>
+                                      <Switch
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                      />
+                                    </FormControl>
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
                               <FormField
                                 control={campaignForm.control}
                                 name="maxParticipants"
@@ -2528,14 +2887,44 @@ const AdminDashboard = () => {
                                     size="sm"
                                     className="text-cosmic-blue hover:bg-cosmic-blue/10"
                                     onClick={() => handleEditCampaign(campaign)}
+                                    title="Edit Campaign"
                                   >
                                     <Edit className="w-4 h-4" />
                                   </Button>
                                   <Button
                                     variant="ghost"
                                     size="sm"
+                                    className="text-yellow-400 hover:bg-yellow-400/10"
+                                    onClick={async () => {
+                                      if (!confirm(`Reset all registrations for "${campaign.title}"?`)) return;
+                                      try {
+                                        const response = await apiRequest("POST", '/api/admin/delete-campaign-registration', {
+                                          campaignTitle: campaign.title
+                                        });
+                                        const data = await response.json();
+                                        toast({
+                                          title: "Registrations Reset",
+                                          description: data.message,
+                                        });
+                                        queryClient.invalidateQueries({ queryKey: ['/api/campaigns'] });
+                                      } catch (error: any) {
+                                        toast({
+                                          title: "Reset Failed",
+                                          description: error.message || "Failed to reset registrations",
+                                          variant: "destructive",
+                                        });
+                                      }
+                                    }}
+                                    title="Reset Registrations"
+                                  >
+                                    <RefreshCw className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
                                     className="text-green-400 hover:bg-green-400/10"
                                     onClick={() => handleManageStatistics("Campaign", campaign)}
+                                    title="View Statistics"
                                   >
                                     <Target className="w-4 h-4" />
                                   </Button>
@@ -2548,6 +2937,7 @@ const AdminDashboard = () => {
                                       }
                                     }}
                                     className="text-red-400 hover:bg-red-400/10"
+                                    title="Delete Campaign"
                                   >
                                     <Trash2 className="w-4 h-4" />
                                   </Button>
@@ -2698,15 +3088,12 @@ const AdminDashboard = () => {
                                 <div>
                                   <p className="text-white font-medium">{inquiry.name}</p>
                                   <p className="text-space-400 text-sm">{inquiry.email}</p>
-                                  {inquiry.phone && (
-                                    <p className="text-space-400 text-sm">{inquiry.phone}</p>
-                                  )}
                                 </div>
                               </TableCell>
                               <TableCell>
-                                <Badge variant="outline" className="text-yellow-400 border-yellow-400">
-                                  {inquiry.type}
-                                </Badge>
+                            <Badge variant="outline" className="text-yellow-400 border-yellow-400">
+                              {inquiry.inquiryType || 'General'}
+                            </Badge>
                               </TableCell>
                               <TableCell className="text-space-300">{inquiry.subject}</TableCell>
                               <TableCell className="text-space-300 max-w-xs truncate">
@@ -2784,16 +3171,16 @@ const AdminDashboard = () => {
                             </div>
                             <div>
                               <p className="text-space-400 text-sm">Phone</p>
-                              <p className="text-white font-medium">{selectedInquiry.phone || 'Not provided'}</p>
+                              <p className="text-white font-medium">Not provided</p>
                             </div>
                             <div>
                               <p className="text-space-400 text-sm">Organization</p>
-                              <p className="text-white font-medium">{selectedInquiry.organization || 'Not provided'}</p>
+                              <p className="text-white font-medium">Not provided</p>
                             </div>
                             <div>
                               <p className="text-space-400 text-sm">Type</p>
                               <Badge variant="outline" className="text-yellow-400 border-yellow-400">
-                                {selectedInquiry.type}
+                                {selectedInquiry.inquiryType || 'General'}
                               </Badge>
                             </div>
                             <div>
@@ -2833,6 +3220,11 @@ const AdminDashboard = () => {
                       </DialogContent>
                     </Dialog>
                   )}
+                </TabsContent>
+
+                {/* Refunds Tab */}
+                <TabsContent value="refunds">
+                  <RefundManagement />
                 </TabsContent>
               </Tabs>
             </div>

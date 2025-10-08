@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Rocket, Menu, LogOut, User as UserIcon, Shield } from "lucide-react";
+import { Menu, LogOut, User as UserIcon, Shield, LayoutDashboard, Trophy } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { signInWithGoogle, signOutUser } from "@/lib/googleAuth";
 import { User } from "@shared/schema";
@@ -43,9 +43,12 @@ const Navigation = () => {
     <nav className="fixed top-0 w-full z-50 glass-morphism">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-            <Rocket className="w-8 h-8 text-cosmic-blue" />
-            <h1 className="text-2xl font-space font-bold text-space-50">Zoonigia</h1>
+          <Link href="/" className="flex items-center hover:opacity-90 transition-opacity group">
+            <img 
+              src="/zoonigia-logo.svg" 
+              alt="Zoonigia Logo" 
+              className="h-10 w-auto brightness-110 contrast-110 drop-shadow-[0_0_10px_rgba(59,130,246,0.5)] group-hover:drop-shadow-[0_0_15px_rgba(59,130,246,0.7)] transition-all duration-300"
+            />
           </Link>
           
           {/* Desktop Navigation */}
@@ -86,6 +89,20 @@ const Navigation = () => {
                   <DropdownMenuItem className="text-space-200 hover:text-space-50 hover:bg-space-700">
                     <UserIcon className="mr-2 h-4 w-4" />
                     <span>Profile</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className="text-space-200 hover:text-space-50 hover:bg-space-700"
+                    onClick={() => window.location.href = '/dashboard'}
+                  >
+                    <LayoutDashboard className="mr-2 h-4 w-4" />
+                    <span>My Dashboard</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className="text-space-200 hover:text-space-50 hover:bg-space-700"
+                    onClick={() => window.location.href = '/leaderboard'}
+                  >
+                    <Trophy className="mr-2 h-4 w-4" />
+                    <span>Leaderboard</span>
                   </DropdownMenuItem>
                   {user?.isAdmin && (
                     <DropdownMenuItem 
@@ -144,9 +161,12 @@ const Navigation = () => {
             </SheetTrigger>
             <SheetContent side="right" className="w-80 bg-space-900 border-space-700">
               <div className="flex flex-col space-y-6 mt-6">
-                <div className="flex items-center space-x-2 mb-8">
-                  <Rocket className="w-6 h-6 text-cosmic-blue" />
-                  <h2 className="text-xl font-space font-bold text-space-50">Zoonigia</h2>
+                <div className="flex items-center mb-8">
+                  <img 
+                    src="/zoonigia-logo.svg" 
+                    alt="Zoonigia Logo" 
+                    className="h-8 w-auto brightness-110 contrast-110 drop-shadow-[0_0_8px_rgba(59,130,246,0.4)]"
+                  />
                 </div>
                 
                 {navItems.map((item) => (

@@ -178,7 +178,13 @@ const Landing = () => {
             </p>
             <Button 
               className="cosmic-gradient hover:opacity-90 px-12 py-4 text-lg font-semibold"
-              onClick={() => window.location.href = '/api/login'}
+              onClick={async () => {
+                try {
+                  await signInWithGoogle();
+                } catch (error) {
+                  // Sign in failed - user will see Firebase error modal
+                }
+              }}
             >
               Sign Up Now
             </Button>
