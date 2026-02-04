@@ -5,8 +5,7 @@ import compression from "compression";
 import path from "path";
 // import { scheduleDailyExport } from "./jobs/exportToGoogleSheets";
 
-// Set development environment
-process.env.NODE_ENV = 'development';
+// --- DELETED LINE 9 WAS HERE (Do not hardcode 'development') ---
 
 const app = express();
 
