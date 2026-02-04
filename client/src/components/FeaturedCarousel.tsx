@@ -117,11 +117,17 @@ const FeaturedCarousel = () => {
                   <Card className={`glass-morphism border-2 ${colors.border} hover:border-cosmic-blue/50 transition-all h-full`}>
                     <CardContent className="p-0">
                       {item.imageUrl && (
-                        <div className="relative h-48 overflow-hidden rounded-t-lg">
+                        <div className="relative h-48 overflow-hidden rounded-t-lg bg-space-800">
                           <img
                             src={item.imageUrl}
                             alt={item.title}
                             className="w-full h-full object-cover"
+                            onError={(e) => {
+                              // Fallback image if loading fails
+                              const target = e.target as HTMLImageElement;
+                              target.onerror = null; // Prevent infinite loop
+                              target.src = 'https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400';
+                            }}
                           />
                           <div className={`absolute top-4 left-4 px-3 py-1 rounded-full ${colors.badge} backdrop-blur-sm text-sm font-medium flex items-center gap-1`}>
                             <Sparkles className="w-4 h-4" />
@@ -167,7 +173,7 @@ const FeaturedCarousel = () => {
 
                         <Link href={linkHref}>
                           <Button 
-                            className={`w-full ${colors.bg} border ${colors.border} hover:bg-cosmic-blue/20 transition-all`}
+                            className="w-full bg-cosmic-blue hover:bg-blue-600 transition-all"
                             data-testid={`button-learn-more-${item.id}`}
                           >
                             Learn More

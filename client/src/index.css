@@ -112,14 +112,59 @@
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
   }
+
+  /* Nova Sirius cosmic animations */
+  @keyframes cosmic-pulse {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.8;
+      transform: scale(1.05);
+    }
+  }
+
+  @keyframes starlight-twinkle {
+    0%, 100% {
+      opacity: 0.3;
+      transform: translateY(0) scale(0.8);
+    }
+    50% {
+      opacity: 1;
+      transform: translateY(-10px) scale(1);
+    }
+  }
+
+  @keyframes nebula-glow {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  .cosmic-orb {
+    animation: cosmic-pulse 3s ease-in-out infinite;
+  }
+
+  .starlight-particle {
+    animation: starlight-twinkle 2s ease-in-out infinite;
+  }
+
+  .nebula-gradient {
+    background-size: 200% 200%;
+    animation: nebula-glow 8s ease infinite;
+  }
 }
 
 @layer utilities {
   .glass-morphism {
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(13, 18, 30, 0.4); /* More transparent to show stars */
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
   .cosmic-gradient {
@@ -355,5 +400,299 @@ html {
   outline: 2px solid var(--cosmic-blue);
   outline-offset: 2px;
   border-radius: 4px;
+}
+
+/* WordPress Blog Content Styling - Preserve WordPress formatting */
+.wordpress-blog-content .wordpress-content {
+  color: var(--space-50);
+  line-height: 1.8;
+  font-size: 1.125rem;
+}
+
+.wordpress-blog-content .wordpress-content h1,
+.wordpress-blog-content .wordpress-content h2,
+.wordpress-blog-content .wordpress-content h3,
+.wordpress-blog-content .wordpress-content h4,
+.wordpress-blog-content .wordpress-content h5,
+.wordpress-blog-content .wordpress-content h6 {
+  color: var(--space-50);
+  font-weight: 700;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  line-height: 1.3;
+}
+
+.wordpress-blog-content .wordpress-content h1 {
+  font-size: 2.5rem;
+  color: var(--cosmic-blue);
+}
+
+.wordpress-blog-content .wordpress-content h2 {
+  font-size: 2rem;
+  color: var(--cosmic-purple);
+}
+
+.wordpress-blog-content .wordpress-content h3 {
+  font-size: 1.5rem;
+  color: var(--cosmic-green);
+}
+
+.wordpress-blog-content .wordpress-content h4 {
+  font-size: 1.25rem;
+  color: var(--cosmic-orange);
+}
+
+.wordpress-blog-content .wordpress-content p {
+  margin-bottom: 1.5rem;
+  color: var(--space-50);
+  line-height: 1.8;
+}
+
+.wordpress-blog-content .wordpress-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  margin: 2rem 0;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+}
+
+.wordpress-blog-content .wordpress-content figure {
+  margin: 2rem 0;
+  text-align: center;
+}
+
+.wordpress-blog-content .wordpress-content figure img {
+  margin: 0 auto;
+}
+
+.wordpress-blog-content .wordpress-content figure figcaption {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--space-400);
+  font-style: italic;
+}
+
+.wordpress-blog-content .wordpress-content a {
+  color: var(--cosmic-blue);
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.wordpress-blog-content .wordpress-content a:hover {
+  color: var(--cosmic-purple);
+}
+
+.wordpress-blog-content .wordpress-content ul,
+.wordpress-blog-content .wordpress-content ol {
+  margin: 1.5rem 0;
+  padding-left: 2rem;
+  color: var(--space-50);
+}
+
+.wordpress-blog-content .wordpress-content li {
+  margin-bottom: 0.75rem;
+  line-height: 1.8;
+}
+
+.wordpress-blog-content .wordpress-content blockquote {
+  border-left: 4px solid var(--cosmic-blue);
+  padding-left: 1.5rem;
+  margin: 2rem 0;
+  font-style: italic;
+  color: var(--space-300);
+  background: rgba(59, 130, 246, 0.1);
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+}
+
+.wordpress-blog-content .wordpress-content code {
+  background: rgba(139, 92, 246, 0.2);
+  color: var(--cosmic-purple);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.9em;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.wordpress-blog-content .wordpress-content pre {
+  background: rgba(17, 24, 39, 0.8);
+  color: var(--space-50);
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin: 2rem 0;
+  border: 1px solid var(--space-700);
+}
+
+.wordpress-blog-content .wordpress-content pre code {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+}
+
+.wordpress-blog-content .wordpress-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 2rem 0;
+  background: rgba(17, 24, 39, 0.5);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.wordpress-blog-content .wordpress-content table th,
+.wordpress-blog-content .wordpress-content table td {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--space-700);
+  text-align: left;
+}
+
+.wordpress-blog-content .wordpress-content table th {
+  background: rgba(59, 130, 246, 0.2);
+  color: var(--cosmic-blue);
+  font-weight: 600;
+}
+
+.wordpress-blog-content .wordpress-content hr {
+  border: none;
+  border-top: 2px solid var(--space-700);
+  margin: 2rem 0;
+}
+
+.wordpress-blog-content .wordpress-content strong,
+.wordpress-blog-content .wordpress-content b {
+  font-weight: 700;
+  color: var(--space-50);
+}
+
+.wordpress-blog-content .wordpress-content em,
+.wordpress-blog-content .wordpress-content i {
+  font-style: italic;
+}
+
+.wordpress-blog-content .wordpress-content iframe {
+  max-width: 100%;
+  border-radius: 0.5rem;
+  margin: 2rem 0;
+}
+
+.wordpress-blog-content .wordpress-content .wp-block-image,
+.wordpress-blog-content .wordpress-content .wp-block-gallery {
+  margin: 2rem 0;
+}
+
+.wordpress-blog-content .wordpress-content .wp-block-gallery img {
+  margin: 0.5rem;
+}
+
+/* Enhanced Curriculum Styling */
+.curriculum-enhanced h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-top: 2.5rem;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(to right, rgb(192, 132, 252), rgb(244, 114, 182), rgb(96, 165, 250));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.3;
+}
+
+.curriculum-enhanced h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: rgb(196, 181, 253);
+  line-height: 1.4;
+}
+
+.curriculum-enhanced h4 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: rgb(221, 214, 254);
+}
+
+.curriculum-enhanced p {
+  margin-bottom: 1rem;
+  line-height: 1.75;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.curriculum-enhanced ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 1.5rem 0;
+}
+
+.curriculum-enhanced ul li {
+  padding-left: 1.5rem;
+  position: relative;
+  margin-bottom: 0.75rem;
+  line-height: 1.75;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.curriculum-enhanced ul li:before {
+  content: "▸";
+  position: absolute;
+  left: 0;
+  color: rgb(192, 132, 252);
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.curriculum-enhanced strong {
+  color: rgb(221, 214, 254);
+  font-weight: 600;
+}
+
+.curriculum-enhanced em {
+  color: rgba(255, 255, 255, 0.8);
+  font-style: italic;
+}
+
+
+/* Holographic Button Effects */
+.holographic-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(59, 130, 246, 0.2),
+    transparent
+  );
+  transition: left 0.5s;
+  pointer-events: none;
+}
+
+.holographic-btn:hover::before {
+  left: 100%;
+  animation: hologram-shine 1.5s infinite;
+}
+
+@keyframes hologram-shine {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+.holographic-card {
+  background: rgba(13, 18, 30, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.1);
+  transition: all 0.3s ease;
+}
+
+.holographic-card:hover {
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: 0 0 25px rgba(59, 130, 246, 0.2);
+  transform: translateY(-5px);
 }
 

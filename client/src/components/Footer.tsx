@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Instagram, Linkedin } from "lucide-react";
+import { Instagram, Linkedin, MessageCircle } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -23,6 +23,9 @@ const Footer = () => {
               </a>
               <a href="https://www.instagram.com/zoonigia?igsh=MWZ2c3p6d3RsZWNpbQ==" target="_blank" rel="noopener noreferrer" className="text-cosmic-blue hover:text-blue-400 transition-colors" data-testid="link-instagram">
                 <Instagram className="w-5 h-5" />
+              </a>
+              <a href="https://chat.whatsapp.com/FKvscXisb9A99paGjqQSzR" target="_blank" rel="noopener noreferrer" className="text-cosmic-blue hover:text-blue-400 transition-colors" data-testid="link-whatsapp">
+                <MessageCircle className="w-5 h-5" />
               </a>
             </div>
           </div>
@@ -80,12 +83,14 @@ const Footer = () => {
               <h5 className="text-sm font-semibold mb-3 text-space-100">Resources</h5>
               <ul className="space-y-2 text-sm text-space-400">
                 <li><Link href="/about" className="hover:text-cosmic-blue transition-colors">About Us</Link></li>
+                <li><Link href="/our-pledge" className="hover:text-cosmic-blue transition-colors">Our Pledge</Link></li>
                 <li><Link href="/blog" className="hover:text-cosmic-blue transition-colors">Blog</Link></li>
               </ul>
             </div>
             <div>
               <h5 className="text-sm font-semibold mb-3 text-space-100">Community</h5>
               <ul className="space-y-2 text-sm text-space-400">
+                <li><a href="https://chat.whatsapp.com/FKvscXisb9A99paGjqQSzR" target="_blank" rel="noopener noreferrer" className="hover:text-cosmic-blue transition-colors">WhatsApp Community</a></li>
                 <li><Link href="/leaderboard" className="hover:text-cosmic-blue transition-colors">Leaderboard</Link></li>
                 <li><Link href="/collaborators" className="hover:text-cosmic-blue transition-colors">Collaborators</Link></li>
               </ul>

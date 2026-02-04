@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -24,7 +25,8 @@ import {
   Shield, Users, BookOpen, Calendar, Mail, Plus, Edit, Trash2, 
   Eye, MessageSquare, CheckCircle, XCircle, Star, GraduationCap,
   Rocket, Target, Award, Phone, Clock, IndianRupee,
-  Download, RefreshCw, Crown, Heart, Loader2, AlertTriangle
+  Download, RefreshCw, Crown, Heart, Loader2, AlertTriangle,
+  FileSpreadsheet, ExternalLink as ExternalLinkIcon, Ticket, Percent
 } from "lucide-react";
 import { AnalyticsDashboard } from "@/components/admin/AnalyticsDashboard";
 import { AdvancedDataTable } from "@/components/admin/AdvancedDataTable";
@@ -32,7 +34,7 @@ import { DashboardSkeleton, ErrorState, EmptyState } from "@/components/admin/Lo
 import RefundManagement from "@/components/admin/RefundManagement";
 import { exportUsers, exportCourses, exportInquiries, exportWorkshops, exportCampaigns } from "@/lib/exportUtils";
 import { 
-  User, BlogPost, Workshop, Course, Campaign, ContactInquiry, WorkshopRegistration,
+  User, BlogPost, Workshop, Course, Campaign, ContactInquiry, WorkshopRegistration, CourseRegistration,
   InsertBlogPost, InsertWorkshop, InsertCourse, InsertCampaign, lessonFormSchema
 } from "@shared/schema";
 
@@ -40,10 +42,19 @@ import {
 const blogPostFormSchema = z.object({
   title: z.string().min(1, "Title is required"),
   content: z.string().min(1, "Content is required"),
+  excerpt: z.string().optional(),
   authorName: z.string().min(1, "Author name is required"),
   authorTitle: z.string().optional(),
+  authorImageUrl: z.string().optional(),
   imageUrl: z.string().optional(),
+  featuredImage: z.string().optional(),
+  categories: z.array(z.string()).default([]),
+  tags: z.array(z.string()).default([]),
+  seoTitle: z.string().optional(),
+  seoDescription: z.string().optional(),
   isPublished: z.boolean().default(false),
+  scheduledDate: z.string().optional(),
+  status: z.enum(["draft", "published", "scheduled", "archived"]).default("draft"),
 });
 
 const workshopFormSchema = z.object({
@@ -107,7 +118,25 @@ const quizFormSchema = z.object({
   questions: z.array(z.any()).default([]),
 });
 
+const couponFormSchema = z.object({
+  code: z.string().min(1, "Code is required").max(50, "Code must be 50 characters or less"),
+  description: z.string().optional(),
+  discountType: z.enum(["percentage", "fixed"]),
+  discountValue: z.coerce.number().min(0.01, "Discount value must be greater than 0"),
+  courseId: z.coerce.number().optional().nullable(),
+  workshopId: z.coerce.number().optional().nullable(),
+  campaignId: z.coerce.number().optional().nullable(),
+  minPurchaseAmount: z.coerce.number().optional().nullable(),
+  maxDiscountAmount: z.coerce.number().optional().nullable(),
+  usageLimit: z.coerce.number().optional().nullable(),
+  userUsageLimit: z.coerce.number().min(1).default(1),
+  validFrom: z.string().optional(),
+  validUntil: z.string().optional(),
+  isActive: z.boolean().default(true),
+});
+
 const AdminDashboard = () => {
+  const [, navigate] = useLocation();
   const [activeTab, setActiveTab] = useState("overview");
   const [authStatus, setAuthStatus] = useState<'checking' | 'authenticated' | 'not_authenticated'>('checking');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -118,9 +147,10 @@ const AdminDashboard = () => {
   const [showCampaignDialog, setShowCampaignDialog] = useState(false);
   const [showLessonDialog, setShowLessonDialog] = useState(false);
   const [showQuizDialog, setShowQuizDialog] = useState(false);
+  const [showCouponDialog, setShowCouponDialog] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [editMode, setEditMode] = useState<{
-    type: 'blog' | 'workshop' | 'course' | 'campaign' | null;
+    type: 'blog' | 'workshop' | 'course' | 'campaign' | 'coupon' | null;
     item: any;
   }>({ type: null, item: null });
   const [statusUpdateDialog, setStatusUpdateDialog] = useState<{
@@ -181,6 +211,12 @@ const AdminDashboard = () => {
     refetchInterval: 30000, // Refetch every 30 seconds
   });
 
+  const { data: courseRegistrations = [], refetch: refetchCourseRegistrations } = useQuery<CourseRegistration[]>({
+    queryKey: ["/api/admin/course-registrations"],
+    refetchInterval: 30000, // Refetch every 30 seconds
+    refetchOnWindowFocus: true, // Refetch when window regains focus
+  });
+
   const { data: inquiries = [] } = useQuery<ContactInquiry[]>({
     queryKey: ["/api/admin/inquiries"],
     refetchInterval: 30000, // Refetch every 30 seconds
@@ -194,6 +230,10 @@ const AdminDashboard = () => {
   const { data: campaignParticipants = [] } = useQuery<any[]>({
     queryKey: ["/api/admin/campaign-participants"],
     refetchInterval: 30000, // Refetch every 30 seconds
+  });
+
+  const { data: couponCodes = [], isLoading: couponCodesLoading } = useQuery<any[]>({
+    queryKey: ["/api/admin/coupon-codes"],
   });
 
   // Combined loading state for overview
@@ -265,10 +305,19 @@ const AdminDashboard = () => {
     defaultValues: {
       title: "",
       content: "",
+      excerpt: "",
       authorName: "",
       authorTitle: "",
+      authorImageUrl: "",
       imageUrl: "",
+      featuredImage: "",
+      categories: [],
+      tags: [],
+      seoTitle: "",
+      seoDescription: "",
       isPublished: false,
+      scheduledDate: "",
+      status: "draft",
     },
   });
 
@@ -361,18 +410,29 @@ const AdminDashboard = () => {
     },
   });
 
+  const couponForm = useForm<z.infer<typeof couponFormSchema>>({
+    resolver: zodResolver(couponFormSchema),
+    defaultValues: {
+      code: "",
+      description: "",
+      discountType: "percentage",
+      discountValue: 10,
+      courseId: null,
+      workshopId: null,
+      campaignId: null,
+      minPurchaseAmount: null,
+      maxDiscountAmount: null,
+      usageLimit: null,
+      userUsageLimit: 1,
+      validFrom: "",
+      validUntil: "",
+      isActive: true,
+    },
+  });
+
   // Edit handlers
   const handleEditBlog = (blog: BlogPost) => {
-    setEditMode({ type: 'blog', item: blog });
-    blogForm.reset({
-      title: blog.title,
-      content: blog.content,
-      authorName: blog.authorName,
-      authorTitle: blog.authorTitle || "",
-      imageUrl: blog.imageUrl || "",
-      isPublished: blog.isPublished ?? false,
-    });
-    setShowBlogDialog(true);
+    navigate(`/admin/blog-editor/${blog.id}`);
   };
 
   const handleEditWorkshop = (workshop: Workshop) => {
@@ -450,7 +510,29 @@ const AdminDashboard = () => {
     setShowWorkshopDialog(false);
     setShowCourseDialog(false);
     setShowCampaignDialog(false);
+    setShowCouponDialog(false);
     setEditMode({ type: null, item: null });
+  };
+
+  const handleEditCoupon = (coupon: any) => {
+    setEditMode({ type: 'coupon', item: coupon });
+    couponForm.reset({
+      code: coupon.code,
+      description: coupon.description || "",
+      discountType: coupon.discountType,
+      discountValue: parseFloat(coupon.discountValue),
+      courseId: coupon.courseId || null,
+      workshopId: coupon.workshopId || null,
+      campaignId: coupon.campaignId || null,
+      minPurchaseAmount: coupon.minPurchaseAmount ? parseFloat(coupon.minPurchaseAmount) : null,
+      maxDiscountAmount: coupon.maxDiscountAmount ? parseFloat(coupon.maxDiscountAmount) : null,
+      usageLimit: coupon.usageLimit || null,
+      userUsageLimit: coupon.userUsageLimit || 1,
+      validFrom: coupon.validFrom ? new Date(coupon.validFrom).toISOString().split('T')[0] : "",
+      validUntil: coupon.validUntil ? new Date(coupon.validUntil).toISOString().split('T')[0] : "",
+      isActive: coupon.isActive !== false,
+    });
+    setShowCouponDialog(true);
   };
 
   // Mutations
@@ -571,6 +653,43 @@ const AdminDashboard = () => {
     },
   });
 
+  const createCoupon = useMutation({
+    mutationFn: async (data: z.infer<typeof couponFormSchema>) => {
+      const method = editMode.type === 'coupon' ? 'PUT' : 'POST';
+      const url = editMode.type === 'coupon' ? `/api/admin/coupon-codes/${editMode.item.id}` : '/api/admin/coupon-codes';
+      const response = await apiRequest(method, url, data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/coupon-codes"] });
+      toast({ title: editMode.type === 'coupon' ? "Coupon code updated successfully!" : "Coupon code created successfully!" });
+      couponForm.reset();
+      setShowCouponDialog(false);
+      setEditMode({ type: null, item: null });
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: editMode.type === 'coupon' ? "Error updating coupon code" : "Error creating coupon code", 
+        description: error.message || "An error occurred", 
+        variant: "destructive" 
+      });
+    },
+  });
+
+  const deleteCoupon = useMutation({
+    mutationFn: async (id: number) => {
+      const response = await apiRequest('DELETE', `/api/admin/coupon-codes/${id}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/coupon-codes"] });
+      toast({ title: "Coupon code deleted successfully!" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error deleting coupon code", description: error.message, variant: "destructive" });
+    },
+  });
+
   const updateUserAdmin = useMutation({
     mutationFn: async ({ userId, isAdmin }: { userId: string; isAdmin: boolean }) => {
       const response = await apiRequest("PATCH", `/api/admin/users/${userId}`, { isAdmin });
@@ -669,6 +788,33 @@ const AdminDashboard = () => {
     },
     onError: (error) => {
       toast({ title: "Error deleting workshop registration", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const updateCourseRegistrationStatus = useMutation({
+    mutationFn: async ({ id, status }: { id: number; status: string }) => {
+      return await apiRequest("PATCH", `/api/admin/course-registrations/${id}/status`, { status });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/course-registrations"] });
+      toast({ title: "Course registration status updated successfully!" });
+    },
+    onError: (error) => {
+      toast({ title: "Error updating course registration status", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const deleteCourseRegistration = useMutation({
+    mutationFn: async (registrationId: number) => {
+      const response = await apiRequest("DELETE", `/api/admin/course-registrations/${registrationId}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/course-registrations"] });
+      toast({ title: "Course registration deleted successfully!" });
+    },
+    onError: (error) => {
+      toast({ title: "Error deleting course registration", description: error.message, variant: "destructive" });
     },
   });
 
@@ -797,6 +943,11 @@ const AdminDashboard = () => {
                     <MessageSquare className="w-4 h-4 mr-1 sm:mr-2" />
                     <span className="hidden lg:inline">Special ({(loveMessages as any[]).filter((msg: any) => !msg.isRead).length})</span>
                     <span className="lg:hidden">Spcl ({(loveMessages as any[]).filter((msg: any) => !msg.isRead).length})</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="coupon-codes" className="data-[state=active]:bg-cosmic-blue text-xs sm:text-sm">
+                    <Ticket className="w-4 h-4 mr-1 sm:mr-2" />
+                    <span className="hidden sm:inline">Coupon Codes</span>
+                    <span className="sm:hidden">Coupons</span>
                   </TabsTrigger>
                   <TabsTrigger value="refunds" className="data-[state=active]:bg-cosmic-blue text-xs sm:text-sm">
                     <RefreshCw className="w-4 h-4 mr-1 sm:mr-2" />
@@ -1111,133 +1262,13 @@ const AdminDashboard = () => {
                   <div className="flex items-center justify-between">
                     <h3 className="text-xl font-semibold text-white">Content Management</h3>
                     <Button 
-                      onClick={() => setShowBlogDialog(true)}
+                      onClick={() => navigate('/admin/blog-editor')}
                       className="bg-cosmic-blue hover:bg-cosmic-blue/90"
                     >
                       <Plus className="w-4 h-4 mr-2" />
                       Create Blog Post
                     </Button>
                   </div>
-
-                  {/* Blog Post Creation Dialog */}
-                  <Dialog open={showBlogDialog} onOpenChange={setShowBlogDialog}>
-                    <DialogContent className="bg-space-800 border-space-700 text-white max-w-2xl">
-                        <DialogHeader>
-                          <DialogTitle className="text-white">Create New Blog Post</DialogTitle>
-                          <DialogDescription className="text-space-300">
-                            Add a new educational blog post to the platform
-                          </DialogDescription>
-                        </DialogHeader>
-                        <Form {...blogForm}>
-                          <form onSubmit={blogForm.handleSubmit((data) => createBlogPost.mutate(data))} className="space-y-4">
-                            <FormField
-                              control={blogForm.control}
-                              name="title"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel className="text-space-300">Title</FormLabel>
-                                  <FormControl>
-                                    <Input {...field} className="bg-space-700 border-space-600 text-white" />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <div className="grid grid-cols-2 gap-4">
-                              <FormField
-                                control={blogForm.control}
-                                name="authorName"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel className="text-space-300">Author Name</FormLabel>
-                                    <FormControl>
-                                      <Input {...field} className="bg-space-700 border-space-600 text-white" />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={blogForm.control}
-                                name="authorTitle"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel className="text-space-300">Author Title (Optional)</FormLabel>
-                                    <FormControl>
-                                      <Input {...field} placeholder="Astrophysicist, Researcher, etc." className="bg-space-700 border-space-600 text-white" />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-                            <FormField
-                              control={blogForm.control}
-                              name="content"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel className="text-space-300">Content</FormLabel>
-                                  <FormControl>
-                                    <Textarea {...field} className="bg-space-700 border-space-600 text-white min-h-32" />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={blogForm.control}
-                              name="imageUrl"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel className="text-space-300">Image URL (Optional)</FormLabel>
-                                  <FormControl>
-                                    <Input {...field} placeholder="https://example.com/image.jpg" className="bg-space-700 border-space-600 text-white" />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={blogForm.control}
-                              name="isPublished"
-                              render={({ field }) => (
-                                <FormItem className="flex flex-row items-center justify-between rounded-lg border border-space-600 p-4 bg-space-700/50">
-                                  <div className="space-y-0.5">
-                                    <FormLabel className="text-space-300">Publish Post</FormLabel>
-                                    <FormDescription className="text-space-400 text-sm">
-                                      Make this blog post visible to users
-                                    </FormDescription>
-                                  </div>
-                                  <FormControl>
-                                    <Switch
-                                      checked={field.value}
-                                      onCheckedChange={field.onChange}
-                                    />
-                                  </FormControl>
-                                </FormItem>
-                              )}
-                            />
-                            <div className="flex justify-end gap-2 pt-4">
-                              <Button 
-                                type="button" 
-                                variant="outline" 
-                                onClick={() => setShowBlogDialog(false)}
-                                className="border-space-600 text-space-300"
-                              >
-                                Cancel
-                              </Button>
-                              <Button
-                                type="submit"
-                                disabled={createBlogPost.isPending}
-                                className="bg-cosmic-blue hover:bg-cosmic-blue/90"
-                              >
-                                {createBlogPost.isPending ? "Creating..." : "Create Post"}
-                              </Button>
-                            </div>
-                          </form>
-                        </Form>
-                      </DialogContent>
-                    </Dialog>
 
                   <GlassMorphism className="p-6">
                     <div className="overflow-x-auto">
@@ -1929,6 +1960,7 @@ const AdminDashboard = () => {
                             <TableHead className="text-space-300">Status</TableHead>
                             <TableHead className="text-space-300">Duration</TableHead>
                             <TableHead className="text-space-300">Price</TableHead>
+                            <TableHead className="text-space-300">Google Sheets</TableHead>
                             <TableHead className="text-space-300">Actions</TableHead>
                           </TableRow>
                         </TableHeader>
@@ -1964,6 +1996,92 @@ const AdminDashboard = () => {
                                 ) : (
                                   `₹${course.price}`
                                 )}
+                              </TableCell>
+                              <TableCell className="text-space-300">
+                                <div className="flex flex-col gap-2">
+                                  {course.googleSheetUrl ? (
+                                    <div className="flex items-center gap-2">
+                                      <a
+                                        href={course.googleSheetUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center gap-1 text-green-400 hover:text-green-300 transition-colors"
+                                        title="View Google Sheet"
+                                      >
+                                        <FileSpreadsheet className="w-4 h-4" />
+                                        <ExternalLinkIcon className="w-3 h-3" />
+                                      </a>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="text-blue-400 hover:bg-blue-400/10 p-1 h-6"
+                                        onClick={async () => {
+                                        try {
+                                          const response = await apiRequest("POST", `/api/admin/export-course-sheets/${course.id}`);
+                                            const data = await response.json();
+                                            if (data.success) {
+                                              toast({
+                                                title: "Export Successful",
+                                                description: "Course data exported to Google Sheets",
+                                              });
+                                              queryClient.invalidateQueries({ queryKey: ['/api/courses'] });
+                                            } else {
+                                              toast({
+                                                title: "Export Not Configured",
+                                                description: data.message || "Google Sheets export is not configured. This is optional.",
+                                                variant: "default",
+                                              });
+                                            }
+                                          } catch (error: any) {
+                                            toast({
+                                              title: "Export Failed",
+                                              description: error.message || "Failed to export to Google Sheets",
+                                              variant: "destructive",
+                                            });
+                                          }
+                                        }}
+                                        title="Refresh Google Sheet"
+                                      >
+                                        <RefreshCw className="w-3 h-3" />
+                                      </Button>
+                                    </div>
+                                  ) : (
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="text-blue-400 hover:bg-blue-400/10"
+                                      onClick={async () => {
+                                        try {
+                                          const response = await apiRequest("POST", `/api/admin/export-course-sheets/${course.id}`);
+                                          const data = await response.json();
+                                          if (data.success) {
+                                            toast({
+                                              title: "Google Sheet Created",
+                                              description: "Course data exported to Google Sheets",
+                                            });
+                                            queryClient.invalidateQueries({ queryKey: ['/api/courses'] });
+                                          } else {
+                                            toast({
+                                              title: "Export Not Configured",
+                                              description: data.message || "Google Sheets export is not configured. This is optional.",
+                                              variant: "default",
+                                            });
+                                          }
+                                        } catch (error: any) {
+                                          toast({
+                                            title: "Export Failed",
+                                            description: error.message || "Failed to create Google Sheet",
+                                            variant: "destructive",
+                                          });
+                                        }
+                                      }}
+                                      title="Create Google Sheet"
+                                    >
+                                      <FileSpreadsheet className="w-4 h-4 mr-1" />
+                                      Create Sheet
+                                    </Button>
+                                  )}
+                                </div>
                               </TableCell>
                               <TableCell>
                                 <div className="flex items-center gap-2">
@@ -2042,6 +2160,133 @@ const AdminDashboard = () => {
                               </TableCell>
                             </TableRow>
                           ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </GlassMorphism>
+
+                  {/* Course Registrations */}
+                  <GlassMorphism className="p-6">
+                    <div className="flex items-center justify-between mb-6">
+                      <h4 className="text-lg font-semibold text-white">Course Registrations</h4>
+                      <div className="flex items-center gap-3">
+                        <Badge variant="secondary" className="bg-cosmic-blue/20 text-cosmic-blue">
+                          Total: {courseRegistrations.length}
+                        </Badge>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => refetchCourseRegistrations()}
+                          className="text-cosmic-blue hover:bg-cosmic-blue/10"
+                          title="Refresh registrations"
+                        >
+                          <RefreshCw className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="border-space-700">
+                            <TableHead className="text-space-300">Course</TableHead>
+                            <TableHead className="text-space-300">Name</TableHead>
+                            <TableHead className="text-space-300">Contact Info</TableHead>
+                            <TableHead className="text-space-300">Institution</TableHead>
+                            <TableHead className="text-space-300">Status</TableHead>
+                            <TableHead className="text-space-300">Date</TableHead>
+                            <TableHead className="text-space-300">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {courseRegistrations.length === 0 ? (
+                            <TableRow>
+                              <TableCell colSpan={7} className="text-center text-space-400 py-8">
+                                No course registrations yet
+                              </TableCell>
+                            </TableRow>
+                          ) : (
+                            courseRegistrations.map((registration) => {
+                              const course = courses.find(c => c.id === registration.courseId);
+                              return (
+                                <TableRow key={registration.id} className="border-space-700">
+                                  <TableCell className="text-white font-medium">
+                                    {course?.title || `Course #${registration.courseId}`}
+                                  </TableCell>
+                                  <TableCell className="text-white font-medium">{registration.name}</TableCell>
+                                  <TableCell>
+                                    <div className="text-space-300 text-sm">
+                                      <div>{registration.email}</div>
+                                      {registration.phone && <div>{registration.phone}</div>}
+                                    </div>
+                                  </TableCell>
+                                  <TableCell className="text-space-300">{registration.institution || 'N/A'}</TableCell>
+                                  <TableCell>
+                                    <Badge variant="outline" className={
+                                      registration.status === 'confirmed' 
+                                        ? "text-green-400 border-green-400" 
+                                        : registration.status === 'contacted'
+                                        ? "text-yellow-400 border-yellow-400"
+                                        : registration.status === 'enrolled'
+                                        ? "text-blue-400 border-blue-400"
+                                        : "text-gray-400 border-gray-400"
+                                    }>
+                                      {registration.status}
+                                    </Badge>
+                                  </TableCell>
+                                  <TableCell className="text-space-300">
+                                    {registration.createdAt ? new Date(registration.createdAt).toLocaleDateString() : 'N/A'}
+                                  </TableCell>
+                                  <TableCell>
+                                    <div className="flex items-center gap-2">
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => window.open(`mailto:${registration.email}?subject=Course Registration Follow-up`, '_blank')}
+                                        className="text-cosmic-blue hover:bg-cosmic-blue/10"
+                                      >
+                                        <Mail className="w-4 h-4" />
+                                      </Button>
+                                      {registration.phone && (
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={() => window.open(`tel:${registration.phone}`, '_blank')}
+                                          className="text-green-400 hover:bg-green-400/10"
+                                        >
+                                          <Phone className="w-4 h-4" />
+                                        </Button>
+                                      )}
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => {
+                                          const newStatus = registration.status === 'pending' ? 'contacted' : 
+                                                           registration.status === 'contacted' ? 'confirmed' :
+                                                           registration.status === 'confirmed' ? 'enrolled' : 'pending';
+                                          updateCourseRegistrationStatus.mutate({ id: registration.id, status: newStatus });
+                                        }}
+                                        className="text-yellow-400 hover:bg-yellow-400/10"
+                                      >
+                                        <Edit className="w-4 h-4" />
+                                      </Button>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => {
+                                          if (confirm(`Are you sure you want to delete the course registration from ${registration.name}?`)) {
+                                            deleteCourseRegistration.mutate(registration.id);
+                                          }
+                                        }}
+                                        className="text-red-400 hover:bg-red-400/10"
+                                      >
+                                        <Trash2 className="w-4 h-4" />
+                                      </Button>
+                                    </div>
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            })
+                          )}
                         </TableBody>
                       </Table>
                     </div>
@@ -2826,6 +3071,7 @@ const AdminDashboard = () => {
                             <TableHead className="text-space-300">Participants</TableHead>
                             <TableHead className="text-space-300">Revenue</TableHead>
                             <TableHead className="text-space-300">Duration</TableHead>
+                            <TableHead className="text-space-300">Google Sheets</TableHead>
                             <TableHead className="text-space-300">Actions</TableHead>
                           </TableRow>
                         </TableHeader>
@@ -2880,6 +3126,76 @@ const AdminDashboard = () => {
                                 </div>
                               </TableCell>
                               <TableCell className="text-space-300">{campaign.duration || 'N/A'}</TableCell>
+                              <TableCell className="text-space-300">
+                                <div className="flex flex-col gap-2">
+                                  {campaign.googleSheetUrl ? (
+                                    <div className="flex items-center gap-2">
+                                      <a
+                                        href={campaign.googleSheetUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center gap-1 text-green-400 hover:text-green-300 transition-colors"
+                                        title="View Google Sheet"
+                                      >
+                                        <FileSpreadsheet className="w-4 h-4" />
+                                        <ExternalLinkIcon className="w-3 h-3" />
+                                      </a>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="text-blue-400 hover:bg-blue-400/10 p-1 h-6"
+                                        onClick={async () => {
+                                          try {
+                                            const response = await apiRequest("POST", `/api/admin/export-campaign-sheets/${campaign.id}`);
+                                            const data = await response.json();
+                                            toast({
+                                              title: "Export Successful",
+                                              description: "Campaign data exported to Google Sheets",
+                                            });
+                                            queryClient.invalidateQueries({ queryKey: ['/api/campaigns'] });
+                                          } catch (error: any) {
+                                            toast({
+                                              title: "Export Failed",
+                                              description: error.message || "Failed to export to Google Sheets",
+                                              variant: "destructive",
+                                            });
+                                          }
+                                        }}
+                                        title="Refresh Google Sheet"
+                                      >
+                                        <RefreshCw className="w-3 h-3" />
+                                      </Button>
+                                    </div>
+                                  ) : (
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="text-blue-400 hover:bg-blue-400/10"
+                                      onClick={async () => {
+                                        try {
+                                          const response = await apiRequest("POST", `/api/admin/export-campaign-sheets/${campaign.id}`);
+                                          const data = await response.json();
+                                          toast({
+                                            title: "Google Sheet Created",
+                                            description: "Campaign data exported to Google Sheets",
+                                          });
+                                          queryClient.invalidateQueries({ queryKey: ['/api/campaigns'] });
+                                        } catch (error: any) {
+                                          toast({
+                                            title: "Export Failed",
+                                            description: error.message || "Failed to create Google Sheet",
+                                            variant: "destructive",
+                                          });
+                                        }
+                                      }}
+                                      title="Create Google Sheet"
+                                    >
+                                      <FileSpreadsheet className="w-4 h-4 mr-1" />
+                                      Create Sheet
+                                    </Button>
+                                  )}
+                                </div>
+                              </TableCell>
                               <TableCell>
                                 <div className="flex gap-2">
                                   <Button
@@ -3223,6 +3539,528 @@ const AdminDashboard = () => {
                 </TabsContent>
 
                 {/* Refunds Tab */}
+                <TabsContent value="coupon-codes" className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xl font-semibold text-white">Coupon Code Management</h3>
+                    <Button 
+                      onClick={() => {
+                        setEditMode({ type: null, item: null });
+                        couponForm.reset();
+                        setShowCouponDialog(true);
+                      }}
+                      className="bg-cosmic-blue hover:bg-cosmic-blue/90"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create Coupon Code
+                    </Button>
+                  </div>
+
+                  {couponCodesLoading ? (
+                    <DashboardSkeleton />
+                  ) : couponCodes.length === 0 ? (
+                    <EmptyState message="No coupon codes found. Create your first coupon code to get started!" />
+                  ) : (
+                    <Card className="bg-space-800 border-space-700">
+                      <CardContent className="p-0">
+                        <Table>
+                          <TableHeader>
+                            <TableRow className="border-space-700">
+                              <TableHead className="text-space-300">Code</TableHead>
+                              <TableHead className="text-space-300">Discount</TableHead>
+                              <TableHead className="text-space-300">Applies To</TableHead>
+                              <TableHead className="text-space-300">Usage</TableHead>
+                              <TableHead className="text-space-300">Validity</TableHead>
+                              <TableHead className="text-space-300">Status</TableHead>
+                              <TableHead className="text-space-300">Actions</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {couponCodes.map((coupon: any) => {
+                              const isExpired = coupon.validUntil && new Date(coupon.validUntil) < new Date();
+                              const isUpcoming = coupon.validFrom && new Date(coupon.validFrom) > new Date();
+                              const usagePercentage = coupon.usageLimit 
+                                ? Math.round((coupon.usedCount / coupon.usageLimit) * 100) 
+                                : null;
+                              
+                              let appliesTo = "All Items";
+                              if (coupon.courseId) {
+                                const course = courses.find((c: Course) => c.id === coupon.courseId);
+                                appliesTo = course ? `Course: ${course.title}` : `Course #${coupon.courseId}`;
+                              } else if (coupon.workshopId) {
+                                const workshop = workshops.find((w: Workshop) => w.id === coupon.workshopId);
+                                appliesTo = workshop ? `Workshop: ${workshop.title}` : `Workshop #${coupon.workshopId}`;
+                              } else if (coupon.campaignId) {
+                                const campaign = campaigns.find((c: Campaign) => c.id === coupon.campaignId);
+                                appliesTo = campaign ? `Campaign: ${campaign.title}` : `Campaign #${coupon.campaignId}`;
+                              }
+
+                              return (
+                                <TableRow key={coupon.id} className="border-space-700">
+                                  <TableCell className="font-mono font-semibold text-white">
+                                    {coupon.code}
+                                  </TableCell>
+                                  <TableCell>
+                                    <div className="flex items-center gap-1">
+                                      {coupon.discountType === 'percentage' ? (
+                                        <>
+                                          <Percent className="w-4 h-4 text-purple-400" />
+                                          <span className="text-white">{coupon.discountValue}%</span>
+                                        </>
+                                      ) : (
+                                        <>
+                                          <IndianRupee className="w-4 h-4 text-green-400" />
+                                          <span className="text-white">{coupon.discountValue}</span>
+                                        </>
+                                      )}
+                                    </div>
+                                  </TableCell>
+                                  <TableCell className="text-space-400 text-sm max-w-xs truncate">
+                                    {appliesTo}
+                                  </TableCell>
+                                  <TableCell>
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-white">{coupon.usedCount || 0}</span>
+                                      {coupon.usageLimit && (
+                                        <>
+                                          <span className="text-space-400">/</span>
+                                          <span className="text-space-400">{coupon.usageLimit}</span>
+                                          {usagePercentage !== null && (
+                                            <Badge variant="outline" className={`text-xs ${
+                                              usagePercentage >= 90 ? 'border-red-400 text-red-400' :
+                                              usagePercentage >= 70 ? 'border-yellow-400 text-yellow-400' :
+                                              'border-green-400 text-green-400'
+                                            }`}>
+                                              {usagePercentage}%
+                                            </Badge>
+                                          )}
+                                        </>
+                                      )}
+                                    </div>
+                                  </TableCell>
+                                  <TableCell>
+                                    <div className="text-sm">
+                                      {coupon.validFrom && (
+                                        <div className="text-space-400">
+                                          From: {new Date(coupon.validFrom).toLocaleDateString()}
+                                        </div>
+                                      )}
+                                      {coupon.validUntil && (
+                                        <div className={`${isExpired ? 'text-red-400' : 'text-space-400'}`}>
+                                          Until: {new Date(coupon.validUntil).toLocaleDateString()}
+                                        </div>
+                                      )}
+                                      {!coupon.validFrom && !coupon.validUntil && (
+                                        <span className="text-space-400">No expiration</span>
+                                      )}
+                                    </div>
+                                  </TableCell>
+                                  <TableCell>
+                                    {isExpired ? (
+                                      <Badge variant="outline" className="border-red-400 text-red-400">
+                                        Expired
+                                      </Badge>
+                                    ) : isUpcoming ? (
+                                      <Badge variant="outline" className="border-yellow-400 text-yellow-400">
+                                        Upcoming
+                                      </Badge>
+                                    ) : coupon.isActive ? (
+                                      <Badge variant="outline" className="border-green-400 text-green-400">
+                                        Active
+                                      </Badge>
+                                    ) : (
+                                      <Badge variant="outline" className="border-space-500 text-space-400">
+                                        Inactive
+                                      </Badge>
+                                    )}
+                                  </TableCell>
+                                  <TableCell>
+                                    <div className="flex items-center gap-2">
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => handleEditCoupon(coupon)}
+                                        className="text-blue-400 hover:text-blue-300 hover:bg-blue-400/10"
+                                      >
+                                        <Edit className="w-4 h-4" />
+                                      </Button>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => {
+                                          if (confirm(`Are you sure you want to delete coupon code "${coupon.code}"?`)) {
+                                            deleteCoupon.mutate(coupon.id);
+                                          }
+                                        }}
+                                        className="text-red-400 hover:text-red-300 hover:bg-red-400/10"
+                                      >
+                                        <Trash2 className="w-4 h-4" />
+                                      </Button>
+                                    </div>
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            })}
+                          </TableBody>
+                        </Table>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Coupon Code Creation/Edit Dialog */}
+                  <Dialog open={showCouponDialog} onOpenChange={setShowCouponDialog}>
+                    <DialogContent className="bg-space-800 border-space-700 text-white max-w-4xl max-h-[90vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle className="text-white">
+                          {editMode.type === 'coupon' ? 'Edit Coupon Code' : 'Create New Coupon Code'}
+                        </DialogTitle>
+                        <DialogDescription className="text-space-300">
+                          {editMode.type === 'coupon' ? 'Update coupon code settings' : 'Create a new discount coupon code'}
+                        </DialogDescription>
+                      </DialogHeader>
+                      <Form {...couponForm}>
+                        <form onSubmit={couponForm.handleSubmit((data) => createCoupon.mutate(data))} className="space-y-4">
+                          <div className="grid grid-cols-2 gap-4">
+                            <FormField
+                              control={couponForm.control}
+                              name="code"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-space-300">Coupon Code *</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} className="bg-space-700 border-space-600 text-white font-mono uppercase" placeholder="SUMMER2024" />
+                                  </FormControl>
+                                  <FormDescription className="text-space-400">Code will be automatically converted to uppercase</FormDescription>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={couponForm.control}
+                              name="discountType"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-space-300">Discount Type *</FormLabel>
+                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                      <SelectTrigger className="bg-space-700 border-space-600 text-white">
+                                        <SelectValue placeholder="Select type" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      <SelectItem value="percentage">Percentage (%)</SelectItem>
+                                      <SelectItem value="fixed">Fixed Amount (₹)</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-4">
+                            <FormField
+                              control={couponForm.control}
+                              name="discountValue"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-space-300">
+                                    Discount Value * ({couponForm.watch("discountType") === "percentage" ? "%" : "₹"})
+                                  </FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      type="number" 
+                                      step="0.01"
+                                      {...field} 
+                                      className="bg-space-700 border-space-600 text-white" 
+                                      placeholder={couponForm.watch("discountType") === "percentage" ? "10" : "100"}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            {couponForm.watch("discountType") === "percentage" && (
+                              <FormField
+                                control={couponForm.control}
+                                name="maxDiscountAmount"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-space-300">Max Discount Cap (₹)</FormLabel>
+                                    <FormControl>
+                                      <Input 
+                                        type="number" 
+                                        step="0.01"
+                                        {...field} 
+                                        value={field.value || ""}
+                                        onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : null)}
+                                        className="bg-space-700 border-space-600 text-white" 
+                                        placeholder="Optional"
+                                      />
+                                    </FormControl>
+                                    <FormDescription className="text-space-400">Maximum discount amount (optional)</FormDescription>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            )}
+                          </div>
+
+                          <FormField
+                            control={couponForm.control}
+                            name="description"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-space-300">Description</FormLabel>
+                                <FormControl>
+                                  <Textarea {...field} className="bg-space-700 border-space-600 text-white" placeholder="Optional description for this coupon" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <div className="grid grid-cols-3 gap-4">
+                            <FormField
+                              control={couponForm.control}
+                              name="courseId"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-space-300">Course (Optional)</FormLabel>
+                                  <Select 
+                                    onValueChange={(value) => field.onChange(value === "none" ? null : parseInt(value))} 
+                                    value={field.value ? field.value.toString() : "none"}
+                                  >
+                                    <FormControl>
+                                      <SelectTrigger className="bg-space-700 border-space-600 text-white">
+                                        <SelectValue placeholder="All courses" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      <SelectItem value="none">All Courses</SelectItem>
+                                      {courses.map((course: Course) => (
+                                        <SelectItem key={course.id} value={course.id.toString()}>
+                                          {course.title}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={couponForm.control}
+                              name="workshopId"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-space-300">Workshop (Optional)</FormLabel>
+                                  <Select 
+                                    onValueChange={(value) => field.onChange(value === "none" ? null : parseInt(value))} 
+                                    value={field.value ? field.value.toString() : "none"}
+                                  >
+                                    <FormControl>
+                                      <SelectTrigger className="bg-space-700 border-space-600 text-white">
+                                        <SelectValue placeholder="All workshops" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      <SelectItem value="none">All Workshops</SelectItem>
+                                      {workshops.map((workshop: Workshop) => (
+                                        <SelectItem key={workshop.id} value={workshop.id.toString()}>
+                                          {workshop.title}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={couponForm.control}
+                              name="campaignId"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-space-300">Campaign (Optional)</FormLabel>
+                                  <Select 
+                                    onValueChange={(value) => field.onChange(value === "none" ? null : parseInt(value))} 
+                                    value={field.value ? field.value.toString() : "none"}
+                                  >
+                                    <FormControl>
+                                      <SelectTrigger className="bg-space-700 border-space-600 text-white">
+                                        <SelectValue placeholder="All campaigns" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      <SelectItem value="none">All Campaigns</SelectItem>
+                                      {campaigns.map((campaign: Campaign) => (
+                                        <SelectItem key={campaign.id} value={campaign.id.toString()}>
+                                          {campaign.title}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-3 gap-4">
+                            <FormField
+                              control={couponForm.control}
+                              name="minPurchaseAmount"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-space-300">Min Purchase (₹)</FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      type="number" 
+                                      step="0.01"
+                                      {...field} 
+                                      value={field.value || ""}
+                                      onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : null)}
+                                      className="bg-space-700 border-space-600 text-white" 
+                                      placeholder="Optional"
+                                    />
+                                  </FormControl>
+                                  <FormDescription className="text-space-400">Minimum purchase amount required</FormDescription>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={couponForm.control}
+                              name="usageLimit"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-space-300">Total Usage Limit</FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      type="number" 
+                                      {...field} 
+                                      value={field.value || ""}
+                                      onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : null)}
+                                      className="bg-space-700 border-space-600 text-white" 
+                                      placeholder="Unlimited"
+                                    />
+                                  </FormControl>
+                                  <FormDescription className="text-space-400">Leave empty for unlimited</FormDescription>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={couponForm.control}
+                              name="userUsageLimit"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-space-300">Per User Limit *</FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      type="number" 
+                                      min="1"
+                                      {...field} 
+                                      className="bg-space-700 border-space-600 text-white" 
+                                    />
+                                  </FormControl>
+                                  <FormDescription className="text-space-400">Times a user can use this</FormDescription>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-4">
+                            <FormField
+                              control={couponForm.control}
+                              name="validFrom"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-space-300">Valid From</FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      type="date" 
+                                      {...field} 
+                                      className="bg-space-700 border-space-600 text-white" 
+                                    />
+                                  </FormControl>
+                                  <FormDescription className="text-space-400">Leave empty to start immediately</FormDescription>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={couponForm.control}
+                              name="validUntil"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-space-300">Valid Until</FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      type="date" 
+                                      {...field} 
+                                      className="bg-space-700 border-space-600 text-white" 
+                                    />
+                                  </FormControl>
+                                  <FormDescription className="text-space-400">Leave empty for no expiration</FormDescription>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+
+                          <FormField
+                            control={couponForm.control}
+                            name="isActive"
+                            render={({ field }) => (
+                              <FormItem className="flex flex-row items-center justify-between rounded-lg border border-space-600 p-4">
+                                <div className="space-y-0.5">
+                                  <FormLabel className="text-space-300">Active Status</FormLabel>
+                                  <FormDescription className="text-space-400">
+                                    Inactive coupons cannot be used
+                                  </FormDescription>
+                                </div>
+                                <FormControl>
+                                  <Switch
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />
+                                </FormControl>
+                              </FormItem>
+                            )}
+                          />
+
+                          <div className="flex justify-end gap-2 pt-4">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => setShowCouponDialog(false)}
+                              className="border-space-600 text-space-300"
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              type="submit"
+                              className="bg-cosmic-blue hover:bg-cosmic-blue/90"
+                              disabled={createCoupon.isPending}
+                            >
+                              {createCoupon.isPending ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                  {editMode.type === 'coupon' ? 'Updating...' : 'Creating...'}
+                                </>
+                              ) : (
+                                editMode.type === 'coupon' ? 'Update Coupon' : 'Create Coupon'
+                              )}
+                            </Button>
+                          </div>
+                        </form>
+                      </Form>
+                    </DialogContent>
+                  </Dialog>
+                </TabsContent>
+
                 <TabsContent value="refunds">
                   <RefundManagement />
                 </TabsContent>

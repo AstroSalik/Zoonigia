@@ -1,5 +1,5 @@
 import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes";
+import { registerRoutes } from "./routes/index";
 import { setupVite, serveStatic, log } from "./vite";
 import compression from "compression";
 import path from "path";
@@ -22,7 +22,7 @@ if (process.env.NODE_ENV === 'production') {
     level: 6,
     threshold: 1024
   }));
-  
+
   app.set('trust proxy', 1);
 }
 
@@ -67,7 +67,7 @@ app.use((req, res, next) => {
 
   // Debug route to test server is working
   app.get("/test", (_req, res) => {
-    res.json({ 
+    res.json({
       message: "Server is up and routing correctly",
       environment: process.env.NODE_ENV,
       timestamp: new Date().toISOString()
@@ -82,7 +82,7 @@ app.use((req, res, next) => {
     if (!res.headersSent) {
       res.status(status).json({ message });
     }
-    
+
     console.error("Server error:", err);
   });
 
@@ -93,7 +93,7 @@ app.use((req, res, next) => {
     await setupVite(app, server);
   } else {
     serveStatic(app);
-    
+
     // Fallback route for SPA routing - ensures frontend routes work
     app.get("*", (_req, res) => {
       res.sendFile(path.resolve(import.meta.dirname, "..", "dist", "index.html"));
@@ -107,7 +107,7 @@ app.use((req, res, next) => {
   const port = parseInt(process.env.PORT || '5000', 10);
   server.listen(port, "0.0.0.0", () => {
     log(`serving on port ${port}`);
-    
+
     // Start the daily Google Sheets export scheduler
     // scheduleDailyExport(); // Removed - using immediate export on registration instead
     log('Google Sheets immediate export on registration enabled');

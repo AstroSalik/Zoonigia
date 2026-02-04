@@ -112,6 +112,8 @@ export const courses = pgTable("courses", {
   isActive: boolean("is_active").default(true),
   isFeatured: boolean("is_featured").default(false),
   featuredOrder: integer("featured_order").default(0),
+  googleSheetId: varchar("google_sheet_id"), // Google Sheets ID for this course
+  googleSheetUrl: varchar("google_sheet_url"), // Direct URL to the Google Sheet
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -128,6 +130,21 @@ export const courseEnrollments = pgTable("course_enrollments", {
   totalTimeSpent: integer("total_time_spent").default(0), // in minutes
   lastAccessed: timestamp("last_accessed"),
   certificateIssued: boolean("certificate_issued").default(false),
+});
+
+// Course registrations (from course registration form)
+export const courseRegistrations = pgTable("course_registrations", {
+  id: serial("id").primaryKey(),
+  courseId: integer("course_id").references(() => courses.id).notNull(),
+  userId: varchar("user_id").references(() => users.id),
+  name: varchar("name").notNull(),
+  email: varchar("email").notNull(),
+  phone: varchar("phone").notNull(),
+  institution: varchar("institution"),
+  additionalInfo: text("additional_info"),
+  status: varchar("status").default("pending"), // pending, contacted, confirmed, enrolled, cancelled
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Course modules/sections
@@ -219,6 +236,42 @@ export const courseCertificates = pgTable("course_certificates", {
   verificationCode: varchar("verification_code").notNull(),
 });
 
+// Coupon codes table
+export const couponCodes = pgTable("coupon_codes", {
+  id: serial("id").primaryKey(),
+  code: varchar("code").notNull().unique(), // Unique coupon code (e.g., "SUMMER2024")
+  description: text("description"), // Optional description
+  discountType: varchar("discount_type").notNull(), // "percentage" or "fixed"
+  discountValue: decimal("discount_value", { precision: 10, scale: 2 }).notNull(), // Percentage (0-100) or fixed amount
+  courseId: integer("course_id").references(() => courses.id), // null = applies to all courses
+  workshopId: integer("workshop_id").references(() => workshops.id), // null = applies to all workshops
+  campaignId: integer("campaign_id").references(() => campaigns.id), // null = applies to all campaigns
+  minPurchaseAmount: decimal("min_purchase_amount", { precision: 10, scale: 2 }), // Minimum purchase amount required
+  maxDiscountAmount: decimal("max_discount_amount", { precision: 10, scale: 2 }), // Maximum discount cap (for percentage discounts)
+  usageLimit: integer("usage_limit"), // Total number of times this coupon can be used (null = unlimited)
+  usedCount: integer("used_count").default(0).notNull(), // Number of times already used
+  userUsageLimit: integer("user_usage_limit").default(1), // Number of times a single user can use this coupon
+  validFrom: timestamp("valid_from").defaultNow(), // Start date
+  validUntil: timestamp("valid_until"), // End date (null = no expiration)
+  isActive: boolean("is_active").default(true), // Whether the coupon is currently active
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Coupon code usage tracking
+export const couponCodeUsages = pgTable("coupon_code_usages", {
+  id: serial("id").primaryKey(),
+  couponCodeId: integer("coupon_code_id").references(() => couponCodes.id).notNull(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  invoiceId: integer("invoice_id").references(() => invoices.id), // Link to invoice
+  itemType: varchar("item_type").notNull(), // course, workshop, campaign
+  itemId: integer("item_id").notNull(),
+  originalAmount: decimal("original_amount", { precision: 10, scale: 2 }).notNull(),
+  discountAmount: decimal("discount_amount", { precision: 10, scale: 2 }).notNull(),
+  finalAmount: decimal("final_amount", { precision: 10, scale: 2 }).notNull(),
+  usedAt: timestamp("used_at").defaultNow(),
+});
+
 // Invoices table
 export const invoices = pgTable("invoices", {
   id: serial("id").primaryKey(),
@@ -234,6 +287,8 @@ export const invoices = pgTable("invoices", {
   paymentMethod: varchar("payment_method"), // card, upi, netbanking, etc.
   paymentStatus: varchar("payment_status").default("completed"), // completed, pending, failed, refunded
   invoiceUrl: varchar("invoice_url"),
+  couponCodeId: integer("coupon_code_id").references(() => couponCodes.id), // Applied coupon code
+  discountAmount: decimal("discount_amount", { precision: 10, scale: 2 }).default("0.00"), // Discount applied
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -280,6 +335,8 @@ export const campaigns = pgTable("campaigns", {
   outcomes: text("outcomes"),
   isFeatured: boolean("is_featured").default(false),
   featuredOrder: integer("featured_order").default(0),
+  googleSheetId: varchar("google_sheet_id"), // Google Sheets ID for this campaign
+  googleSheetUrl: varchar("google_sheet_url"), // Direct URL to the Google Sheet
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -327,13 +384,30 @@ export const blogPosts = pgTable("blog_posts", {
   id: serial("id").primaryKey(),
   title: varchar("title").notNull(),
   content: text("content").notNull(),
+  excerpt: text("excerpt"),
   authorId: varchar("author_id").references(() => users.id),
   authorName: varchar("author_name").notNull(),
   authorTitle: varchar("author_title"),
   authorImageUrl: varchar("author_image_url"),
-  publishedAt: timestamp("published_at").defaultNow(),
+  authorBio: text("author_bio"), // Author bio for bottom of blog post
+  publishedAt: timestamp("published_at"),
   isPublished: boolean("is_published").default(false),
+  scheduledDate: timestamp("scheduled_date"),
   imageUrl: varchar("image_url"),
+  featuredImage: varchar("featured_image"),
+  categories: jsonb("categories").$type<string[]>().default([]),
+  tags: jsonb("tags").$type<string[]>().default([]),
+  seoTitle: varchar("seo_title"),
+  seoDescription: text("seo_description"),
+  slug: varchar("slug").unique(),
+  viewCount: integer("view_count").default(0),
+  likeCount: integer("like_count").default(0),
+  commentCount: integer("comment_count").default(0),
+  status: varchar("status").default("draft"), // draft, under_review, published, rejected, scheduled, archived
+  adminFeedback: text("admin_feedback"), // Feedback from admin for rejected/revision requests
+  reviewedBy: varchar("reviewed_by").references(() => users.id), // Admin who reviewed
+  reviewedAt: timestamp("reviewed_at"), // When it was reviewed
+  submittedAt: timestamp("submitted_at"), // When it was submitted for review
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -519,6 +593,9 @@ export type WorkshopEnrollment = typeof workshopEnrollments.$inferSelect;
 export type InsertWorkshopRegistration = typeof workshopRegistrations.$inferInsert;
 export type WorkshopRegistration = typeof workshopRegistrations.$inferSelect;
 
+export type InsertCourseRegistration = typeof courseRegistrations.$inferInsert;
+export type CourseRegistration = typeof courseRegistrations.$inferSelect;
+
 export type InsertCourseEnrollment = typeof courseEnrollments.$inferInsert;
 export type CourseEnrollment = typeof courseEnrollments.$inferSelect;
 
@@ -553,6 +630,12 @@ export type CourseCertificate = typeof courseCertificates.$inferSelect;
 export type InsertInvoice = typeof invoices.$inferInsert;
 export type Invoice = typeof invoices.$inferSelect;
 
+export type InsertCouponCode = typeof couponCodes.$inferInsert;
+export type CouponCode = typeof couponCodes.$inferSelect;
+
+export type InsertCouponCodeUsage = typeof couponCodeUsages.$inferInsert;
+export type CouponCodeUsage = typeof couponCodeUsages.$inferSelect;
+
 export type InsertRefundRequest = typeof refundRequests.$inferInsert;
 export type RefundRequest = typeof refundRequests.$inferSelect;
 
@@ -580,9 +663,14 @@ export const insertContactInquirySchema = createInsertSchema(contactInquiries);
 export const insertLoveMessageSchema = createInsertSchema(loveMessages);
 export const insertWorkshopEnrollmentSchema = createInsertSchema(workshopEnrollments);
 export const insertWorkshopRegistrationSchema = createInsertSchema(workshopRegistrations);
+export const insertCourseRegistrationSchema = createInsertSchema(courseRegistrations);
 export const insertCourseEnrollmentSchema = createInsertSchema(courseEnrollments);
 export const insertCampaignParticipantSchema = createInsertSchema(campaignParticipants);
 export const insertCampaignTeamRegistrationSchema = createInsertSchema(campaignTeamRegistrations).omit({ id: true, createdAt: true });
+
+// Coupon Code Zod schemas
+export const insertCouponCodeSchema = createInsertSchema(couponCodes);
+export const insertCouponCodeUsageSchema = createInsertSchema(couponCodeUsages);
 
 // LMS Zod schemas
 export const insertCourseModuleSchema = createInsertSchema(courseModules);

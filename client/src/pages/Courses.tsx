@@ -327,7 +327,7 @@ const Courses = () => {
                         </Button>
                       ) : course.status === 'accepting_registrations' ? (
                         <Button 
-                          className="bg-orange-500 hover:bg-orange-600 px-6"
+                          className="cosmic-gradient hover:opacity-90 px-6"
                           onClick={() => setLocation(`/courses/${course.id}`)}
                         >
                           Register Now

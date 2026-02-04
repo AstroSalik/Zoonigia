@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Menu, LogOut, User as UserIcon, Shield, LayoutDashboard, Trophy } from "lucide-react";
+import { Menu, LogOut, User as UserIcon, Shield, LayoutDashboard, Trophy, Sparkles } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { signInWithGoogle, signOutUser } from "@/lib/googleAuth";
 import { User } from "@shared/schema";
@@ -30,6 +30,7 @@ const Navigation = () => {
     { href: "/collaborators", label: "Collaborators" },
     { href: "/blog", label: "Blog" },
     { href: "/contact", label: "Contact" },
+    { href: "/nova", label: "Nova AI", icon: "sparkles" },
   ];
 
   const isActive = (href: string) => {
@@ -57,12 +58,13 @@ const Navigation = () => {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`transition-colors ${
+                className={`transition-colors flex items-center gap-1 ${
                   isActive(item.href)
                     ? "text-cosmic-blue"
                     : "text-space-200 hover:text-cosmic-blue"
                 }`}
               >
+                {item.icon === 'sparkles' && <Sparkles className="w-4 h-4" />}
                 {item.label}
               </Link>
             ))}
@@ -173,7 +175,7 @@ const Navigation = () => {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`text-lg transition-colors ${
+                    className={`text-lg transition-colors flex items-center gap-2 ${
                       isActive(item.href)
                         ? "text-cosmic-blue"
                         : "text-space-200 hover:text-cosmic-blue"
@@ -183,6 +185,7 @@ const Navigation = () => {
                       setIsOpen(false);
                     }}
                   >
+                    {item.icon === 'sparkles' && <Sparkles className="w-5 h-5" />}
                     {item.label}
                   </Link>
                 ))}

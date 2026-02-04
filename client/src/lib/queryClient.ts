@@ -2,8 +2,33 @@ import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
-    const text = (await res.text()) || res.statusText;
-    throw new Error(`${res.status}: ${text}`);
+    let errorMessage = res.statusText;
+    let errorDetails: any = null;
+    
+    try {
+      // Read response as text first (can be parsed as JSON if needed)
+      const text = await res.text();
+      
+      if (text) {
+        // Try to parse as JSON
+        try {
+          const json = JSON.parse(text);
+          errorMessage = json.message || json.error || errorMessage;
+          errorDetails = json;
+        } catch {
+          // Not JSON, use text as error message
+          errorMessage = text || errorMessage;
+        }
+      }
+    } catch (parseError) {
+      // If reading fails, use status text
+      errorMessage = res.statusText;
+    }
+    
+    const error: any = new Error(errorMessage);
+    error.status = res.status;
+    error.details = errorDetails;
+    throw error;
   }
 }
 
@@ -18,13 +43,14 @@ export async function apiRequest(
     headers["Content-Type"] = "application/json";
   }
   
-  // Add Firebase ID token for authenticated requests
+  // Add Firebase ID token and user ID for authenticated requests
   try {
     const { auth } = await import('@/lib/firebase');
       const user = auth.currentUser;
       if (user) {
         const idToken = await user.getIdToken();
         headers["Authorization"] = `Bearer ${idToken}`;
+        headers["x-user-id"] = user.uid; // Add user ID for backend
       }
     } catch (error) {
       console.error('Failed to get Firebase ID token:', error);
@@ -50,7 +76,7 @@ export const getQueryFn: <T>(options: {
   async ({ queryKey }) => {
     const url = queryKey.join("/") as string;
     
-    // Add Firebase ID token for authenticated requests
+    // Add Firebase ID token and user ID for authenticated requests
     let headers: Record<string, string> = {};
     
     try {
@@ -59,17 +85,18 @@ export const getQueryFn: <T>(options: {
       if (user) {
         const idToken = await user.getIdToken();
         headers["Authorization"] = `Bearer ${idToken}`;
+        headers["x-user-id"] = user.uid; // Add user ID for backend
       }
     } catch (error) {
       console.error('Failed to get Firebase ID token for query:', error);
     }
     
-    // Add Firebase UID for admin routes
+    // Add Firebase UID for admin routes (fallback)
     if (url.includes('/admin/')) {
       try {
         const { waitForAuth } = await import('@/lib/adminClient');
         const user = await waitForAuth();
-        if (user) {
+        if (user && !headers["x-user-id"]) {
           headers["X-User-ID"] = user.uid;
         }
       } catch (error) {

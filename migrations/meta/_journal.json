@@ -22,6 +22,27 @@
       "when": 1759904241112,
       "tag": "0002_hot_impossible_man",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1760534406988,
+      "tag": "0003_zippy_unicorn",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1762414841718,
+      "tag": "0004_nifty_wonder_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1762425707323,
+      "tag": "0005_sloppy_the_initiative",
+      "breakpoints": true
     }
   ]
 }

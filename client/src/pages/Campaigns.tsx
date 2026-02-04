@@ -8,10 +8,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  Telescope, 
-  PenTool, 
-  Microscope, 
+import {
+  Telescope,
+  PenTool,
+  Microscope,
   Calendar,
   Users,
   Award,
@@ -27,7 +27,9 @@ import GlassMorphism from "@/components/GlassMorphism";
 import { Campaign } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useState, useEffect } from "react";
+import { campaignParticipants } from "@shared/schema";
 import { useAuth } from "@/hooks/useAuth";
+import SEO from "@/components/SEO";
 
 // Load Razorpay script dynamically
 const loadRazorpayScript = () => {
@@ -41,10 +43,10 @@ const loadRazorpayScript = () => {
 };
 
 // Payment Form Component
-const PaymentForm = ({ 
-  selectedCampaign, 
-  registrationData, 
-  onSuccess, 
+const PaymentForm = ({
+  selectedCampaign,
+  registrationData,
+  onSuccess,
   onCancel,
   orderData,
   userId
@@ -106,7 +108,7 @@ const PaymentForm = ({
           color: "#3B82F6"
         },
         modal: {
-          ondismiss: function() {
+          ondismiss: function () {
             setIsProcessing(false);
           }
         }
@@ -152,16 +154,16 @@ const PaymentForm = ({
       </div>
 
       <div className="flex justify-between gap-4 pt-4">
-        <Button 
+        <Button
           type="button"
-          variant="outline" 
+          variant="outline"
           onClick={onCancel}
           disabled={isProcessing}
           className="border-space-600 text-space-300 hover:bg-space-700"
         >
           Cancel
         </Button>
-        <Button 
+        <Button
           type="button"
           onClick={handlePayment}
           disabled={isProcessing || isLoading}
@@ -191,7 +193,7 @@ const Campaigns = () => {
   const { data: campaigns, isLoading } = useQuery<Campaign[]>({
     queryKey: ["/api/campaigns"],
   });
-  
+
   const [registrationData, setRegistrationData] = useState({
     name: "",
     email: "",
@@ -199,14 +201,14 @@ const Campaigns = () => {
     school: "",
     grade: ""
   });
-  
+
   const { user } = useAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
   const [showPayment, setShowPayment] = useState(false);
   const [orderData, setOrderData] = useState<any>(null);
   const [enrolledCampaigns, setEnrolledCampaigns] = useState<Set<number>>(new Set());
-  
+
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -232,7 +234,7 @@ const Campaigns = () => {
 
     checkEnrollments();
   }, [user, campaigns]);
-  
+
   // Create Razorpay order mutation
   const createPaymentMutation = useMutation({
     mutationFn: async (data: any) => {
@@ -262,7 +264,7 @@ const Campaigns = () => {
       });
     }
   });
-  
+
   const enrollMutation = useMutation({
     mutationFn: async (data: any) => {
       const response = await apiRequest("POST", "/api/campaigns/enroll", data);
@@ -295,17 +297,17 @@ const Campaigns = () => {
       });
     }
   });
-  
+
   const handleEnrollment = (campaign: Campaign) => {
     setSelectedCampaign(campaign);
     setIsDialogOpen(true);
     setShowPayment(false);
     setOrderData(null);
   };
-  
+
   const handleSubmitEnrollment = async () => {
     if (!selectedCampaign) return;
-    
+
     // Create Razorpay order first
     createPaymentMutation.mutate({
       campaignId: selectedCampaign.id,
@@ -318,7 +320,7 @@ const Campaigns = () => {
       title: "Payment Successful!",
       description: "Your payment has been processed successfully.",
     });
-    
+
     // Complete the enrollment
     enrollMutation.mutate(paymentData);
   };
@@ -385,8 +387,12 @@ const Campaigns = () => {
 
   return (
     <div className="min-h-screen bg-space-900 text-space-50">
+      <SEO
+        title="Active Campaigns"
+        description="Join groundbreaking research campaigns like Asteroid Search, Ideathons, and Design Sprints at Zoonigia."
+      />
       <Navigation />
-      
+
       <div className="pt-24 pb-16">
         <div className="container mx-auto px-4">
           {/* Header */}
@@ -411,41 +417,43 @@ const Campaigns = () => {
                     </Link>
                     <Badge className={
                       campaign.status === "upcoming" ? "bg-cosmic-yellow text-space-900" :
-                      campaign.status === "accepting_registrations" ? "bg-cosmic-green text-space-900" : 
-                      campaign.status === "active" ? "bg-cosmic-blue text-white" :
-                      "bg-cosmic-orange text-space-900"
+                        campaign.status === "accepting_registrations" ? "bg-cosmic-green text-space-900" :
+                          campaign.status === "active" ? "bg-cosmic-blue text-white" :
+                            campaign.status === "completed" ? "bg-purple-500/20 text-purple-400 border-purple-500" :
+                              "bg-cosmic-orange text-space-900"
                     }>
                       {campaign.status === "upcoming" ? "Coming Soon" :
-                       campaign.status === "accepting_registrations" ? "Registration Open" : 
-                       campaign.status === "active" ? "Active" :
-                       "Registration Closed"}
+                        campaign.status === "accepting_registrations" ? "Registration Open" :
+                          campaign.status === "active" ? "Active" :
+                            campaign.status === "completed" ? "Completed" :
+                              "Registration Closed"}
                     </Badge>
                   </div>
                 </CardHeader>
-                
+
                 <CardContent>
                   <p className="text-space-300 mb-6">
                     {campaign.description}
                   </p>
-                  
+
                   <div className="bg-space-800 p-4 rounded-lg mb-6">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm text-space-400">Campaign Progress</span>
-                      <span className={`text-sm ${
-                        campaign.status === "upcoming" ? "text-cosmic-yellow" :
-                        campaign.status === "accepting_registrations" ? "text-cosmic-green" :
-                        campaign.status === "active" ? "text-cosmic-blue" :
-                        "text-cosmic-orange"
-                      }`}>
+                      <span className={`text-sm ${campaign.status === "upcoming" ? "text-cosmic-yellow" :
+                          campaign.status === "accepting_registrations" ? "text-cosmic-green" :
+                            campaign.status === "active" ? "text-cosmic-blue" :
+                              "text-cosmic-orange"
+                        }`}>
                         {campaign.status === "upcoming" ? "Upcoming" :
-                         campaign.status === "accepting_registrations" ? "Ongoing Registrations" :
-                         campaign.status === "active" ? "Active Campaign" :
-                         "Registration Closed"}
+                          campaign.status === "accepting_registrations" ? "Ongoing Registrations" :
+                            campaign.status === "active" ? "Active Campaign" :
+                              campaign.status === "completed" ? "Campaign Completed" :
+                                "Registration Closed"}
                       </span>
                     </div>
                     <Progress value={campaign.progress || 20} className="h-2" />
                   </div>
-                  
+
                   <div className="grid grid-cols-2 gap-4 mb-6">
                     <div className="text-center">
                       <div className="text-2xl font-bold text-cosmic-blue mb-1">
@@ -458,7 +466,7 @@ const Campaigns = () => {
                       <div className="text-sm text-space-400">Enrollment Type</div>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center text-sm text-space-400">
                       <Calendar className="w-4 h-4 mr-2" />
@@ -468,7 +476,7 @@ const Campaigns = () => {
                       {campaign.partner}
                     </div>
                   </div>
-                  
+
                   {enrolledCampaigns.has(campaign.id) ? (
                     <div className="w-full bg-cosmic-green/20 border border-cosmic-green rounded-lg p-3 flex items-center justify-center gap-2">
                       <CheckCircle className="w-5 h-5 text-cosmic-green" />
@@ -476,14 +484,15 @@ const Campaigns = () => {
                     </div>
                   ) : (
                     <Link href={`/campaigns/${campaign.id}`}>
-                      <Button 
+                      <Button
                         className="w-full bg-cosmic-blue hover:bg-blue-600"
                         disabled={campaign.status === "upcoming" || campaign.status === "closed" || campaign.status === "completed"}
                       >
                         {campaign.status === "upcoming" ? "Registrations Open Soon" :
-                         campaign.status === "accepting_registrations" ? `Register Now - ${campaign.price && parseFloat(campaign.price) > 0 ? `₹${campaign.price}` : 'FREE'}` : 
-                         campaign.status === "active" ? "View Active Campaign" :
-                         "Registration Closed"}
+                          campaign.status === "accepting_registrations" ? `Register Now - ${campaign.price && parseFloat(campaign.price) > 0 ? `₹${campaign.price}` : 'FREE'}` :
+                            campaign.status === "active" ? "View Active Campaign" :
+                              campaign.status === "completed" ? "Campaign Completed" :
+                                "Registration Closed"}
                       </Button>
                     </Link>
                   )}
@@ -506,7 +515,7 @@ const Campaigns = () => {
                   Choose your campaign and complete the registration process with any required prerequisites
                 </p>
               </GlassMorphism>
-              
+
               <GlassMorphism className="p-6 text-center">
                 <div className="w-16 h-16 bg-cosmic-purple rounded-full flex items-center justify-center mx-auto mb-4">
                   <span className="text-2xl font-bold text-space-900">2</span>
@@ -516,7 +525,7 @@ const Campaigns = () => {
                   Engage with expert mentors, collaborate with peers, and contribute to real scientific research
                 </p>
               </GlassMorphism>
-              
+
               <GlassMorphism className="p-6 text-center">
                 <div className="w-16 h-16 bg-cosmic-green rounded-full flex items-center justify-center mx-auto mb-4">
                   <span className="text-2xl font-bold text-space-900">3</span>
@@ -546,7 +555,7 @@ const Campaigns = () => {
                   "Zoonigia's commitment to making science accessible, fostering a supportive work environment, and valuing its contributors' input across disciplines, as well as providing great chances for professional and personal development, makes it an outstanding platform. A major highlight was my successful participation in the Zoonigia Asteroid Search Campaign (ZASC), where I dealt with real data from NASA's International Asteroid Search Campaign (IASC) to make successful findings, learning about how real observational astronomers work, and gaining experience as well. This hands-on experience, facilitated by Zoonigia, was invaluable for me, as this was my first ever opportunity to work in my field of passion. Beyond the campaigns, my growth has been exponential. Being appointed as the admin of the Astronomy group has allowed me to learn extensively in my field, including other fields such as physics, literature, and philosophy, thanks to the diverse educational focus of the community. As a scriptwriter in the content creation team, I have genuinely enjoyed my work. The collaborative environment is excellent; my colleagues are incredibly helpful and supportive, making the work not just productive but a pleasure. My time at Zoonigia has been absolutely transformative, combining my passion for astronomy with a deep dive into content creation."
                 </p>
               </GlassMorphism>
-              
+
               <GlassMorphism className="p-8">
                 <div className="flex items-start mb-6">
                   <div className="w-16 h-16 rounded-full bg-cosmic-green/20 flex items-center justify-center mr-4 flex-shrink-0">
@@ -571,15 +580,15 @@ const Campaigns = () => {
                 Have questions about our campaigns or need assistance with registration? Contact our campaign team directly.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button 
+                <Button
                   className="bg-cosmic-blue hover:bg-blue-600 px-8"
                   onClick={() => window.location.href = 'mailto:campaigns@zoonigia.com'}
                 >
                   <Mail className="w-4 h-4 mr-2" />
                   campaigns@zoonigia.com
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900 px-8"
                   onClick={() => window.location.href = 'tel:+919596241169'}
                 >
@@ -598,14 +607,14 @@ const Campaigns = () => {
                 Join our next campaign and contribute to groundbreaking research while building your academic portfolio
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button 
+                <Button
                   className="cosmic-gradient hover:opacity-90 px-8"
                   onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                 >
                   View All Campaigns
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900 px-8"
                   onClick={() => window.location.href = 'mailto:campaigns@zoonigia.com?subject=Campaign Information Request'}
                 >
@@ -625,7 +634,7 @@ const Campaigns = () => {
               {showPayment ? "Complete Payment" : "Register for Campaign"}
             </DialogTitle>
           </DialogHeader>
-          
+
           {!showPayment ? (
             // Registration Form
             <div className="space-y-4">
@@ -639,14 +648,14 @@ const Campaigns = () => {
                   <span className="text-sm text-space-300">Secure payment processing</span>
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="name" className="text-space-300">Full Name</Label>
                   <Input
                     id="name"
                     value={registrationData.name}
-                    onChange={(e) => setRegistrationData({...registrationData, name: e.target.value})}
+                    onChange={(e) => setRegistrationData({ ...registrationData, name: e.target.value })}
                     className="bg-space-700 border-space-600 text-space-50"
                     placeholder="Enter your full name"
                   />
@@ -657,20 +666,20 @@ const Campaigns = () => {
                     id="email"
                     type="email"
                     value={registrationData.email}
-                    onChange={(e) => setRegistrationData({...registrationData, email: e.target.value})}
+                    onChange={(e) => setRegistrationData({ ...registrationData, email: e.target.value })}
                     className="bg-space-700 border-space-600 text-space-50"
                     placeholder="Enter your email"
                   />
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="phone" className="text-space-300">Phone</Label>
                   <Input
                     id="phone"
                     value={registrationData.phone}
-                    onChange={(e) => setRegistrationData({...registrationData, phone: e.target.value})}
+                    onChange={(e) => setRegistrationData({ ...registrationData, phone: e.target.value })}
                     className="bg-space-700 border-space-600 text-space-50"
                     placeholder="Enter your phone"
                   />
@@ -680,33 +689,33 @@ const Campaigns = () => {
                   <Input
                     id="grade"
                     value={registrationData.grade}
-                    onChange={(e) => setRegistrationData({...registrationData, grade: e.target.value})}
+                    onChange={(e) => setRegistrationData({ ...registrationData, grade: e.target.value })}
                     className="bg-space-700 border-space-600 text-space-50"
                     placeholder="Enter your grade"
                   />
                 </div>
               </div>
-              
+
               <div>
                 <Label htmlFor="school" className="text-space-300">School/Institution</Label>
                 <Input
                   id="school"
                   value={registrationData.school}
-                  onChange={(e) => setRegistrationData({...registrationData, school: e.target.value})}
+                  onChange={(e) => setRegistrationData({ ...registrationData, school: e.target.value })}
                   className="bg-space-700 border-space-600 text-space-50"
                   placeholder="Enter your school name"
                 />
               </div>
-              
+
               <div className="flex justify-between gap-4 pt-4">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => setIsDialogOpen(false)}
                   className="border-space-600 text-space-300 hover:bg-space-700"
                 >
                   Cancel
                 </Button>
-                <Button 
+                <Button
                   onClick={handleSubmitEnrollment}
                   disabled={createPaymentMutation.isPending || !registrationData.name || !registrationData.email}
                   className="bg-cosmic-blue hover:bg-blue-600 text-white"

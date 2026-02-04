@@ -10,6 +10,8 @@ import Footer from "@/components/Footer";
 import Hero3D from "@/components/Hero3D";
 import GlassMorphism from "@/components/GlassMorphism";
 import FeaturedCarousel from "@/components/FeaturedCarousel";
+import StarfieldBackground from "@/components/StarfieldBackground";
+import SEO from "@/components/SEO";
 
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -19,12 +21,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useEffect, useState } from "react";
-import { 
-  Rocket, 
-  Users, 
-  School, 
-  Microscope, 
-  Play, 
+import {
+  Rocket,
+  Users,
+  School,
+  Microscope,
+  Play,
   ChevronDown,
   Star,
   Telescope,
@@ -71,12 +73,12 @@ const RoyalQueenHomepage = ({ user }: { user: any }) => {
         body: JSON.stringify(data),
         credentials: "include",
       });
-      
+
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(`${response.status}: ${errorText}`);
       }
-      
+
       return response.json();
     },
     onSuccess: () => {
@@ -107,7 +109,7 @@ const RoyalQueenHomepage = ({ user }: { user: any }) => {
     <div className="min-h-screen bg-gradient-to-br from-pink-900 via-purple-900 to-rose-900 text-white relative overflow-hidden">
       {/* Navigation */}
       <Navigation />
-      
+
       {/* Royal Floating Hearts Animation */}
       <div className="fixed inset-0 pointer-events-none z-0">
         {[...Array(20)].map((_, i) => (
@@ -136,11 +138,11 @@ const RoyalQueenHomepage = ({ user }: { user: any }) => {
               <Sparkles className="w-8 h-8 text-pink-300 absolute -top-2 -right-2 animate-spin" />
             </div>
           </div>
-          
+
           <h1 className="text-6xl md:text-8xl font-bold mb-6 animate-fadeIn bg-gradient-to-r from-pink-400 via-rose-300 to-yellow-300 bg-clip-text text-transparent">
             Welcome My Queen
           </h1>
-          
+
           <div className="mb-8">
             <h2 className="text-3xl md:text-5xl font-light text-pink-200 mb-4">
               My Dearest Eternal Love ❤️
@@ -156,14 +158,14 @@ const RoyalQueenHomepage = ({ user }: { user: any }) => {
           <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 md:p-12 border border-pink-300/30 mb-12 shadow-2xl">
             <Heart className="w-16 h-16 text-red-400 mx-auto mb-6 animate-pulse" />
             <p className="text-2xl md:text-3xl font-light text-pink-100 mb-6 leading-relaxed">
-              Everything I am, everything I have built, 
+              Everything I am, everything I have built,
               <br />
               <span className="text-yellow-200 font-medium">this entire universe of Zoonigia</span>
               <br />
               belongs to you, my love.
             </p>
             <p className="text-lg md:text-xl text-purple-200 mb-4">
-              Including the founder, <span className="text-pink-300 font-medium">Salik Riyaz</span> - 
+              Including the founder, <span className="text-pink-300 font-medium">Salik Riyaz</span> -
               your Salik 💕
             </p>
             <p className="text-xl md:text-2xl text-rose-200 mb-4">
@@ -190,7 +192,7 @@ const RoyalQueenHomepage = ({ user }: { user: any }) => {
                     </div>
                   </div>
                 </CarouselItem>
-                
+
                 <CarouselItem className="pl-2 md:pl-4 basis-4/5 md:basis-3/5 lg:basis-2/5">
                   <div className="p-1">
                     <div className="bg-purple-800/30 backdrop-blur-lg rounded-2xl p-6 border border-purple-400/30 h-full hover:bg-purple-700/40 transition-all duration-300 group">
@@ -200,7 +202,7 @@ const RoyalQueenHomepage = ({ user }: { user: any }) => {
                     </div>
                   </div>
                 </CarouselItem>
-                
+
                 <CarouselItem className="pl-2 md:pl-4 basis-4/5 md:basis-3/5 lg:basis-2/5">
                   <div className="p-1">
                     <div className="bg-yellow-800/30 backdrop-blur-lg rounded-2xl p-6 border border-yellow-400/30 h-full hover:bg-yellow-700/40 transition-all duration-300 group">
@@ -238,7 +240,7 @@ const RoyalQueenHomepage = ({ user }: { user: any }) => {
 
           {/* Royal Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
-            <Button 
+            <Button
               className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white px-8 py-4 text-lg rounded-full shadow-lg transform hover:scale-105 transition-all"
               onClick={() => {
                 // Navigate to the main homepage for logged-in users
@@ -248,7 +250,7 @@ const RoyalQueenHomepage = ({ user }: { user: any }) => {
               👑 Explore Your Kingdom
               <span className="ml-2 text-sm opacity-80">→ Go to Main Homepage</span>
             </Button>
-            
+
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button className="bg-gradient-to-r from-purple-500 to-yellow-500 hover:from-purple-600 hover:to-yellow-600 text-white px-8 py-4 text-lg rounded-full shadow-lg transform hover:scale-105 transition-all">
@@ -261,13 +263,13 @@ const RoyalQueenHomepage = ({ user }: { user: any }) => {
                     💕 Your Command to Me 💕
                   </DialogTitle>
                 </DialogHeader>
-                
+
                 <div className="space-y-4">
                   <div className="text-center text-pink-200 mb-6">
                     <Heart className="w-8 h-8 mx-auto mb-2 text-red-400 animate-pulse" />
                     <p className="text-sm">Write anything to your Salik... your wish is my command, my Queen 👑</p>
                   </div>
-                  
+
                   <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                       <FormField
@@ -287,7 +289,7 @@ const RoyalQueenHomepage = ({ user }: { user: any }) => {
                           </FormItem>
                         )}
                       />
-                      
+
                       <div className="flex gap-3 pt-4">
                         <Button
                           type="button"
@@ -326,7 +328,7 @@ const Home = () => {
 
   // Check if this is the special user (My Love, My Dearest Eternal Peace, My Dearest Eternal Love)
   const isMyLove = firebaseUser?.email === 'munafsultan111@gmail.com';
-  
+
   // Check for royal preview parameter (for admin preview)
   const urlParams = new URLSearchParams(window.location.search);
   const isRoyalPreview = urlParams.get('preview') === 'royal';
@@ -339,7 +341,7 @@ const Home = () => {
   });
 
   // Fetch featured courses from database
-  const { data: courses } = useQuery({
+  const { data: courses } = useQuery<any[]>({
     queryKey: ["/api/courses"],
     retry: false,
   });
@@ -359,21 +361,28 @@ const Home = () => {
   }
 
   return (
-    <div className="min-h-screen bg-space-900 text-space-50 relative">
+    <div className="min-h-screen text-space-50 relative">
+      <SEO
+        title="Home"
+        description="Zoonigia - Empowering Future Innovators through Immersive Frontier Sciences, Astronomy, and Interdisciplinary Learning."
+      />
       <Navigation />
+      <StarfieldBackground />
       {/* Hero Section */}
-      <section className="min-h-screen flex items-center justify-center relative overflow-hidden star-field">
-        <div className="absolute inset-0 bg-gradient-to-br from-space-900 via-space-800 to-space-900"></div>
+      <section className="min-h-screen flex items-center justify-center relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-space-900/50 via-space-800/50 to-space-900/50"></div>
         <div className="absolute inset-0 opacity-30">
-          <img 
-            src="/attached_assets/download (5).jpeg" 
-            alt="Space Science and Astronomy" 
+          <img
+            src="/attached_assets/download (5).jpeg"
+            alt="Space Science and Astronomy"
             className="w-full h-full object-cover"
           />
         </div>
-        
+
+
+
         <Hero3D />
-        
+
         <div className="relative z-10 text-center max-w-4xl mx-auto px-4">
           <h1 className="text-5xl md:text-7xl font-space font-bold mb-6 animate-fadeIn">
             <span className="bg-gradient-to-r from-cosmic-blue to-cosmic-purple bg-clip-text text-transparent">
@@ -387,28 +396,28 @@ const Home = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slideUp">
             <Link href="/workshops">
-              <Button className="cosmic-gradient hover:opacity-90 px-8 py-4 text-lg">
+              <Button variant="holographic" className="px-8 py-6 text-lg font-space tracking-wide">
                 <Rocket className="w-5 h-5 mr-2" />
                 Explore Zoonigia
               </Button>
             </Link>
             <Link href="/about">
-              <Button variant="outline" className="glass-morphism border-space-600 hover:bg-white/20 px-8 py-4 text-lg">
+              <Button variant="holographic" className="px-8 py-6 text-lg font-space tracking-wide border-space-500 text-space-200">
                 <Play className="w-5 h-5 mr-2" />
                 Learn More
               </Button>
             </Link>
           </div>
         </div>
-        
+
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
           <ChevronDown className="w-8 h-8 text-cosmic-blue" />
         </div>
       </section>
-      
+
       {/* Featured Programs Carousel */}
       <FeaturedCarousel />
-      
+
       {/* Video Section */}
       <section className="py-20 bg-space-800/30">
         <div className="container mx-auto px-4">
@@ -431,7 +440,7 @@ const Home = () => {
         </div>
       </section>
       {/* Stats Section */}
-      <section className="py-20 bg-space-800/50">
+      <section className="py-20 bg-space-800/30 backdrop-blur-sm">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="text-center">
@@ -495,7 +504,7 @@ const Home = () => {
                 Discover how scientific discovery becomes more meaningful when enriched by storytelling and deep thinking about existence.
               </p>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
               <GlassMorphism className="p-6 text-center hover:bg-white/10 transition-all duration-300">
                 <Atom className="w-12 h-12 text-cosmic-blue mx-auto mb-4" />
@@ -504,7 +513,7 @@ const Home = () => {
                   Quantum mechanics, astrophysics, and cutting-edge research grounded in empirical evidence
                 </p>
               </GlassMorphism>
-              
+
               <GlassMorphism className="p-6 text-center hover:bg-white/10 transition-all duration-300">
                 <Feather className="w-12 h-12 text-cosmic-purple mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-3">Literary Wonder</h3>
@@ -512,7 +521,7 @@ const Home = () => {
                   Poetic narratives and storytelling that illuminate the beauty of cosmic phenomena
                 </p>
               </GlassMorphism>
-              
+
               <GlassMorphism className="p-6 text-center hover:bg-white/10 transition-all duration-300">
                 <Star className="w-12 h-12 text-cosmic-orange mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-3">Philosophical Depth</h3>
@@ -554,7 +563,7 @@ const Home = () => {
                     </GlassMorphism>
                   </div>
                 </CarouselItem>
-                
+
                 <CarouselItem className="pl-2 md:pl-4 basis-4/5 md:basis-3/5 lg:basis-2/5">
                   <div className="p-1">
                     <GlassMorphism className="p-6 hover:bg-white/20 transition-all duration-300 group h-full">
@@ -571,7 +580,7 @@ const Home = () => {
                     </GlassMorphism>
                   </div>
                 </CarouselItem>
-                
+
                 <CarouselItem className="pl-2 md:pl-4 basis-4/5 md:basis-3/5 lg:basis-2/5">
                   <div className="p-1">
                     <GlassMorphism className="p-6 hover:bg-white/20 transition-all duration-300 group h-full">
@@ -593,7 +602,7 @@ const Home = () => {
           </div>
         </div>
       </section>
-      
+
       {/* Featured Courses */}
       <section className="py-20 bg-space-800/30">
         <div className="container mx-auto px-4">
@@ -633,19 +642,21 @@ const Home = () => {
               };
 
               const fieldColor = getFieldColor(course.field);
-              const courseImages = [
+              // Fallback images if course doesn't have imageUrl
+              const fallbackImages = [
                 'https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400',
                 'https://images.unsplash.com/photo-1593508512255-86ab42a8e620?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400',
                 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400',
                 'https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400'
               ];
+              const courseImage = course.imageUrl || fallbackImages[index] || fallbackImages[0];
 
               return (
                 <Card key={course.id} className="bg-space-800/50 border-space-700 hover:scale-105 transition-transform">
                   <div className="relative">
-                    <img 
-                      src={courseImages[index] || courseImages[0]} 
-                      alt={`${course.title} course`} 
+                    <img
+                      src={courseImage}
+                      alt={`${course.title} course`}
                       className="w-full h-48 object-cover rounded-t-lg"
                     />
                     {index === 0 && (
@@ -687,8 +698,9 @@ const Home = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               {!isAuthenticated && (
-                <Button 
-                  className="cosmic-gradient hover:opacity-90 px-8 py-4 text-lg"
+                <Button
+                  variant="holographic"
+                  className="px-8 py-6 text-lg font-space tracking-wide"
                   onClick={async () => {
                     try {
                       const { signInWithGoogle } = await import("@/lib/googleAuth");
@@ -710,7 +722,7 @@ const Home = () => {
           </div>
         </div>
       </section>
-      
+
       <Footer />
     </div>
   );

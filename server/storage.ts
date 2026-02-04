@@ -67,15 +67,24 @@ import {
   workshopRegistrations,
   type WorkshopRegistration,
   type InsertWorkshopRegistration,
+  courseRegistrations,
+  type CourseRegistration,
+  type InsertCourseRegistration,
   invoices,
   type Invoice,
   type InsertInvoice,
   refundRequests,
   type RefundRequest,
   type InsertRefundRequest,
+  couponCodes,
+  type CouponCode,
+  type InsertCouponCode,
+  couponCodeUsages,
+  type CouponCodeUsage,
+  type InsertCouponCodeUsage,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, or, lt, gt, gte, lte, sql } from "drizzle-orm";
 
 export interface IStorage {
   // User operations
@@ -102,6 +111,12 @@ export interface IStorage {
   getWorkshopRegistrations(): Promise<WorkshopRegistration[]>;
   updateWorkshopRegistrationStatus(id: number, status: string): Promise<WorkshopRegistration>;
   deleteWorkshopRegistration(id: number): Promise<void>;
+  
+  // Course registration operations
+  createCourseRegistration(registration: InsertCourseRegistration): Promise<CourseRegistration>;
+  getCourseRegistrations(courseId?: number): Promise<CourseRegistration[]>;
+  updateCourseRegistrationStatus(id: number, status: string): Promise<CourseRegistration>;
+  deleteCourseRegistration(id: number): Promise<void>;
   
   // Course operations
   getCourses(): Promise<Course[]>;
@@ -197,6 +212,17 @@ export interface IStorage {
   getRefundRequestById(id: number): Promise<RefundRequest | undefined>;
   createRefundRequest(request: InsertRefundRequest): Promise<RefundRequest>;
   updateRefundRequest(id: number, updates: Partial<InsertRefundRequest>): Promise<RefundRequest>;
+  
+  // Coupon code operations
+  getCouponCodes(): Promise<CouponCode[]>;
+  getCouponCodeById(id: number): Promise<CouponCode | undefined>;
+  getCouponCodeByCode(code: string): Promise<CouponCode | undefined>;
+  createCouponCode(coupon: InsertCouponCode): Promise<CouponCode>;
+  updateCouponCode(id: number, coupon: Partial<CouponCode>): Promise<CouponCode>;
+  deleteCouponCode(id: number): Promise<void>;
+  validateCouponCode(code: string, itemType: 'course' | 'workshop' | 'campaign', itemId: number, userId: string, amount: number): Promise<{ valid: boolean; coupon?: CouponCode; discountAmount?: number; error?: string }>;
+  recordCouponUsage(usage: InsertCouponCodeUsage): Promise<CouponCodeUsage>;
+  getUserCouponUsages(userId: string, couponCodeId: number): Promise<CouponCodeUsage[]>;
   
   // Featured items operations
   getFeaturedItems(): Promise<{ courses: Course[]; campaigns: Campaign[] }>;
@@ -340,6 +366,40 @@ export class DatabaseStorage implements IStorage {
 
   async deleteWorkshopRegistration(id: number): Promise<void> {
     await db.delete(workshopRegistrations).where(eq(workshopRegistrations.id, id));
+  }
+
+  // Course registration operations
+  async createCourseRegistration(registration: InsertCourseRegistration): Promise<CourseRegistration> {
+    const [newRegistration] = await db
+      .insert(courseRegistrations)
+      .values(registration)
+      .returning();
+    return newRegistration;
+  }
+
+  async getCourseRegistrations(courseId?: number): Promise<CourseRegistration[]> {
+    if (courseId) {
+      return await db
+        .select()
+        .from(courseRegistrations)
+        .where(eq(courseRegistrations.courseId, courseId))
+        .orderBy(desc(courseRegistrations.createdAt));
+    }
+    return await db.select().from(courseRegistrations).orderBy(desc(courseRegistrations.createdAt));
+  }
+
+  async updateCourseRegistrationStatus(id: number, status: string): Promise<CourseRegistration> {
+    const [updated] = await db
+      .update(courseRegistrations)
+      .set({ status, updatedAt: new Date() })
+      .where(eq(courseRegistrations.id, id))
+      .returning();
+    if (!updated) throw new Error("Course registration not found");
+    return updated;
+  }
+
+  async deleteCourseRegistration(id: number): Promise<void> {
+    await db.delete(courseRegistrations).where(eq(courseRegistrations.id, id));
   }
 
   // Course operations
@@ -1161,6 +1221,145 @@ export class DatabaseStorage implements IStorage {
 
   async deleteQuiz(quizId: number) {
     await db.delete(courseQuizzes).where(eq(courseQuizzes.id, quizId));
+  }
+
+  // ==================== COUPON CODE OPERATIONS ====================
+
+  async getCouponCodes(): Promise<CouponCode[]> {
+    return await db.select().from(couponCodes).orderBy(desc(couponCodes.createdAt));
+  }
+
+  async getCouponCodeById(id: number): Promise<CouponCode | undefined> {
+    const [coupon] = await db.select().from(couponCodes).where(eq(couponCodes.id, id));
+    return coupon;
+  }
+
+  async getCouponCodeByCode(code: string): Promise<CouponCode | undefined> {
+    const [coupon] = await db.select().from(couponCodes).where(eq(couponCodes.code, code.toUpperCase()));
+    return coupon;
+  }
+
+  async createCouponCode(coupon: InsertCouponCode): Promise<CouponCode> {
+    const [newCoupon] = await db.insert(couponCodes)
+      .values({
+        ...coupon,
+        code: coupon.code.toUpperCase(),
+        updatedAt: new Date(),
+      })
+      .returning();
+    return newCoupon;
+  }
+
+  async updateCouponCode(id: number, coupon: Partial<CouponCode>): Promise<CouponCode> {
+    const [updatedCoupon] = await db.update(couponCodes)
+      .set({
+        ...coupon,
+        code: coupon.code ? coupon.code.toUpperCase() : undefined,
+        updatedAt: new Date(),
+      })
+      .where(eq(couponCodes.id, id))
+      .returning();
+    return updatedCoupon;
+  }
+
+  async deleteCouponCode(id: number): Promise<void> {
+    await db.delete(couponCodes).where(eq(couponCodes.id, id));
+  }
+
+  async validateCouponCode(
+    code: string,
+    itemType: 'course' | 'workshop' | 'campaign',
+    itemId: number,
+    userId: string,
+    amount: number
+  ): Promise<{ valid: boolean; coupon?: CouponCode; discountAmount?: number; error?: string }> {
+    const coupon = await this.getCouponCodeByCode(code);
+    
+    if (!coupon) {
+      return { valid: false, error: 'Coupon code not found' };
+    }
+
+    if (!coupon.isActive) {
+      return { valid: false, error: 'Coupon code is not active' };
+    }
+
+    // Check validity dates
+    const now = new Date();
+    if (coupon.validFrom && new Date(coupon.validFrom) > now) {
+      return { valid: false, error: 'Coupon code is not yet valid' };
+    }
+    if (coupon.validUntil && new Date(coupon.validUntil) < now) {
+      return { valid: false, error: 'Coupon code has expired' };
+    }
+
+    // Check if coupon applies to this item
+    if (itemType === 'course' && coupon.courseId !== null && coupon.courseId !== itemId) {
+      return { valid: false, error: 'Coupon code does not apply to this course' };
+    }
+    if (itemType === 'workshop' && coupon.workshopId !== null && coupon.workshopId !== itemId) {
+      return { valid: false, error: 'Coupon code does not apply to this workshop' };
+    }
+    if (itemType === 'campaign' && coupon.campaignId !== null && coupon.campaignId !== itemId) {
+      return { valid: false, error: 'Coupon code does not apply to this campaign' };
+    }
+
+    // Check minimum purchase amount
+    if (coupon.minPurchaseAmount && parseFloat(coupon.minPurchaseAmount.toString()) > amount) {
+      return { valid: false, error: `Minimum purchase amount of ₹${coupon.minPurchaseAmount} required` };
+    }
+
+    // Check usage limit
+    if (coupon.usageLimit !== null && coupon.usedCount >= coupon.usageLimit) {
+      return { valid: false, error: 'Coupon code has reached its usage limit' };
+    }
+
+    // Check user usage limit
+    const userUsages = await this.getUserCouponUsages(userId, coupon.id);
+    if (userUsages.length >= coupon.userUsageLimit) {
+      return { valid: false, error: 'You have already used this coupon code the maximum number of times' };
+    }
+
+    // Calculate discount
+    let discountAmount = 0;
+    if (coupon.discountType === 'percentage') {
+      discountAmount = (amount * parseFloat(coupon.discountValue.toString())) / 100;
+      // Apply max discount cap if set
+      if (coupon.maxDiscountAmount) {
+        discountAmount = Math.min(discountAmount, parseFloat(coupon.maxDiscountAmount.toString()));
+      }
+    } else if (coupon.discountType === 'fixed') {
+      discountAmount = parseFloat(coupon.discountValue.toString());
+      // Don't allow discount to exceed the purchase amount
+      discountAmount = Math.min(discountAmount, amount);
+    }
+
+    return {
+      valid: true,
+      coupon,
+      discountAmount: Math.round(discountAmount * 100) / 100, // Round to 2 decimal places
+    };
+  }
+
+  async recordCouponUsage(usage: InsertCouponCodeUsage): Promise<CouponCodeUsage> {
+    const [newUsage] = await db.insert(couponCodeUsages).values(usage).returning();
+    
+    // Increment used count
+    await db.update(couponCodes)
+      .set({ usedCount: sql`${couponCodes.usedCount} + 1` })
+      .where(eq(couponCodes.id, usage.couponCodeId));
+    
+    return newUsage;
+  }
+
+  async getUserCouponUsages(userId: string, couponCodeId: number): Promise<CouponCodeUsage[]> {
+    return await db.select()
+      .from(couponCodeUsages)
+      .where(
+        and(
+          eq(couponCodeUsages.userId, userId),
+          eq(couponCodeUsages.couponCodeId, couponCodeId)
+        )
+      );
   }
 }
 

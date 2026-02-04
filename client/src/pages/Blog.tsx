@@ -129,109 +129,11 @@ const Blog = () => {
                   </Card>
                 ))
               ) : (
-                // Sample blog posts when no data is available
-                <>
-                  <Card className="bg-space-800/50 border-space-700">
-                    <CardHeader>
-                      <div className="flex items-center mb-4">
-                        <div className="w-12 h-12 rounded-full bg-cosmic-purple/20 flex items-center justify-center mr-4">
-                          <span className="text-cosmic-purple font-bold text-lg">SC</span>
-                        </div>
-                        <div>
-                          <h4 className="font-semibold">Dr. Sarah Chen</h4>
-                          <p className="text-sm text-space-400">Astrophysicist</p>
-                        </div>
-                      </div>
-                      <CardTitle className="text-xl">Discovering Exoplanets: A Student's Journey</CardTitle>
-                    </CardHeader>
-                    
-                    <CardContent>
-                      <p className="text-space-300 mb-4">
-                        How our student researchers are contributing to the search for habitable worlds beyond our solar system through innovative data analysis techniques and collaborative research...
-                      </p>
-                      
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center text-sm text-space-400">
-                          <Calendar className="w-4 h-4 mr-2" />
-                          Dec 10, 2024
-                        </div>
-                        <Button 
-                          variant="ghost" 
-                          className="text-cosmic-blue hover:text-blue-400 p-0"
-                          onClick={() => setLocation(`/blog/sample-1`)}
-                        >
-                          Read More <ArrowRight className="w-4 h-4 ml-1" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="bg-space-800/50 border-space-700">
-                    <CardHeader>
-                      <div className="flex items-center mb-4">
-                        <div className="w-12 h-12 rounded-full bg-cosmic-green/20 flex items-center justify-center mr-4">
-                          <span className="text-cosmic-green font-bold text-lg">RS</span>
-                        </div>
-                        <div>
-                          <h4 className="font-semibold">Rahul Sharma</h4>
-                          <p className="text-sm text-space-400">Student, Grade 12</p>
-                        </div>
-                      </div>
-                      <CardTitle className="text-xl">My Experience with Quantum Computing</CardTitle>
-                    </CardHeader>
-                    
-                    <CardContent>
-                      <p className="text-space-300 mb-4">
-                        Exploring the fascinating world of quantum mechanics and its applications in modern computing through hands-on experiments and theoretical learning...
-                      </p>
-                      
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center text-sm text-space-400">
-                          <Calendar className="w-4 h-4 mr-2" />
-                          Dec 8, 2024
-                        </div>
-                        <Button 
-                          variant="ghost" 
-                          className="text-cosmic-blue hover:text-blue-400 p-0"
-                          onClick={() => setLocation(`/blog/sample-2`)}
-                        >
-                          Read More <ArrowRight className="w-4 h-4 ml-1" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="bg-space-800/50 border-space-700">
-                    <CardHeader>
-                      <div className="flex items-center mb-4">
-                        <div className="w-12 h-12 rounded-full bg-cosmic-orange/20 flex items-center justify-center mr-4">
-                          <span className="text-cosmic-orange font-bold text-lg">MR</span>
-                        </div>
-                        <div>
-                          <h4 className="font-semibold">Prof. Maria Rodriguez</h4>
-                          <p className="text-sm text-space-400">NASA Scientist</p>
-                        </div>
-                      </div>
-                      <CardTitle className="text-xl">The Future of Space Education</CardTitle>
-                    </CardHeader>
-                    
-                    <CardContent>
-                      <p className="text-space-300 mb-4">
-                        How virtual reality and AI are revolutionizing the way we teach space science to the next generation of explorers and innovators...
-                      </p>
-                      
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center text-sm text-space-400">
-                          <Calendar className="w-4 h-4 mr-2" />
-                          Dec 5, 2024
-                        </div>
-                        <Button variant="ghost" className="text-cosmic-blue hover:text-blue-400 p-0">
-                          Read More <ArrowRight className="w-4 h-4 ml-1" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </>
+                // No blog posts available
+                <div className="text-center py-12">
+                  <p className="text-space-300 text-lg mb-4">No blog posts available yet.</p>
+                  <p className="text-space-400">Check back soon for updates!</p>
+                </div>
               )}
             </div>
           </div>

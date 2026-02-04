@@ -70,37 +70,53 @@ const BlogPostView = () => {
     );
   }
 
-  // Function to render markdown-like content with images
+  // Function to render WordPress HTML content with preserved styling
   const renderContent = (content: string) => {
-    // Split content by lines and process each line
-    const lines = content.split('\n');
-    return lines.map((line, index) => {
-      if (line.startsWith('# ')) {
-        return <h1 key={index} className="text-4xl font-bold mb-6 text-cosmic-blue">{line.substring(2)}</h1>;
-      } else if (line.startsWith('## ')) {
-        return <h2 key={index} className="text-3xl font-semibold mb-4 text-cosmic-purple mt-8">{line.substring(3)}</h2>;
-      } else if (line.startsWith('### ')) {
-        return <h3 key={index} className="text-2xl font-semibold mb-3 text-cosmic-green mt-6">{line.substring(4)}</h3>;
-      } else if (line.startsWith('#### ')) {
-        return <h4 key={index} className="text-xl font-semibold mb-2 text-cosmic-orange mt-4">{line.substring(5)}</h4>;
-      } else if (line.startsWith('> ')) {
-        return (
-          <blockquote key={index} className="border-l-4 border-cosmic-blue pl-4 my-4 italic text-white bg-space-800/30 p-4 rounded-r-lg">
-            {line.substring(2)}
-          </blockquote>
-        );
-      } else if (line.trim().startsWith('- ') || line.trim().startsWith('* ')) {
-        return <li key={index} className="ml-6 mb-2 text-white">{line.trim().substring(2)}</li>;
-      } else if (line.trim().match(/^\d+\. /)) {
-        return <li key={index} className="ml-6 mb-2 text-white list-decimal">{line.trim().replace(/^\d+\. /, '')}</li>;
-      } else if (line.trim() === '') {
-        return <br key={index} />;
-      } else {
-        // Handle bold text **text**
-        const boldText = line.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-cosmic-blue">$1</strong>');
-        return <p key={index} className="mb-4 text-white leading-relaxed" dangerouslySetInnerHTML={{ __html: boldText }} />;
-      }
-    });
+    // Check if content is HTML (contains HTML tags)
+    const isHTML = /<[a-z][\s\S]*>/i.test(content);
+    
+    if (isHTML) {
+      // WordPress HTML content - render directly with preserved styling
+      return (
+        <div 
+          className="wordpress-content"
+          dangerouslySetInnerHTML={{ __html: content }}
+          style={{
+            lineHeight: '1.8',
+            fontSize: '1.125rem',
+          }}
+        />
+      );
+    } else {
+      // Fallback for markdown-like content
+      const lines = content.split('\n');
+      return lines.map((line, index) => {
+        if (line.startsWith('# ')) {
+          return <h1 key={index} className="text-4xl font-bold mb-6 text-cosmic-blue">{line.substring(2)}</h1>;
+        } else if (line.startsWith('## ')) {
+          return <h2 key={index} className="text-3xl font-semibold mb-4 text-cosmic-purple mt-8">{line.substring(3)}</h2>;
+        } else if (line.startsWith('### ')) {
+          return <h3 key={index} className="text-2xl font-semibold mb-3 text-cosmic-green mt-6">{line.substring(4)}</h3>;
+        } else if (line.startsWith('#### ')) {
+          return <h4 key={index} className="text-xl font-semibold mb-2 text-cosmic-orange mt-4">{line.substring(5)}</h4>;
+        } else if (line.startsWith('> ')) {
+          return (
+            <blockquote key={index} className="border-l-4 border-cosmic-blue pl-4 my-4 italic text-white bg-space-800/30 p-4 rounded-r-lg">
+              {line.substring(2)}
+            </blockquote>
+          );
+        } else if (line.trim().startsWith('- ') || line.trim().startsWith('* ')) {
+          return <li key={index} className="ml-6 mb-2 text-white">{line.trim().substring(2)}</li>;
+        } else if (line.trim().match(/^\d+\. /)) {
+          return <li key={index} className="ml-6 mb-2 text-white list-decimal">{line.trim().replace(/^\d+\. /, '')}</li>;
+        } else if (line.trim() === '') {
+          return <br key={index} />;
+        } else {
+          const boldText = line.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-cosmic-blue">$1</strong>');
+          return <p key={index} className="mb-4 text-white leading-relaxed" dangerouslySetInnerHTML={{ __html: boldText }} />;
+        }
+      });
+    }
   };
 
   return (
@@ -179,7 +195,7 @@ const BlogPostView = () => {
 
             {/* Blog Post Content */}
             <GlassMorphism className="p-8">
-              <div className="prose prose-lg max-w-none">
+              <div className="prose prose-lg max-w-none wordpress-blog-content">
                 {renderContent(post.content)}
               </div>
             </GlassMorphism>
