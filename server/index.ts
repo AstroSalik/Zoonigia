@@ -1,3 +1,4 @@
+import cors from "cors";
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes/index";
 import { setupVite, serveStatic, log } from "./vite";
@@ -8,6 +9,16 @@ import path from "path";
 // --- DELETED LINE 9 WAS HERE (Do not hardcode 'development') ---
 
 const app = express();
+
+app.use(cors({
+  origin: [
+    "https://zoonigia-web.web.app",
+    "https://www.zoonigia.com",
+    "http://localhost:5000",
+    "http://localhost:3000"
+  ],
+  credentials: true
+}));
 
 // Production optimizations
 if (process.env.NODE_ENV === 'production') {

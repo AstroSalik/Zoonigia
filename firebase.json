@@ -6,6 +6,13 @@
       "**/.*",
       "**/node_modules/**"
     ],
+    "redirects": [
+      {
+        "source": "/api/:path*",
+        "destination": "https://zoonigia-backend.onrender.com/api/:path*",
+        "type": 301
+      }
+    ],
     "rewrites": [
       {
         "source": "**",
