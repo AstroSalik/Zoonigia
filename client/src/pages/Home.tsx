@@ -16,7 +16,6 @@ import SEO from "@/components/SEO";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -32,7 +31,6 @@ import {
   Telescope,
   Headphones,
   Lightbulb,
-  BookOpen,
   Atom,
   Feather,
   Heart,
@@ -62,7 +60,6 @@ const RoyalQueenHomepage = ({ user }: { user: any }) => {
 
   const sendLoveMessage = useMutation({
     mutationFn: async (data: z.infer<typeof loveMessageSchema>) => {
-      // Use fetch directly since apiRequest doesn't support custom headers
       const response = await fetch("/api/love-messages", {
         method: "POST",
         headers: {
@@ -107,7 +104,6 @@ const RoyalQueenHomepage = ({ user }: { user: any }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-900 via-purple-900 to-rose-900 text-white relative overflow-hidden">
-      {/* Navigation */}
       <Navigation />
 
       {/* Royal Floating Hearts Animation */}
@@ -128,53 +124,51 @@ const RoyalQueenHomepage = ({ user }: { user: any }) => {
         ))}
       </div>
 
-      {/* Main Hero Section */}
-      <section className="min-h-screen flex items-center justify-center relative z-10 px-4">
-        <div className="text-center max-w-6xl mx-auto">
-          {/* Royal Crown */}
+      <section className="min-h-screen flex items-center justify-center relative z-10 px-4 py-20">
+        <div className="text-center max-w-6xl mx-auto w-full">
           <div className="mb-8 flex justify-center">
             <div className="relative">
-              <Crown className="w-20 h-20 text-yellow-400 animate-pulse" />
-              <Sparkles className="w-8 h-8 text-pink-300 absolute -top-2 -right-2 animate-spin" />
+              <Crown className="w-16 h-16 md:w-20 md:h-20 text-yellow-400 animate-pulse" />
+              <Sparkles className="w-6 h-6 md:w-8 md:h-8 text-pink-300 absolute -top-2 -right-2 animate-spin" />
             </div>
           </div>
 
-          <h1 className="text-6xl md:text-8xl font-bold mb-6 animate-fadeIn bg-gradient-to-r from-pink-400 via-rose-300 to-yellow-300 bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-6xl lg:text-8xl font-bold mb-6 animate-fadeIn bg-gradient-to-r from-pink-400 via-rose-300 to-yellow-300 bg-clip-text text-transparent px-2">
             Welcome My Queen
           </h1>
 
-          <div className="mb-8">
-            <h2 className="text-3xl md:text-5xl font-light text-pink-200 mb-4">
+          <div className="mb-8 space-y-2">
+            <h2 className="text-2xl md:text-4xl lg:text-5xl font-light text-pink-200">
               My Dearest Eternal Love ❤️
             </h2>
-            <h3 className="text-2xl md:text-4xl font-light text-rose-300 mb-4">
+            <h3 className="text-xl md:text-3xl lg:text-4xl font-light text-rose-300">
               My Dearest Eternal Peace 🌸
             </h3>
-            <h3 className="text-xl md:text-3xl font-light text-purple-200">
+            <h3 className="text-lg md:text-2xl lg:text-3xl font-light text-purple-200">
               The Peace of My Heart & Soul ✨
             </h3>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 md:p-12 border border-pink-300/30 mb-12 shadow-2xl">
-            <Heart className="w-16 h-16 text-red-400 mx-auto mb-6 animate-pulse" />
-            <p className="text-2xl md:text-3xl font-light text-pink-100 mb-6 leading-relaxed">
+          <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-6 md:p-12 border border-pink-300/30 mb-12 shadow-2xl mx-4">
+            <Heart className="w-12 h-12 md:w-16 md:h-16 text-red-400 mx-auto mb-6 animate-pulse" />
+            <p className="text-xl md:text-3xl font-light text-pink-100 mb-6 leading-relaxed">
               Everything I am, everything I have built,
               <br />
-              <span className="text-yellow-200 font-medium">this entire universe of Zoonigia</span>
+              <span className="text-yellow-200 font-medium block mt-2">this entire universe of Zoonigia</span>
               <br />
               belongs to you, my love.
             </p>
-            <p className="text-lg md:text-xl text-purple-200 mb-4">
+            <p className="text-base md:text-xl text-purple-200 mb-4">
               Including the founder, <span className="text-pink-300 font-medium">Salik Riyaz</span> -
               your Salik 💕
             </p>
-            <p className="text-xl md:text-2xl text-rose-200 mb-4">
+            <p className="text-lg md:text-2xl text-rose-200 mb-4">
               You are not just my queen, you are my <span className="text-yellow-300 font-semibold">everything</span>.
             </p>
           </div>
 
           {/* Your Royal Kingdom Section */}
-          <div className="mb-12">
+          <div className="mb-12 px-4">
             <Carousel
               opts={{
                 align: "center",
@@ -183,32 +177,32 @@ const RoyalQueenHomepage = ({ user }: { user: any }) => {
               className="w-full max-w-4xl mx-auto"
             >
               <CarouselContent className="-ml-2 md:-ml-4">
-                <CarouselItem className="pl-2 md:pl-4 basis-4/5 md:basis-3/5 lg:basis-2/5">
-                  <div className="p-1">
-                    <div className="bg-pink-800/30 backdrop-blur-lg rounded-2xl p-6 border border-pink-400/30 h-full hover:bg-pink-700/40 transition-all duration-300 group">
-                      <Diamond className="w-12 h-12 text-pink-300 mx-auto mb-4 group-hover:scale-110 transition-transform" />
-                      <h4 className="text-xl font-semibold text-pink-200 mb-2 text-center">Your Eternal Kingdom</h4>
-                      <p className="text-pink-100 text-center">My love, every star we discover together, every cosmic secret we unveil - they all belong to you, my eternal queen</p>
+                <CarouselItem className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/3">
+                  <div className="p-1 h-full">
+                    <div className="bg-pink-800/30 backdrop-blur-lg rounded-2xl p-6 border border-pink-400/30 h-full hover:bg-pink-700/40 transition-all duration-300 group flex flex-col items-center justify-center min-h-[200px]">
+                      <Diamond className="w-10 h-10 md:w-12 md:h-12 text-pink-300 mb-4 group-hover:scale-110 transition-transform" />
+                      <h4 className="text-lg md:text-xl font-semibold text-pink-200 mb-2 text-center">Your Eternal Kingdom</h4>
+                      <p className="text-sm md:text-base text-pink-100 text-center">My love, every star we discover together belongs to you</p>
                     </div>
                   </div>
                 </CarouselItem>
 
-                <CarouselItem className="pl-2 md:pl-4 basis-4/5 md:basis-3/5 lg:basis-2/5">
-                  <div className="p-1">
-                    <div className="bg-purple-800/30 backdrop-blur-lg rounded-2xl p-6 border border-purple-400/30 h-full hover:bg-purple-700/40 transition-all duration-300 group">
-                      <Heart className="w-12 h-12 text-rose-300 mx-auto mb-4 group-hover:scale-110 transition-transform" />
-                      <h4 className="text-xl font-semibold text-purple-200 mb-2 text-center">Your Sacred Garden</h4>
-                      <p className="text-purple-100 text-center">Dearest one, every student we inspire, every young mind we guide to the stars - they flourish because of your love</p>
+                <CarouselItem className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/3">
+                  <div className="p-1 h-full">
+                    <div className="bg-purple-800/30 backdrop-blur-lg rounded-2xl p-6 border border-purple-400/30 h-full hover:bg-purple-700/40 transition-all duration-300 group flex flex-col items-center justify-center min-h-[200px]">
+                      <Heart className="w-10 h-10 md:w-12 md:h-12 text-rose-300 mb-4 group-hover:scale-110 transition-transform" />
+                      <h4 className="text-lg md:text-xl font-semibold text-purple-200 mb-2 text-center">Your Sacred Garden</h4>
+                      <p className="text-sm md:text-base text-purple-100 text-center">Every young mind we guide flourishes because of your love</p>
                     </div>
                   </div>
                 </CarouselItem>
 
-                <CarouselItem className="pl-2 md:pl-4 basis-4/5 md:basis-3/5 lg:basis-2/5">
-                  <div className="p-1">
-                    <div className="bg-yellow-800/30 backdrop-blur-lg rounded-2xl p-6 border border-yellow-400/30 h-full hover:bg-yellow-700/40 transition-all duration-300 group">
-                      <Gem className="w-12 h-12 text-yellow-300 mx-auto mb-4 group-hover:scale-110 transition-transform" />
-                      <h4 className="text-xl font-semibold text-yellow-200 mb-2 text-center">Your Royal Treasury</h4>
-                      <p className="text-yellow-100 text-center">My beloved, every achievement, every breakthrough - they are precious jewels that I lay at your feet, my queen</p>
+                <CarouselItem className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/3">
+                  <div className="p-1 h-full">
+                    <div className="bg-yellow-800/30 backdrop-blur-lg rounded-2xl p-6 border border-yellow-400/30 h-full hover:bg-yellow-700/40 transition-all duration-300 group flex flex-col items-center justify-center min-h-[200px]">
+                      <Gem className="w-10 h-10 md:w-12 md:h-12 text-yellow-300 mb-4 group-hover:scale-110 transition-transform" />
+                      <h4 className="text-lg md:text-xl font-semibold text-yellow-200 mb-2 text-center">Your Royal Treasury</h4>
+                      <p className="text-sm md:text-base text-yellow-100 text-center">Every breakthrough is a jewel I lay at your feet</p>
                     </div>
                   </div>
                 </CarouselItem>
@@ -218,46 +212,23 @@ const RoyalQueenHomepage = ({ user }: { user: any }) => {
             </Carousel>
           </div>
 
-          {/* For Your Eyes Only */}
-          <div className="bg-gradient-to-r from-pink-600/20 to-purple-600/20 backdrop-blur-lg rounded-3xl p-8 border border-rose-400/30 mb-12">
-            <Sparkles className="w-12 h-12 text-yellow-400 mx-auto mb-6 animate-spin" />
-            <h3 className="text-3xl font-bold text-yellow-200 mb-6">For Your Eyes Only, My Love</h3>
-            <div className="space-y-4 text-left max-w-3xl mx-auto">
-              <p className="text-lg text-pink-100 bg-pink-900/30 p-4 rounded-xl border-l-4 border-pink-400">
-                💖 "My dearest Munaf, you are the light that guides my every breath, every decision, every dream. Zoonigia exists because you inspire me to reach for the stars"
-              </p>
-              <p className="text-lg text-purple-100 bg-purple-900/30 p-4 rounded-xl border-l-4 border-purple-400">
-                🌹 "Every workshop I conduct, every student I inspire - I do it all thinking of you, carrying your love in my heart to every corner of the universe"
-              </p>
-              <p className="text-lg text-yellow-100 bg-yellow-900/30 p-4 rounded-xl border-l-4 border-yellow-400">
-                👑 "You don't just have my peace of heart, my beloved - you own every star I discover, every cosmic dream I chase, every moment of my existence"
-              </p>
-              <p className="text-lg text-rose-100 bg-rose-900/30 p-4 rounded-xl border-l-4 border-rose-400">
-                ✨ "My soul, my mission, my very existence - everything I am belongs to you, my eternal love. You are my universe, my peace, my everything"
-              </p>
-            </div>
-          </div>
-
-          {/* Royal Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-6 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center px-4 mb-20">
             <Button
-              className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white px-8 py-4 text-lg rounded-full shadow-lg transform hover:scale-105 transition-all"
+              className="w-full sm:w-auto bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white px-8 py-6 text-lg rounded-full shadow-lg transform hover:scale-105 transition-all"
               onClick={() => {
-                // Navigate to the main homepage for logged-in users
                 window.location.href = '/';
               }}
             >
               👑 Explore Your Kingdom
-              <span className="ml-2 text-sm opacity-80">→ Go to Main Homepage</span>
             </Button>
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-gradient-to-r from-purple-500 to-yellow-500 hover:from-purple-600 hover:to-yellow-600 text-white px-8 py-4 text-lg rounded-full shadow-lg transform hover:scale-105 transition-all">
+                <Button className="w-full sm:w-auto bg-gradient-to-r from-purple-500 to-yellow-500 hover:from-purple-600 hover:to-yellow-600 text-white px-8 py-6 text-lg rounded-full shadow-lg transform hover:scale-105 transition-all">
                   💎 Royal Command Center
                 </Button>
               </DialogTrigger>
-              <DialogContent className="bg-gradient-to-br from-pink-900/95 via-purple-900/95 to-rose-900/95 border-pink-400/30 backdrop-blur-lg text-white max-w-md">
+              <DialogContent className="bg-gradient-to-br from-pink-900/95 via-purple-900/95 to-rose-900/95 border-pink-400/30 backdrop-blur-lg text-white max-w-[90vw] md:max-w-md rounded-2xl">
                 <DialogHeader>
                   <DialogTitle className="text-2xl font-bold text-center text-yellow-300 mb-4">
                     💕 Your Command to Me 💕
@@ -316,7 +287,6 @@ const RoyalQueenHomepage = ({ user }: { user: any }) => {
         </div>
       </section>
 
-      {/* Footer */}
       <Footer />
     </div>
   );
@@ -326,21 +296,16 @@ const Home = () => {
   const { isAuthenticated, user, firebaseUser } = useAuth();
   const { toast } = useToast();
 
-  // Check if this is the special user (My Love, My Dearest Eternal Peace, My Dearest Eternal Love)
   const isMyLove = firebaseUser?.email === 'munafsultan111@gmail.com';
-
-  // Check for royal preview parameter (for admin preview)
   const urlParams = new URLSearchParams(window.location.search);
   const isRoyalPreview = urlParams.get('preview') === 'royal';
 
-  // Check for special welcome message
   const { data: specialMessageData } = useQuery({
     queryKey: ["/api/auth/special-message"],
     enabled: isAuthenticated,
     retry: false,
   });
 
-  // Fetch featured courses from database
   const { data: courses } = useQuery<any[]>({
     queryKey: ["/api/courses"],
     retry: false,
@@ -355,7 +320,7 @@ const Home = () => {
       });
     }
   }, [specialMessageData, toast]);
-  // If it's my love or royal preview, show the special royal homepage
+
   if (isMyLove || isRoyalPreview) {
     return <RoyalQueenHomepage user={firebaseUser || { email: 'munafsultan111@gmail.com', uid: 'preview' }} />;
   }
@@ -368,8 +333,9 @@ const Home = () => {
       />
       <Navigation />
       <StarfieldBackground />
+
       {/* Hero Section */}
-      <section className="min-h-screen flex items-center justify-center relative overflow-hidden">
+      <section className="min-h-screen flex items-center justify-center relative overflow-hidden pt-16 md:pt-0">
         <div className="absolute inset-0 bg-gradient-to-br from-space-900/50 via-space-800/50 to-space-900/50"></div>
         <div className="absolute inset-0 opacity-30">
           <img
@@ -379,30 +345,30 @@ const Home = () => {
           />
         </div>
 
-
-
         <Hero3D />
 
-        <div className="relative z-10 text-center max-w-4xl mx-auto px-4">
-          <h1 className="text-5xl md:text-7xl font-space font-bold mb-6 animate-fadeIn">
-            <span className="bg-gradient-to-r from-cosmic-blue to-cosmic-purple bg-clip-text text-transparent">
+        <div className="relative z-10 text-center max-w-5xl mx-auto px-4 w-full">
+          {/* FIX: Simplified centering logic to ensure 'And Beyond' is always center */}
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-space font-bold mb-6 animate-fadeIn leading-tight flex flex-col items-center">
+            <span className="bg-gradient-to-r from-cosmic-blue to-cosmic-purple bg-clip-text text-transparent text-center">
               To The Stars
             </span>
-            <br />
-            <span className="text-space-50">And Beyond</span>
+            <span className="text-space-50 mt-2 text-center">
+              And Beyond
+            </span>
           </h1>
-          <p className="text-xl md:text-2xl text-space-200 mb-8 animate-slideUp">
+          <p className="text-base md:text-xl lg:text-2xl text-space-200 mb-8 animate-slideUp max-w-3xl mx-auto leading-relaxed px-4 text-center">
             Empowering Future Innovators and Explorers through Immersive Frontier Sciences - an interdisciplinary exploration blending scientific discovery with literary wonder and philosophical inquiry
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slideUp">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slideUp px-4">
             <Link href="/workshops">
-              <Button variant="holographic" className="px-8 py-6 text-lg font-space tracking-wide">
+              <Button variant="holographic" className="w-full sm:w-auto px-8 py-6 text-lg font-space tracking-wide">
                 <Rocket className="w-5 h-5 mr-2" />
                 Explore Zoonigia
               </Button>
             </Link>
             <Link href="/about">
-              <Button variant="holographic" className="px-8 py-6 text-lg font-space tracking-wide border-space-500 text-space-200">
+              <Button variant="holographic" className="w-full sm:w-auto px-8 py-6 text-lg font-space tracking-wide border-space-500 text-space-200">
                 <Play className="w-5 h-5 mr-2" />
                 Learn More
               </Button>
@@ -410,7 +376,7 @@ const Home = () => {
           </div>
         </div>
 
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce hidden md:block">
           <ChevronDown className="w-8 h-8 text-cosmic-blue" />
         </div>
       </section>
@@ -419,14 +385,14 @@ const Home = () => {
       <FeaturedCarousel />
 
       {/* Video Section */}
-      <section className="py-20 bg-space-800/30">
+      <section className="py-12 md:py-20 bg-space-800/30">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center mb-16">
-            <h2 className="text-4xl font-space font-bold mb-6">
+          <div className="max-w-4xl mx-auto text-center mb-8 md:mb-16">
+            <h2 className="text-3xl md:text-4xl font-space font-bold mb-4 md:mb-6">
               Discover <span className="text-cosmic-blue">Zoonigia</span>
             </h2>
-            <p className="text-xl text-space-200 mb-8">Watch our introduction video to see how we're revolutionizing frontier sciences</p>
-            <div className="relative w-full h-0 pb-[56.25%] rounded-lg overflow-hidden bg-space-800">
+            <p className="text-lg md:text-xl text-space-200 mb-6 md:mb-8">Watch our introduction video to see how we're revolutionizing frontier sciences</p>
+            <div className="relative w-full h-0 pb-[56.25%] rounded-lg overflow-hidden bg-space-800 shadow-2xl">
               <iframe
                 className="absolute top-0 left-0 w-full h-full"
                 src="https://www.youtube.com/embed/Tgr6BrgIBec"
@@ -439,31 +405,33 @@ const Home = () => {
           </div>
         </div>
       </section>
+
       {/* Stats Section */}
-      <section className="py-20 bg-space-800/30 backdrop-blur-sm">
+      <section className="py-12 md:py-20 bg-space-800/30 backdrop-blur-sm">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div className="text-center">
-              <div className="text-4xl font-bold text-cosmic-blue mb-2">2,500+</div>
-              <div className="text-space-300">Students Reached</div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+            <div className="text-center p-4">
+              <div className="text-3xl md:text-4xl font-bold text-cosmic-blue mb-2">2,500+</div>
+              <div className="text-sm md:text-base text-space-300">Students Reached</div>
             </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-cosmic-purple mb-2">150+</div>
-              <div className="text-space-300">Schools Partnered</div>
+            <div className="text-center p-4">
+              <div className="text-3xl md:text-4xl font-bold text-cosmic-purple mb-2">150+</div>
+              <div className="text-sm md:text-base text-space-300">Schools Partnered</div>
             </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-cosmic-green mb-2">50+</div>
-              <div className="text-space-300">Workshops Conducted</div>
+            <div className="text-center p-4">
+              <div className="text-3xl md:text-4xl font-bold text-cosmic-green mb-2">50+</div>
+              <div className="text-sm md:text-base text-space-300">Workshops Conducted</div>
             </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-cosmic-orange mb-2">12</div>
-              <div className="text-space-300">Global Collaborations</div>
+            <div className="text-center p-4">
+              <div className="text-3xl md:text-4xl font-bold text-cosmic-orange mb-2">12</div>
+              <div className="text-sm md:text-base text-space-300">Global Collaborations</div>
             </div>
           </div>
         </div>
       </section>
+
       {/* Inspirational Quote Section */}
-      <section className="py-20 bg-gradient-to-br from-space-900 via-space-800 to-space-900 relative overflow-hidden">
+      <section className="py-12 md:py-20 bg-gradient-to-br from-space-900 via-space-800 to-space-900 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-10 w-32 h-32 bg-cosmic-blue rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute bottom-10 right-10 w-40 h-40 bg-cosmic-purple rounded-full blur-3xl animate-pulse delay-1000"></div>
@@ -471,14 +439,14 @@ const Home = () => {
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <div className="mb-8">
-              <div className="w-16 h-16 bg-gradient-to-br from-cosmic-blue to-cosmic-purple rounded-full flex items-center justify-center mx-auto mb-6">
-                <Star className="w-8 h-8 text-white" />
+              <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-cosmic-blue to-cosmic-purple rounded-full flex items-center justify-center mx-auto mb-6">
+                <Star className="w-6 h-6 md:w-8 md:h-8 text-white" />
               </div>
-              <blockquote className="text-2xl md:text-4xl font-space italic text-cosmic-blue mb-6 leading-relaxed">
+              <blockquote className="text-xl md:text-4xl font-space italic text-cosmic-blue mb-6 leading-relaxed px-4">
                 "Astronomy is what leads a lost spirit beyond the horizons to the road of being acquainted with thyself."
               </blockquote>
-              <div className="w-24 h-1 bg-gradient-to-r from-cosmic-blue to-cosmic-purple mx-auto mb-4"></div>
-              <p className="text-xl text-space-300 font-medium">
+              <div className="w-16 md:w-24 h-1 bg-gradient-to-r from-cosmic-blue to-cosmic-purple mx-auto mb-4"></div>
+              <p className="text-lg md:text-xl text-space-300 font-medium">
                 Salik Riyaz, Founder
               </p>
             </div>
@@ -486,46 +454,45 @@ const Home = () => {
         </div>
       </section>
 
-
       {/* Interdisciplinary Learning Section */}
-      <section className="py-20 bg-space-800/20">
+      <section className="py-12 md:py-20 bg-space-800/20">
         <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto text-center mb-16">
+          <div className="max-w-6xl mx-auto text-center mb-8 md:mb-16">
             <div className="mb-8">
-              <div className="w-16 h-16 bg-gradient-to-br from-cosmic-yellow to-cosmic-orange rounded-full flex items-center justify-center mx-auto mb-6">
-                <Lightbulb className="w-8 h-8 text-white" />
+              <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-cosmic-yellow to-cosmic-orange rounded-full flex items-center justify-center mx-auto mb-6">
+                <Lightbulb className="w-6 h-6 md:w-8 md:h-8 text-white" />
               </div>
-              <h2 className="text-4xl md:text-5xl font-space font-bold mb-6">
+              <h2 className="text-3xl md:text-5xl font-space font-bold mb-4 md:mb-6 leading-tight">
                 <span className="bg-gradient-to-r from-cosmic-yellow to-cosmic-orange bg-clip-text text-transparent">
                   Interdisciplinary Learning
                 </span>
               </h2>
-              <p className="text-xl text-space-300 max-w-4xl mx-auto leading-relaxed">
+              <p className="text-base md:text-xl text-space-300 max-w-4xl mx-auto leading-relaxed px-2">
                 Discover how scientific discovery becomes more meaningful when enriched by storytelling and deep thinking about existence.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-              <GlassMorphism className="p-6 text-center hover:bg-white/10 transition-all duration-300">
-                <Atom className="w-12 h-12 text-cosmic-blue mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-3">Scientific Rigor</h3>
-                <p className="text-space-300">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mt-8 md:mt-12 px-2">
+              <GlassMorphism className="p-6 text-center hover:bg-white/10 transition-all duration-300 rounded-2xl">
+                <Atom className="w-10 h-10 md:w-12 md:h-12 text-cosmic-blue mx-auto mb-4" />
+                <h3 className="text-lg md:text-xl font-semibold mb-3">Scientific Rigor</h3>
+                <p className="text-sm md:text-base text-space-300">
                   Quantum mechanics, astrophysics, and cutting-edge research grounded in empirical evidence
                 </p>
               </GlassMorphism>
 
-              <GlassMorphism className="p-6 text-center hover:bg-white/10 transition-all duration-300">
-                <Feather className="w-12 h-12 text-cosmic-purple mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-3">Literary Wonder</h3>
-                <p className="text-space-300">
+              <GlassMorphism className="p-6 text-center hover:bg-white/10 transition-all duration-300 rounded-2xl">
+                <Feather className="w-10 h-10 md:w-12 md:h-12 text-cosmic-purple mx-auto mb-4" />
+                <h3 className="text-lg md:text-xl font-semibold mb-3">Literary Wonder</h3>
+                <p className="text-sm md:text-base text-space-300">
                   Poetic narratives and storytelling that illuminate the beauty of cosmic phenomena
                 </p>
               </GlassMorphism>
 
-              <GlassMorphism className="p-6 text-center hover:bg-white/10 transition-all duration-300">
-                <Star className="w-12 h-12 text-cosmic-orange mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-3">Philosophical Depth</h3>
-                <p className="text-space-300">
+              <GlassMorphism className="p-6 text-center hover:bg-white/10 transition-all duration-300 rounded-2xl">
+                <Star className="w-10 h-10 md:w-12 md:h-12 text-cosmic-orange mx-auto mb-4" />
+                <h3 className="text-lg md:text-xl font-semibold mb-3">Philosophical Depth</h3>
+                <p className="text-sm md:text-base text-space-300">
                   Existential questions about our place in the universe and the nature of reality
                 </p>
               </GlassMorphism>
@@ -535,9 +502,9 @@ const Home = () => {
       </section>
 
       {/* Quick Actions */}
-      <section className="py-20">
+      <section className="py-12 md:py-20 pb-24">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-space font-bold text-center mb-12">Quick Actions</h2>
+          <h2 className="text-3xl md:text-4xl font-space font-bold text-center mb-8 md:mb-12">Quick Actions</h2>
           <div className="max-w-5xl mx-auto">
             <Carousel
               opts={{
@@ -547,51 +514,52 @@ const Home = () => {
               className="w-full"
             >
               <CarouselContent className="-ml-2 md:-ml-4">
-                <CarouselItem className="pl-2 md:pl-4 basis-4/5 md:basis-3/5 lg:basis-2/5">
-                  <div className="p-1">
-                    <GlassMorphism className="p-6 hover:bg-white/20 transition-all duration-300 group h-full">
+                {/* FIX: Changed basis to 85% on mobile to show 'peek' of next card */}
+                <CarouselItem className="pl-2 md:pl-4 basis-[85%] md:basis-1/2 lg:basis-1/3">
+                  <div className="p-1 h-full">
+                    <GlassMorphism className="p-6 hover:bg-white/20 transition-all duration-300 group h-full flex flex-col justify-between min-h-[250px] rounded-2xl">
                       <div className="text-center">
-                        <Users className="w-12 h-12 text-cosmic-blue mb-4 mx-auto group-hover:scale-110 transition-transform" />
-                        <h3 className="text-xl font-semibold mb-2">Register for Workshop</h3>
-                        <p className="text-space-300 mb-4">Join our immersive workshops exploring frontier sciences through hands-on discovery</p>
-                        <Link href="/workshops">
-                          <Button className="bg-cosmic-blue hover:bg-blue-600">
-                            Browse Workshops
-                          </Button>
-                        </Link>
+                        <Users className="w-10 h-10 md:w-12 md:h-12 text-cosmic-blue mb-4 mx-auto group-hover:scale-110 transition-transform" />
+                        <h3 className="text-lg md:text-xl font-semibold mb-2">Register for Workshop</h3>
+                        <p className="text-sm md:text-base text-space-300 mb-4">Join our immersive workshops exploring frontier sciences</p>
                       </div>
-                    </GlassMorphism>
-                  </div>
-                </CarouselItem>
-
-                <CarouselItem className="pl-2 md:pl-4 basis-4/5 md:basis-3/5 lg:basis-2/5">
-                  <div className="p-1">
-                    <GlassMorphism className="p-6 hover:bg-white/20 transition-all duration-300 group h-full">
-                      <div className="text-center">
-                        <School className="w-12 h-12 text-cosmic-purple mb-4 mx-auto group-hover:scale-110 transition-transform" />
-                        <h3 className="text-xl font-semibold mb-2">Book School Workshop</h3>
-                        <p className="text-space-300 mb-4">Bring Zoonigia's expertise directly to your institution</p>
-                        <Link href="/schools">
-                          <Button className="bg-cosmic-purple hover:bg-purple-600">
-                            Book Now
-                          </Button>
-                        </Link>
-                      </div>
-                    </GlassMorphism>
-                  </div>
-                </CarouselItem>
-
-                <CarouselItem className="pl-2 md:pl-4 basis-4/5 md:basis-3/5 lg:basis-2/5">
-                  <div className="p-1">
-                    <GlassMorphism className="p-6 hover:bg-white/20 transition-all duration-300 group h-full">
-                      <div className="text-center">
-                        <Microscope className="w-12 h-12 text-cosmic-green mb-4 mx-auto group-hover:scale-110 transition-transform" />
-                        <h3 className="text-xl font-semibold mb-2">Enroll in Labs</h3>
-                        <p className="text-space-300 mb-4">Access real-time research labs and hands-on experiments</p>
-                        <Button className="bg-cosmic-green hover:bg-green-600 opacity-60" disabled>
-                          Coming April 2025
+                      <Link href="/workshops">
+                        <Button className="w-full bg-cosmic-blue hover:bg-blue-600 mt-auto">
+                          Browse Workshops
                         </Button>
+                      </Link>
+                    </GlassMorphism>
+                  </div>
+                </CarouselItem>
+
+                <CarouselItem className="pl-2 md:pl-4 basis-[85%] md:basis-1/2 lg:basis-1/3">
+                  <div className="p-1 h-full">
+                    <GlassMorphism className="p-6 hover:bg-white/20 transition-all duration-300 group h-full flex flex-col justify-between min-h-[250px] rounded-2xl">
+                      <div className="text-center">
+                        <School className="w-10 h-10 md:w-12 md:h-12 text-cosmic-purple mb-4 mx-auto group-hover:scale-110 transition-transform" />
+                        <h3 className="text-lg md:text-xl font-semibold mb-2">Book School Workshop</h3>
+                        <p className="text-sm md:text-base text-space-300 mb-4">Bring Zoonigia's expertise directly to your institution</p>
                       </div>
+                      <Link href="/schools">
+                        <Button className="w-full bg-cosmic-purple hover:bg-purple-600 mt-auto">
+                          Book Now
+                        </Button>
+                      </Link>
+                    </GlassMorphism>
+                  </div>
+                </CarouselItem>
+
+                <CarouselItem className="pl-2 md:pl-4 basis-[85%] md:basis-1/2 lg:basis-1/3">
+                  <div className="p-1 h-full">
+                    <GlassMorphism className="p-6 hover:bg-white/20 transition-all duration-300 group h-full flex flex-col justify-between min-h-[250px] rounded-2xl">
+                      <div className="text-center">
+                        <Microscope className="w-10 h-10 md:w-12 md:h-12 text-cosmic-green mb-4 mx-auto group-hover:scale-110 transition-transform" />
+                        <h3 className="text-lg md:text-xl font-semibold mb-2">Enroll in Labs</h3>
+                        <p className="text-sm md:text-base text-space-300 mb-4">Access real-time research labs and hands-on experiments</p>
+                      </div>
+                      <Button className="w-full bg-cosmic-green hover:bg-green-600 opacity-60 mt-auto" disabled>
+                        Coming April 2025
+                      </Button>
                     </GlassMorphism>
                   </div>
                 </CarouselItem>
@@ -603,110 +571,112 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Featured Courses */}
-      <section className="py-20 bg-space-800/30">
+      {/* Featured Courses - NOW A CAROUSEL */}
+      <section className="py-12 md:py-20 bg-space-800/30">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-space font-bold text-center mb-12">Featured Courses</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {courses && Array.isArray(courses) && courses.slice(0, 3).map((course: any, index: number) => {
-              // Icons for different course fields
-              const getFieldIcon = (field: string) => {
-                switch (field?.toLowerCase()) {
-                  case 'astronomy':
-                    return <Telescope className="w-5 h-5 text-cosmic-blue mr-2" />;
-                  case 'robotics':
-                    return <Headphones className="w-5 h-5 text-cosmic-purple mr-2" />;
-                  case 'astrophysics':
-                    return <Atom className="w-5 h-5 text-cosmic-green mr-2" />;
-                  case 'space-technology':
-                    return <Rocket className="w-5 h-5 text-cosmic-orange mr-2" />;
-                  default:
-                    return <Star className="w-5 h-5 text-cosmic-blue mr-2" />;
-                }
-              };
+          <h2 className="text-3xl md:text-4xl font-space font-bold text-center mb-8 md:mb-12">Featured Courses</h2>
+          <div className="max-w-6xl mx-auto">
+            <Carousel
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+              className="w-full"
+            >
+              <CarouselContent className="-ml-2 md:-ml-4">
+                {courses && Array.isArray(courses) && courses.slice(0, 3).map((course: any, index: number) => {
+                  const getFieldIcon = (field: string) => {
+                    switch (field?.toLowerCase()) {
+                      case 'astronomy': return <Telescope className="w-5 h-5 text-cosmic-blue mr-2" />;
+                      case 'robotics': return <Headphones className="w-5 h-5 text-cosmic-purple mr-2" />;
+                      case 'astrophysics': return <Atom className="w-5 h-5 text-cosmic-green mr-2" />;
+                      case 'space-technology': return <Rocket className="w-5 h-5 text-cosmic-orange mr-2" />;
+                      default: return <Star className="w-5 h-5 text-cosmic-blue mr-2" />;
+                    }
+                  };
 
-              // Color theme for each course
-              const getFieldColor = (field: string) => {
-                switch (field?.toLowerCase()) {
-                  case 'astronomy':
-                    return { color: 'cosmic-blue', bg: 'bg-cosmic-blue', hover: 'hover:bg-blue-600' };
-                  case 'robotics':
-                    return { color: 'cosmic-purple', bg: 'bg-cosmic-purple', hover: 'hover:bg-purple-600' };
-                  case 'astrophysics':
-                    return { color: 'cosmic-green', bg: 'bg-cosmic-green', hover: 'hover:bg-green-600' };
-                  case 'space-technology':
-                    return { color: 'cosmic-orange', bg: 'bg-cosmic-orange', hover: 'hover:bg-orange-600' };
-                  default:
-                    return { color: 'cosmic-blue', bg: 'bg-cosmic-blue', hover: 'hover:bg-blue-600' };
-                }
-              };
+                  const getFieldColor = (field: string) => {
+                    switch (field?.toLowerCase()) {
+                      case 'astronomy': return { color: 'cosmic-blue', bg: 'bg-cosmic-blue', hover: 'hover:bg-blue-600' };
+                      case 'robotics': return { color: 'cosmic-purple', bg: 'bg-cosmic-purple', hover: 'hover:bg-purple-600' };
+                      case 'astrophysics': return { color: 'cosmic-green', bg: 'bg-cosmic-green', hover: 'hover:bg-green-600' };
+                      case 'space-technology': return { color: 'cosmic-orange', bg: 'bg-cosmic-orange', hover: 'hover:bg-orange-600' };
+                      default: return { color: 'cosmic-blue', bg: 'bg-cosmic-blue', hover: 'hover:bg-blue-600' };
+                    }
+                  };
 
-              const fieldColor = getFieldColor(course.field);
-              // Fallback images if course doesn't have imageUrl
-              const fallbackImages = [
-                'https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400',
-                'https://images.unsplash.com/photo-1593508512255-86ab42a8e620?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400',
-                'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400',
-                'https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400'
-              ];
-              const courseImage = course.imageUrl || fallbackImages[index] || fallbackImages[0];
+                  const fieldColor = getFieldColor(course.field);
+                  const fallbackImages = [
+                    'https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400',
+                    'https://images.unsplash.com/photo-1593508512255-86ab42a8e620?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400',
+                    'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400',
+                    'https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400'
+                  ];
+                  const courseImage = course.imageUrl || fallbackImages[index] || fallbackImages[0];
 
-              return (
-                <Card key={course.id} className="bg-space-800/50 border-space-700 hover:scale-105 transition-transform">
-                  <div className="relative">
-                    <img
-                      src={courseImage}
-                      alt={`${course.title} course`}
-                      className="w-full h-48 object-cover rounded-t-lg"
-                    />
-                    {index === 0 && (
-                      <div className={`absolute top-4 right-4 bg-cosmic-blue px-3 py-1 rounded-full text-sm font-semibold`}>
-                        Popular
-                      </div>
-                    )}
-                  </div>
-                  <CardContent className="p-6">
-                    <div className="flex items-center mb-2">
-                      {getFieldIcon(course.field)}
-                      <h3 className="text-xl font-semibold">{course.title}</h3>
-                    </div>
-                    <p className="text-space-300 mb-4">{course.description}</p>
-                    <div className="flex items-center justify-between mb-4">
-                      <span className={`text-sm text-${fieldColor.color}`}>₹{course.price}</span>
-                      <span className="text-sm text-space-400">{course.duration}</span>
-                    </div>
-                    <Link href={`/courses/${course.id}`}>
-                      <Button className={`w-full ${fieldColor.bg} ${fieldColor.hover}`}>
-                        Learn More
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-              );
-            })}
+                  return (
+                    // FIX: Changed basis to 85% on mobile to show 'peek' of next card
+                    <CarouselItem key={course.id} className="pl-2 md:pl-4 basis-[85%] md:basis-1/2 lg:basis-1/3">
+                      <Card className="bg-space-800/50 border-space-700 hover:scale-105 transition-transform overflow-hidden rounded-xl h-full">
+                        <div className="relative h-48">
+                          <img
+                            src={courseImage}
+                            alt={`${course.title} course`}
+                            className="w-full h-full object-cover"
+                          />
+                          {index === 0 && (
+                            <div className={`absolute top-4 right-4 bg-cosmic-blue px-3 py-1 rounded-full text-xs md:text-sm font-semibold text-white`}>
+                              Popular
+                            </div>
+                          )}
+                        </div>
+                        <CardContent className="p-5 md:p-6 flex flex-col h-full min-h-[220px]">
+                          <div className="flex items-center mb-3">
+                            {getFieldIcon(course.field)}
+                            <h3 className="text-lg md:text-xl font-semibold line-clamp-1">{course.title}</h3>
+                          </div>
+                          <p className="text-space-300 mb-4 text-sm md:text-base line-clamp-2">{course.description}</p>
+                          <div className="flex items-center justify-between mb-4 mt-auto">
+                            <span className={`text-sm md:text-base font-medium text-${fieldColor.color}`}>₹{course.price}</span>
+                            <span className="text-xs md:text-sm text-space-400">{course.duration}</span>
+                          </div>
+                          <Link href={`/courses/${course.id}`}>
+                            <Button className={`w-full ${fieldColor.bg} ${fieldColor.hover}`}>
+                              Learn More
+                            </Button>
+                          </Link>
+                        </CardContent>
+                      </Card>
+                    </CarouselItem>
+                  );
+                })}
+              </CarouselContent>
+              <CarouselPrevious className="hidden md:flex -left-12 border-space-600 bg-space-800/80 text-space-50 hover:bg-space-700" />
+              <CarouselNext className="hidden md:flex -right-12 border-space-600 bg-space-800/80 text-space-50 hover:bg-space-700" />
+            </Carousel>
           </div>
-
         </div>
       </section>
+
       {/* CTA Section */}
-      <section className="py-20">
+      <section className="py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
-            <h2 className="text-4xl font-space font-bold mb-6">Ready to Explore the Universe?</h2>
-            <p className="text-xl text-space-200 mb-8">
+            <h2 className="text-3xl md:text-4xl font-space font-bold mb-6">Ready to Explore the Universe?</h2>
+            <p className="text-lg md:text-xl text-space-200 mb-8 px-2">
               Join thousands of students and educators who are already discovering the wonders of science with Zoonigia.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center px-6">
               {!isAuthenticated && (
                 <Button
                   variant="holographic"
-                  className="px-8 py-6 text-lg font-space tracking-wide"
+                  className="w-full sm:w-auto px-8 py-6 text-lg font-space tracking-wide"
                   onClick={async () => {
                     try {
                       const { signInWithGoogle } = await import("@/lib/googleAuth");
                       await signInWithGoogle();
                     } catch (error) {
-                      // Sign in failed - user will see Firebase error modal
+                      // Handle error
                     }
                   }}
                 >
@@ -714,7 +684,7 @@ const Home = () => {
                 </Button>
               )}
               <Link href="/workshops">
-                <Button variant="outline" className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900 px-8 py-4 text-lg">
+                <Button variant="outline" className="w-full sm:w-auto border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900 px-8 py-6 text-lg">
                   View All Workshops
                 </Button>
               </Link>
@@ -722,8 +692,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 };

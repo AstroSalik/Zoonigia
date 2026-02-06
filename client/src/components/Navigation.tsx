@@ -7,7 +7,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Menu, LogOut, User as UserIcon, Shield, LayoutDashboard, Trophy, Sparkles } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { signInWithGoogle, signOutUser } from "@/lib/googleAuth";
-import { User } from "@shared/schema";
 
 const Navigation = () => {
   const [location, navigate] = useLocation();
@@ -34,10 +33,14 @@ const Navigation = () => {
   ];
 
   const isActive = (href: string) => {
-    if (href === "/") {
-      return location === "/";
-    }
+    if (href === "/") return location === "/";
     return location.startsWith(href);
+  };
+
+  const handleMobileNav = (path: string) => {
+    isNavigatingRef.current = true;
+    setIsOpen(false);
+    navigate(path);
   };
 
   return (
@@ -45,33 +48,32 @@ const Navigation = () => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <Link href="/" className="flex items-center hover:opacity-90 transition-opacity group">
-            <img 
-              src="/zoonigia-logo.svg" 
-              alt="Zoonigia Logo" 
+            <img
+              src="/zoonigia-logo.svg"
+              alt="Zoonigia Logo"
               className="h-10 w-auto brightness-110 contrast-110 drop-shadow-[0_0_10px_rgba(59,130,246,0.5)] group-hover:drop-shadow-[0_0_15px_rgba(59,130,246,0.7)] transition-all duration-300"
             />
           </Link>
-          
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6">
+
+          {/* Desktop Navigation - Changed from md:flex to xl:flex to prevent cutting off on tablets */}
+          <div className="hidden xl:flex items-center space-x-6">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`transition-colors flex items-center gap-1 ${
-                  isActive(item.href)
+                className={`transition-colors flex items-center gap-1 ${isActive(item.href)
                     ? "text-cosmic-blue"
                     : "text-space-200 hover:text-cosmic-blue"
-                }`}
+                  }`}
               >
                 {item.icon === 'sparkles' && <Sparkles className="w-4 h-4" />}
                 {item.label}
               </Link>
             ))}
           </div>
-          
-          {/* Desktop Buttons */}
-          <div className="hidden md:flex items-center space-x-4">
+
+          {/* Desktop Buttons - Changed from md:flex to xl:flex */}
+          <div className="hidden xl:flex items-center space-x-4">
             {isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -92,30 +94,30 @@ const Navigation = () => {
                     <UserIcon className="mr-2 h-4 w-4" />
                     <span>Profile</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem 
+                  <DropdownMenuItem
                     className="text-space-200 hover:text-space-50 hover:bg-space-700"
-                    onClick={() => window.location.href = '/dashboard'}
+                    onClick={() => navigate('/dashboard')}
                   >
                     <LayoutDashboard className="mr-2 h-4 w-4" />
                     <span>My Dashboard</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem 
+                  <DropdownMenuItem
                     className="text-space-200 hover:text-space-50 hover:bg-space-700"
-                    onClick={() => window.location.href = '/leaderboard'}
+                    onClick={() => navigate('/leaderboard')}
                   >
                     <Trophy className="mr-2 h-4 w-4" />
                     <span>Leaderboard</span>
                   </DropdownMenuItem>
                   {user?.isAdmin && (
-                    <DropdownMenuItem 
+                    <DropdownMenuItem
                       className="text-space-200 hover:text-space-50 hover:bg-space-700"
-                      onClick={() => window.location.href = '/admin'}
+                      onClick={() => navigate('/admin')}
                     >
                       <Shield className="mr-2 h-4 w-4" />
                       <span>Admin Dashboard</span>
                     </DropdownMenuItem>
                   )}
-                  <DropdownMenuItem 
+                  <DropdownMenuItem
                     className="text-space-200 hover:text-space-50 hover:bg-space-700"
                     onClick={() => signOutUser()}
                   >
@@ -125,14 +127,14 @@ const Navigation = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900"
                 onClick={async () => {
                   try {
                     await signInWithGoogle();
                   } catch (error) {
-                    // Sign in failed - user will see Firebase error modal
+                    // Handle error
                   }
                 }}
               >
@@ -141,45 +143,38 @@ const Navigation = () => {
             )}
           </div>
 
-          {/* Mobile Menu */}
+          {/* Mobile/Tablet Menu - Visible up to xl screens */}
           <Sheet open={isOpen} onOpenChange={(open) => {
-            if (!isNavigatingRef.current) {
-              setIsOpen(open);
-            }
+            if (!isNavigatingRef.current) setIsOpen(open);
           }}>
             <SheetTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="md:hidden"
+              <Button
+                variant="ghost"
+                size="icon"
+                className="xl:hidden"
                 onClick={() => {
-                  if (!isNavigatingRef.current) {
-                    setIsOpen(true);
-                  }
+                  if (!isNavigatingRef.current) setIsOpen(true);
                 }}
               >
                 <Menu className="w-6 h-6" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-80 bg-space-900 border-space-700">
+            <SheetContent side="right" className="w-80 bg-space-900 border-space-700 overflow-y-auto">
               <div className="flex flex-col space-y-6 mt-6">
-                <div className="flex items-center mb-8">
-                  <img 
-                    src="/zoonigia-logo.svg" 
-                    alt="Zoonigia Logo" 
-                    className="h-8 w-auto brightness-110 contrast-110 drop-shadow-[0_0_8px_rgba(59,130,246,0.4)]"
+                <div className="flex items-center mb-4">
+                  <img
+                    src="/zoonigia-logo.svg"
+                    alt="Zoonigia Logo"
+                    className="h-8 w-auto brightness-110 contrast-110"
                   />
                 </div>
-                
+
                 {navItems.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`text-lg transition-colors flex items-center gap-2 ${
-                      isActive(item.href)
-                        ? "text-cosmic-blue"
-                        : "text-space-200 hover:text-cosmic-blue"
-                    }`}
+                    className={`text-lg transition-colors flex items-center gap-2 ${isActive(item.href) ? "text-cosmic-blue" : "text-space-200"
+                      }`}
                     onClick={() => {
                       isNavigatingRef.current = true;
                       setIsOpen(false);
@@ -189,46 +184,58 @@ const Navigation = () => {
                     {item.label}
                   </Link>
                 ))}
-                
-                <div className="flex flex-col space-y-4 mt-8">
+
+                <div className="border-t border-space-700 pt-6 flex flex-col space-y-4">
                   {isAuthenticated ? (
                     <>
                       <div className="flex items-center space-x-3 p-3 bg-space-800 rounded-lg">
                         <Avatar className="h-10 w-10">
-                          <AvatarImage src={user?.profileImageUrl || ""} alt={user?.firstName || "User"} />
+                          <AvatarImage src={user?.profileImageUrl || ""} />
                           <AvatarFallback className="bg-cosmic-blue text-space-900">
-                            {user?.firstName?.[0] || user?.email?.[0]?.toUpperCase() || "U"}
+                            {user?.firstName?.[0] || "U"}
                           </AvatarFallback>
                         </Avatar>
-                        <div className="flex-1">
-                          <div className="text-space-50 font-medium">
-                            {user?.firstName && user?.lastName 
-                              ? `${user.firstName} ${user.lastName}` 
-                              : user?.email || "User"}
+                        <div className="flex-1 overflow-hidden">
+                          <div className="text-space-50 font-medium truncate">
+                            {user?.firstName || "User"}
                           </div>
-                          <div className="text-space-400 text-sm">{user?.email || ""}</div>
+                          <div className="text-space-400 text-xs truncate">{user?.email}</div>
                         </div>
                       </div>
-                      <Button 
-                        variant="outline" 
-                        className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900"
-                        onClick={() => window.location.href = '/api/logout'}
+
+                      {/* Mobile User Menu Options */}
+                      <Button variant="ghost" className="justify-start text-space-200" onClick={() => handleMobileNav('/dashboard')}>
+                        <LayoutDashboard className="mr-2 h-4 w-4" /> My Dashboard
+                      </Button>
+
+                      <Button variant="ghost" className="justify-start text-space-200" onClick={() => handleMobileNav('/leaderboard')}>
+                        <Trophy className="mr-2 h-4 w-4" /> Leaderboard
+                      </Button>
+
+                      {user?.isAdmin && (
+                        <Button variant="ghost" className="justify-start text-space-200" onClick={() => handleMobileNav('/admin')}>
+                          <Shield className="mr-2 h-4 w-4" /> Admin Dashboard
+                        </Button>
+                      )}
+
+                      <Button
+                        variant="outline"
+                        className="w-full border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900 mt-2"
+                        onClick={() => signOutUser()}
                       >
                         <LogOut className="mr-2 h-4 w-4" />
                         Log out
                       </Button>
                     </>
                   ) : (
-                    <Button 
-                      variant="outline" 
-                      className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900"
+                    <Button
+                      variant="outline"
+                      className="w-full border-cosmic-blue text-cosmic-blue"
                       onClick={async () => {
                         try {
                           await signInWithGoogle();
                           setIsOpen(false);
-                        } catch (error) {
-                          // Sign in failed - user will see Firebase error modal
-                        }
+                        } catch (error) { }
                       }}
                     >
                       Sign In

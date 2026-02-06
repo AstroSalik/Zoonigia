@@ -6,13 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { 
-  Star, 
-  Bot, 
-  Satellite, 
-  Atom, 
-  Clock, 
-  BookOpen, 
+import {
+  Star,
+  Bot,
+  Satellite,
+  Atom,
+  Clock,
+  BookOpen,
   TrendingUp,
   Search,
   Filter,
@@ -47,40 +47,36 @@ const Courses = () => {
       setIsCheckingEnrollment(true);
       const enrolled = new Set<number>();
       const progressMap = new Map<number, number>();
-      
-      // Import Firebase auth to get token
+
       try {
         const { auth } = await import('@/lib/firebase');
         const currentUser = auth.currentUser;
-        
+
         if (!currentUser) {
           setIsCheckingEnrollment(false);
           return;
         }
-        
+
         const idToken = await currentUser.getIdToken();
         const headers = { 'Authorization': `Bearer ${idToken}` };
-        
-        // Check all courses in parallel
+
         const checks = courses.map(async (course) => {
           try {
-            // Check enrollment status
             const enrollResponse = await fetch(`/api/courses/${course.id}/enrollment-status`, { headers });
             const enrollData = await enrollResponse.json();
-            
+
             if (enrollData.isEnrolled) {
               enrolled.add(course.id);
-              
-              // Get progress
+
               try {
                 const [progressResponse, lessonsResponse] = await Promise.all([
                   fetch(`/api/courses/${course.id}/progress`, { headers }),
                   fetch(`/api/courses/${course.id}/lessons`)
                 ]);
-                
+
                 const progressData = await progressResponse.json();
                 const lessons = await lessonsResponse.json();
-                
+
                 if (lessons.length > 0) {
                   const completed = progressData.filter((p: any) => p.completed).length;
                   const percentage = Math.round((completed / lessons.length) * 100);
@@ -94,9 +90,9 @@ const Courses = () => {
             console.error("Error checking enrollment:", error);
           }
         });
-        
+
         await Promise.all(checks);
-        
+
         setEnrolledCourses(enrolled);
         setCourseProgress(progressMap);
       } catch (error) {
@@ -111,53 +107,39 @@ const Courses = () => {
 
   const filteredCourses = courses?.filter((course) => {
     const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         course.description.toLowerCase().includes(searchTerm.toLowerCase());
+      course.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesField = selectedField === "all" || course.field === selectedField;
     const matchesLevel = selectedLevel === "all" || course.level === selectedLevel;
-    
+
     return matchesSearch && matchesField && matchesLevel;
   });
 
   const getCourseIcon = (field: string) => {
     switch (field) {
-      case "astronomy":
-        return <Star className="w-6 h-6" />;
-      case "robotics":
-        return <Bot className="w-6 h-6" />;
-      case "quantum":
-        return <Atom className="w-6 h-6" />;
-      case "aerospace":
-        return <Satellite className="w-6 h-6" />;
-      default:
-        return <BookOpen className="w-6 h-6" />;
+      case "astronomy": return <Star className="w-6 h-6" />;
+      case "robotics": return <Bot className="w-6 h-6" />;
+      case "quantum": return <Atom className="w-6 h-6" />;
+      case "aerospace": return <Satellite className="w-6 h-6" />;
+      default: return <BookOpen className="w-6 h-6" />;
     }
   };
 
   const getCourseColor = (field: string) => {
     switch (field) {
-      case "astronomy":
-        return "text-cosmic-blue";
-      case "robotics":
-        return "text-cosmic-purple";
-      case "quantum":
-        return "text-cosmic-orange";
-      case "aerospace":
-        return "text-cosmic-green";
-      default:
-        return "text-cosmic-blue";
+      case "astronomy": return "text-cosmic-blue";
+      case "robotics": return "text-cosmic-purple";
+      case "quantum": return "text-cosmic-orange";
+      case "aerospace": return "text-cosmic-green";
+      default: return "text-cosmic-blue";
     }
   };
 
   const getLevelColor = (level: string) => {
     switch (level) {
-      case "beginner":
-        return "bg-cosmic-green";
-      case "intermediate":
-        return "bg-cosmic-blue";
-      case "advanced":
-        return "bg-cosmic-orange";
-      default:
-        return "bg-cosmic-blue";
+      case "beginner": return "bg-cosmic-green";
+      case "intermediate": return "bg-cosmic-blue";
+      case "advanced": return "bg-cosmic-orange";
+      default: return "bg-cosmic-blue";
     }
   };
 
@@ -180,7 +162,7 @@ const Courses = () => {
   return (
     <div className="min-h-screen bg-space-900 text-space-50">
       <Navigation />
-      
+
       <div className="pt-24 pb-16">
         <div className="container mx-auto px-4">
           {/* Header */}
@@ -205,7 +187,7 @@ const Courses = () => {
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              
+
               <Select value={selectedField} onValueChange={setSelectedField}>
                 <SelectTrigger className="bg-space-700 border-space-600">
                   <SelectValue placeholder="Field" />
@@ -241,107 +223,92 @@ const Courses = () => {
           {/* Course Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {filteredCourses?.map((course) => (
-              <Card key={course.id} className="bg-space-800/50 border-space-700 hover:scale-105 transition-transform">
+              <Card key={course.id} className="bg-space-800/50 border-space-700 hover:scale-[1.02] transition-transform duration-300 flex flex-col">
                 <CardHeader>
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-start justify-between gap-4">
                     <Link href={`/courses/${course.id}`} className={`flex items-center ${getCourseColor(course.field)} hover:opacity-70 transition-opacity cursor-pointer flex-1`}>
                       {getCourseIcon(course.field)}
-                      <CardTitle className="text-2xl font-semibold ml-3">{course.title}</CardTitle>
+                      <CardTitle className="text-xl md:text-2xl font-semibold ml-3 leading-tight">{course.title}</CardTitle>
                     </Link>
-                    <Badge className={`${getLevelColor(course.level)} text-space-900`}>
+                    <Badge className={`${getLevelColor(course.level)} text-space-900 shrink-0`}>
                       {course.level}
                     </Badge>
                   </div>
                 </CardHeader>
-                
-                <CardContent>
-                  <p className="text-space-300 mb-6">{course.description}</p>
-                  
+
+                <CardContent className="flex-1 flex flex-col">
+                  <p className="text-space-300 mb-6 flex-1 line-clamp-3">{course.description}</p>
+
                   <div className="space-y-3 mb-6">
                     <div className="flex items-center text-sm text-space-400">
                       <Clock className="w-4 h-4 mr-2" />
                       Duration: {course.duration}
                     </div>
-                    
+
                     <div className="flex items-center text-sm text-space-400">
                       <BookOpen className="w-4 h-4 mr-2" />
                       Field: {course.field}
                     </div>
-                    
+
                     <div className="flex items-center text-sm text-space-400">
                       <TrendingUp className="w-4 h-4 mr-2" />
                       Level: {course.level}
                     </div>
                   </div>
-                  
-                  <div className="flex items-center justify-between">
+
+                  {/* --- FIX START: Responsive Footer --- */}
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pt-4 border-t border-space-700/50">
+
+                    {/* Price Section */}
                     <div className="flex flex-col">
                       {course.status === 'upcoming' ? (
                         <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/50 w-fit">
                           Coming Soon
                         </Badge>
                       ) : (
-                        <span className="text-3xl font-bold text-cosmic-blue">
+                        <span className="text-2xl md:text-3xl font-bold text-cosmic-blue">
                           ₹{course.price}
                         </span>
                       )}
                     </div>
-                    <div className="flex gap-2">
-                      <Link href={`/courses/${course.id}`}>
-                        <Button variant="outline" className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900">
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-3 w-full md:w-auto">
+                      <Link href={`/courses/${course.id}`} className="flex-1 md:flex-none">
+                        <Button variant="outline" className="w-full border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900">
                           View Details
-                          <ArrowRight className="w-4 h-4 ml-2" />
+                          <ArrowRight className="w-4 h-4 ml-2 hidden md:block" />
                         </Button>
                       </Link>
+
                       {isCheckingEnrollment ? (
-                        <div className="flex items-center gap-2 px-6 py-2 bg-gray-200/50 rounded-lg animate-pulse">
-                          <div className="w-20 h-4 bg-gray-300 rounded" />
-                        </div>
+                        <div className="flex-1 md:flex-none px-6 py-2 bg-gray-200/50 rounded-lg animate-pulse h-10 w-full" />
                       ) : enrolledCourses.has(course.id) ? (
-                        <div className="flex flex-col gap-2 min-w-[150px]">
-                          <div className="bg-cosmic-green/20 border border-cosmic-green rounded-lg px-4 py-2 flex items-center gap-2">
+                        <div className="flex-1 md:min-w-[150px]">
+                          <div className="bg-cosmic-green/20 border border-cosmic-green rounded-lg px-3 py-2 flex items-center justify-center gap-2 h-10">
                             <CheckCircle className="w-4 h-4 text-cosmic-green" />
-                            <span className="text-cosmic-green font-semibold">Enrolled</span>
+                            <span className="text-cosmic-green font-semibold text-sm">Enrolled</span>
                           </div>
-                          {courseProgress.has(course.id) && courseProgress.get(course.id)! > 0 && (
-                            <div className="px-2">
-                              <div className="flex justify-between text-xs text-space-300 mb-1">
-                                <span>Progress</span>
-                                <span>{courseProgress.get(course.id)}%</span>
-                              </div>
-                              <div className="h-1.5 bg-space-700 rounded-full overflow-hidden">
-                                <div 
-                                  className="h-full bg-gradient-to-r from-cosmic-blue to-cosmic-purple transition-all duration-300"
-                                  style={{ width: `${courseProgress.get(course.id)}%` }}
-                                />
-                              </div>
-                            </div>
-                          )}
                         </div>
                       ) : course.status === 'upcoming' ? (
-                        <Button 
+                        <Button
                           disabled
-                          className="bg-gray-600 text-gray-400 cursor-not-allowed px-6"
+                          className="flex-1 md:flex-none bg-gray-600 text-gray-400 cursor-not-allowed w-full"
                         >
                           Coming Soon
                         </Button>
-                      ) : course.status === 'accepting_registrations' ? (
-                        <Button 
-                          className="cosmic-gradient hover:opacity-90 px-6"
-                          onClick={() => setLocation(`/courses/${course.id}`)}
-                        >
-                          Register Now
-                        </Button>
                       ) : (
-                        <Button 
-                          className="cosmic-gradient hover:opacity-90 px-6"
+                        <Button
+                          className="flex-1 md:flex-none cosmic-gradient hover:opacity-90 w-full"
                           onClick={() => setLocation(`/courses/${course.id}`)}
                         >
-                          Enroll Now
+                          {course.status === 'accepting_registrations' ? 'Register' : 'Enroll Now'}
                         </Button>
                       )}
                     </div>
                   </div>
+                  {/* --- FIX END --- */}
+
                 </CardContent>
               </Card>
             ))}
@@ -377,7 +344,7 @@ const Courses = () => {
                   </p>
                 </div>
               </GlassMorphism>
-              
+
               <GlassMorphism className="p-8">
                 <div className="flex flex-col items-center text-center">
                   <div className="w-20 h-20 rounded-full cosmic-gradient flex items-center justify-center mb-6">
@@ -389,7 +356,7 @@ const Courses = () => {
                   </p>
                 </div>
               </GlassMorphism>
-              
+
               <GlassMorphism className="p-8">
                 <div className="flex flex-col items-center text-center">
                   <div className="w-20 h-20 rounded-full cosmic-gradient flex items-center justify-center mb-6">
@@ -412,14 +379,14 @@ const Courses = () => {
                 Join thousands of students who are already advancing their careers with our comprehensive courses
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button 
+                <Button
                   className="cosmic-gradient hover:opacity-90 px-8"
                   onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                 >
                   View All Courses
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900 px-8"
                   onClick={() => setLocation('/contact')}
                 >

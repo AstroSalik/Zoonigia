@@ -3,12 +3,13 @@ import { useLocation } from 'wouter';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Sparkles, 
-  Send, 
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Sparkles,
+  Send,
   Loader2,
   BookOpen,
   LayoutDashboard,
@@ -19,7 +20,11 @@ import {
   Plus,
   Trash2,
   History,
-  ArrowLeft
+  ArrowLeft,
+  Menu,
+  Bot,
+  User,
+  ChevronRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -45,35 +50,58 @@ interface ChatSession {
 
 const STORAGE_KEY = 'nova_chat_history';
 
+// --- Helper Component: Markdown Renderer (Lite Version) ---
+// Renders basic markdown (bold, italic, code) without heavy libraries
+const MarkdownText = ({ content }: { content: string }) => {
+  if (!content) return null;
+
+  // Split by code blocks first
+  const parts = content.split(/(```[\s\S]*?```)/g);
+
+  return (
+    <div className="space-y-2">
+      {parts.map((part, index) => {
+        if (part.startsWith('```') && part.endsWith('```')) {
+          // Render Code Block
+          const codeContent = part.slice(3, -3).replace(/^.*\n/, ''); // Remove language tag if present
+          return (
+            <div key={index} className="bg-slate-950 rounded-lg p-3 my-2 overflow-x-auto border border-purple-500/20">
+              <pre className="text-xs md:text-sm font-mono text-purple-200 font-normal">{codeContent}</pre>
+            </div>
+          );
+        }
+
+        // Render Regular Text with Bold/Italic support
+        return (
+          <p key={index} className="leading-relaxed whitespace-pre-wrap">
+            {part.split(/(\*\*.*?\*\*|\*.*?\*)/g).map((subPart, i) => {
+              if (subPart.startsWith('**') && subPart.endsWith('**')) {
+                return <strong key={i} className="font-bold text-purple-200">{subPart.slice(2, -2)}</strong>;
+              }
+              if (subPart.startsWith('*') && subPart.endsWith('*')) {
+                return <em key={i} className="italic text-purple-300">{subPart.slice(1, -1)}</em>;
+              }
+              return subPart;
+            })}
+          </p>
+        );
+      })}
+    </div>
+  );
+};
+
 export default function NovaChat() {
   const [currentSession, setCurrentSession] = useState<string | null>(null);
   const [sessions, setSessions] = useState<ChatSession[]>([]);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: 'welcome',
-      role: 'nova',
-      content: 'Greetings, explorer 🌠 — I\'m Nova Sirius, your celestial guide through Zoonigia. Ask me anything, or let me help you navigate your journey among the stars!',
-      timestamp: new Date(),
-      suggestions: [
-        'Show me courses',
-        'Take me to workshops',
-        'What\'s on my dashboard?',
-        'Explain dark matter'
-      ],
-      actions: [
-        { label: 'Explore Courses', action: 'navigate:/courses', icon: <BookOpen className="w-4 h-4" /> },
-        { label: 'My Dashboard', action: 'navigate:/dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
-        { label: 'Leaderboard', action: 'navigate:/leaderboard', icon: <Trophy className="w-4 h-4" /> }
-      ]
-    }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const [, navigate] = useLocation();
   const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Restore icon components for actions
   const restoreMessageIcons = (message: any): Message => {
@@ -81,29 +109,19 @@ export default function NovaChat() {
       ...message,
       timestamp: new Date(message.timestamp),
       actions: message.actions?.map((action: any) => {
-        // Restore icon based on action type or label
         let icon: React.ReactNode;
-        if (action.action.includes('courses')) {
-          icon = <BookOpen className="w-4 h-4" />;
-        } else if (action.action.includes('dashboard')) {
-          icon = <LayoutDashboard className="w-4 h-4" />;
-        } else if (action.action.includes('leaderboard')) {
-          icon = <Trophy className="w-4 h-4" />;
-        } else if (action.action.includes('workshops')) {
-          icon = <GraduationCap className="w-4 h-4" />;
-        } else {
-          icon = <BookOpen className="w-4 h-4" />; // Default icon
-        }
-        return {
-          ...action,
-          icon
-        };
+        if (action.action.includes('courses')) icon = <BookOpen className="w-4 h-4" />;
+        else if (action.action.includes('dashboard')) icon = <LayoutDashboard className="w-4 h-4" />;
+        else if (action.action.includes('leaderboard')) icon = <Trophy className="w-4 h-4" />;
+        else if (action.action.includes('workshops')) icon = <GraduationCap className="w-4 h-4" />;
+        else icon = <BookOpen className="w-4 h-4" />;
+        return { ...action, icon };
       })
     };
     return restoredMessage;
   };
 
-  // Load chat history from localStorage
+  // Load chat history
   useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -115,10 +133,9 @@ export default function NovaChat() {
           messages: s.messages.map(restoreMessageIcons)
         }));
         setSessions(parsedSessions);
-        
-        // Restore the most recent session if available
+
         if (parsedSessions.length > 0) {
-          const mostRecent = parsedSessions.sort((a, b) => 
+          const mostRecent = parsedSessions.sort((a, b) =>
             new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
           )[0];
           setCurrentSession(mostRecent.id);
@@ -130,7 +147,7 @@ export default function NovaChat() {
     }
   }, []);
 
-  // Clean message data before saving (remove React components)
+  // Clean data for storage
   const cleanMessageForStorage = (message: Message): any => {
     return {
       id: message.id,
@@ -138,19 +155,16 @@ export default function NovaChat() {
       content: message.content,
       timestamp: message.timestamp.toISOString(),
       suggestions: message.suggestions,
-      // Actions should only store serializable data, not React components
       actions: message.actions?.map(action => ({
         label: action.label,
         action: action.action,
-        icon: typeof action.icon === 'string' ? action.icon : undefined // Only save string icons
+        icon: typeof action.icon === 'string' ? action.icon : undefined
       }))
     };
   };
 
-  // Save chat history to localStorage
   const saveHistory = (sessionsToSave: ChatSession[]) => {
     try {
-      // Clean all messages before saving to avoid circular references
       const cleanedSessions = sessionsToSave.map(session => ({
         ...session,
         createdAt: session.createdAt.toISOString(),
@@ -164,8 +178,6 @@ export default function NovaChat() {
   };
 
   const scrollToBottom = () => {
-    // Only scroll within the chat area, not the whole page
-    // Find the ScrollArea viewport in the messages area
     const messagesArea = document.querySelector('[data-radix-scroll-area-viewport]');
     if (messagesArea) {
       setTimeout(() => {
@@ -174,31 +186,28 @@ export default function NovaChat() {
     }
   };
 
-  // Track if we should auto-scroll (only after user sends a message)
   const [shouldAutoScroll, setShouldAutoScroll] = useState(false);
 
   useEffect(() => {
-    // Only auto-scroll if user just sent a message (not on initial load)
     if (shouldAutoScroll && messages.length > 0) {
       scrollToBottom();
       setShouldAutoScroll(false);
     }
   }, [messages, shouldAutoScroll]);
 
+  // Adjust textarea height automatically
   useEffect(() => {
     if (inputRef.current) {
-      inputRef.current.focus();
+      inputRef.current.style.height = 'auto';
+      inputRef.current.style.height = `${Math.min(inputRef.current.scrollHeight, 120)}px`;
     }
-  }, []);
+  }, [input]);
 
   const handleTaskAction = async (action: string) => {
     if (action.startsWith('navigate:')) {
       const path = action.replace('navigate:', '');
       navigate(path);
-      toast({
-        title: 'Navigating...',
-        description: `Taking you to ${path}`,
-      });
+      toast({ title: 'Navigating...', description: `Taking you to ${path}` });
     } else if (action.startsWith('suggest:')) {
       const query = action.replace('suggest:', '');
       setInput(query);
@@ -209,9 +218,6 @@ export default function NovaChat() {
   const handleSendMessage = async (messageText?: string) => {
     const text = messageText || input.trim();
     if (!text) return;
-
-    // Check if this is a navigation-only command (don't create chat for these)
-    const isNavigationOnly = /^(take me to|go to|show me|open|navigate to)\s+(courses?|workshops?|campaigns?|dashboard|leaderboard|blog)/i.test(text);
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -225,49 +231,45 @@ export default function NovaChat() {
     setInput('');
     setIsLoading(true);
 
-    // Auto-create chat session if this is the first user message (not navigation-only)
-    if (!currentSession && !isNavigationOnly && messages.length === 1) {
-      // First message is welcome, so this is the first user message
+    // Reset height of textarea
+    if (inputRef.current) inputRef.current.style.height = 'auto';
+
+    // Session Management Logic
+    let newSessionId = currentSession;
+    let newSessions = [...sessions];
+
+    if (!currentSession) {
+      const titleWords = text.split(' ').slice(0, 5).join(' ');
+      const title = titleWords.length > 30 ? titleWords.slice(0, 30) + '...' : titleWords;
+
       const newSession: ChatSession = {
         id: Date.now().toString(),
-        title: text.length > 30 ? text.slice(0, 30) + '...' : text,
+        title: title || 'New Chat',
         messages: updatedMessages,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
-      const updatedSessions = [newSession, ...sessions];
-      setSessions(updatedSessions);
-      setCurrentSession(newSession.id);
-      saveHistory(updatedSessions);
-    } else if (currentSession) {
-      // Update existing session
-      const updatedSessions = sessions.map(s => 
-        s.id === currentSession 
+      newSessions = [newSession, ...sessions];
+      newSessionId = newSession.id;
+      setCurrentSession(newSessionId);
+    } else {
+      newSessions = sessions.map(s =>
+        s.id === currentSession
           ? { ...s, messages: updatedMessages, updatedAt: new Date() }
           : s
       );
-      setSessions(updatedSessions);
-      saveHistory(updatedSessions);
     }
+    setSessions(newSessions);
+    saveHistory(newSessions);
 
     try {
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-      };
-      
-      if (user?.id) {
-        headers['x-user-id'] = user.id;
-      }
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (user?.id) headers['x-user-id'] = user.id;
 
-      // Filter history to only include user-assistant pairs (exclude welcome message)
-      // Gemini requires history to start with a user message
-      const conversationHistory = messages
-        .filter(m => m.id !== 'welcome') // Remove welcome message
-        .slice(-10) // Last 10 messages
-        .map(m => ({
-          role: m.role,
-          content: m.content,
-        }));
+      const conversationHistory = messages.slice(-10).map(m => ({
+        role: m.role,
+        content: m.content,
+      }));
 
       const response = await fetch('/api/nova', {
         method: 'POST',
@@ -280,15 +282,11 @@ export default function NovaChat() {
         }),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to get response from Nova');
-      }
+      if (!response.ok) throw new Error('Failed to get response');
 
       const data = await response.json();
 
-      if (data.action) {
-        await handleTaskAction(data.action);
-      }
+      if (data.action) await handleTaskAction(data.action);
 
       const novaMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -299,77 +297,27 @@ export default function NovaChat() {
         actions: data.actions?.map((a: any) => ({
           label: a.label,
           action: a.action,
-          icon: a.icon ? (
-            a.icon === 'courses' ? <BookOpen className="w-4 h-4" /> :
-            a.icon === 'dashboard' ? <LayoutDashboard className="w-4 h-4" /> :
-            a.icon === 'leaderboard' ? <Trophy className="w-4 h-4" /> :
-            a.icon === 'workshops' ? <GraduationCap className="w-4 h-4" /> :
-            a.icon === 'campaigns' ? <Rocket className="w-4 h-4" /> :
-            <MessageCircle className="w-4 h-4" />
-          ) : undefined,
+          icon: a.icon === 'courses' ? <BookOpen className="w-4 h-4" /> :
+            a.icon === 'dashboard' ? <LayoutDashboard className="w-4 h-4" /> : <BookOpen className="w-4 h-4" />
         })),
       };
 
       const finalMessages = [...updatedMessages, novaMessage];
       setMessages(finalMessages);
-      setShouldAutoScroll(true); // Enable auto-scroll after user sends message
+      setShouldAutoScroll(true);
 
-      // Update session if it exists, or create one if this is not navigation-only
-      const isNavigationOnly = /^(take me to|go to|show me|open|navigate to)\s+(courses?|workshops?|campaigns?|dashboard|leaderboard|blog)/i.test(text);
-      
-      if (!currentSession && !isNavigationOnly) {
-        // Auto-create chat session for first real conversation
-        // Use the first few words of the user's question as title
-        const titleWords = text.split(' ').slice(0, 5).join(' ');
-        const title = titleWords.length > 30 ? titleWords.slice(0, 30) + '...' : titleWords + (text.split(' ').length > 5 ? '...' : '');
-        
-        const newSession: ChatSession = {
-          id: Date.now().toString(),
-          title: title || 'New Chat',
-          messages: finalMessages,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        };
-        const updatedSessions = [newSession, ...sessions];
-        setSessions(updatedSessions);
-        setCurrentSession(newSession.id);
-        saveHistory(updatedSessions);
-      } else if (currentSession) {
-        const updatedSessions = sessions.map(s => 
-          s.id === currentSession 
-            ? { ...s, messages: finalMessages, updatedAt: new Date() }
-            : s
-        );
-        setSessions(updatedSessions);
-        saveHistory(updatedSessions);
-      }
+      // Update session with AI response
+      const finalSessions = newSessions.map(s =>
+        s.id === newSessionId
+          ? { ...s, messages: finalMessages, updatedAt: new Date() }
+          : s
+      );
+      setSessions(finalSessions);
+      saveHistory(finalSessions);
+
     } catch (error) {
-      console.error('Error communicating with Nova:', error);
-      const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: 'nova',
-        content: 'I apologize, but I\'m experiencing some cosmic interference. Please try again in a moment.',
-        timestamp: new Date(),
-      };
-      const finalMessages = [...updatedMessages, errorMessage];
-      setMessages(finalMessages);
-      
-      // Update session if it exists
-      if (currentSession) {
-        const updatedSessions = sessions.map(s => 
-          s.id === currentSession 
-            ? { ...s, messages: finalMessages, updatedAt: new Date() }
-            : s
-        );
-        setSessions(updatedSessions);
-        saveHistory(updatedSessions);
-      }
-      
-      toast({
-        title: 'Connection Error',
-        description: 'Failed to communicate with Nova Sirius',
-        variant: 'destructive',
-      });
+      console.error('Error:', error);
+      toast({ title: 'Connection Error', description: 'Failed to reach Nova.', variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
@@ -383,60 +331,18 @@ export default function NovaChat() {
   };
 
   const handleNewChat = () => {
-    const newSession: ChatSession = {
-      id: Date.now().toString(),
-      title: 'New Chat',
-      messages: [
-        {
-          id: 'welcome',
-          role: 'nova',
-          content: 'Greetings, explorer 🌠 — I\'m Nova Sirius, your celestial guide through Zoonigia. Ask me anything, or let me help you navigate your journey among the stars!',
-          timestamp: new Date(),
-          suggestions: [
-            'Show me courses',
-            'Take me to workshops',
-            'What\'s on my dashboard?',
-            'Explain dark matter'
-          ],
-          actions: [
-            { label: 'Explore Courses', action: 'navigate:/courses', icon: <BookOpen className="w-4 h-4" /> },
-            { label: 'My Dashboard', action: 'navigate:/dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
-            { label: 'Leaderboard', action: 'navigate:/leaderboard', icon: <Trophy className="w-4 h-4" /> }
-          ]
-        }
-      ],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
-    const updatedSessions = [newSession, ...sessions];
-    setSessions(updatedSessions);
-    setCurrentSession(newSession.id);
-    setMessages(newSession.messages);
-    saveHistory(updatedSessions);
-    toast({
-      title: 'New Chat Started',
-      description: 'A fresh conversation with Nova',
-    });
+    setMobileMenuOpen(false);
+    setCurrentSession(null);
+    setMessages([]);
+    if (inputRef.current) inputRef.current.focus();
   };
 
   const handleLoadSession = (sessionId: string) => {
+    setMobileMenuOpen(false);
     const session = sessions.find(s => s.id === sessionId);
     if (session) {
       setCurrentSession(sessionId);
       setMessages(session.messages);
-      // Update session title if it's "New Chat" and has user messages
-      if (session.title === 'New Chat' && session.messages.length > 1) {
-        const firstUserMessage = session.messages.find(m => m.role === 'user');
-        if (firstUserMessage) {
-          const newTitle = firstUserMessage.content.slice(0, 30) + (firstUserMessage.content.length > 30 ? '...' : '');
-          const updatedSessions = sessions.map(s =>
-            s.id === sessionId ? { ...s, title: newTitle } : s
-          );
-          setSessions(updatedSessions);
-          saveHistory(updatedSessions);
-        }
-      }
     }
   };
 
@@ -444,308 +350,280 @@ export default function NovaChat() {
     const updatedSessions = sessions.filter(s => s.id !== sessionId);
     setSessions(updatedSessions);
     saveHistory(updatedSessions);
-    
     if (currentSession === sessionId) {
-      if (updatedSessions.length > 0) {
-        handleLoadSession(updatedSessions[0].id);
-      } else {
-        handleNewChat();
-      }
+      handleNewChat();
     }
-    
-    toast({
-      title: 'Chat Deleted',
-      description: 'The chat session has been removed',
-    });
   };
 
-  const handleClearHistory = () => {
-    setSessions([]);
-    setCurrentSession(null);
-    setMessages([
-      {
-        id: 'welcome',
-        role: 'nova',
-        content: 'Greetings, explorer 🌠 — I\'m Nova Sirius, your celestial guide through Zoonigia. Ask me anything, or let me help you navigate your journey among the stars!',
-        timestamp: new Date(),
-        suggestions: [
-          'Show me courses',
-          'Take me to workshops',
-          'What\'s on my dashboard?',
-          'Explain dark matter'
-        ],
-        actions: [
-          { label: 'Explore Courses', action: 'navigate:/courses', icon: <BookOpen className="w-4 h-4" /> },
-          { label: 'My Dashboard', action: 'navigate:/dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
-          { label: 'Leaderboard', action: 'navigate:/leaderboard', icon: <Trophy className="w-4 h-4" /> }
-        ]
-      }
-    ]);
-    saveHistory([]);
-    toast({
-      title: 'History Cleared',
-      description: 'All chat history has been cleared',
-    });
-  };
+  // --- UI Components ---
 
-  const quickActions = [
-    { label: 'Courses', action: 'navigate:/courses', icon: <BookOpen className="w-4 h-4" /> },
-    { label: 'Workshops', action: 'navigate:/workshops', icon: <GraduationCap className="w-4 h-4" /> },
-    { label: 'Campaigns', action: 'navigate:/campaigns', icon: <Rocket className="w-4 h-4" /> },
-    { label: 'Dashboard', action: 'navigate:/dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
-  ];
+  const SidebarContent = () => (
+    <div className="flex flex-col h-full p-2">
+      <div className="flex items-center justify-between mb-4 px-2 pt-4">
+        <div className="flex items-center gap-2">
+          <History className="w-4 h-4 text-purple-400" />
+          <h2 className="font-semibold text-white text-sm">History</h2>
+        </div>
+        <Button variant="ghost" size="icon" onClick={handleNewChat} className="h-8 w-8 text-purple-300 hover:text-white hover:bg-purple-500/20">
+          <Plus className="w-4 h-4" />
+        </Button>
+      </div>
+      <ScrollArea className="flex-1">
+        <div className="space-y-1 pr-2">
+          {sessions.length === 0 ? (
+            <div className="text-center text-xs text-purple-300/40 py-8">No history yet</div>
+          ) : (
+            sessions.map((session) => (
+              <div
+                key={session.id}
+                className={cn(
+                  'group flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors text-sm',
+                  currentSession === session.id ? 'bg-purple-500/20 border border-purple-400/50' : 'hover:bg-purple-500/10'
+                )}
+                onClick={() => handleLoadSession(session.id)}
+              >
+                <MessageCircle className="w-3 h-3 text-purple-400 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-slate-200 truncate">{session.title}</p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="opacity-0 group-hover:opacity-100 h-6 w-6 text-red-400 hover:bg-red-500/20"
+                  onClick={(e) => { e.stopPropagation(); handleDeleteSession(session.id); }}
+                >
+                  <Trash2 className="w-3 h-3" />
+                </Button>
+              </div>
+            ))
+          )}
+        </div>
+      </ScrollArea>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-space-900 via-space-800 to-space-900 pb-20">
+    <div className="min-h-screen bg-space-950 pb-0 flex flex-col">
       <Navigation />
-      <div className="container mx-auto px-4 py-6 max-w-7xl pt-24">
-        <div className="flex gap-4">
-          {/* Sidebar - Chat History */}
-          <div className="w-64 flex-shrink-0">
-            <Card className="sticky top-24 flex flex-col bg-slate-900/60 border-purple-500/30 backdrop-blur-xl" style={{ height: 'calc(100vh - 200px)' }}>
-              <CardHeader className="border-b border-purple-500/20">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-purple-400" />
-                    <h2 className="font-semibold text-white">Chat History</h2>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={handleNewChat}
-                    className="text-purple-300 hover:text-white hover:bg-purple-500/20"
-                    title="New Chat"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent className="p-2 flex flex-col flex-1 min-h-0 overflow-hidden">
-                <ScrollArea className="flex-1">
-                  <div className="space-y-1 pr-2">
-                    {sessions.length === 0 ? (
-                      <div className="text-center text-sm text-purple-300/50 py-8">
-                        No chat history yet
-                      </div>
-                    ) : (
-                      sessions.map((session) => (
-                        <div
-                          key={session.id}
-                          className={cn(
-                            'group flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors',
-                            currentSession === session.id
-                              ? 'bg-purple-500/20 border border-purple-400/50'
-                              : 'hover:bg-purple-500/10'
-                          )}
-                          onClick={() => handleLoadSession(session.id)}
-                        >
-                          <MessageCircle className="w-4 h-4 text-purple-400 flex-shrink-0" />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm text-white truncate">{session.title}</p>
-                            <p className="text-xs text-purple-300/50">
-                              {new Date(session.updatedAt).toLocaleDateString()}
-                            </p>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="opacity-0 group-hover:opacity-100 h-6 w-6 text-red-400 hover:text-red-300 hover:bg-red-500/20 flex-shrink-0"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              handleDeleteSession(session.id);
-                            }}
-                            onMouseDown={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                            }}
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </Button>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </ScrollArea>
-                {sessions.length > 0 && (
-                  <div className="pt-2 border-t border-purple-500/20 mt-auto">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleClearHistory}
-                      className="w-full text-red-400 hover:text-red-300 hover:bg-red-500/20"
-                    >
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      Clear All History
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
 
-          {/* Main Chat Area */}
-          <div className="flex-1 flex flex-col min-w-0">
-            <Card className="sticky top-24 flex flex-col bg-gradient-to-br from-slate-900/95 via-purple-900/90 to-indigo-900/95 backdrop-blur-xl border-purple-500/30 shadow-2xl" style={{ height: 'calc(100vh - 200px)' }}>
-              {/* Header */}
-              <CardHeader className="border-b border-purple-500/20 pb-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
+      <div className="flex-1 container mx-auto px-0 md:px-4 py-4 md:py-6 max-w-7xl pt-20 md:pt-24 flex gap-4 h-[100dvh]">
+
+        {/* Desktop Sidebar */}
+        <div className="hidden md:flex w-72 flex-shrink-0 flex-col mb-4">
+          <Card className="flex flex-col h-full bg-slate-900/50 border-purple-500/20 backdrop-blur-xl">
+            <SidebarContent />
+          </Card>
+        </div>
+
+        {/* Main Chat Interface */}
+        <div className="flex-1 flex flex-col min-w-0 h-full pb-2 md:pb-4">
+          <Card className="flex flex-col h-full bg-slate-900/80 border-purple-500/20 backdrop-blur-xl shadow-2xl rounded-none md:rounded-xl border-x-0 md:border-x">
+
+            {/* Chat Header */}
+            <CardHeader className="border-b border-purple-500/20 py-3 px-4 flex-shrink-0 bg-slate-900/80">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="md:hidden">
+                    <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                      <SheetTrigger asChild>
+                        <Button variant="ghost" size="icon" className="-ml-2 text-purple-300">
+                          <Menu className="w-5 h-5" />
+                        </Button>
+                      </SheetTrigger>
+                      <SheetContent side="left" className="w-72 bg-slate-900 border-purple-500/20 p-0">
+                        <SidebarContent />
+                      </SheetContent>
+                    </Sheet>
+                  </div>
+
+                  <div className="relative">
+                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-600 flex items-center justify-center shadow-lg shadow-purple-500/20">
+                      <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-white" />
+                    </div>
+                    <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-slate-900" />
+                  </div>
+
+                  <div>
+                    <h3 className="font-bold text-white text-sm md:text-base flex items-center gap-2">
+                      Nova Sirius <Badge variant="outline" className="text-[10px] h-4 px-1 border-purple-500/50 text-purple-300">AI</Badge>
+                    </h3>
+                    <p className="text-xs text-slate-400">Online • Ready to help</p>
+                  </div>
+                </div>
+
+                <Button variant="ghost" size="sm" onClick={handleNewChat} className="hidden md:flex text-purple-300 hover:bg-purple-500/10">
+                  <Plus className="w-4 h-4 mr-2" /> New Chat
+                </Button>
+              </div>
+            </CardHeader>
+
+            {/* Chat Messages Area */}
+            <ScrollArea className="flex-1 p-4">
+              <div className="space-y-6 pb-4 max-w-3xl mx-auto">
+                {messages.length === 0 ? (
+                  // Empty State / Welcome Screen
+                  <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center space-y-8 animate-in fade-in zoom-in duration-500">
                     <div className="relative">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-violet-400 to-indigo-500 flex items-center justify-center">
-                        <Sparkles className="w-7 h-7 text-white" />
+                      <div className="w-20 h-20 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-purple-500/30 mb-4 mx-auto rotate-3">
+                        <Sparkles className="w-10 h-10 text-white" />
                       </div>
-                      <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-slate-900 animate-pulse" />
+                      <div className="absolute -inset-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl blur opacity-30 -z-10" />
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-white text-lg">Nova Sirius</h3>
-                      <p className="text-sm text-purple-300">Cosmic Guide of Zoonigia</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleNewChat}
-                      className="text-purple-300 hover:text-white hover:bg-purple-500/20"
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      New Chat
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => navigate('/')}
-                      className="text-purple-300 hover:text-white hover:bg-purple-500/20"
-                    >
-                      <ArrowLeft className="w-4 h-4 mr-2" />
-                      Back
-                    </Button>
-                  </div>
-                </div>
-              </CardHeader>
 
-              {/* Messages */}
-              <ScrollArea className="flex-1 min-h-0 p-6 overflow-auto">
-                <div className="space-y-4">
-                  {messages.map((message) => (
+                    <div className="space-y-2 max-w-md">
+                      <h2 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">
+                        Hi, I'm Nova Sirius
+                      </h2>
+                      <p className="text-slate-400">
+                        I'm your personal cosmic guide. I can help you find courses, answer science questions, or navigate Zoonigia.
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-lg">
+                      {[
+                        { icon: <BookOpen className="w-4 h-4 text-blue-400" />, label: "Find robotics courses" },
+                        { icon: <Rocket className="w-4 h-4 text-orange-400" />, label: "Explain black holes" },
+                        { icon: <GraduationCap className="w-4 h-4 text-green-400" />, label: "How do I get certified?" },
+                        { icon: <Trophy className="w-4 h-4 text-yellow-400" />, label: "Show the leaderboard" },
+                      ].map((item, i) => (
+                        <button
+                          key={i}
+                          onClick={() => handleSendMessage(item.label)}
+                          className="flex items-center gap-3 p-3 text-left bg-slate-800/50 hover:bg-slate-800 border border-white/5 hover:border-purple-500/30 rounded-xl transition-all group"
+                        >
+                          <div className="p-2 bg-slate-900 rounded-lg group-hover:scale-110 transition-transform">
+                            {item.icon}
+                          </div>
+                          <span className="text-sm text-slate-300 group-hover:text-white">{item.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  // Chat Messages
+                  messages.map((message) => (
                     <div
                       key={message.id}
                       className={cn(
-                        'flex',
+                        'flex gap-3',
                         message.role === 'user' ? 'justify-end' : 'justify-start'
                       )}
                     >
-                      <div
-                        className={cn(
-                          'max-w-[80%] rounded-2xl px-4 py-2.5',
-                          message.role === 'user'
-                            ? 'bg-gradient-to-br from-purple-600 to-indigo-600 text-white'
-                            : 'bg-slate-800/60 text-slate-100 border border-purple-500/30'
+                      {message.role === 'nova' && (
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-600 flex items-center justify-center flex-shrink-0 mt-1">
+                          <Bot className="w-4 h-4 text-white" />
+                        </div>
+                      )}
+
+                      <div className={cn(
+                        'max-w-[85%] md:max-w-[75%] rounded-2xl px-4 py-3 shadow-sm',
+                        message.role === 'user'
+                          ? 'bg-purple-600 text-white rounded-tr-none'
+                          : 'bg-slate-800 border border-slate-700 text-slate-100 rounded-tl-none'
+                      )}>
+                        {/* Use Markdown Renderer for Nova */}
+                        {message.role === 'nova' ? (
+                          <div className="text-sm md:text-base">
+                            <MarkdownText content={message.content} />
+                          </div>
+                        ) : (
+                          <p className="text-sm md:text-base leading-relaxed whitespace-pre-wrap">{message.content}</p>
                         )}
-                      >
-                        <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                          {message.content}
-                        </p>
-                        
-                        {message.suggestions && message.suggestions.length > 0 && (
-                          <div className="mt-3 flex flex-wrap gap-2">
-                            {message.suggestions.map((suggestion, idx) => (
+
+                        {/* Interactive Elements (Suggestions/Actions) */}
+                        {(message.suggestions || message.actions) && (
+                          <div className="mt-4 flex flex-wrap gap-2 pt-2 border-t border-white/10">
+                            {message.suggestions?.map((suggestion, idx) => (
                               <Badge
                                 key={idx}
                                 variant="outline"
-                                className="cursor-pointer hover:bg-purple-500/20 border-purple-400/50 text-purple-200 text-xs"
+                                className="cursor-pointer hover:bg-white/10 border-white/20 text-xs py-1 transition-colors"
                                 onClick={() => handleSendMessage(suggestion)}
                               >
                                 {suggestion}
                               </Badge>
                             ))}
-                          </div>
-                        )}
-
-                        {message.actions && message.actions.length > 0 && (
-                          <div className="mt-3 flex flex-wrap gap-2">
-                            {message.actions.map((action, idx) => (
+                            {message.actions?.map((action, idx) => (
                               <Button
                                 key={idx}
-                                variant="ghost"
+                                variant="secondary"
                                 size="sm"
-                                className="text-xs bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 border border-purple-400/30"
+                                className="h-7 text-xs bg-white/10 hover:bg-white/20 text-white border-0"
                                 onClick={() => handleTaskAction(action.action)}
                               >
                                 {action.icon}
-                                <span className="ml-1">{action.label}</span>
+                                <span className="ml-1.5">{action.label}</span>
+                                <ChevronRight className="w-3 h-3 ml-1 opacity-50" />
                               </Button>
                             ))}
                           </div>
                         )}
                       </div>
+
+                      {message.role === 'user' && (
+                        <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center flex-shrink-0 mt-1">
+                          <User className="w-4 h-4 text-slate-300" />
+                        </div>
+                      )}
                     </div>
-                  ))}
-                  
-                  {isLoading && (
-                    <div className="flex justify-start">
-                      <div className="bg-slate-800/60 rounded-2xl px-4 py-2.5 border border-purple-500/30">
-                        <Loader2 className="w-4 h-4 animate-spin text-purple-400" />
-                      </div>
+                  ))
+                )}
+
+                {isLoading && (
+                  <div className="flex gap-3">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-600 flex items-center justify-center flex-shrink-0">
+                      <Bot className="w-4 h-4 text-white" />
                     </div>
+                    <div className="bg-slate-800 border border-slate-700 rounded-2xl rounded-tl-none px-4 py-3 flex items-center gap-2">
+                      <span className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <span className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <span className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                    </div>
+                  </div>
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+            </ScrollArea>
+
+            {/* Input Area */}
+            <div className="p-3 md:p-4 bg-slate-900/80 border-t border-purple-500/20 backdrop-blur-md">
+              <div className="max-w-3xl mx-auto relative flex items-end gap-2 bg-slate-800/50 border border-purple-500/30 rounded-xl p-2 focus-within:border-purple-500/60 focus-within:ring-1 focus-within:ring-purple-500/30 transition-all">
+                <Textarea
+                  ref={inputRef}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSendMessage();
+                    }
+                  }}
+                  placeholder="Ask a question about space, physics, or courses..."
+                  className="min-h-[44px] max-h-[120px] w-full resize-none border-0 bg-transparent focus-visible:ring-0 text-white placeholder:text-slate-400 py-3"
+                  rows={1}
+                />
+                <Button
+                  onClick={() => handleSendMessage()}
+                  disabled={!input.trim() || isLoading}
+                  size="icon"
+                  className={cn(
+                    "h-10 w-10 mb-0.5 transition-all duration-300",
+                    input.trim()
+                      ? "bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-500/25"
+                      : "bg-slate-700 text-slate-400"
                   )}
-                  <div ref={messagesEndRef} />
-                </div>
-              </ScrollArea>
-
-              {/* Quick Actions Bar */}
-              <div className="border-t border-purple-500/20 p-3">
-                <div className="flex gap-1 overflow-x-auto scrollbar-hide">
-                  {quickActions.map((action, idx) => (
-                    <Button
-                      key={idx}
-                      variant="ghost"
-                      size="sm"
-                      className="text-xs bg-purple-500/10 hover:bg-purple-500/20 text-purple-200 border border-purple-400/20 flex-shrink-0"
-                      onClick={() => handleTaskAction(action.action)}
-                    >
-                      {action.icon}
-                      <span className="ml-1">{action.label}</span>
-                    </Button>
-                  ))}
-                </div>
+                >
+                  {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+                </Button>
               </div>
+              <p className="text-center text-[10px] text-slate-500 mt-2">
+                Nova AI can make mistakes. Consider checking important information.
+              </p>
+            </div>
 
-              {/* Input */}
-              <div className="border-t border-purple-500/20 p-4">
-                <div className="flex gap-2">
-                  <Input
-                    id="nova-chat-input"
-                    name="nova-chat-input"
-                    ref={inputRef}
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    placeholder="Ask Nova anything..."
-                    className="bg-slate-800/60 border-purple-500/30 text-white placeholder:text-purple-300/50 focus:border-purple-400"
-                    disabled={isLoading}
-                  />
-                  <Button
-                    onClick={() => handleSendMessage()}
-                    disabled={!input.trim() || isLoading}
-                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
-                    size="icon"
-                  >
-                    {isLoading ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Send className="w-4 h-4" />
-                    )}
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          </div>
+          </Card>
         </div>
       </div>
-      <Footer />
     </div>
   );
 }
-
