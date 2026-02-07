@@ -257,10 +257,11 @@ const Courses = () => {
                   </div>
 
                   {/* --- FIX START: Responsive Footer --- */}
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pt-4 border-t border-space-700/50">
+                  {/* Switch to row ONLY on LG screens (Laptop), keep vertical on Tablet/Mobile */}
+                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pt-4 border-t border-space-700/50 flex-wrap">
 
                     {/* Price Section */}
-                    <div className="flex flex-col">
+                    <div className="flex flex-col shrink-0">
                       {course.status === 'upcoming' ? (
                         <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/50 w-fit">
                           Coming Soon
@@ -273,18 +274,21 @@ const Courses = () => {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex gap-3 w-full md:w-auto">
-                      <Link href={`/courses/${course.id}`} className="flex-1 md:flex-none">
-                        <Button variant="outline" className="w-full border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900">
+                    <div className="flex flex-wrap gap-3 w-full lg:w-auto">
+                      <Link href={`/courses/${course.id}`} className="flex-1 lg:flex-none">
+                        <Button
+                          variant="outline"
+                          className="w-full lg:w-auto border-cosmic-blue text-cosmic-blue hover:bg-cosmic-blue hover:text-space-900"
+                        >
                           View Details
-                          <ArrowRight className="w-4 h-4 ml-2 hidden md:block" />
+                          <ArrowRight className="w-4 h-4 ml-2 hidden lg:block" />
                         </Button>
                       </Link>
 
                       {isCheckingEnrollment ? (
-                        <div className="flex-1 md:flex-none px-6 py-2 bg-gray-200/50 rounded-lg animate-pulse h-10 w-full" />
+                        <div className="flex-1 lg:flex-none px-6 py-2 bg-gray-200/50 rounded-lg animate-pulse h-10 w-full lg:w-32" />
                       ) : enrolledCourses.has(course.id) ? (
-                        <div className="flex-1 md:min-w-[150px]">
+                        <div className="flex-1 lg:min-w-[150px]">
                           <div className="bg-cosmic-green/20 border border-cosmic-green rounded-lg px-3 py-2 flex items-center justify-center gap-2 h-10">
                             <CheckCircle className="w-4 h-4 text-cosmic-green" />
                             <span className="text-cosmic-green font-semibold text-sm">Enrolled</span>
@@ -293,13 +297,13 @@ const Courses = () => {
                       ) : course.status === 'upcoming' ? (
                         <Button
                           disabled
-                          className="flex-1 md:flex-none bg-gray-600 text-gray-400 cursor-not-allowed w-full"
+                          className="flex-1 lg:flex-none bg-gray-600 text-gray-400 cursor-not-allowed w-full lg:w-auto"
                         >
                           Coming Soon
                         </Button>
                       ) : (
                         <Button
-                          className="flex-1 md:flex-none cosmic-gradient hover:opacity-90 w-full"
+                          className="flex-1 lg:flex-none cosmic-gradient hover:opacity-90 w-full lg:w-auto"
                           onClick={() => setLocation(`/courses/${course.id}`)}
                         >
                           {course.status === 'accepting_registrations' ? 'Register' : 'Enroll Now'}
